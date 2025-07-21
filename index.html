@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bingo遊戲模擬器</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* 演算法選擇區域樣式 */
+        .algorithm-selector {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        
+        .algorithm-selector h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+        
+        .algorithm-options {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .algorithm-option {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #ddd;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .algorithm-option:hover {
+            border-color: #3498db;
+            background-color: #f8f9fa;
+        }
+        
+        .algorithm-option.selected {
+            border-color: #3498db;
+            background-color: #ebf5fb;
+            box-shadow: 0 2px 4px rgba(52, 152, 219, 0.2);
+        }
+        
+        .algorithm-name {
+            font-weight: bold;
+            color: #2c3e50;
+            margin-bottom: 8px;
+            font-size: 1.1rem;
+        }
+        
+        .algorithm-description {
+            color: #34495e;
+            font-size: 0.9rem;
+            line-height: 1.4;
+        }
+        
+        .algorithm-features {
+            margin-top: 10px;
+            padding-left: 20px;
+            font-size: 0.85rem;
+        }
+        
+        .algorithm-features li {
+            margin-bottom: 5px;
+            color: #34495e;
+        }
+        
+        /* 當前演算法指示器 */
+        .current-algorithm {
+            background-color: #ebf5fb;
+            padding: 8px 12px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            color: #2980b9;
+            display: inline-block;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Bingo遊戲模擬器</h1>
+            <p class="game-description">與電腦進行8輪翻牌遊戲，目標是完成最多的連線！</p>
+        </header>
+
+        <main>
+            <!-- 演算法選擇區域 -->
+            <div class="algorithm-selector">
+                <h3>選擇演算法</h3>
+                <div class="algorithm-options">
+                    <div class="algorithm-option selected" data-algorithm="standard">
+                        <div class="algorithm-name">標準演算法</div>
+                        <div class="algorithm-description">基本的機率計算，平衡考慮各種因素</div>
+                        <ul class="algorithm-features">
+                            <li>基本連線檢測</li>
+                            <li>簡單的機率計算</li>
+                            <li>中心位置獎勵</li>
+                        </ul>
+                    </div>
+                    <div class="algorithm-option" data-algorithm="enhanced">
+                        <div class="algorithm-name">增強演算法</div>
+                        <div class="algorithm-description">專注於最大化完成三條連線的機會</div>
+                        <ul class="algorithm-features">
+                            <li>交叉點優先策略</li>
+                            <li>接近完成的線優先</li>
+                            <li>戰略位置評估</li>
+                            <li>多線完成獎勵</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="current-algorithm">當前使用: <span id="current-algorithm-name">標準演算法</span></div>
+            </div>
+
+            <!-- 遊戲狀態顯示區域 -->
+            <div class="game-status">
+                <div class="status-item">
+                    <span class="label">當前輪數:</span>
+                    <span id="current-round" class="value">1</span>
+                    <span class="total">/ 8</span>
+                </div>
+                <div class="status-item">
+                    <span class="label">遊戲階段:</span>
+                    <span id="game-phase" class="value">玩家回合</span>
+                </div>
+                <div class="status-item">
+                    <span class="label">完成連線:</span>
+                    <span id="completed-lines" class="value">0</span>
+                </div>
+            </div>
+
+            <!-- 5x5遊戲網格 -->
+            <div class="game-board-container">
+                <div id="game-board" class="game-board">
+                    <!-- 動態生成5x5網格 -->
+                </div>
+                <div class="board-controls">
+                    <button id="start-game" class="primary-btn">開始遊戲</button>
+                    <button id="restart-game" class="secondary-btn" disabled>重新開始</button>
+                    <button id="random-computer-move" class="secondary-btn">電腦隨機下棋</button>
+                    <div class="auto-random-container">
+                        <input type="checkbox" id="auto-random-move" />
+                        <label for="auto-random-move">電腦自動隨機下棋</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 遊戲控制面板 -->
+            <div class="control-panel">
+                <div class="suggestion-area">
+                    <h3>建議移動</h3>
+                    <div id="suggestion-display" class="suggestion-display">
+                        <span id="suggestion-text">點擊開始遊戲獲得建議</span>
+                    </div>
+                </div>
+
+                <div class="input-area">
+                    <h3>電腦選擇輸入</h3>
+                    <div class="computer-input">
+                        <p id="computer-turn-message">電腦回合時，請直接點擊棋盤上的空格子或使用棋盤旁的隨機下棋按鈕</p>
+                    </div>
+                </div>
+
+                <!-- 控制按钮已移至棋盘旁边 -->
+                <div class="game-controls">
+                </div>
+            </div>
+
+            <!-- 操作指示區域 -->
+            <div class="instructions">
+                <h3>操作指示</h3>
+                <div id="instruction-text" class="instruction-text">
+                    點擊「開始遊戲」按鈕開始新的遊戲
+                </div>
+            </div>
+        </main>
+
+        <!-- 遊戲結果顯示區域 -->
+        <div id="game-results" class="game-results hidden">
+            <div class="results-content">
+                <h2>遊戲結束！</h2>
+                <div class="final-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">總連線數:</span>
+                        <span id="final-lines-count" class="stat-value">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">玩家移動:</span>
+                        <span id="player-moves-count" class="stat-value">8</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">電腦移動:</span>
+                        <span id="computer-moves-count" class="stat-value">8</span>
+                    </div>
+                </div>
+                <div class="completed-lines-display">
+                    <h3>完成的連線:</h3>
+                    <div id="lines-list" class="lines-list">
+                        <!-- 動態顯示完成的連線 -->
+                    </div>
+                </div>
+                <button id="play-again" class="primary-btn">再玩一次</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Global loading overlay -->
+    <div id="global-loading" class="global-loading">
+        <div class="loading-spinner"></div>
+        <div class="loading-text">正在載入遊戲組件...</div>
+    </div>
+
+    <!-- 加載基本腳本 -->
+    <script src="loading-functions.js"></script>
+    <script src="performance-monitor.js"></script>
+    <script src="lineDetector.js"></script>
+    <script src="probabilityCalculator.js"></script>
+    <script src="gameBoard.js"></script>
+    <script src="script.js"></script>
+    
+    <!-- 演算法選擇和切換腳本 -->
+    <script>
+        // 保存原始的機率計算器
+        let StandardProbabilityCalculator = null;
+        let EnhancedProbabilityCalculator = null;
+        let currentAlgorithm = 'standard';
+        
+        // 等待頁面加載完成
+        window.addEventListener('load', function() {
+            console.log('所有資源已加載');
+            
+            // 檢查是否所有必要的組件都已加載
+            if (typeof LineDetector === 'undefined') {
+                console.error('LineDetector 未加載');
+                alert('遊戲組件加載失敗：LineDetector');
+            } else {
+                console.log('LineDetector 已成功加載');
+            }
+            
+            if (typeof ProbabilityCalculator === 'undefined') {
+                console.error('ProbabilityCalculator 未加載');
+                alert('遊戲組件加載失敗：ProbabilityCalculator');
+            } else {
+                console.log('ProbabilityCalculator 已成功加載');
+                // 保存標準演算法
+                StandardProbabilityCalculator = ProbabilityCalculator;
+            }
+            
+            if (typeof GameBoard === 'undefined') {
+                console.error('GameBoard 未加載');
+                alert('遊戲組件加載失敗：GameBoard');
+            } else {
+                console.log('GameBoard 已成功加載');
+            }
+            
+            // 加載增強版機率計算器
+            loadEnhancedAlgorithm();
+            
+            // 設置演算法選擇事件
+            setupAlgorithmSelection();
+            
+            // 添加額外的開始遊戲按鈕事件監聽器，以防原始監聽器失敗
+            const startButton = document.getElementById('start-game');
+            if (startButton) {
+                startButton.addEventListener('click', function() {
+                    console.log('開始遊戲按鈕點擊（備用處理程序）');
+                    if (typeof startNewGame === 'function') {
+                        startNewGame();
+                    } else {
+                        console.error('找不到 startNewGame 函數');
+                        alert('遊戲啟動失敗：找不到 startNewGame 函數');
+                    }
+                });
+            }
+        });
+        
+        /**
+         * 加載增強版演算法
+         */
+        function loadEnhancedAlgorithm() {
+            console.log('正在加載增強版機率計算器...');
+            
+            // 加載增強版機率計算器
+            const script = document.createElement('script');
+            script.src = 'probabilityCalculator.enhanced.js';
+            
+            script.onload = function() {
+                console.log('增強版機率計算器已加載');
+                
+                // 暫時保存增強版
+                const tempEnhanced = ProbabilityCalculator;
+                
+                // 恢復標準版
+                ProbabilityCalculator = StandardProbabilityCalculator;
+                
+                // 保存增強版
+                EnhancedProbabilityCalculator = tempEnhanced;
+                
+                // 啟用演算法選擇按鈕
+                enableAlgorithmSelection();
+            };
+            
+            script.onerror = function() {
+                console.error('加載增強版機率計算器失敗');
+                alert('加載增強版機率計算器失敗，只能使用標準版本');
+                
+                // 禁用增強版選項
+                const enhancedOption = document.querySelector('.algorithm-option[data-algorithm="enhanced"]');
+                if (enhancedOption) {
+                    enhancedOption.classList.add('disabled');
+                    enhancedOption.style.opacity = '0.5';
+                    enhancedOption.style.cursor = 'not-allowed';
+                }
+            };
+            
+            document.body.appendChild(script);
+        }
+        
+        /**
+         * 設置演算法選擇事件
+         */
+        function setupAlgorithmSelection() {
+            const algorithmOptions = document.querySelectorAll('.algorithm-option');
+            
+            algorithmOptions.forEach(option => {
+                option.addEventListener('click', function() {
+                    const algorithm = this.getAttribute('data-algorithm');
+                    
+                    // 如果增強版還沒加載完成，或者點擊的是當前選中的演算法，則不做任何操作
+                    if ((algorithm === 'enhanced' && !EnhancedProbabilityCalculator) || 
+                        algorithm === currentAlgorithm) {
+                        return;
+                    }
+                    
+                    // 更新選中狀態
+                    algorithmOptions.forEach(opt => opt.classList.remove('selected'));
+                    this.classList.add('selected');
+                    
+                    // 切換演算法
+                    switchAlgorithm(algorithm);
+                });
+            });
+            
+            // 初始時禁用演算法選擇，直到增強版加載完成
+            disableAlgorithmSelection();
+        }
+        
+        /**
+         * 禁用演算法選擇
+         */
+        function disableAlgorithmSelection() {
+            const enhancedOption = document.querySelector('.algorithm-option[data-algorithm="enhanced"]');
+            if (enhancedOption) {
+                enhancedOption.style.opacity = '0.5';
+                enhancedOption.style.cursor = 'not-allowed';
+                enhancedOption.title = '正在加載增強版演算法...';
+            }
+        }
+        
+        /**
+         * 啟用演算法選擇
+         */
+        function enableAlgorithmSelection() {
+            const enhancedOption = document.querySelector('.algorithm-option[data-algorithm="enhanced"]');
+            if (enhancedOption) {
+                enhancedOption.style.opacity = '1';
+                enhancedOption.style.cursor = 'pointer';
+                enhancedOption.title = '點擊切換到增強版演算法';
+            }
+        }
+        
+        /**
+         * 切換演算法
+         * @param {string} algorithm - 演算法名稱 ('standard' 或 'enhanced')
+         */
+        function switchAlgorithm(algorithm) {
+            if (algorithm === currentAlgorithm) {
+                return;
+            }
+            
+            console.log(`切換到${algorithm === 'standard' ? '標準' : '增強'}版演算法`);
+            
+            // 更新當前演算法
+            currentAlgorithm = algorithm;
+            
+            // 更新顯示
+            const currentAlgorithmName = document.getElementById('current-algorithm-name');
+            if (currentAlgorithmName) {
+                currentAlgorithmName.textContent = algorithm === 'standard' ? '標準演算法' : '增強演算法';
+            }
+            
+            // 切換演算法實現
+            if (algorithm === 'standard') {
+                ProbabilityCalculator = StandardProbabilityCalculator;
+            } else {
+                ProbabilityCalculator = EnhancedProbabilityCalculator;
+            }
+            
+            // 如果遊戲已經初始化，重新初始化以使用新的演算法
+            if (typeof initializeGame === 'function' && typeof gameState !== 'undefined') {
+                // 保存當前遊戲狀態
+                const wasGameStarted = gameState.gameStarted;
+                const currentGamePhase = gameState.gamePhase;
+                
+                // 重新初始化遊戲
+                initializeGame();
+                
+                // 如果遊戲已經開始，則更新建議
+                if (wasGameStarted && !gameState.gameEnded) {
+                    // 重新開始遊戲
+                    startNewGame();
+                    
+                    // 顯示提示
+                    const instructionText = document.getElementById('instruction-text');
+                    if (instructionText) {
+                        instructionText.textContent = `已切換到${algorithm === 'standard' ? '標準' : '增強'}版演算法，遊戲已重新開始`;
+                        instructionText.classList.add('success');
+                        
+                        // 3秒後恢復
+                        setTimeout(() => {
+                            instructionText.textContent = '點擊「開始遊戲」按鈕開始新的遊戲';
+                            instructionText.classList.remove('success');
+                        }, 3000);
+                    }
+                } else {
+                    // 顯示提示
+                    const instructionText = document.getElementById('instruction-text');
+                    if (instructionText) {
+                        instructionText.textContent = `已切換到${algorithm === 'standard' ? '標準' : '增強'}版演算法`;
+                        instructionText.classList.add('success');
+                        
+                        // 3秒後恢復
+                        setTimeout(() => {
+                            instructionText.textContent = '點擊「開始遊戲」按鈕開始新的遊戲';
+                            instructionText.classList.remove('success');
+                        }, 3000);
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>

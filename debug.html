@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bingo遊戲模擬器 (增強版)</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .enhanced-note {
+            color: #fff;
+            background-color: rgba(52, 152, 219, 0.7);
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+            margin-top: 5px;
+        }
+        
+        .algorithm-info {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        
+        .algorithm-info h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            font-size: 1.2rem;
+        }
+        
+        .algorithm-description {
+            color: #34495e;
+            font-size: 0.95rem;
+            line-height: 1.5;
+        }
+        
+        .algorithm-description ul {
+            margin-top: 10px;
+            margin-left: 20px;
+        }
+        
+        .algorithm-description li {
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Bingo遊戲模擬器 (增強版)</h1>
+            <p class="game-description">與電腦進行8輪翻牌遊戲，目標是完成最多的連線！</p>
+            <p class="enhanced-note">使用增強版演算法，專注於最大化完成三條連線的機會</p>
+        </header>
+
+        <main>
+            <!-- 遊戲狀態顯示區域 -->
+            <div class="game-status">
+                <div class="status-item">
+                    <span class="label">當前輪數:</span>
+                    <span id="current-round" class="value">1</span>
+                    <span class="total">/ 8</span>
+                </div>
+                <div class="status-item">
+                    <span class="label">遊戲階段:</span>
+                    <span id="game-phase" class="value">玩家回合</span>
+                </div>
+                <div class="status-item">
+                    <span class="label">完成連線:</span>
+                    <span id="completed-lines" class="value">0</span>
+                </div>
+            </div>
+
+            <!-- 5x5遊戲網格 -->
+            <div class="game-board-container">
+                <div id="game-board" class="game-board">
+                    <!-- 動態生成5x5網格 -->
+                </div>
+                <div class="board-controls">
+                    <button id="start-game" class="primary-btn">開始遊戲</button>
+                    <button id="restart-game" class="secondary-btn" disabled>重新開始</button>
+                    <button id="random-computer-move" class="secondary-btn">電腦隨機下棋</button>
+                    <div class="auto-random-container">
+                        <input type="checkbox" id="auto-random-move" />
+                        <label for="auto-random-move">電腦自動隨機下棋</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 遊戲控制面板 -->
+            <div class="control-panel">
+                <div class="suggestion-area">
+                    <h3>建議移動</h3>
+                    <div id="suggestion-display" class="suggestion-display">
+                        <span id="suggestion-text">點擊開始遊戲獲得建議</span>
+                    </div>
+                </div>
+
+                <div class="input-area">
+                    <h3>電腦選擇輸入</h3>
+                    <div class="computer-input">
+                        <p id="computer-turn-message">電腦回合時，請直接點擊棋盤上的空格子或使用棋盤旁的隨機下棋按鈕</p>
+                    </div>
+                </div>
+
+                <!-- 控制按钮已移至棋盘旁边 -->
+                <div class="game-controls">
+                </div>
+            </div>
+
+            <!-- 操作指示區域 -->
+            <div class="instructions">
+                <h3>操作指示</h3>
+                <div id="instruction-text" class="instruction-text">
+                    點擊「開始遊戲」按鈕開始新的遊戲
+                </div>
+            </div>
+            
+            <!-- 演算法說明 -->
+            <div class="algorithm-info">
+                <h3>增強版演算法說明</h3>
+                <div class="algorithm-description">
+                    <p>本版本使用了增強版的機率計算器，專注於最大化完成三條連線的機會。主要改進包括：</p>
+                    <ul>
+                        <li><strong>交叉點優先策略</strong>：優先選擇能參與多條潛在連線的位置</li>
+                        <li><strong>接近完成的線優先</strong>：優先完成接近完成的線</li>
+                        <li><strong>戰略位置評估</strong>：識別並獎勵角落位置、邊緣中心位置等戰略位置</li>
+                        <li><strong>多線完成獎勵</strong>：當一步棋能同時完成多條線時，給予額外獎勵</li>
+                    </ul>
+                </div>
+            </div>
+        </main>
+
+        <!-- 遊戲結果顯示區域 -->
+        <div id="game-results" class="game-results hidden">
+            <div class="results-content">
+                <h2>遊戲結束！</h2>
+                <div class="final-stats">
+                    <div class="stat-item">
+                        <span class="stat-label">總連線數:</span>
+                        <span id="final-lines-count" class="stat-value">0</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">玩家移動:</span>
+                        <span id="player-moves-count" class="stat-value">8</span>
+                    </div>
+                    <div class="stat-item">
+                        <span class="stat-label">電腦移動:</span>
+                        <span id="computer-moves-count" class="stat-value">8</span>
+                    </div>
+                </div>
+                <div class="completed-lines-display">
+                    <h3>完成的連線:</h3>
+                    <div id="lines-list" class="lines-list">
+                        <!-- 動態顯示完成的連線 -->
+                    </div>
+                </div>
+                <button id="play-again" class="primary-btn">再玩一次</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 先加載原始版本的機率計算器，確保基本功能正常 -->
+    <script src="loading-functions.js"></script>
+    <script src="lineDetector.js"></script>
+    <script src="probabilityCalculator.js"></script>
+    <script src="gameBoard.js"></script>
+    <script src="script.js"></script>
+    
+    <script>
+        // 確保所有腳本加載完成後，再加載增強版機率計算器
+        window.addEventListener('load', function() {
+            console.log('所有基本資源已加載');
+            
+            // 檢查是否所有必要的組件都已加載
+            let allComponentsLoaded = true;
+            
+            if (typeof LineDetector === 'undefined') {
+                console.error('LineDetector 未加載');
+                alert('遊戲組件加載失敗：LineDetector');
+                allComponentsLoaded = false;
+            } else {
+                console.log('LineDetector 已成功加載');
+            }
+            
+            if (typeof ProbabilityCalculator === 'undefined') {
+                console.error('ProbabilityCalculator 未加載');
+                alert('遊戲組件加載失敗：ProbabilityCalculator');
+                allComponentsLoaded = false;
+            } else {
+                console.log('ProbabilityCalculator 已成功加載');
+            }
+            
+            if (typeof GameBoard === 'undefined') {
+                console.error('GameBoard 未加載');
+                alert('遊戲組件加載失敗：GameBoard');
+                allComponentsLoaded = false;
+            } else {
+                console.log('GameBoard 已成功加載');
+            }
+            
+            // 如果所有基本組件都已加載，則加載增強版機率計算器
+            if (allComponentsLoaded) {
+                console.log('正在加載增強版機率計算器...');
+                
+                // 保存原始的機率計算器
+                const OriginalProbabilityCalculator = ProbabilityCalculator;
+                
+                // 加載增強版機率計算器
+                const script = document.createElement('script');
+                script.src = 'probabilityCalculator.enhanced.js';
+                script.onload = function() {
+                    console.log('增強版機率計算器已加載');
+                    
+                    // 如果遊戲已經初始化，重新初始化以使用增強版
+                    if (typeof initializeGame === 'function' && typeof gameState !== 'undefined') {
+                        console.log('重新初始化遊戲以使用增強版機率計算器');
+                        initializeGame();
+                    }
+                    
+                    // 顯示成功訊息
+                    const instructionText = document.getElementById('instruction-text');
+                    if (instructionText) {
+                        const originalText = instructionText.textContent;
+                        instructionText.textContent = '增強版機率計算器已成功加載！' + originalText;
+                        instructionText.classList.add('success');
+                        
+                        // 3秒後恢復原始文字
+                        setTimeout(() => {
+                            instructionText.textContent = originalText;
+                            instructionText.classList.remove('success');
+                        }, 3000);
+                    }
+                };
+                
+                script.onerror = function() {
+                    console.error('加載增強版機率計算器失敗');
+                    alert('加載增強版機率計算器失敗，將繼續使用原始版本');
+                    
+                    // 恢復原始的機率計算器
+                    ProbabilityCalculator = OriginalProbabilityCalculator;
+                };
+                
+                document.body.appendChild(script);
+            }
+            
+            // 添加額外的開始遊戲按鈕事件監聽器，以防原始監聽器失敗
+            const startButton = document.getElementById('start-game');
+            if (startButton) {
+                startButton.addEventListener('click', function() {
+                    console.log('開始遊戲按鈕點擊（備用處理程序）');
+                    if (typeof startNewGame === 'function') {
+                        startNewGame();
+                    } else {
+                        console.error('找不到 startNewGame 函數');
+                        alert('遊戲啟動失敗：找不到 startNewGame 函數');
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
