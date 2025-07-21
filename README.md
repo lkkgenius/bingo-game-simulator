@@ -12,9 +12,9 @@
 
 ## 🚀 線上體驗
 
-[點擊這裡開始遊戲](https://your-username.github.io/bingo-game-simulator)
+[點擊這裡開始遊戲](https://lkkgenius.github.io/bingo-game-simulator)
 
-> **注意**: 請將上方連結中的 `your-username` 替換為你的 GitHub 用戶名，`bingo-game-simulator` 替換為你的 repository 名稱。
+> **注意**: 遊戲已部署到 GitHub Pages，可通過上方連結直接訪問。
 
 ## 📋 遊戲規則
 
