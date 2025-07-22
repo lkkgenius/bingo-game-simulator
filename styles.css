@@ -240,13 +240,13 @@ header h1 {
 
 /* 主對角線（左上到右下）*/
 .game-cell.diagonal-line {
-    background: linear-gradient(to bottom right, transparent calc(50% - 3px), #4CAF50, transparent calc(50% + 3px));
+    background: linear-gradient(to bottom left, transparent calc(50% - 3px), #4CAF50, transparent calc(50% + 3px));
     box-shadow: 0 0 10px #4CAF50;
 }
 
 /* 反對角線（右上到左下）*/
 .game-cell.anti-diagonal-line {
-    background: linear-gradient(to bottom left, transparent calc(50% - 3px), #4CAF50, transparent calc(50% + 3px));
+    background: linear-gradient(to bottom right, transparent calc(50% - 3px), #4CAF50, transparent calc(50% + 3px));
     box-shadow: 0 0 10px #4CAF50;
 }
 
