@@ -208,6 +208,7 @@ header h1 {
 .game-cell.line-completed {
     animation: line-flash 2s ease-in-out;
     box-shadow: 0 0 20px rgba(76, 175, 80, 0.8);
+    border: 3px solid #4CAF50; /* 添加綠色邊框 */
 }
 
 @keyframes line-flash {
@@ -215,7 +216,7 @@ header h1 {
         box-shadow: 0 0 20px rgba(76, 175, 80, 0.8);
     }
     50% {
-        box-shadow: 0 0 30px rgba(76, 175, 80, 1);
+        box-shadow: 0 0 30px #4CAF50;
         transform: scale(1.1);
     }
 }
@@ -227,40 +228,45 @@ header h1 {
 .game-cell.anti-diagonal-line::after {
     content: "";
     position: absolute;
-    background: rgba(76, 175, 80, 0.7);
-    z-index: 1;
+    background: #4CAF50; /* 純綠色，不透明 */
+    z-index: 10; /* 確保在其他元素之上 */
+    box-shadow: 0 0 10px #4CAF50; /* 添加發光效果 */
 }
 
 .game-cell.horizontal-line::after {
     width: 120%;
-    height: 6px;
+    height: 10px; /* 增加線條寬度 */
     top: 50%;
     left: -10%;
     transform: translateY(-50%);
+    border-radius: 5px; /* 圓角 */
 }
 
 .game-cell.vertical-line::after {
-    width: 6px;
+    width: 10px; /* 增加線條寬度 */
     height: 120%;
     left: 50%;
     top: -10%;
     transform: translateX(-50%);
+    border-radius: 5px; /* 圓角 */
 }
 
 .game-cell.diagonal-line::after {
-    width: 6px;
+    width: 10px; /* 增加線條寬度 */
     height: 170%;
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%) rotate(45deg);
+    border-radius: 5px; /* 圓角 */
 }
 
 .game-cell.anti-diagonal-line::after {
-    width: 6px;
+    width: 10px; /* 增加線條寬度 */
     height: 170%;
     left: 50%;
     top: 50%;
     transform: translate(-50%, -50%) rotate(-45deg);
+    border-radius: 5px; /* 圓角 */
 }
 
 /* Control panel */
