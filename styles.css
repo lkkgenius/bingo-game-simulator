@@ -218,36 +218,76 @@ header h1 {
     }
 }
 
-/* 使用邊框來顯示連線，而不是偽元素 */
+/* 使用統一的邊框顯示方式 */
 .game-cell.line-completed {
     position: relative;
     z-index: 5;
-}
-
-/* 水平線 */
-.game-cell.horizontal-line {
-    border-top: 5px solid #4CAF50;
-    border-bottom: 5px solid #4CAF50;
     box-shadow: 0 0 10px #4CAF50;
 }
 
-/* 垂直線 */
-.game-cell.vertical-line {
-    border-left: 5px solid #4CAF50;
-    border-right: 5px solid #4CAF50;
-    box-shadow: 0 0 10px #4CAF50;
-}
-
-/* 主對角線（左上到右下）*/
-.game-cell.diagonal-line {
-    background: linear-gradient(to bottom left, transparent calc(50% - 3px), #4CAF50, transparent calc(50% + 3px));
-    box-shadow: 0 0 10px #4CAF50;
-}
-
-/* 反對角線（右上到左下）*/
+/* 所有連線類型共享的樣式 */
+.game-cell.horizontal-line,
+.game-cell.vertical-line,
+.game-cell.diagonal-line,
 .game-cell.anti-diagonal-line {
-    background: linear-gradient(to bottom right, transparent calc(50% - 3px), #4CAF50, transparent calc(50% + 3px));
-    box-shadow: 0 0 10px #4CAF50;
+    border: 3px solid #4CAF50;
+}
+
+/* 水平線 - 加粗上下邊框 */
+.game-cell.horizontal-line {
+    border-top-width: 6px;
+    border-bottom-width: 6px;
+}
+
+/* 垂直線 - 加粗左右邊框 */
+.game-cell.vertical-line {
+    border-left-width: 6px;
+    border-right-width: 6px;
+}
+
+/* 主對角線（左上到右下）- 加粗左上和右下邊框 */
+.game-cell.diagonal-line {
+    border-top-width: 6px;
+    border-left-width: 6px;
+    border-bottom-width: 6px;
+    border-right-width: 6px;
+    position: relative;
+}
+
+/* 添加對角線指示器 */
+.game-cell.diagonal-line::before {
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 6px;
+    background-color: #4CAF50;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%) rotate(-45deg);
+    z-index: 6;
+}
+
+/* 反對角線（右上到左下）- 加粗右上和左下邊框 */
+.game-cell.anti-diagonal-line {
+    border-top-width: 6px;
+    border-right-width: 6px;
+    border-bottom-width: 6px;
+    border-left-width: 6px;
+    position: relative;
+}
+
+/* 添加反對角線指示器 */
+.game-cell.anti-diagonal-line::after {
+    content: "";
+    position: absolute;
+    width: 100%;
+    height: 6px;
+    background-color: #4CAF50;
+    top: 50%;
+    left: 0;
+    transform: translateY(-50%) rotate(45deg);
+    z-index: 6;
+}
 }
 
 /* Control panel */
