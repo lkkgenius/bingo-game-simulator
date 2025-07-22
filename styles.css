@@ -184,36 +184,22 @@ header h1 {
 
 /* Suggestion highlight */
 .game-cell.suggested {
-    background: linear-gradient(135deg, #FFEB3B, #FFC107);
-    border-color: #FF8F00;
-    border-width: 3px;
+    background: linear-gradient(135deg, #FFC107, #FF9800);
+    border-color: #FF6F00;
+    border-width: 2px;
     animation: pulse-suggestion 1.5s infinite;
-    box-shadow: 0 0 20px rgba(255, 235, 59, 0.8);
+    box-shadow: 0 0 15px rgba(255, 152, 0, 0.6);
     position: relative;
-}
-
-.game-cell.suggested::after {
-    content: "建議";
-    position: absolute;
-    bottom: 5px;
-    left: 50%;
-    transform: translateX(-50%);
-    font-size: 0.7rem;
-    font-weight: bold;
-    color: #FF6F00;
-    background: rgba(255, 255, 255, 0.8);
-    padding: 2px 5px;
-    border-radius: 3px;
 }
 
 @keyframes pulse-suggestion {
     0%, 100% {
         transform: scale(1);
-        box-shadow: 0 0 15px rgba(255, 235, 59, 0.7);
+        box-shadow: 0 0 10px rgba(255, 152, 0, 0.5);
     }
     50% {
-        transform: scale(1.08);
-        box-shadow: 0 0 25px rgba(255, 193, 7, 0.9);
+        transform: scale(1.05);
+        box-shadow: 0 0 15px rgba(255, 152, 0, 0.7);
     }
 }
 
