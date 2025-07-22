@@ -3,22 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bingo遊戲模擬器 - GitHub Pages Test</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            text-align: center;
-            padding: 50px;
-            background-color: #f0f0f0;
-        }
-        .test-message {
-            background-color: #4CAF50;
-            color: white;
-            padding: 20px;
-            border-radius: 10px;
-            margin: 20px 0;
-        }
-    </style>
+    <title>Bingo遊戲模擬器</title>
     <link rel="stylesheet" href="styles.css">
     <style>
         /* 演算法選擇區域樣式 */
@@ -100,12 +85,7 @@
 </head>
 <body>
     <div class="container">
-        <div class="test-message">
-            <h1>🎉 GitHub Pages 部署成功！</h1>
-            <p>如果您能看到這個頁面，表示 GitHub Pages 已經正常工作了！</p>
-            <p>當前時間：<span id="current-time"></span></p>
-        </div>
-        
+
         <header>
             <h1>Bingo遊戲模擬器</h1>
             <p class="game-description">與電腦進行8輪翻牌遊戲，目標是完成最多的連線！</p>
@@ -237,17 +217,6 @@
         <div class="loading-text">正在載入遊戲組件...</div>
     </div>
 
-    <!-- 簡單的測試腳本 -->
-    <script>
-        // 顯示當前時間以證明頁面已載入
-        document.addEventListener('DOMContentLoaded', function() {
-            const timeElement = document.getElementById('current-time');
-            if (timeElement) {
-                timeElement.textContent = new Date().toLocaleString('zh-TW');
-            }
-            console.log('GitHub Pages 測試頁面已載入成功！');
-        });
-    </script>
     
     <!-- 加載基本腳本 -->
     <script src="loading-functions.js"></script>
