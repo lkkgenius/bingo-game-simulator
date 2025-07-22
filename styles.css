@@ -251,21 +251,23 @@ header h1 {
     border-radius: 5px; /* 圓角 */
 }
 
+/* 主對角線（左上到右下）*/
 .game-cell.diagonal-line::after {
     width: 10px; /* 增加線條寬度 */
     height: 170%;
     left: 50%;
     top: 50%;
-    transform: translate(-50%, -50%) rotate(45deg);
+    transform: translate(-50%, -50%) rotate(-45deg); /* 修正旋轉方向 */
     border-radius: 5px; /* 圓角 */
 }
 
+/* 反對角線（右上到左下）*/
 .game-cell.anti-diagonal-line::after {
     width: 10px; /* 增加線條寬度 */
     height: 170%;
     left: 50%;
     top: 50%;
-    transform: translate(-50%, -50%) rotate(-45deg);
+    transform: translate(-50%, -50%) rotate(45deg); /* 修正旋轉方向 */
     border-radius: 5px; /* 圓角 */
 }
 
