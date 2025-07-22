@@ -184,22 +184,22 @@ header h1 {
 
 /* Suggestion highlight */
 .game-cell.suggested {
-    background: linear-gradient(135deg, #FFC107, #FF9800);
-    border-color: #FF6F00;
-    border-width: 2px;
+    background: #FFEB3B; /* 亮黃色 */
+    border-color: #FFC107;
+    border-width: 3px;
     animation: pulse-suggestion 1.5s infinite;
-    box-shadow: 0 0 15px rgba(255, 152, 0, 0.6);
+    box-shadow: 0 0 15px rgba(255, 235, 59, 0.7);
     position: relative;
 }
 
 @keyframes pulse-suggestion {
     0%, 100% {
         transform: scale(1);
-        box-shadow: 0 0 10px rgba(255, 152, 0, 0.5);
+        box-shadow: 0 0 10px rgba(255, 235, 59, 0.6);
     }
     50% {
         transform: scale(1.05);
-        box-shadow: 0 0 15px rgba(255, 152, 0, 0.7);
+        box-shadow: 0 0 20px rgba(255, 235, 59, 0.8);
     }
 }
 
