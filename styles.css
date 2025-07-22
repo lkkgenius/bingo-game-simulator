@@ -218,66 +218,34 @@ header h1 {
     }
 }
 
-/* 統一的連線顯示方式 - 所有連線都使用偽元素繪製線條 */
+/* 統一的連線顯示方式 - 使用邊框和背景色 */
 .game-cell.line-completed {
     position: relative;
     z-index: 5;
     box-shadow: 0 0 15px rgba(76, 175, 80, 0.8);
 }
 
-/* 水平線 - 使用 ::before */
-.game-cell.horizontal-line::before {
-    content: "";
-    position: absolute;
-    width: 120%;
-    height: 6px;
-    background-color: #4CAF50;
-    top: 50%;
-    left: -10%;
-    transform: translateY(-50%);
-    z-index: 6;
-    border-radius: 3px;
+/* 水平線 */
+.game-cell.horizontal-line {
+    border-top: 3px solid #4CAF50;
+    border-bottom: 3px solid #4CAF50;
 }
 
-/* 垂直線 - 使用 ::after */
-.game-cell.vertical-line::after {
-    content: "";
-    position: absolute;
-    width: 6px;
-    height: 120%;
-    background-color: #4CAF50;
-    left: 50%;
-    top: -10%;
-    transform: translateX(-50%);
-    z-index: 6;
-    border-radius: 3px;
+/* 垂直線 */
+.game-cell.vertical-line {
+    border-left: 3px solid #4CAF50;
+    border-right: 3px solid #4CAF50;
 }
 
-/* 主對角線（左上到右下）- 使用 ::before */
-.game-cell.diagonal-line::before {
-    content: "";
-    position: absolute;
-    width: 140%;
-    height: 6px;
-    background-color: #4CAF50;
-    top: 50%;
-    left: -20%;
-    transform: translateY(-50%) rotate(45deg);
-    z-index: 6;
-    border-radius: 3px;
+/* 主對角線（左上到右下）*/
+.game-cell.diagonal-line {
+    background-image: linear-gradient(45deg, transparent 45%, #4CAF50 45%, #4CAF50 55%, transparent 55%);
 }
 
-/* 反對角線（右上到左下）- 使用 ::after */
-.game-cell.anti-diagonal-line::after {
-    content: "";
-    position: absolute;
-    width: 140%;
-    height: 6px;
-    background-color: #4CAF50;
-    top: 50%;
-    left: -20%;
-    transform: translateY(-50%) rotate(-45deg);
-    z-index: 6;
+/* 反對角線（右上到左下）*/
+.game-cell.anti-diagonal-line {
+    background-image: linear-gradient(-45deg, transparent 45%, #4CAF50 45%, #4CAF50 55%, transparent 55%);
+}
     border-radius: 3px;
 }
 }
