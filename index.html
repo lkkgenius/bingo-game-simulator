@@ -154,22 +154,45 @@
 
             <!-- 遊戲控制面板 -->
             <div class="control-panel">
-                <div class="suggestion-area">
-                    <h3>建議移動</h3>
-                    <div id="suggestion-display" class="suggestion-display">
-                        <span id="suggestion-text">點擊開始遊戲獲得建議</span>
+                <!-- 遊戲結果區域 (初始隱藏) -->
+                <div id="game-result-panel" class="result-panel hidden">
+                    <h3>遊戲結束！</h3>
+                    <div class="final-stats">
+                        <div class="stat-item">
+                            <span class="stat-label">總連線數:</span>
+                            <span id="final-lines-count" class="stat-value">0</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">玩家移動:</span>
+                            <span id="player-moves-count" class="stat-value">8</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-label">電腦移動:</span>
+                            <span id="computer-moves-count" class="stat-value">8</span>
+                        </div>
                     </div>
+                    <button id="play-again" class="primary-btn">再玩一次</button>
                 </div>
 
-                <div class="input-area">
-                    <h3>電腦選擇輸入</h3>
-                    <div class="computer-input">
-                        <p id="computer-turn-message">電腦回合時，請直接點擊棋盤上的空格子或使用棋盤旁的隨機下棋按鈕</p>
+                <!-- 遊戲進行中的控制面板 -->
+                <div id="game-active-panel">
+                    <div class="suggestion-area">
+                        <h3>建議移動</h3>
+                        <div id="suggestion-display" class="suggestion-display">
+                            <span id="suggestion-text">點擊開始遊戲獲得建議</span>
+                        </div>
                     </div>
-                </div>
 
-                <!-- 控制按钮已移至棋盘旁边 -->
-                <div class="game-controls">
+                    <div class="input-area">
+                        <h3>電腦選擇輸入</h3>
+                        <div class="computer-input">
+                            <p id="computer-turn-message">電腦回合時，請直接點擊棋盤上的空格子或使用棋盤旁的隨機下棋按鈕</p>
+                        </div>
+                    </div>
+
+                    <!-- 控制按钮已移至棋盘旁边 -->
+                    <div class="game-controls">
+                    </div>
                 </div>
             </div>
 
@@ -182,32 +205,9 @@
             </div>
         </main>
 
-        <!-- 遊戲結果顯示區域 -->
-        <div id="game-results" class="game-results hidden">
-            <div class="results-content">
-                <h2>遊戲結束！</h2>
-                <div class="final-stats">
-                    <div class="stat-item">
-                        <span class="stat-label">總連線數:</span>
-                        <span id="final-lines-count" class="stat-value">0</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">玩家移動:</span>
-                        <span id="player-moves-count" class="stat-value">8</span>
-                    </div>
-                    <div class="stat-item">
-                        <span class="stat-label">電腦移動:</span>
-                        <span id="computer-moves-count" class="stat-value">8</span>
-                    </div>
-                </div>
-                <div class="completed-lines-display">
-                    <h3>完成的連線:</h3>
-                    <div id="lines-list" class="lines-list">
-                        <!-- 動態顯示完成的連線 -->
-                    </div>
-                </div>
-                <button id="play-again" class="primary-btn">再玩一次</button>
-            </div>
+        <!-- 遊戲結果顯示區域 (整合到控制面板中) -->
+        <div id="game-results" class="hidden">
+            <button id="play-again" class="primary-btn">再玩一次</button>
         </div>
     </div>
 

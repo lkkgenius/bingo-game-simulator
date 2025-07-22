@@ -958,23 +958,24 @@ function endGame() {
 }
 
 /**
- * Show game results modal
+ * Show game results in the control panel
  */
 function showGameResults(gameState) {
     try {
-        const resultsModal = document.getElementById('game-results');
+        const gameActivePanel = document.getElementById('game-active-panel');
+        const gameResultPanel = document.getElementById('game-result-panel');
         const finalLinesCount = document.getElementById('final-lines-count');
         const playerMovesCount = document.getElementById('player-moves-count');
         const computerMovesCount = document.getElementById('computer-moves-count');
-        const linesList = document.getElementById('lines-list');
         
-        if (!resultsModal) {
-            console.error('Game results modal not found');
+        if (!gameResultPanel) {
+            console.error('Game result panel not found');
             return;
         }
         
-        // Show the modal
-        resultsModal.classList.remove('hidden');
+        // Hide active game panel and show result panel
+        if (gameActivePanel) gameActivePanel.classList.add('hidden');
+        gameResultPanel.classList.remove('hidden');
         
         // Update final statistics
         if (finalLinesCount) {
@@ -989,28 +990,6 @@ function showGameResults(gameState) {
             computerMovesCount.textContent = gameState.computerMoves.length;
         }
         
-        // Display completed lines
-        if (linesList) {
-            linesList.innerHTML = '';
-            
-            if (gameState.completedLines.length > 0) {
-                gameState.completedLines.forEach((line, index) => {
-                    const lineItem = document.createElement('div');
-                    lineItem.className = 'line-item';
-                    lineItem.innerHTML = `
-                        <span class="line-number">${index + 1}.</span>
-                        <span class="line-cells">${formatLineCells(line.cells)}</span>
-                    `;
-                    linesList.appendChild(lineItem);
-                });
-            } else {
-                const noLinesItem = document.createElement('div');
-                noLinesItem.className = 'line-item no-lines';
-                noLinesItem.textContent = '沒有完成任何連線';
-                linesList.appendChild(noLinesItem);
-            }
-        }
-        
         console.log('Game results displayed successfully');
         
     } catch (error) {
@@ -1019,20 +998,19 @@ function showGameResults(gameState) {
 }
 
 /**
- * Hide game results modal
+ * Hide game results panel
  */
 function hideGameResults() {
-    const resultsModal = document.getElementById('game-results');
-    if (resultsModal) {
-        resultsModal.classList.add('hidden');
+    const gameActivePanel = document.getElementById('game-active-panel');
+    const gameResultPanel = document.getElementById('game-result-panel');
+    
+    if (gameResultPanel) {
+        gameResultPanel.classList.add('hidden');
     }
-}
-
-/**
- * Format line cells for display
- */
-function formatLineCells(cells) {
-    return cells.map(([row, col]) => `(${row + 1},${col + 1})`).join(', ');
+    
+    if (gameActivePanel) {
+        gameActivePanel.classList.remove('hidden');
+    }
 }
 
 /**
@@ -1042,7 +1020,7 @@ function handlePlayAgain() {
     try {
         hideGameResults();
         startNewGame();
-        console.log('Starting new game from results modal');
+        console.log('Starting new game from results panel');
     } catch (error) {
         console.error('Error handling play again:', error);
     }
