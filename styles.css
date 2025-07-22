@@ -218,33 +218,136 @@ header h1 {
     }
 }
 
-/* 統一的連線顯示方式 - 使用邊框和背景色 */
+/* 統一的連線顯示方式 - 使用多重背景圖像 */
 .game-cell.line-completed {
     position: relative;
     z-index: 5;
     box-shadow: 0 0 15px rgba(76, 175, 80, 0.8);
 }
 
+/* 基本線條樣式 - 所有線條都使用相同的綠色 */
+.game-cell.horizontal-line,
+.game-cell.vertical-line,
+.game-cell.diagonal-line,
+.game-cell.anti-diagonal-line {
+    background-color: transparent;
+    background-repeat: no-repeat;
+    background-position: center center;
+}
+
 /* 水平線 */
 .game-cell.horizontal-line {
-    border-top: 3px solid #4CAF50;
-    border-bottom: 3px solid #4CAF50;
+    background-image: linear-gradient(to right, transparent 10%, #4CAF50 10%, #4CAF50 90%, transparent 90%);
+    background-size: 100% 6px;
 }
 
 /* 垂直線 */
 .game-cell.vertical-line {
-    border-left: 3px solid #4CAF50;
-    border-right: 3px solid #4CAF50;
+    background-image: linear-gradient(to bottom, transparent 10%, #4CAF50 10%, #4CAF50 90%, transparent 90%);
+    background-size: 6px 100%;
 }
 
 /* 主對角線（左上到右下）*/
 .game-cell.diagonal-line {
-    background-image: linear-gradient(45deg, transparent 45%, #4CAF50 45%, #4CAF50 55%, transparent 55%);
+    background-image: linear-gradient(45deg, transparent 47%, #4CAF50 47%, #4CAF50 53%, transparent 53%);
 }
 
 /* 反對角線（右上到左下）*/
 .game-cell.anti-diagonal-line {
-    background-image: linear-gradient(-45deg, transparent 45%, #4CAF50 45%, #4CAF50 55%, transparent 55%);
+    background-image: linear-gradient(-45deg, transparent 47%, #4CAF50 47%, #4CAF50 53%, transparent 53%);
+}
+
+/* 水平線 + 垂直線 = 十字 */
+.game-cell.horizontal-line.vertical-line {
+    background-image: 
+        linear-gradient(to right, transparent 10%, #4CAF50 10%, #4CAF50 90%, transparent 90%),
+        linear-gradient(to bottom, transparent 10%, #4CAF50 10%, #4CAF50 90%, transparent 90%);
+    background-size: 100% 6px, 6px 100%;
+}
+
+/* 水平線 + 主對角線 */
+.game-cell.horizontal-line.diagonal-line {
+    background-image: 
+        linear-gradient(to right, transparent 10%, #4CAF50 10%, #4CAF50 90%, transparent 90%),
+        linear-gradient(45deg, transparent 47%, #4CAF50 47%, #4CAF50 53%, transparent 53%);
+    background-size: 100% 6px, 100% 100%;
+}
+
+/* 水平線 + 反對角線 */
+.game-cell.horizontal-line.anti-diagonal-line {
+    background-image: 
+        linear-gradient(to right, transparent 10%, #4CAF50 10%, #4CAF50 90%, transparent 90%),
+        linear-gradient(-45deg, transparent 47%, #4CAF50 47%, #4CAF50 53%, transparent 53%);
+    background-size: 100% 6px, 100% 100%;
+}
+
+/* 垂直線 + 主對角線 */
+.game-cell.vertical-line.diagonal-line {
+    background-image: 
+        linear-gradient(to bottom, transparent 10%, #4CAF50 10%, #4CAF50 90%, transparent 90%),
+        linear-gradient(45deg, transparent 47%, #4CAF50 47%, #4CAF50 53%, transparent 53%);
+    background-size: 6px 100%, 100% 100%;
+}
+
+/* 垂直線 + 反對角線 */
+.game-cell.vertical-line.anti-diagonal-line {
+    background-image: 
+        linear-gradient(to bottom, transparent 10%, #4CAF50 10%, #4CAF50 90%, transparent 90%),
+        linear-gradient(-45deg, transparent 47%, #4CAF50 47%, #4CAF50 53%, transparent 53%);
+    background-size: 6px 100%, 100% 100%;
+}
+
+/* 主對角線 + 反對角線 = X */
+.game-cell.diagonal-line.anti-diagonal-line {
+    background-image: 
+        linear-gradient(45deg, transparent 47%, #4CAF50 47%, #4CAF50 53%, transparent 53%),
+        linear-gradient(-45deg, transparent 47%, #4CAF50 47%, #4CAF50 53%, transparent 53%);
+}
+
+/* 水平線 + 垂直線 + 主對角線 */
+.game-cell.horizontal-line.vertical-line.diagonal-line {
+    background-image: 
+        linear-gradient(to right, transparent 10%, #4CAF50 10%, #4CAF50 90%, transparent 90%),
+        linear-gradient(to bottom, transparent 10%, #4CAF50 10%, #4CAF50 90%, transparent 90%),
+        linear-gradient(45deg, transparent 47%, #4CAF50 47%, #4CAF50 53%, transparent 53%);
+    background-size: 100% 6px, 6px 100%, 100% 100%;
+}
+
+/* 水平線 + 垂直線 + 反對角線 */
+.game-cell.horizontal-line.vertical-line.anti-diagonal-line {
+    background-image: 
+        linear-gradient(to right, transparent 10%, #4CAF50 10%, #4CAF50 90%, transparent 90%),
+        linear-gradient(to bottom, transparent 10%, #4CAF50 10%, #4CAF50 90%, transparent 90%),
+        linear-gradient(-45deg, transparent 47%, #4CAF50 47%, #4CAF50 53%, transparent 53%);
+    background-size: 100% 6px, 6px 100%, 100% 100%;
+}
+
+/* 水平線 + 主對角線 + 反對角線 */
+.game-cell.horizontal-line.diagonal-line.anti-diagonal-line {
+    background-image: 
+        linear-gradient(to right, transparent 10%, #4CAF50 10%, #4CAF50 90%, transparent 90%),
+        linear-gradient(45deg, transparent 47%, #4CAF50 47%, #4CAF50 53%, transparent 53%),
+        linear-gradient(-45deg, transparent 47%, #4CAF50 47%, #4CAF50 53%, transparent 53%);
+    background-size: 100% 6px, 100% 100%, 100% 100%;
+}
+
+/* 垂直線 + 主對角線 + 反對角線 */
+.game-cell.vertical-line.diagonal-line.anti-diagonal-line {
+    background-image: 
+        linear-gradient(to bottom, transparent 10%, #4CAF50 10%, #4CAF50 90%, transparent 90%),
+        linear-gradient(45deg, transparent 47%, #4CAF50 47%, #4CAF50 53%, transparent 53%),
+        linear-gradient(-45deg, transparent 47%, #4CAF50 47%, #4CAF50 53%, transparent 53%);
+    background-size: 6px 100%, 100% 100%, 100% 100%;
+}
+
+/* 所有四種線條 */
+.game-cell.horizontal-line.vertical-line.diagonal-line.anti-diagonal-line {
+    background-image: 
+        linear-gradient(to right, transparent 10%, #4CAF50 10%, #4CAF50 90%, transparent 90%),
+        linear-gradient(to bottom, transparent 10%, #4CAF50 10%, #4CAF50 90%, transparent 90%),
+        linear-gradient(45deg, transparent 47%, #4CAF50 47%, #4CAF50 53%, transparent 53%),
+        linear-gradient(-45deg, transparent 47%, #4CAF50 47%, #4CAF50 53%, transparent 53%);
+    background-size: 100% 6px, 6px 100%, 100% 100%, 100% 100%;
 }
     border-radius: 3px;
 }
