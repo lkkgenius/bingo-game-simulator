@@ -16,9 +16,15 @@ global.describe = (description, testFn) => {
   testFn();
 };
 
+global.beforeEach = null; // 將在每個測試文件中設置
+
 global.test = (description, testFn) => {
   totalTests++;
   try {
+    // 如果有 beforeEach 函數，在每個測試前執行
+    if (global.beforeEach && typeof global.beforeEach === 'function') {
+      global.beforeEach();
+    }
     testFn();
     console.log(`✓ ${description}`);
     passedTests++;
