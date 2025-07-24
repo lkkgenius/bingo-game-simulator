@@ -47,4 +47,5 @@ node_modules/
 .env
 
 # Kiro specific
-.kiro/
+.kiro/*
+!.kiro/specs/

@@ -196,6 +196,63 @@ class PerformanceMonitor {
         
         return result;
     }
+    
+    /**
+     * 註冊算法測試
+     * @param {string} testName - 測試名稱
+     * @param {Function} testFunction - 測試函數
+     */
+    registerAlgorithmTest(testName, testFunction) {
+        if (!this.algorithmTests) {
+            this.algorithmTests = {};
+        }
+        
+        this.algorithmTests[testName] = testFunction;
+        console.log(`Algorithm test "${testName}" registered`);
+    }
+    
+    /**
+     * 運行註冊的算法測試
+     * @param {string} testName - 測試名稱
+     * @param {...any} args - 傳遞給測試函數的參數
+     * @returns {Object} 測試結果
+     */
+    runAlgorithmTest(testName, ...args) {
+        if (!this.algorithmTests || !this.algorithmTests[testName]) {
+            console.error(`Algorithm test "${testName}" not found`);
+            return null;
+        }
+        
+        console.log(`Running algorithm test "${testName}"`);
+        
+        const startTime = performance.now();
+        const result = this.algorithmTests[testName](...args);
+        const endTime = performance.now();
+        
+        console.log(`Algorithm test "${testName}" completed in ${(endTime - startTime).toFixed(2)}ms`);
+        
+        // 記錄測試結果
+        if (!this.testResults) {
+            this.testResults = {};
+        }
+        
+        if (!this.testResults[testName]) {
+            this.testResults[testName] = [];
+        }
+        
+        this.testResults[testName].push({
+            timestamp: new Date().toISOString(),
+            duration: endTime - startTime,
+            result
+        });
+        
+        // 限制結果歷史記錄大小
+        if (this.testResults[testName].length > 10) {
+            this.testResults[testName].shift();
+        }
+        
+        return result;
+    }
 
     /**
      * 測量渲染性能

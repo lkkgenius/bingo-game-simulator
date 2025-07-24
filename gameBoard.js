@@ -182,11 +182,15 @@ class GameBoard {
     }
 
     /**
-     * 高亮顯示建議的移動
+     * 高亮顯示建議的移動（增強版）
      * @param {number} row - 建議的行位置
      * @param {number} col - 建議的列位置
+     * @param {Object} options - 建議選項
+     * @param {string} options.confidence - 信心度等級
+     * @param {number} options.value - 預期價值
+     * @param {Array} options.alternatives - 替代建議
      */
-    highlightSuggestion(row, col) {
+    highlightSuggestion(row, col, options = {}) {
         // 清除之前的建議高亮
         this.clearSuggestionHighlight();
         
@@ -203,28 +207,162 @@ class GameBoard {
             return;
         }
         
+        // 添加基本建議類別
         cell.classList.add('suggested');
-        this.currentSuggestion = { row, col };
         
-        // 更新無障礙標籤
+        // 添加信心度類別
+        const confidence = options.confidence || 'medium';
+        cell.classList.add(`confidence-${confidence}`);
+        
+        // 設置價值數據屬性
+        if (options.value !== undefined) {
+            cell.setAttribute('data-value', Math.round(options.value));
+        }
+        
+        // 添加出現動畫，使用更長的動畫時間提供更流暢的體驗
+        cell.classList.add('suggestion-appear');
+        setTimeout(() => {
+            cell.classList.remove('suggestion-appear');
+        }, 700);
+        
+        this.currentSuggestion = { 
+            row, 
+            col, 
+            confidence: confidence,
+            value: options.value,
+            alternatives: options.alternatives || []
+        };
+        
+        // 顯示替代建議，限制最多顯示3個替代選項
+        if (options.alternatives && options.alternatives.length > 0) {
+            this.highlightAlternatives(options.alternatives.slice(0, 3));
+        }
+        
+        // 更新無障礙標籤，添加更詳細的信息
         const originalLabel = cell.getAttribute('aria-label');
-        cell.setAttribute('aria-label', `建議移動: ${originalLabel}`);
+        const confidenceLabels = {
+            'very-high': '非常高的信心度',
+            'high': '高信心度',
+            'medium': '中等信心度',
+            'low': '低信心度'
+        };
+        const confidenceText = ` (${confidenceLabels[confidence] || '中等信心度'})`;
+        const valueText = options.value !== undefined ? ` 價值: ${Math.round(options.value)}` : '';
+        cell.setAttribute('aria-label', `建議移動: ${originalLabel}${confidenceText}${valueText}`);
+        
+        // 添加焦點效果，使建議更加醒目
+        this.pulseHighlightEffect(cell);
     }
 
     /**
-     * 清除建議高亮
+     * 高亮顯示替代建議
+     * @param {Array} alternatives - 替代建議陣列
+     */
+    highlightAlternatives(alternatives) {
+        // 清除之前的替代建議
+        this.clearAlternativeHighlights();
+        
+        alternatives.slice(0, 3).forEach((alt, index) => {
+            if (this.isValidPosition(alt.row, alt.col)) {
+                const cell = this.cells[alt.row][alt.col];
+                if (cell.classList.contains('empty')) {
+                    cell.classList.add('alternative-suggestion');
+                    cell.setAttribute('data-alt-value', Math.round(alt.value));
+                    cell.setAttribute('data-alt-rank', index + 2); // 排名從2開始（主建議是1）
+                    
+                    // 更新無障礙標籤
+                    const originalLabel = cell.getAttribute('aria-label');
+                    cell.setAttribute('aria-label', `替代建議 #${index + 2}: ${originalLabel} (價值: ${Math.round(alt.value)})`);
+                    
+                    // 添加延遲動畫效果，每個替代建議有不同的延遲
+                    setTimeout(() => {
+                        cell.classList.add('suggestion-appear');
+                        
+                        // 添加脈衝效果，但比主建議更微妙
+                        const pulseIntensity = 0.7 - (index * 0.15); // 隨著排名降低，強度降低
+                        this.pulseAlternativeEffect(cell, index + 2, pulseIntensity);
+                        
+                        setTimeout(() => {
+                            cell.classList.remove('suggestion-appear');
+                        }, 500);
+                    }, (index + 1) * 150); // 增加延遲時間，使動畫更加明顯
+                }
+            }
+        });
+    }
+
+    /**
+     * 清除替代建議高亮
+     */
+    clearAlternativeHighlights() {
+        for (let row = 0; row < this.size; row++) {
+            for (let col = 0; col < this.size; col++) {
+                const cell = this.cells[row][col];
+                
+                if (cell.classList.contains('alternative-suggestion')) {
+                    // 移除類別
+                    cell.classList.remove('alternative-suggestion', 'suggestion-appear');
+                    
+                    // 移除數據屬性
+                    cell.removeAttribute('data-alt-value');
+                    cell.removeAttribute('data-alt-rank');
+                    
+                    // 移除任何可能存在的脈衝效果元素
+                    const pulseEffect = cell.querySelector('.alternative-pulse-effect');
+                    if (pulseEffect) {
+                        cell.removeChild(pulseEffect);
+                    }
+                    
+                    // 恢復原始標籤
+                    cell.setAttribute('aria-label', `空白格子 ${row + 1}, ${col + 1}`);
+                    
+                    // 重置樣式屬性
+                    cell.style.transform = '';
+                    cell.style.boxShadow = '';
+                }
+            }
+        }
+    }
+
+    /**
+     * 清除建議高亮（增強版）
      */
     clearSuggestionHighlight() {
         if (this.currentSuggestion) {
             const { row, col } = this.currentSuggestion;
             const cell = this.cells[row][col];
-            cell.classList.remove('suggested');
+            
+            // 移除所有建議相關的類別
+            cell.classList.remove(
+                'suggested', 
+                'confidence-very-high', 
+                'confidence-high', 
+                'confidence-medium', 
+                'confidence-low',
+                'suggestion-appear'
+            );
+            
+            // 移除數據屬性
+            cell.removeAttribute('data-value');
+            
+            // 移除任何可能存在的脈衝效果元素
+            const pulseEffect = cell.querySelector('.suggestion-pulse-effect');
+            if (pulseEffect) {
+                cell.removeChild(pulseEffect);
+            }
             
             // 恢復原始標籤
             cell.setAttribute('aria-label', `空白格子 ${row + 1}, ${col + 1}`);
             
+            // 重置樣式屬性
+            cell.style.transform = '';
+            cell.style.boxShadow = '';
+            
             this.currentSuggestion = null;
         }
+        
+        // 清除替代建議
+        this.clearAlternativeHighlights();
     }
 
     /**
@@ -427,6 +565,119 @@ class GameBoard {
      */
     getHighlightedLines() {
         return [...this.highlightedLines];
+    }
+    
+    /**
+     * 為建議格子添加脈衝高亮效果
+     * @param {HTMLElement} cell - 格子元素
+     */
+    pulseHighlightEffect(cell) {
+        // 創建一個臨時的高亮效果元素
+        const highlight = document.createElement('div');
+        highlight.className = 'suggestion-pulse-effect';
+        highlight.style.position = 'absolute';
+        highlight.style.top = '0';
+        highlight.style.left = '0';
+        highlight.style.right = '0';
+        highlight.style.bottom = '0';
+        highlight.style.borderRadius = '8px';
+        highlight.style.pointerEvents = 'none';
+        
+        // 根據信心度設置不同的顏色
+        if (cell.classList.contains('confidence-very-high')) {
+            highlight.style.boxShadow = '0 0 20px 10px rgba(76, 175, 80, 0.6)';
+        } else if (cell.classList.contains('confidence-high')) {
+            highlight.style.boxShadow = '0 0 20px 10px rgba(33, 150, 243, 0.6)';
+        } else if (cell.classList.contains('confidence-medium')) {
+            highlight.style.boxShadow = '0 0 20px 10px rgba(255, 152, 0, 0.6)';
+        } else if (cell.classList.contains('confidence-low')) {
+            highlight.style.boxShadow = '0 0 20px 10px rgba(244, 67, 54, 0.6)';
+        } else {
+            highlight.style.boxShadow = '0 0 20px 10px rgba(255, 193, 7, 0.6)';
+        }
+        
+        // 添加到格子中
+        cell.style.position = 'relative';
+        cell.style.overflow = 'visible';
+        cell.appendChild(highlight);
+        
+        // 創建動畫
+        highlight.animate(
+            [
+                { opacity: 0.8, transform: 'scale(0.95)' },
+                { opacity: 0, transform: 'scale(1.5)' }
+            ],
+            {
+                duration: 1500,
+                iterations: 2,
+                easing: 'ease-out'
+            }
+        ).onfinish = () => {
+            // 動畫結束後移除元素
+            if (highlight.parentNode === cell) {
+                cell.removeChild(highlight);
+            }
+        };
+    }
+    
+    /**
+     * 為替代建議格子添加脈衝效果
+     * @param {HTMLElement} cell - 格子元素
+     * @param {number} rank - 建議排名
+     * @param {number} intensity - 效果強度 (0-1)
+     */
+    pulseAlternativeEffect(cell, rank, intensity = 0.5) {
+        // 創建一個臨時的高亮效果元素
+        const highlight = document.createElement('div');
+        highlight.className = 'alternative-pulse-effect';
+        highlight.style.position = 'absolute';
+        highlight.style.top = '0';
+        highlight.style.left = '0';
+        highlight.style.right = '0';
+        highlight.style.bottom = '0';
+        highlight.style.borderRadius = '8px';
+        highlight.style.pointerEvents = 'none';
+        
+        // 根據排名設置不同的顏色
+        let color;
+        switch (rank) {
+            case 2:
+                color = 'rgba(33, 150, 243, ' + intensity + ')'; // 藍色
+                break;
+            case 3:
+                color = 'rgba(255, 152, 0, ' + intensity + ')'; // 橙色
+                break;
+            case 4:
+                color = 'rgba(244, 67, 54, ' + intensity + ')'; // 紅色
+                break;
+            default:
+                color = 'rgba(158, 158, 158, ' + intensity + ')'; // 灰色
+        }
+        
+        highlight.style.boxShadow = `0 0 15px 5px ${color}`;
+        
+        // 添加到格子中
+        cell.style.position = 'relative';
+        cell.style.overflow = 'visible';
+        cell.appendChild(highlight);
+        
+        // 創建動畫，替代建議的動畫比主建議更短更微妙
+        highlight.animate(
+            [
+                { opacity: 0.6, transform: 'scale(0.97)' },
+                { opacity: 0, transform: 'scale(1.3)' }
+            ],
+            {
+                duration: 1200,
+                iterations: 1,
+                easing: 'ease-out'
+            }
+        ).onfinish = () => {
+            // 動畫結束後移除元素
+            if (highlight.parentNode === cell) {
+                cell.removeChild(highlight);
+            }
+        };
     }
 
     /**

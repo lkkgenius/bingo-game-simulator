@@ -1,214 +1,160 @@
 /**
- * 簡單的測試運行器來驗證LineDetector功能
+ * 測試運行器 - 自動發現並執行所有測試文件
  */
+const fs = require('fs');
+const path = require('path');
 
-const LineDetector = require('./lineDetector.js');
+// 測試結果追蹤
+let totalTests = 0;
+let passedTests = 0;
+let failedTests = 0;
+let currentTestFile = '';
 
-// 簡單的測試框架
-class SimpleTest {
-  constructor() {
-    this.tests = [];
-    this.passed = 0;
-    this.failed = 0;
+// 全局測試函數
+global.describe = (description, testFn) => {
+  console.log(`\n${description}`);
+  testFn();
+};
+
+global.test = (description, testFn) => {
+  totalTests++;
+  try {
+    testFn();
+    console.log(`✓ ${description}`);
+    passedTests++;
+  } catch (error) {
+    console.error(`✗ ${description}`);
+    console.error(`  ${error.message}`);
+    failedTests++;
   }
+};
 
-  test(name, fn) {
-    this.tests.push({ name, fn });
-  }
-
-  expect(actual) {
-    return {
-      toBe: (expected) => {
-        if (actual !== expected) {
-          throw new Error(`Expected ${expected}, but got ${actual}`);
-        }
-      },
-      toEqual: (expected) => {
-        if (JSON.stringify(actual) !== JSON.stringify(expected)) {
-          throw new Error(`Expected ${JSON.stringify(expected)}, but got ${JSON.stringify(actual)}`);
-        }
-      },
-      toHaveLength: (expected) => {
-        if (actual.length !== expected) {
-          throw new Error(`Expected length ${expected}, but got ${actual.length}`);
-        }
-      },
-      toContain: (expected) => {
-        if (!actual.includes(expected)) {
-          throw new Error(`Expected array to contain ${expected}`);
-        }
-      },
-      toBeGreaterThan: (expected) => {
-        if (actual <= expected) {
-          throw new Error(`Expected ${actual} to be greater than ${expected}`);
-        }
-      }
-    };
-  }
-
-  run() {
-    console.log('🧪 開始運行LineDetector測試...\n');
-
-    for (const test of this.tests) {
-      try {
-        test.fn();
-        console.log(`✅ ${test.name}`);
-        this.passed++;
-      } catch (error) {
-        console.log(`❌ ${test.name}`);
-        console.log(`   錯誤: ${error.message}`);
-        this.failed++;
-      }
+global.expect = (actual) => ({
+  toBe: (expected) => {
+    if (actual !== expected) {
+      throw new Error(`Expected ${expected}, but got ${actual}`);
     }
-
-    console.log(`\n📊 測試結果: ${this.passed} 通過, ${this.failed} 失敗`);
-    
-    if (this.failed === 0) {
-      console.log('🎉 所有測試都通過了！');
+  },
+  toEqual: (expected) => {
+    const actualStr = JSON.stringify(actual);
+    const expectedStr = JSON.stringify(expected);
+    if (actualStr !== expectedStr) {
+      throw new Error(`Expected ${expectedStr}, but got ${actualStr}`);
+    }
+  },
+  toHaveLength: (expected) => {
+    if (!actual || actual.length !== expected) {
+      throw new Error(`Expected length ${expected}, but got ${actual ? actual.length : 'undefined'}`);
+    }
+  },
+  toBeGreaterThan: (expected) => {
+    if (!(actual > expected)) {
+      throw new Error(`Expected value greater than ${expected}, but got ${actual}`);
+    }
+  },
+  toBeGreaterThanOrEqual: (expected) => {
+    if (!(actual >= expected)) {
+      throw new Error(`Expected value greater than or equal to ${expected}, but got ${actual}`);
+    }
+  },
+  toBeLessThan: (expected) => {
+    if (!(actual < expected)) {
+      throw new Error(`Expected value less than ${expected}, but got ${actual}`);
+    }
+  },
+  toBeTruthy: () => {
+    if (!actual) {
+      throw new Error(`Expected truthy value, but got ${actual}`);
+    }
+  },
+  toBeFalsy: () => {
+    if (actual) {
+      throw new Error(`Expected falsy value, but got ${actual}`);
     }
   }
+});
+
+// 查找並運行所有測試文件
+function runAllTests() {
+  const testFiles = findTestFiles();
+  console.log(`Found ${testFiles.length} test files`);
+  
+  testFiles.forEach(file => {
+    currentTestFile = file;
+    console.log(`\n=== Running tests in ${file} ===`);
+    try {
+      require(path.join(process.cwd(), file));
+    } catch (error) {
+      console.error(`Error running tests in ${file}:`);
+      console.error(error);
+      failedTests++;
+    }
+  });
+  
+  // 輸出測試結果摘要
+  console.log('\n=== Test Results ===');
+  console.log(`Total tests: ${totalTests}`);
+  console.log(`Passed: ${passedTests}`);
+  console.log(`Failed: ${failedTests}`);
+  
+  generateCoverageReport();
+  
+  process.exit(failedTests > 0 ? 1 : 0);
 }
 
-// 創建測試實例
-const test = new SimpleTest();
-const lineDetector = new LineDetector();
-
-// 水平線檢測測試
-test.test('檢測完整的水平線', () => {
-  const board = [
-    [1, 1, 1, 1, 1], // 完整水平線
-    [0, 2, 0, 1, 0],
-    [2, 0, 1, 0, 2],
-    [0, 1, 0, 2, 0],
-    [1, 0, 2, 0, 1]
-  ];
-
-  const lines = lineDetector.checkHorizontalLines(board);
+// 查找所有測試文件
+function findTestFiles() {
+  const testFiles = [];
   
-  test.expect(lines).toHaveLength(1);
-  test.expect(lines[0].type).toBe('horizontal');
-  test.expect(lines[0].row).toBe(0);
-});
-
-test.test('檢測多條水平線', () => {
-  const board = [
-    [1, 1, 1, 1, 1], // 第一條水平線
-    [0, 2, 0, 1, 0],
-    [2, 2, 2, 2, 2], // 第二條水平線
-    [0, 1, 0, 2, 0],
-    [1, 1, 1, 1, 1]  // 第三條水平線
-  ];
-
-  const lines = lineDetector.checkHorizontalLines(board);
+  function scanDir(dir) {
+    try {
+      const files = fs.readdirSync(dir);
+      
+      files.forEach(file => {
+        const filePath = path.join(dir, file);
+        const stat = fs.statSync(filePath);
+        
+        if (stat.isDirectory()) {
+          scanDir(filePath);
+        } else if (
+          file.endsWith('.test.js') || 
+          (file.startsWith('test-') && file.endsWith('.js'))
+        ) {
+          testFiles.push(filePath);
+        }
+      });
+    } catch (error) {
+      console.error(`Error scanning directory ${dir}:`, error.message);
+    }
+  }
   
-  test.expect(lines).toHaveLength(3);
-});
+  scanDir('.');
+  return testFiles;
+}
 
-// 垂直線檢測測試
-test.test('檢測完整的垂直線', () => {
-  const board = [
-    [1, 0, 2, 0, 1],
-    [1, 2, 0, 1, 0], // 第一列完整
-    [1, 0, 1, 0, 2],
-    [1, 1, 0, 2, 0],
-    [1, 0, 2, 0, 1]
-  ];
-
-  const lines = lineDetector.checkVerticalLines(board);
+// 生成測試覆蓋率報告
+function generateCoverageReport() {
+  console.log('\n=== Test Coverage Report ===');
+  console.log('Note: This is a simplified coverage report');
   
-  test.expect(lines).toHaveLength(1);
-  test.expect(lines[0].type).toBe('vertical');
-  test.expect(lines[0].col).toBe(0);
-});
-
-// 對角線檢測測試
-test.test('檢測主對角線', () => {
-  const board = [
-    [1, 0, 2, 0, 0],
-    [0, 1, 0, 0, 0],
-    [2, 0, 1, 0, 2],
-    [0, 0, 0, 1, 0],
-    [0, 0, 2, 0, 1]
+  const components = [
+    'lineDetector.js',
+    'probabilityCalculator.js',
+    'probabilityCalculator.enhanced.js',
+    'gameEngine.js',
+    'gameBoard.js'
   ];
-
-  const lines = lineDetector.checkDiagonalLines(board);
   
-  test.expect(lines).toHaveLength(1);
-  test.expect(lines[0].type).toBe('diagonal-main');
-});
+  components.forEach(component => {
+    const testFile = component.replace('.js', '.test.js');
+    try {
+      fs.statSync(testFile);
+      console.log(`✓ ${component}: Test file exists`);
+    } catch (error) {
+      console.log(`✗ ${component}: No test file found`);
+    }
+  });
+}
 
-test.test('檢測反對角線', () => {
-  const board = [
-    [0, 0, 2, 0, 1],
-    [0, 2, 0, 1, 0],
-    [2, 0, 1, 0, 2],
-    [0, 1, 0, 2, 0],
-    [1, 0, 2, 0, 0]
-  ];
-
-  const lines = lineDetector.checkDiagonalLines(board);
-  
-  test.expect(lines).toHaveLength(1);
-  test.expect(lines[0].type).toBe('diagonal-anti');
-});
-
-// 綜合測試
-test.test('檢測所有類型的連線', () => {
-  const board = [
-    [1, 1, 1, 1, 1], // 水平線
-    [2, 0, 0, 0, 0],
-    [2, 0, 0, 0, 0],
-    [2, 0, 0, 0, 0],
-    [2, 0, 0, 0, 0]  // 垂直線(第0列)
-  ];
-
-  const lines = lineDetector.getAllLines(board);
-  
-  test.expect(lines).toHaveLength(2); // 1條水平線 + 1條垂直線
-});
-
-test.test('計算連線數量', () => {
-  const board = [
-    [1, 1, 1, 1, 1], // 水平線
-    [2, 0, 0, 0, 0],
-    [2, 0, 0, 0, 0],
-    [2, 0, 0, 0, 0],
-    [2, 0, 0, 0, 0]  // 垂直線
-  ];
-
-  const count = lineDetector.countCompletedLines(board);
-  
-  test.expect(count).toBe(2);
-});
-
-test.test('處理全空的遊戲板', () => {
-  const board = [
-    [0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0]
-  ];
-
-  const lines = lineDetector.getAllLines(board);
-  
-  test.expect(lines).toHaveLength(0);
-});
-
-test.test('處理全滿的遊戲板', () => {
-  const board = [
-    [1, 1, 1, 1, 1],
-    [1, 1, 1, 1, 1],
-    [1, 1, 1, 1, 1],
-    [1, 1, 1, 1, 1],
-    [1, 1, 1, 1, 1]
-  ];
-
-  const lines = lineDetector.getAllLines(board);
-  
-  // 應該有5條水平線 + 5條垂直線 + 2條對角線 = 12條線
-  test.expect(lines).toHaveLength(12);
-});
-
-// 運行所有測試
-test.run();
+// 運行測試
+runAllTests();

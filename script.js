@@ -573,7 +573,7 @@ function restartGame() {
 }
 
 /**
- * Show suggestion for player's next move (optimized with performance monitoring)
+ * Show suggestion for player's next move (enhanced with visual improvements)
  */
 function showPlayerSuggestion() {
     try {
@@ -582,55 +582,398 @@ function showPlayerSuggestion() {
         }
         
         const currentBoard = gameState.getState().board;
+        const suggestionDisplay = document.getElementById('suggestion-display');
+        
+        // 顯示載入狀態
+        if (suggestionDisplay) {
+            suggestionDisplay.classList.add('loading');
+        }
         
         // 使用性能監控測量算法執行時間
         const suggestion = performanceMonitor.measureAlgorithmPerformance('suggestion-calculation', () => {
             return probabilityCalculator.getBestSuggestion(currentBoard);
         });
         
+        // 移除載入狀態
+        if (suggestionDisplay) {
+            suggestionDisplay.classList.remove('loading');
+        }
+        
         if (suggestion) {
             // 使用性能監控測量渲染時間
             performanceMonitor.measureRenderPerformance('suggestion-highlight', () => {
-                gameBoard.highlightSuggestion(suggestion.row, suggestion.col);
+                gameBoard.highlightSuggestion(suggestion.row, suggestion.col, {
+                    confidence: suggestion.confidence,
+                    value: suggestion.value,
+                    alternatives: suggestion.alternatives
+                });
             });
             
-            const suggestionText = document.getElementById('suggestion-text');
-            if (suggestionText) {
-                // 添加信心度和替代選項信息
-                let suggestionMessage = `建議移動: 第${suggestion.row + 1}行, 第${suggestion.col + 1}列 (價值: ${suggestion.value})`;
-                
-                if (suggestion.confidence) {
-                    const confidenceText = {
-                        'very-high': '非常確定',
-                        'high': '高度確定',
-                        'medium': '中等確定',
-                        'low': '低確定度'
-                    };
-                    suggestionMessage += ` - ${confidenceText[suggestion.confidence] || ''}`;
-                }
-                
-                suggestionText.textContent = suggestionMessage;
-                
-                // 添加視覺反饋
-                suggestionText.classList.add('suggestion-appear');
-                setTimeout(() => {
-                    suggestionText.classList.remove('suggestion-appear');
-                }, 500);
-            }
+            // 更新建議顯示區域
+            updateSuggestionDisplay(suggestion);
+            
         } else {
-            const suggestionText = document.getElementById('suggestion-text');
-            if (suggestionText) {
-                suggestionText.textContent = '沒有可用的移動建議';
-                suggestionText.classList.add('warning');
-                setTimeout(() => {
-                    suggestionText.classList.remove('warning');
-                }, 2000);
-            }
+            // 沒有建議時的處理
+            updateSuggestionDisplay(null);
         }
     } catch (error) {
         console.error('Error showing player suggestion:', error);
+        
+        // 移除載入狀態
+        const suggestionDisplay = document.getElementById('suggestion-display');
+        if (suggestionDisplay) {
+            suggestionDisplay.classList.remove('loading');
+        }
+        
         showWarningMessage('無法生成移動建議');
     }
+}
+
+/**
+ * 更新建議顯示區域（增強版）
+ * @param {Object|null} suggestion - 建議對象或null
+ */
+function updateSuggestionDisplay(suggestion) {
+    const suggestionDisplay = document.getElementById('suggestion-display');
+    
+    if (!suggestionDisplay) {
+        return;
+    }
+    
+    // 清除現有內容和類別
+    suggestionDisplay.innerHTML = '';
+    suggestionDisplay.className = 'suggestion-display';
+    
+    if (suggestion) {
+        // 添加信心度類別到顯示區域
+        if (suggestion.confidence) {
+            suggestionDisplay.classList.add(`confidence-${suggestion.confidence}`);
+        }
+        
+        // 創建主要建議文本
+        const mainSuggestion = document.createElement('div');
+        mainSuggestion.id = 'suggestion-text';
+        mainSuggestion.innerHTML = createSuggestionHTML(suggestion);
+        suggestionDisplay.appendChild(mainSuggestion);
+        
+        // 創建價值解釋
+        if (suggestion.value !== undefined) {
+            const valueExplanation = document.createElement('div');
+            valueExplanation.className = 'value-explanation';
+            valueExplanation.innerHTML = createValueExplanation(suggestion.value, suggestion.confidence);
+            suggestionDisplay.appendChild(valueExplanation);
+        }
+        
+        // 創建替代建議區域
+        if (suggestion.alternatives && suggestion.alternatives.length > 0) {
+            const alternativesContainer = document.createElement('div');
+            alternativesContainer.className = 'alternatives-container';
+            alternativesContainer.innerHTML = createAlternativesHTML(suggestion.alternatives);
+            suggestionDisplay.appendChild(alternativesContainer);
+            
+            // 為替代建議添加點擊事件
+            setupAlternativeClickHandlers(alternativesContainer, suggestion.alternatives);
+        }
+        
+        // 添加更新動畫，根據信心度使用不同的動畫
+        suggestionDisplay.classList.add('suggestion-update');
+        setTimeout(() => {
+            suggestionDisplay.classList.remove('suggestion-update');
+        }, 600); // 延長動畫時間
+        
+    } else {
+        // 沒有建議時的顯示
+        const noSuggestion = document.createElement('div');
+        noSuggestion.id = 'suggestion-text';
+        noSuggestion.innerHTML = '<i class="fa fa-info-circle"></i> 沒有可用的移動建議';
+        noSuggestion.style.color = '#FF6F00';
+        suggestionDisplay.appendChild(noSuggestion);
+        
+        // 添加提示信息
+        const noSuggestionHint = document.createElement('div');
+        noSuggestionHint.className = 'value-explanation';
+        noSuggestionHint.textContent = '所有可用的移動都具有相似的價值，或者沒有可用的空格子。';
+        suggestionDisplay.appendChild(noSuggestionHint);
+    }
+}
+
+/**
+ * 創建建議HTML內容（增強版）
+ * @param {Object} suggestion - 建議對象
+ * @returns {string} HTML字符串
+ */
+function createSuggestionHTML(suggestion) {
+    const confidenceText = {
+        'very-high': '非常高的信心度',
+        'high': '高信心度',
+        'medium': '中等信心度',
+        'low': '低信心度'
+    };
+    
+    const confidenceClass = suggestion.confidence || 'medium';
+    const confidenceLabel = confidenceText[suggestion.confidence] || '中等信心度';
+    
+    // 添加圖標以增強視覺效果
+    const icons = {
+        'very-high': '★★★',
+        'high': '★★☆',
+        'medium': '★☆☆',
+        'low': '☆☆☆'
+    };
+    
+    const icon = icons[confidenceClass] || '★☆☆';
+    
+    return `
+        <div class="suggestion-position">
+            建議移動: <strong>第${suggestion.row + 1}行, 第${suggestion.col + 1}列</strong>
+        </div>
+        <span class="confidence-indicator ${confidenceClass}">
+            ${icon} ${confidenceLabel}
+        </span>
+    `;
+}
+
+/**
+ * 創建價值解釋內容（增強版）
+ * @param {number} value - 價值分數
+ * @param {string} confidence - 信心度
+ * @returns {string} 解釋文本
+ */
+function createValueExplanation(value, confidence) {
+    const roundedValue = Math.round(value);
+    
+    // 根據價值範圍確定信心度類別
+    let valueClass = 'low';
+    if (value >= 100) {
+        valueClass = 'very-high';
+    } else if (value >= 50) {
+        valueClass = 'high';
+    } else if (value >= 10) {
+        valueClass = 'medium';
+    }
+    
+    // 創建帶有高亮的價值顯示
+    const valueHighlight = `<span class="value-highlight ${valueClass}">${roundedValue}</span>`;
+    
+    let explanation = `預期價值: ${valueHighlight} 分`;
+    
+    // 根據價值提供詳細解釋
+    if (value >= 100) {
+        explanation += `
+            <div class="value-detail">
+                <strong>極高價值!</strong> 此移動可能直接完成一條連線，是最佳選擇。
+            </div>
+        `;
+    } else if (value >= 50) {
+        explanation += `
+            <div class="value-detail">
+                <strong>高價值:</strong> 此移動有助於與電腦合作完成連線，大幅提高成功機會。
+            </div>
+        `;
+    } else if (value >= 10) {
+        explanation += `
+            <div class="value-detail">
+                <strong>中等價值:</strong> 此移動增加未來連線的潛力，為後續回合創造機會。
+            </div>
+        `;
+    } else {
+        explanation += `
+            <div class="value-detail">
+                <strong>基本價值:</strong> 此移動提供基本的戰略價值，但可能不會立即產生明顯效果。
+            </div>
+        `;
+    }
+    
+    return explanation;
+}
+
+/**
+ * 創建替代建議HTML內容（增強版）
+ * @param {Array} alternatives - 替代建議陣列
+ * @returns {string} HTML字符串
+ */
+function createAlternativesHTML(alternatives) {
+    const alternativeItems = alternatives.slice(0, 3).map((alt, index) => {
+        // 計算與最佳建議的價值差異百分比
+        const rank = index + 2; // 排名從2開始（主建議是1）
+        const roundedValue = Math.round(alt.value);
+        
+        return `
+            <div class="alternative-item" 
+                data-row="${alt.row}" 
+                data-col="${alt.col}" 
+                data-value="${alt.value}"
+                data-rank="${rank}">
+                <span class="alternative-position">第${alt.row + 1}行,${alt.col + 1}列</span>
+                <span class="alternative-value">${roundedValue}分</span>
+            </div>
+        `;
+    }).join('');
+    
+    return `
+        <div class="alternatives-title">其他可能的選擇</div>
+        <div class="alternatives-list">
+            ${alternativeItems}
+        </div>
+        <div class="alternatives-hint">點擊任一選項可查看詳細信息</div>
+    `;
+}
+
+/**
+ * 為替代建議設置點擊事件處理器（增強版）
+ * @param {HTMLElement} container - 替代建議容器
+ * @param {Array} alternatives - 替代建議陣列
+ */
+function setupAlternativeClickHandlers(container, alternatives) {
+    const alternativeItems = container.querySelectorAll('.alternative-item');
+    
+    alternativeItems.forEach((item, index) => {
+        item.addEventListener('click', () => {
+            const row = parseInt(item.dataset.row);
+            const col = parseInt(item.dataset.col);
+            const value = parseFloat(item.dataset.value);
+            const rank = parseInt(item.dataset.rank);
+            
+            // 高亮顯示選中的替代建議，使用適當的信心度
+            gameBoard.clearSuggestionHighlight();
+            
+            // 根據排名確定信心度
+            let confidence;
+            if (rank === 2) confidence = 'medium';
+            else if (rank === 3) confidence = 'medium';
+            else confidence = 'low';
+            
+            // 過濾掉當前選中的替代建議
+            const remainingAlternatives = alternatives.filter(alt => 
+                alt.row !== row || alt.col !== col
+            );
+            
+            // 添加原始最佳建議作為替代建議之一
+            const originalBest = gameBoard.getCurrentSuggestion();
+            if (originalBest) {
+                remainingAlternatives.unshift({
+                    row: originalBest.row,
+                    col: originalBest.col,
+                    value: originalBest.value
+                });
+            }
+            
+            // 高亮顯示選中的替代建議
+            gameBoard.highlightSuggestion(row, col, {
+                confidence: confidence,
+                value: value,
+                alternatives: remainingAlternatives.slice(0, 2) // 最多顯示2個替代建議
+            });
+            
+            // 更新建議顯示
+            const newSuggestion = {
+                row: row,
+                col: col,
+                value: value,
+                confidence: confidence,
+                alternatives: remainingAlternatives.slice(0, 2)
+            };
+            
+            updateSuggestionDisplay(newSuggestion);
+            
+            // 增強的視覺反饋
+            // 1. 添加點擊波紋效果
+            const ripple = document.createElement('span');
+            ripple.className = 'ripple-effect';
+            ripple.style.position = 'absolute';
+            ripple.style.top = '50%';
+            ripple.style.left = '50%';
+            ripple.style.transform = 'translate(-50%, -50%)';
+            ripple.style.width = '0';
+            ripple.style.height = '0';
+            ripple.style.borderRadius = '50%';
+            ripple.style.backgroundColor = 'rgba(33, 150, 243, 0.4)';
+            ripple.style.zIndex = '1';
+            
+            // 確保item有相對定位
+            item.style.position = 'relative';
+            item.style.overflow = 'hidden';
+            item.appendChild(ripple);
+            
+            // 動畫
+            ripple.animate(
+                [
+                    { width: '0', height: '0', opacity: 1 },
+                    { width: '200px', height: '200px', opacity: 0 }
+                ],
+                {
+                    duration: 600,
+                    easing: 'ease-out'
+                }
+            ).onfinish = () => {
+                if (ripple.parentNode === item) {
+                    item.removeChild(ripple);
+                }
+            };
+            
+            // 2. 高亮選中項
+            item.style.backgroundColor = 'rgba(33, 150, 243, 0.2)';
+            item.style.borderColor = 'rgba(33, 150, 243, 0.6)';
+            item.style.color = '#1565C0';
+            item.style.fontWeight = 'bold';
+            
+            // 3. 恢復其他項的樣式
+            alternativeItems.forEach(otherItem => {
+                if (otherItem !== item) {
+                    otherItem.style.backgroundColor = '';
+                    otherItem.style.borderColor = '';
+                    otherItem.style.color = '';
+                    otherItem.style.fontWeight = '';
+                }
+            });
+        });
+        
+        // 增強的懸停效果
+        item.addEventListener('mouseenter', () => {
+            const row = parseInt(item.dataset.row);
+            const col = parseInt(item.dataset.col);
+            
+            // 1. 改變替代建議項的樣式
+            item.style.backgroundColor = 'rgba(33, 150, 243, 0.1)';
+            item.style.borderColor = 'rgba(33, 150, 243, 0.4)';
+            item.style.transform = 'translateY(-2px)';
+            item.style.boxShadow = '0 4px 8px rgba(0, 0, 0, 0.1)';
+            
+            // 2. 高亮對應的格子
+            if (gameBoard.isValidPosition(row, col)) {
+                const cell = gameBoard.getCell(row, col);
+                if (cell && cell.classList.contains('empty')) {
+                    cell.style.transform = 'scale(1.08)';
+                    cell.style.boxShadow = '0 0 15px rgba(33, 150, 243, 0.6)';
+                    cell.style.zIndex = '10';
+                    cell.style.transition = 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+                }
+            }
+        });
+        
+        item.addEventListener('mouseleave', () => {
+            const row = parseInt(item.dataset.row);
+            const col = parseInt(item.dataset.col);
+            
+            // 1. 恢復替代建議項的樣式
+            if (!item.style.fontWeight || item.style.fontWeight !== 'bold') {
+                item.style.backgroundColor = '';
+                item.style.borderColor = '';
+            }
+            item.style.transform = '';
+            item.style.boxShadow = '';
+            
+            // 2. 恢復格子樣式
+            if (gameBoard.isValidPosition(row, col)) {
+                const cell = gameBoard.getCell(row, col);
+                if (cell) {
+                    cell.style.transform = '';
+                    cell.style.boxShadow = '';
+                    cell.style.zIndex = '';
+                }
+            }
+        });
+    });
 }
 
 /**

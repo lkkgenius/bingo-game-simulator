@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bingo 遊戲模擬器 - 算法比較</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .algorithm-comparison {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        
+        .comparison-section {
+            margin-bottom: 20px;
+            padding: 15px;
+            border-radius: 5px;
+            background-color: #fff;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .comparison-section h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            font-size: 18px;
+            color: #333;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 8px;
+        }
+        
+        .comparison-chart {
+            margin-bottom: 15px;
+        }
+        
+        .bar-container {
+            display: flex;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+        
+        .bar-label {
+            width: 120px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .bar {
+            height: 24px;
+            border-radius: 3px;
+            color: white;
+            display: flex;
+            align-items: center;
+            padding: 0 10px;
+            font-size: 13px;
+            transition: width 0.5s ease-in-out;
+            min-width: 40px;
+            justify-content: flex-end;
+        }
+        
+        .bar.standard {
+            background-color: #3498db;
+        }
+        
+        .bar.enhanced {
+            background-color: #2ecc71;
+        }
+        
+        .improvement {
+            font-weight: bold;
+            color: #27ae60;
+            margin-top: 10px;
+            font-size: 15px;
+        }
+        
+        .suggestion-comparison {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .suggestion-item {
+            display: flex;
+            margin-bottom: 8px;
+            align-items: center;
+        }
+        
+        .suggestion-label {
+            width: 150px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .suggestion-value {
+            font-weight: 500;
+            padding: 3px 8px;
+            background-color: #f8f9fa;
+            border-radius: 3px;
+            border: 1px solid #e9ecef;
+        }
+        
+        .suggestion-result {
+            font-weight: bold;
+            margin-top: 10px;
+            padding: 5px 10px;
+            border-radius: 3px;
+            display: inline-block;
+        }
+        
+        .suggestion-result.same {
+            color: #27ae60;
+            background-color: #e8f8f5;
+        }
+        
+        .suggestion-result.different {
+            color: #e74c3c;
+            background-color: #fdedec;
+        }
+        
+        .metrics-data {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .metric-item {
+            display: flex;
+            margin-bottom: 8px;
+            align-items: center;
+        }
+        
+        .metric-label {
+            width: 150px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+        
+        .metric-value {
+            font-weight: 500;
+        }
+        
+        .controls {
+            margin-bottom: 25px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            border: 1px solid #e9ecef;
+        }
+        
+        .btn {
+            padding: 10px 18px;
+            background-color: #3498db;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-right: 12px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        
+        .btn:hover {
+            background-color: #2980b9;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .btn:active {
+            transform: translateY(0);
+        }
+        
+        .btn-benchmark {
+            background-color: #9b59b6;
+        }
+        
+        .btn-benchmark:hover {
+            background-color: #8e44ad;
+        }
+        
+        .btn-test-case {
+            background-color: #f39c12;
+        }
+        
+        .btn-test-case:hover {
+            background-color: #e67e22;
+        }
+        
+        .benchmark-results {
+            margin-top: 25px;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f9f9f9;
+        }
+        
+        .benchmark-summary {
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+        
+        .benchmark-detail {
+            margin-top: 15px;
+            padding: 15px;
+            background-color: #fff;
+            border-radius: 5px;
+            border: 1px solid #eee;
+        }
+        
+        .benchmark-chart {
+            margin: 20px 0;
+            height: 300px;
+            border: 1px solid #eee;
+            padding: 10px;
+            background-color: #fff;
+            border-radius: 5px;
+        }
+        
+        .game-board {
+            display: grid;
+            grid-template-columns: repeat(5, 60px);
+            grid-template-rows: repeat(5, 60px);
+            gap: 5px;
+            margin-bottom: 20px;
+        }
+        
+        .cell {
+            width: 60px;
+            height: 60px;
+            border: 1px solid #ddd;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            cursor: pointer;
+            background-color: #fff;
+            transition: all 0.2s ease;
+        }
+        
+        .cell:hover {
+            background-color: #f8f9fa;
+            transform: scale(1.05);
+        }
+        
+        .cell.player {
+            background-color: #3498db;
+            color: white;
+        }
+        
+        .cell.computer {
+            background-color: #e74c3c;
+            color: white;
+        }
+        
+        .cell.suggested {
+            border: 2px solid #2ecc71;
+        }
+        
+        .memory-usage {
+            margin-top: 10px;
+        }
+        
+        .memory-chart {
+            margin-top: 10px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .memory-bar {
+            height: 20px;
+            border-radius: 3px;
+            margin-right: 10px;
+        }
+        
+        .quality-detail {
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 3px;
+            border: 1px solid #e9ecef;
+        }
+        
+        .quality-reason {
+            font-style: italic;
+            color: #666;
+            margin-top: 5px;
+        }
+        
+        .tab-container {
+            margin-bottom: 20px;
+        }
+        
+        .tab-buttons {
+            display: flex;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .tab-button {
+            padding: 10px 20px;
+            background-color: #f8f9fa;
+            border: 1px solid #ddd;
+            border-bottom: none;
+            border-radius: 5px 5px 0 0;
+            margin-right: 5px;
+            cursor: pointer;
+        }
+        
+        .tab-button.active {
+            background-color: #fff;
+            border-bottom: 1px solid #fff;
+            margin-bottom: -1px;
+            font-weight: bold;
+        }
+        
+        .tab-content {
+            display: none;
+            padding: 20px;
+            border: 1px solid #ddd;
+            border-top: none;
+            background-color: #fff;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .progress-container {
+            width: 100%;
+            height: 20px;
+            background-color: #f0f0f0;
+            border-radius: 10px;
+            margin: 10px 0;
+            overflow: hidden;
+        }
+        
+        .progress-bar {
+            height: 100%;
+            background-color: #4CAF50;
+            border-radius: 10px;
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Bingo 遊戲模擬器 - 算法性能比較</h1>
+        
+        <div class="tab-container">
+            <div class="tab-buttons">
+                <div class="tab-button active" data-tab="comparison">單次比較</div>
+                <div class="tab-button" data-tab="benchmark">基準測試</div>
+                <div class="tab-button" data-tab="test-cases">預設測試案例</div>
+            </div>
+            
+            <div class="tab-content active" id="comparison-tab">
+                <div class="controls">
+                    <button id="compareBtn" class="btn">比較當前遊戲板</button>
+                    <button id="randomBoardBtn" class="btn">生成隨機遊戲板</button>
+                    <button id="clearBoardBtn" class="btn">清空遊戲板</button>
+                </div>
+                
+                <div class="game-board-container">
+                    <h2>遊戲板</h2>
+                    <p>點擊格子可以切換狀態：空白 → 玩家 → 電腦 → 空白</p>
+                    <div id="gameBoard" class="game-board"></div>
+                    <div id="boardInfo" style="margin-top: 10px; font-size: 14px;"></div>
+                </div>
+                
+                <div id="comparisonResult"></div>
+            </div>
+            
+            <div class="tab-content" id="benchmark-tab">
+                <div class="controls">
+                    <button id="benchmarkBtn" class="btn btn-benchmark">執行基準測試 (10次)</button>
+                    <button id="benchmark20Btn" class="btn btn-benchmark">執行基準測試 (20次)</button>
+                    <button id="benchmarkCustomBtn" class="btn btn-benchmark">自定義測試</button>
+                    <input type="number" id="customIterations" min="1" max="100" value="10" style="width: 60px; padding: 8px; margin-right: 10px;">
+                    <span>次</span>
+                </div>
+                
+                <div id="benchmarkResults" class="benchmark-results" style="display: none;">
+                    <h2>基準測試結果</h2>
+                    <div id="benchmarkSummary" class="benchmark-summary"></div>
+                    
+                    <div class="benchmark-detail">
+                        <h3>性能比較</h3>
+                        <div id="performanceChart" class="benchmark-chart"></div>
+                        
+                        <h3>記憶體使用比較</h3>
+                        <div id="memoryChart" class="benchmark-chart"></div>
+                        
+                        <h3>建議質量比較</h3>
+                        <div id="qualityChart" class="benchmark-chart"></div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tab-content" id="test-cases-tab">
+                <div class="controls">
+                    <button id="runTestCasesBtn" class="btn btn-test-case">執行預設測試案例</button>
+                </div>
+                
+                <div id="testCasesContainer">
+                    <h2>預設測試案例</h2>
+                    <p>這些測試案例涵蓋了不同的遊戲情境，用於全面評估算法性能。</p>
+                    
+                    <div id="testCasesList" style="margin-top: 20px;"></div>
+                </div>
+                
+                <div id="testCasesResults" style="display: none;">
+                    <h2>測試案例結果</h2>
+                    <div id="testCasesSummary"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="performance-monitor.js"></script>
+    <script src="probabilityCalculator.js"></script>
+    <script src="probabilityCalculator.enhanced.js"></script>
+    <script src="algorithmComparison.js"></script>
+    <script>
+        // 初始化
+        const comparison = new AlgorithmComparison();
+        let currentBoard = Array(5).fill().map(() => Array(5).fill(0));
+        
+        // DOM 元素
+        const gameBoardElement = document.getElementById('gameBoard');
+        const comparisonResultElement = document.getElementById('comparisonResult');
+        const compareBtn = document.getElementById('compareBtn');
+        const randomBoardBtn = document.getElementById('randomBoardBtn');
+        const benchmarkBtn = document.getElementById('benchmarkBtn');
+        const benchmarkResultsElement = document.getElementById('benchmarkResults');
+        const benchmarkSummaryElement = document.getElementById('benchmarkSummary');
+        
+        // 渲染遊戲板
+        function renderGameBoard() {
+            gameBoardElement.innerHTML = '';
+            
+            for (let row = 0; row < 5; row++) {
+                for (let col = 0; col < 5; col++) {
+                    const cell = document.createElement('div');
+                    cell.className = 'cell';
+                    cell.dataset.row = row;
+                    cell.dataset.col = col;
+                    
+                    if (currentBoard[row][col] === 1) {
+                        cell.classList.add('player');
+                        cell.textContent = 'P';
+                    } else if (currentBoard[row][col] === 2) {
+                        cell.classList.add('computer');
+                        cell.textContent = 'C';
+                    } else {
+                        cell.textContent = '';
+                        cell.addEventListener('click', () => toggleCell(row, col));
+                    }
+                    
+                    gameBoardElement.appendChild(cell);
+                }
+            }
+        }
+        
+        // 切換格子狀態
+        function toggleCell(row, col) {
+            if (currentBoard[row][col] === 0) {
+                currentBoard[row][col] = 1; // 玩家
+            } else if (currentBoard[row][col] === 1) {
+                currentBoard[row][col] = 2; // 電腦
+            } else {
+                currentBoard[row][col] = 0; // 空白
+            }
+            
+            renderGameBoard();
+        }
+        
+        // 生成隨機遊戲板
+        function generateRandomBoard() {
+            currentBoard = comparison.generateRandomBoard(8);
+            renderGameBoard();
+        }
+        
+        // 比較算法
+        function compareAlgorithms() {
+            const result = comparison.compareAlgorithms(currentBoard);
+            
+            // 顯示比較結果
+            comparisonResultElement.innerHTML = '';
+            comparisonResultElement.appendChild(comparison.createComparisonVisual(result));
+            
+            // 高亮顯示建議
+            if (result.suggestions.standard) {
+                const { row, col } = result.suggestions.standard;
+                const cell = document.querySelector(`.cell[data-row="${row}"][data-col="${col}"]`);
+                if (cell && currentBoard[row][col] === 0) {
+                    cell.style.border = '2px solid #3498db';
+                }
+            }
+            
+            if (result.suggestions.enhanced) {
+                const { row, col } = result.suggestions.enhanced;
+                const cell = document.querySelector(`.cell[data-row="${row}"][data-col="${col}"]`);
+                if (cell && currentBoard[row][col] === 0) {
+                    cell.style.border = '2px solid #2ecc71';
+                }
+            }
+        }
+        
+        // 執行基準測試
+        function runBenchmark() {
+            benchmarkBtn.disabled = true;
+            benchmarkBtn.textContent = '測試中...';
+            benchmarkResultsElement.style.display = 'block';
+            benchmarkSummaryElement.textContent = '正在執行基準測試，請稍候...';
+            
+            // 延遲執行，讓 UI 有時間更新
+            setTimeout(() => {
+                comparison.runBenchmark(10, null, (summary, results) => {
+                    benchmarkBtn.disabled = false;
+                    benchmarkBtn.textContent = '執行基準測試 (10次)';
+                    
+                    // 顯示摘要
+                    benchmarkSummaryElement.innerHTML = `
+                        <p>測試迭代次數: ${summary.iterations}</p>
+                        <p>平均標準算法時間: ${summary.performance.avgStandardTime}</p>
+                        <p>平均增強版算法時間: ${summary.performance.avgEnhancedTime}</p>
+                        <p>平均性能提升: ${summary.performance.avgImprovement}</p>
+                        <p>相同建議比例: ${summary.quality.sameMovesPercent}</p>
+                        <p>增強版更好的比例: ${summary.quality.enhancedBetterPercent}</p>
+                    `;
+                });
+            }, 100);
+        }
+        
+        // 事件監聽器
+        compareBtn.addEventListener('click', compareAlgorithms);
+        randomBoardBtn.addEventListener('click', generateRandomBoard);
+        benchmarkBtn.addEventListener('click', runBenchmark);
+        
+        // 初始化
+        generateRandomBoard();
+    </script>
+</body>
+</html>
