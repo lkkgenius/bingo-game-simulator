@@ -1173,6 +1173,7 @@ button:disabled {
     border-left: 6px solid #2196F3;
     margin-bottom: 20px;
     text-align: center;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
 }
 
 .result-panel h3 {
@@ -1207,6 +1208,8 @@ button:disabled {
 .stat-value {
     font-size: 1.5rem;
     font-weight: bold;
+    color: #1565C0;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.1);
     color: #2c3e50;
 }
 
@@ -2209,15 +2212,32 @@ button:disabled {
         color: #BBDEFB;
     }
     
-    .results-content {
+    .results-content,
+    .result-panel {
         background: #263238;
         color: #ECEFF1;
         border: 1px solid rgba(66, 165, 245, 0.3);
     }
     
+    .result-panel h3 {
+        color: #90CAF9;
+        border-bottom: 2px solid rgba(66, 165, 245, 0.5);
+    }
+    
     .final-stats,
     .lines-list {
         background: #37474F;
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    }
+    
+    .stat-label {
+        color: #B0BEC5;
+    }
+    
+    .stat-value {
+        color: #FFFFFF;
+        text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
     }
     
     .line-item {
@@ -2229,6 +2249,17 @@ button:disabled {
         background: #263238;
         color: #ECEFF1;
         border-left: 4px solid #42A5F5;
+    }
+    
+    /* Ensure buttons are visible in dark mode */
+    .primary-btn {
+        background: linear-gradient(135deg, #2196F3, #1976D2);
+        border: 1px solid #1565C0;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    }
+    
+    .primary-btn:hover:not(:disabled) {
+        background: linear-gradient(135deg, #42A5F5, #1E88E5);
     }
 }
 
