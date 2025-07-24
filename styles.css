@@ -182,26 +182,298 @@ header h1 {
     font-weight: bold;
 }
 
-/* Suggestion highlight */
+/* Enhanced suggestion highlight with confidence levels - Improved */
 .game-cell.suggested {
-    background-color: #FFEB3B !important; /* 亮黃色，使用 !important 確保覆蓋其他樣式 */
-    border-color: #FF6F00;
     border-width: 4px;
     animation: pulse-suggestion 1.5s infinite;
-    box-shadow: 0 0 20px rgba(255, 193, 7, 0.9);
     position: relative;
-    z-index: 5; /* 確保在其他元素之上 */
+    z-index: 5;
+    transition: all 0.3s ease;
+    transform-origin: center;
+    box-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
+    overflow: visible;
 }
 
+/* Confidence-based suggestion colors with improved gradients */
+.game-cell.suggested.confidence-very-high {
+    background: radial-gradient(circle, #4CAF50, #2E7D32) !important;
+    border-color: #1B5E20;
+    box-shadow: 0 0 30px rgba(76, 175, 80, 0.9), inset 0 0 15px rgba(255, 255, 255, 0.4);
+    animation: pulse-suggestion-very-high 1.5s infinite;
+}
+
+.game-cell.suggested.confidence-high {
+    background: radial-gradient(circle, #2196F3, #1565C0) !important;
+    border-color: #0D47A1;
+    box-shadow: 0 0 30px rgba(33, 150, 243, 0.9), inset 0 0 15px rgba(255, 255, 255, 0.4);
+    animation: pulse-suggestion-high 1.5s infinite;
+}
+
+.game-cell.suggested.confidence-medium {
+    background: radial-gradient(circle, #FF9800, #E65100) !important;
+    border-color: #BF360C;
+    box-shadow: 0 0 30px rgba(255, 152, 0, 0.9), inset 0 0 15px rgba(255, 255, 255, 0.4);
+    animation: pulse-suggestion-medium 1.5s infinite;
+}
+
+.game-cell.suggested.confidence-low {
+    background: radial-gradient(circle, #F44336, #C62828) !important;
+    border-color: #B71C1C;
+    box-shadow: 0 0 30px rgba(244, 67, 54, 0.9), inset 0 0 15px rgba(255, 255, 255, 0.4);
+    animation: pulse-suggestion-low 1.5s infinite;
+}
+
+/* Default suggestion (fallback) with improved gradient */
+.game-cell.suggested:not(.confidence-very-high):not(.confidence-high):not(.confidence-medium):not(.confidence-low) {
+    background: radial-gradient(circle, #FFEB3B, #FFC107) !important;
+    border-color: #FF6F00;
+    box-shadow: 0 0 30px rgba(255, 193, 7, 0.9), inset 0 0 15px rgba(255, 255, 255, 0.4);
+}
+
+/* Enhanced pulse animations with confidence variations */
 @keyframes pulse-suggestion {
     0%, 100% {
         transform: scale(1);
-        box-shadow: 0 0 15px rgba(255, 193, 7, 0.7);
+        opacity: 1;
     }
     50% {
         transform: scale(1.08);
-        box-shadow: 0 0 25px rgba(255, 193, 7, 1);
+        opacity: 0.9;
     }
+}
+
+@keyframes pulse-suggestion-very-high {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 0 30px rgba(76, 175, 80, 0.9), inset 0 0 15px rgba(255, 255, 255, 0.4);
+    }
+    50% {
+        transform: scale(1.1);
+        box-shadow: 0 0 40px rgba(76, 175, 80, 1), inset 0 0 20px rgba(255, 255, 255, 0.6);
+    }
+}
+
+@keyframes pulse-suggestion-high {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 0 30px rgba(33, 150, 243, 0.9), inset 0 0 15px rgba(255, 255, 255, 0.4);
+    }
+    50% {
+        transform: scale(1.09);
+        box-shadow: 0 0 40px rgba(33, 150, 243, 1), inset 0 0 20px rgba(255, 255, 255, 0.6);
+    }
+}
+
+@keyframes pulse-suggestion-medium {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 0 30px rgba(255, 152, 0, 0.9), inset 0 0 15px rgba(255, 255, 255, 0.4);
+    }
+    50% {
+        transform: scale(1.08);
+        box-shadow: 0 0 40px rgba(255, 152, 0, 1), inset 0 0 20px rgba(255, 255, 255, 0.6);
+    }
+}
+
+@keyframes pulse-suggestion-low {
+    0%, 100% {
+        transform: scale(1);
+        box-shadow: 0 0 30px rgba(244, 67, 54, 0.9), inset 0 0 15px rgba(255, 255, 255, 0.4);
+    }
+    50% {
+        transform: scale(1.07);
+        box-shadow: 0 0 40px rgba(244, 67, 54, 1), inset 0 0 20px rgba(255, 255, 255, 0.6);
+    }
+}
+
+/* Alternative suggestion highlighting - Improved */
+.game-cell.alternative-suggestion {
+    border: 2px dashed #9E9E9E;
+    position: relative;
+    z-index: 3;
+    overflow: visible;
+}
+
+.game-cell.alternative-suggestion[data-alt-rank="2"] {
+    background: rgba(33, 150, 243, 0.15) !important;
+    border-color: rgba(33, 150, 243, 0.5);
+    animation: fade-alternative-2 2s infinite;
+}
+
+.game-cell.alternative-suggestion[data-alt-rank="3"] {
+    background: rgba(255, 152, 0, 0.15) !important;
+    border-color: rgba(255, 152, 0, 0.5);
+    animation: fade-alternative-3 2s infinite;
+}
+
+.game-cell.alternative-suggestion[data-alt-rank="4"] {
+    background: rgba(244, 67, 54, 0.15) !important;
+    border-color: rgba(244, 67, 54, 0.5);
+    animation: fade-alternative-4 2s infinite;
+}
+
+@keyframes fade-alternative-2 {
+    0%, 100% {
+        opacity: 0.7;
+        box-shadow: 0 0 10px rgba(33, 150, 243, 0.3);
+    }
+    50% {
+        opacity: 0.9;
+        box-shadow: 0 0 15px rgba(33, 150, 243, 0.5);
+    }
+}
+
+@keyframes fade-alternative-3 {
+    0%, 100% {
+        opacity: 0.6;
+        box-shadow: 0 0 8px rgba(255, 152, 0, 0.3);
+    }
+    50% {
+        opacity: 0.8;
+        box-shadow: 0 0 12px rgba(255, 152, 0, 0.5);
+    }
+}
+
+@keyframes fade-alternative-4 {
+    0%, 100% {
+        opacity: 0.5;
+        box-shadow: 0 0 6px rgba(244, 67, 54, 0.3);
+    }
+    50% {
+        opacity: 0.7;
+        box-shadow: 0 0 10px rgba(244, 67, 54, 0.5);
+    }
+}
+
+/* Value indicator overlay - Improved */
+.game-cell.suggested::after {
+    content: attr(data-value);
+    position: absolute;
+    top: -10px;
+    right: -10px;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    font-size: 0.8rem;
+    font-weight: bold;
+    padding: 3px 8px;
+    border-radius: 12px;
+    min-width: 24px;
+    text-align: center;
+    z-index: 10;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+    animation: value-appear 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+/* Alternative suggestion value indicator */
+.game-cell.alternative-suggestion::after {
+    content: attr(data-alt-value);
+    position: absolute;
+    top: -8px;
+    right: -8px;
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    font-size: 0.7rem;
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 10px;
+    min-width: 18px;
+    text-align: center;
+    z-index: 10;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+    animation: alt-value-appear 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+@keyframes value-appear {
+    0% {
+        opacity: 0;
+        transform: scale(0.5) translateY(10px);
+    }
+    70% {
+        transform: scale(1.1) translateY(-2px);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+@keyframes alt-value-appear {
+    0% {
+        opacity: 0;
+        transform: scale(0.5) translateY(5px);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* Confidence indicator icon - Improved */
+.game-cell.suggested::before {
+    content: '';
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    z-index: 10;
+    animation: confidence-pulse 1.2s infinite;
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.game-cell.suggested.confidence-very-high::before {
+    background: radial-gradient(circle, #4CAF50, #1B5E20);
+    box-shadow: 0 0 10px rgba(27, 94, 32, 0.8);
+}
+
+.game-cell.suggested.confidence-high::before {
+    background: radial-gradient(circle, #2196F3, #0D47A1);
+    box-shadow: 0 0 10px rgba(13, 71, 161, 0.8);
+}
+
+.game-cell.suggested.confidence-medium::before {
+    background: radial-gradient(circle, #FF9800, #E65100);
+    box-shadow: 0 0 10px rgba(230, 81, 0, 0.8);
+}
+
+.game-cell.suggested.confidence-low::before {
+    background: radial-gradient(circle, #F44336, #B71C1C);
+    box-shadow: 0 0 10px rgba(183, 28, 28, 0.8);
+}
+
+@keyframes confidence-pulse {
+    0%, 100% {
+        transform: scale(1);
+        opacity: 1;
+    }
+    50% {
+        transform: scale(1.3);
+        opacity: 0.8;
+    }
+}
+
+/* Rank indicator for alternative suggestions */
+.game-cell.alternative-suggestion::before {
+    content: attr(data-alt-rank);
+    position: absolute;
+    top: 4px;
+    left: 4px;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    font-size: 0.7rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    border: 1px solid rgba(255, 255, 255, 0.3);
 }
 
 /* Line completion highlight */
@@ -371,23 +643,407 @@ header h1 {
     padding-bottom: 8px;
 }
 
-/* Suggestion area */
+/* Enhanced suggestion area - Improved */
 .suggestion-area {
     margin-bottom: 25px;
+    position: relative;
 }
 
 .suggestion-display {
-    background: #E3F2FD;
-    padding: 18px;
-    border-radius: 8px;
+    background: linear-gradient(to right, #E3F2FD, #BBDEFB);
+    padding: 22px;
+    border-radius: 12px;
+    font-size: 1.1rem;
+    box-shadow: 0 6px 12px rgba(33, 150, 243, 0.2);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    border: 1px solid rgba(33, 150, 243, 0.3);
+}
+
+.suggestion-display::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #2196F3, #42A5F5, #2196F3);
+    background-size: 200% 100%;
+    animation: suggestion-loading 2s linear infinite;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.suggestion-display.loading::before {
+    opacity: 1;
+}
+
+/* Confidence-based suggestion display styling */
+.suggestion-display.confidence-very-high {
+    background: linear-gradient(to right, #E8F5E9, #C8E6C9);
+    border-left: 6px solid #4CAF50;
+    border-color: rgba(76, 175, 80, 0.3);
+    box-shadow: 0 6px 12px rgba(76, 175, 80, 0.2);
+}
+
+.suggestion-display.confidence-high {
+    background: linear-gradient(to right, #E3F2FD, #BBDEFB);
     border-left: 6px solid #2196F3;
-    font-size: 1.2rem;
-    box-shadow: 0 3px 6px rgba(33, 150, 243, 0.1);
+    border-color: rgba(33, 150, 243, 0.3);
+    box-shadow: 0 6px 12px rgba(33, 150, 243, 0.2);
+}
+
+.suggestion-display.confidence-medium {
+    background: linear-gradient(to right, #FFF3E0, #FFE0B2);
+    border-left: 6px solid #FF9800;
+    border-color: rgba(255, 152, 0, 0.3);
+    box-shadow: 0 6px 12px rgba(255, 152, 0, 0.2);
+}
+
+.suggestion-display.confidence-low {
+    background: linear-gradient(to right, #FFEBEE, #FFCDD2);
+    border-left: 6px solid #F44336;
+    border-color: rgba(244, 67, 54, 0.3);
+    box-shadow: 0 6px 12px rgba(244, 67, 54, 0.2);
+}
+
+@keyframes suggestion-loading {
+    0% {
+        background-position: 200% 0;
+    }
+    100% {
+        background-position: -200% 0;
+    }
 }
 
 #suggestion-text {
     color: #0D47A1;
     font-weight: 600;
+    line-height: 1.4;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.suggestion-display.confidence-very-high #suggestion-text {
+    color: #2E7D32;
+}
+
+.suggestion-display.confidence-high #suggestion-text {
+    color: #0D47A1;
+}
+
+.suggestion-display.confidence-medium #suggestion-text {
+    color: #E65100;
+}
+
+.suggestion-display.confidence-low #suggestion-text {
+    color: #C62828;
+}
+
+/* Confidence indicator in suggestion text - Improved */
+.confidence-indicator {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    margin-left: 8px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: bold;
+    text-transform: uppercase;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    animation: confidence-indicator-pulse 2s infinite;
+}
+
+.confidence-indicator.very-high {
+    background: linear-gradient(to right, rgba(76, 175, 80, 0.2), rgba(76, 175, 80, 0.3));
+    color: #2E7D32;
+    border: 1px solid rgba(76, 175, 80, 0.4);
+}
+
+.confidence-indicator.high {
+    background: linear-gradient(to right, rgba(33, 150, 243, 0.2), rgba(33, 150, 243, 0.3));
+    color: #1565C0;
+    border: 1px solid rgba(33, 150, 243, 0.4);
+}
+
+.confidence-indicator.medium {
+    background: linear-gradient(to right, rgba(255, 152, 0, 0.2), rgba(255, 152, 0, 0.3));
+    color: #E65100;
+    border: 1px solid rgba(255, 152, 0, 0.4);
+}
+
+.confidence-indicator.low {
+    background: linear-gradient(to right, rgba(244, 67, 54, 0.2), rgba(244, 67, 54, 0.3));
+    color: #C62828;
+    border: 1px solid rgba(244, 67, 54, 0.4);
+}
+
+@keyframes confidence-indicator-pulse {
+    0%, 100% {
+        opacity: 1;
+        transform: scale(1);
+    }
+    50% {
+        opacity: 0.9;
+        transform: scale(1.03);
+    }
+}
+
+/* Value explanation - Improved */
+.value-explanation {
+    font-size: 0.95rem;
+    color: #37474F;
+    margin-top: 12px;
+    padding: 12px 15px;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 8px;
+    border-left: 4px solid #42A5F5;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.05);
+    position: relative;
+    animation: value-explanation-appear 0.5s ease-out;
+}
+
+.suggestion-display.confidence-very-high .value-explanation {
+    border-left: 4px solid #4CAF50;
+}
+
+.suggestion-display.confidence-medium .value-explanation {
+    border-left: 4px solid #FF9800;
+}
+
+.suggestion-display.confidence-low .value-explanation {
+    border-left: 4px solid #F44336;
+}
+
+@keyframes value-explanation-appear {
+    0% {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Value highlight */
+.value-highlight {
+    font-weight: bold;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin: 0 2px;
+    display: inline-block;
+}
+
+.value-highlight.very-high {
+    background-color: rgba(76, 175, 80, 0.2);
+    color: #2E7D32;
+}
+
+.value-highlight.high {
+    background-color: rgba(33, 150, 243, 0.2);
+    color: #1565C0;
+}
+
+.value-highlight.medium {
+    background-color: rgba(255, 152, 0, 0.2);
+    color: #E65100;
+}
+
+.value-highlight.low {
+    background-color: rgba(244, 67, 54, 0.2);
+    color: #C62828;
+}
+
+/* Alternative suggestions display - Improved */
+.alternatives-container {
+    margin-top: 18px;
+    padding: 15px;
+    background: rgba(255, 255, 255, 0.7);
+    border-radius: 10px;
+    border: 1px solid rgba(33, 150, 243, 0.2);
+    box-shadow: 0 3px 8px rgba(0, 0, 0, 0.05);
+    animation: alternatives-appear 0.6s ease-out;
+}
+
+@keyframes alternatives-appear {
+    0% {
+        opacity: 0;
+        transform: translateY(15px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.alternatives-title {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #1565C0;
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid rgba(33, 150, 243, 0.1);
+}
+
+.alternatives-title::before {
+    content: '💡';
+    font-size: 0.9rem;
+}
+
+.alternatives-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.alternative-item {
+    background: rgba(158, 158, 158, 0.1);
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    color: #455A64;
+    border: 1px solid rgba(158, 158, 158, 0.3);
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.alternative-item:hover {
+    background: rgba(33, 150, 243, 0.1);
+    border-color: rgba(33, 150, 243, 0.4);
+    color: #1565C0;
+    transform: translateY(-2px);
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+}
+
+.alternative-item:active {
+    transform: translateY(0);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+}
+
+.alternative-item::before {
+    content: attr(data-rank);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    background: rgba(0, 0, 0, 0.1);
+    border-radius: 50%;
+    font-size: 0.7rem;
+    font-weight: bold;
+}
+
+.alternative-item[data-rank="2"]::before {
+    background: rgba(33, 150, 243, 0.2);
+    color: #1565C0;
+}
+
+.alternative-item[data-rank="3"]::before {
+    background: rgba(255, 152, 0, 0.2);
+    color: #E65100;
+}
+
+.alternative-item[data-rank="4"]::before {
+    background: rgba(244, 67, 54, 0.2);
+    color: #C62828;
+}
+
+.alternative-value {
+    font-weight: bold;
+    margin-left: 3px;
+}
+
+/* Suggestion animation effects - Improved */
+.suggestion-appear {
+    animation: suggestion-slide-in 0.7s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes suggestion-slide-in {
+    0% {
+        opacity: 0;
+        transform: translateY(-15px) scale(0.95);
+    }
+    70% {
+        transform: translateY(5px) scale(1.02);
+    }
+    100% {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.suggestion-update {
+    animation: suggestion-update-flash 0.6s ease-out;
+}
+
+@keyframes suggestion-update-flash {
+    0% {
+        box-shadow: 0 0 30px rgba(33, 150, 243, 0.6);
+        transform: scale(1.02);
+    }
+    100% {
+        box-shadow: 0 6px 12px rgba(33, 150, 243, 0.2);
+        transform: scale(1);
+    }
+}
+
+/* Confidence-specific update animations */
+.suggestion-display.confidence-very-high.suggestion-update {
+    animation: suggestion-update-flash-very-high 0.6s ease-out;
+}
+
+.suggestion-display.confidence-medium.suggestion-update {
+    animation: suggestion-update-flash-medium 0.6s ease-out;
+}
+
+.suggestion-display.confidence-low.suggestion-update {
+    animation: suggestion-update-flash-low 0.6s ease-out;
+}
+
+@keyframes suggestion-update-flash-very-high {
+    0% {
+        box-shadow: 0 0 30px rgba(76, 175, 80, 0.6);
+        transform: scale(1.02);
+    }
+    100% {
+        box-shadow: 0 6px 12px rgba(76, 175, 80, 0.2);
+        transform: scale(1);
+    }
+}
+
+@keyframes suggestion-update-flash-medium {
+    0% {
+        box-shadow: 0 0 30px rgba(255, 152, 0, 0.6);
+        transform: scale(1.02);
+    }
+    100% {
+        box-shadow: 0 6px 12px rgba(255, 152, 0, 0.2);
+        transform: scale(1);
+    }
+}
+
+@keyframes suggestion-update-flash-low {
+    0% {
+        box-shadow: 0 0 30px rgba(244, 67, 54, 0.6);
+        transform: scale(1.02);
+    }
+    100% {
+        box-shadow: 0 6px 12px rgba(244, 67, 54, 0.2);
+        transform: scale(1);
+    }
 }
 
 /* Computer input area */
@@ -1175,6 +1831,64 @@ button:disabled {
     }
 }
 
+/* Hover effects for suggested cells */
+.game-cell.suggested:hover {
+    transform: scale(1.1);
+    z-index: 15;
+}
+
+.game-cell.alternative-suggestion:hover {
+    transform: scale(1.05);
+    border-style: solid;
+    border-width: 2px;
+    background: rgba(33, 150, 243, 0.3) !important;
+}
+
+/* Smooth transitions for suggestion updates */
+.game-cell.suggested {
+    transition: all 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.game-cell.alternative-suggestion {
+    transition: all 0.3s ease;
+}
+
+/* Enhanced value indicator positioning */
+.game-cell.alternative-suggestion::after {
+    content: attr(data-alt-value);
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    background: rgba(158, 158, 158, 0.9);
+    color: white;
+    font-size: 0.6rem;
+    font-weight: bold;
+    padding: 1px 4px;
+    border-radius: 8px;
+    min-width: 16px;
+    text-align: center;
+    z-index: 10;
+}
+
+/* Rank indicator for alternatives */
+.game-cell.alternative-suggestion::before {
+    content: attr(data-alt-rank);
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    background: rgba(158, 158, 158, 0.8);
+    color: white;
+    font-size: 0.6rem;
+    font-weight: bold;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+}
+
 /* Performance optimizations */
 .game-board {
     transform: translateZ(0);
@@ -1635,4 +2349,99 @@ button:focus {
 @keyframes bounce {
     0%, 100% { transform: scale(1); }
     50% { transform: scale(1.05); }
+}/* Addi
+tional styles for enhanced suggestion visualization */
+
+/* Value detail styling */
+.value-detail {
+    margin-top: 8px;
+    padding: 8px 10px;
+    background: rgba(255, 255, 255, 0.5);
+    border-radius: 6px;
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+/* Alternatives hint */
+.alternatives-hint {
+    margin-top: 10px;
+    font-size: 0.8rem;
+    color: #78909C;
+    font-style: italic;
+    text-align: center;
+}
+
+/* Suggestion position styling */
+.suggestion-position {
+    margin-bottom: 8px;
+    font-size: 1.1rem;
+}
+
+.suggestion-position strong {
+    color: inherit;
+    font-weight: 600;
+}
+
+/* Alternative position styling */
+.alternative-position {
+    font-size: 0.9rem;
+}
+
+/* Ripple effect for alternative items */
+.ripple-effect {
+    position: absolute;
+    border-radius: 50%;
+    background-color: rgba(33, 150, 243, 0.3);
+    transform: scale(0);
+    animation: ripple 0.6s linear;
+    pointer-events: none;
+}
+
+@keyframes ripple {
+    to {
+        transform: scale(4);
+        opacity: 0;
+    }
+}
+
+/* Enhanced suggestion display transitions */
+.suggestion-display {
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+/* Improved focus styles for accessibility */
+.game-cell:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.5), 0 0 10px rgba(33, 150, 243, 0.3);
+    z-index: 10;
+}
+
+.game-cell.suggested:focus {
+    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.5), 0 0 20px rgba(76, 175, 80, 0.4);
+}
+
+/* Tooltip for value explanation */
+.value-tooltip {
+    position: absolute;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    max-width: 200px;
+    z-index: 100;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.2);
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+}
+
+.game-cell.suggested:hover .value-tooltip {
+    opacity: 1;
+}
+
+/* Improved alternative suggestion appearance */
+.game-cell.alternative-suggestion:hover::after {
+    transform: scale(1.2);
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
 }
