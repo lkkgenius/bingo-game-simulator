@@ -1,0 +1,18 @@
+{
+  "enabled": true,
+  "name": "Test and Commit Changes",
+  "description": "Automatically runs tests when files are changed, and if tests pass, commits and pushes the changes to git",
+  "version": "1",
+  "when": {
+    "type": "fileEdited",
+    "patterns": [
+      "*.js",
+      "*.html",
+      "*.css"
+    ]
+  },
+  "then": {
+    "type": "askAgent",
+    "prompt": "Files have been changed. Please:\n1. Run all tests using 'node testRunner.js'\n2. If all tests pass:\n   - Stage the changed files with 'git add .'\n   - Commit the changes with a descriptive message\n   - Push the changes to the remote repository\n3. If any tests fail:\n   - Report the failing tests\n   - Suggest fixes for the failing tests"
+  }
+}

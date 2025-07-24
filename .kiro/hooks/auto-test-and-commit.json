@@ -1,0 +1,24 @@
+{
+  "name": "自動測試與提交",
+  "description": "當檔案變更時，自動運行測試，如果測試通過則提交並推送變更",
+  "triggers": [
+    {
+      "type": "file",
+      "events": ["save"],
+      "patterns": ["*.js", "*.html", "*.css"],
+      "excludePatterns": ["*.test.js"]
+    }
+  ],
+  "actions": [
+    {
+      "type": "agent",
+      "prompt": "檔案 {{file.path}} 已被修改。請執行以下操作：\n1. 為修改的檔案創建或更新相應的測試\n2. 運行所有測試確保沒有問題\n3. 如果測試通過，使用 git 提交變更並推送到遠程倉庫\n\n修改的檔案內容：\n```{{file.extension}}\n{{file.content}}\n```",
+      "contextKeys": ["#File:{{file.path}}"]
+    }
+  ],
+  "options": {
+    "debounceMs": 1000,
+    "requireConfirmation": true,
+    "confirmationMessage": "檔案已修改，是否要運行測試並提交變更？"
+  }
+}
