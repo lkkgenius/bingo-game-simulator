@@ -49,3 +49,4 @@ node_modules/
 # Kiro specific
 .kiro/*
 !.kiro/specs/
+!.kiro/hooks/

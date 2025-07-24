@@ -1,0 +1,26 @@
+{
+  "name": "檢查未提交檔案",
+  "description": "檢查是否有未提交的檔案，並提示用戶處理",
+  "triggers": [
+    {
+      "type": "manual",
+      "label": "檢查未提交檔案"
+    },
+    {
+      "type": "file",
+      "events": ["save"],
+      "patterns": ["*.js", "*.html", "*.css", "*.md"]
+    }
+  ],
+  "actions": [
+    {
+      "type": "agent",
+      "prompt": "請執行以下操作：\n1. 使用 git status 檢查是否有未提交的檔案\n2. 如果有未提交的檔案：\n   - 顯示這些檔案的列表\n   - 詢問用戶是否要提交這些檔案，或者將它們加入 .gitignore\n   - 根據用戶的選擇執行相應操作\n3. 如果沒有未提交的檔案，通知用戶工作目錄是乾淨的"
+    }
+  ],
+  "options": {
+    "debounceMs": 2000,
+    "requireConfirmation": true,
+    "confirmationMessage": "要檢查未提交的檔案嗎？"
+  }
+}

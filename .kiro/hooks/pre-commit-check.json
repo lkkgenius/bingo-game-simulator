@@ -1,0 +1,20 @@
+{
+  "name": "提交前檢查",
+  "description": "在提交前檢查未提交的檔案，運行測試，並提示用戶處理",
+  "triggers": [
+    {
+      "type": "manual",
+      "label": "提交前檢查"
+    }
+  ],
+  "actions": [
+    {
+      "type": "agent",
+      "prompt": "請執行提交前檢查流程：\n\n1. 使用 git status 檢查是否有未提交的檔案\n2. 顯示所有未提交的檔案列表\n3. 詢問用戶：\n   - 哪些檔案應該提交\n   - 哪些檔案應該加入 .gitignore\n   - 哪些檔案應該刪除\n4. 運行所有測試 (node testRunner.js)\n5. 如果測試通過且用戶確認，執行：\n   - 將選定的檔案加入 git\n   - 更新 .gitignore（如果需要）\n   - 提交變更\n   - 推送到遠程倉庫\n6. 如果測試失敗，報告失敗的測試並建議修復方法"
+    }
+  ],
+  "options": {
+    "requireConfirmation": true,
+    "confirmationMessage": "要執行提交前檢查嗎？"
+  }
+}
