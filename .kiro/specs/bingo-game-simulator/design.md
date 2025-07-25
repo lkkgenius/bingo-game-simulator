@@ -2,7 +2,7 @@
 
 ## 概述
 
-Bingo遊戲模擬器是一個基於網頁的單頁應用程式，使用HTML、CSS和JavaScript構建。系統核心功能包括遊戲狀態管理、連線檢測算法、合作機率計算引擎和用戶界面互動。遊戲設計為玩家與電腦合作模式，目標是共同完成最多的連線。
+Bingo 遊戲模擬器是一個基於網頁的單頁應用程式，使用 HTML、CSS 和 JavaScript 構建。系統核心功能包括遊戲狀態管理、連線檢測演算法、合作機率計算引擎和用戶界面互動。遊戲設計為玩家與電腦合作模式，目標是共同完成最多的連線。
 
 ## 架構
 
@@ -21,7 +21,7 @@ Bingo遊戲模擬器是一個基於網頁的單頁應用程式，使用HTML、CS
 - **前端**: HTML5, CSS3, Vanilla JavaScript
 - **樣式**: CSS Grid for game board, Flexbox for layout
 - **狀態管理**: JavaScript objects and arrays
-- **算法**: Custom line detection and probability calculation
+- **演算法**: Custom line detection and probability calculation
 - **部署**: GitHub Pages (靜態網站託管)
 - **版本控制**: Git with GitHub repository
 
@@ -748,7 +748,7 @@ describe('Game Flow Integration', () => {
 });
 ```
 
-#### 2. 算法比較整合測試 (algorithmComparison.test.js)
+#### 2. 演算法比較整合測試 (algorithmComparison.test.js)
 
 ```javascript
 // algorithmComparison.test.js
@@ -770,7 +770,7 @@ describe('Algorithm Comparison Integration', () => {
     const standardSuggestion = standardCalculator.getBestSuggestion(emptyBoard);
     const enhancedSuggestion = enhancedCalculator.getBestSuggestion(emptyBoard);
     
-    // 兩種算法在空板上應該都建議中心位置
+    // 兩種演算法在空板上應該都建議中心位置
     expect(standardSuggestion.row).toBe(2);
     expect(standardSuggestion.col).toBe(2);
     expect(enhancedSuggestion.row).toBe(2);
@@ -789,7 +789,7 @@ describe('Algorithm Comparison Integration', () => {
     const standardSuggestion = standardCalculator.getBestSuggestion(board);
     const enhancedSuggestion = enhancedCalculator.getBestSuggestion(board);
     
-    // 兩種算法都應該建議完成水平線
+    // 兩種演算法都應該建議完成水平線
     expect(standardSuggestion.row).toBe(0);
     expect(standardSuggestion.col).toBe(4);
     expect(enhancedSuggestion.row).toBe(0);
@@ -799,14 +799,14 @@ describe('Algorithm Comparison Integration', () => {
   test('should compare performance', () => {
     const board = Array(5).fill().map(() => Array(5).fill(0));
     
-    // 測量標準算法性能
+    // 測量標準演算法性能
     const standardStart = Date.now();
     for (let i = 0; i < 100; i++) {
       standardCalculator.getBestSuggestion(board);
     }
     const standardTime = Date.now() - standardStart;
     
-    // 測量增強算法性能
+    // 測量增強演算法性能
     const enhancedStart = Date.now();
     for (let i = 0; i < 100; i++) {
       enhancedCalculator.getBestSuggestion(board);
@@ -964,7 +964,7 @@ generateCoverageReport();
 
 ### 演算法設計
 
-#### 連線檢測算法
+#### 連線檢測演算法
 ```javascript
 // 檢測所有可能的連線
 function detectAllLines(board) {
@@ -1001,7 +1001,7 @@ function detectAllLines(board) {
 }
 ```
 
-#### 最佳移動建議算法（合作模式）
+#### 最佳移動建議演算法（合作模式）
 ```javascript
 function calculateBestMove(board) {
   const emptyCells = getEmptyCells(board)
