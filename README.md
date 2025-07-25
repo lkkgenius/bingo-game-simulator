@@ -12,9 +12,9 @@
 
 ## 🚀 線上體驗
 
-[點擊這裡開始遊戲](https://your-username.github.io/bingo-game-simulator)
+[點擊這裡開始遊戲](https://lkkgenius.github.io/bingo-game-simulator)
 
-> **注意**: 遊戲已部署到 GitHub Pages，請將上方連結中的 "your-username" 替換為您的 GitHub 用戶名。
+> **注意**: 遊戲已部署到 GitHub Pages，可以直接點擊上方連結開始遊戲。
 
 ## 📋 遊戲規則
 
@@ -77,7 +77,7 @@
 
 1. **克隆專案**
    ```bash
-   git clone https://github.com/your-username/bingo-game-simulator.git
+   git clone https://github.com/lkkgenius/bingo-game-simulator.git
    cd bingo-game-simulator
    ```
 
@@ -103,7 +103,7 @@
 1. Fork 或克隆此專案到你的 GitHub 帳戶
 2. 在 Repository Settings 中啟用 GitHub Pages
 3. 選擇 "Deploy from a branch" 並選擇 "main" 分支
-4. 等待部署完成，即可通過 `https://your-username.github.io/repository-name` 訪問
+4. 等待部署完成，即可通過 `https://lkkgenius.github.io/bingo-game-simulator` 訪問
 
 ## 🎮 使用指南
 
