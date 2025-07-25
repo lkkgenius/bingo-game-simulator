@@ -186,7 +186,7 @@
   - 測試在 GitHub Pages 環境中的完整遊戲流程
   - 更新 README.md 中的實際部署 URL，替換佔位符連結
   - _需求: 7.1, 7.2, 7.3, 7.4_
-- [ ] 26. 建立 function test 測試計畫，利用 playwright mcp server 進行測試
+- [x] 26. 建立 function test 測試計畫，利用 playwright mcp server 進行測試
   - 設置 Playwright MCP server 配置，確保瀏覽器自動化測試環境正常運行
   - 創建功能測試計畫，涵蓋遊戲的核心用戶流程和互動場景
   - 實作遊戲板互動測試，驗證格子點擊、建議顯示和連線檢測功能

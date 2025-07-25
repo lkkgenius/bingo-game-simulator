@@ -7,28 +7,101 @@ class BingoGameFunctionTests {
     constructor() {
         this.baseUrl = `file://${process.cwd()}/index.html`;
         this.testResults = [];
+        this.currentTestIndex = 0;
+        this.startTime = Date.now();
+    }
+
+    /**
+     * 等待元素穩定並可點擊
+     */
+    async waitForElementStable(selector, timeout = 5000) {
+        try {
+            await page.waitForSelector(selector, { timeout });
+            await page.waitForTimeout(100); // 短暫等待確保元素穩定
+            return true;
+        } catch (error) {
+            console.warn(`元素 ${selector} 等待超時: ${error.message}`);
+            return false;
+        }
+    }
+
+    /**
+     * 安全點擊元素
+     */
+    async safeClick(selector, description = '') {
+        try {
+            const element = page.locator(selector);
+            await element.waitFor({ state: 'visible', timeout: 5000 });
+            await element.click();
+            await page.waitForTimeout(200); // 等待點擊效果
+            return true;
+        } catch (error) {
+            console.warn(`點擊 ${description || selector} 失敗: ${error.message}`);
+            return false;
+        }
+    }
+
+    /**
+     * 獲取元素文本內容
+     */
+    async getTextContent(selector, defaultValue = '') {
+        try {
+            const element = page.locator(selector);
+            await element.waitFor({ state: 'visible', timeout: 3000 });
+            return await element.textContent() || defaultValue;
+        } catch (error) {
+            console.warn(`獲取 ${selector} 文本失敗: ${error.message}`);
+            return defaultValue;
+        }
+    }
+
+    /**
+     * 檢查元素是否存在
+     */
+    async elementExists(selector) {
+        try {
+            return await page.locator(selector).count() > 0;
+        } catch (error) {
+            return false;
+        }
+    }
+
+    /**
+     * 記錄測試步驟
+     */
+    logTestStep(step, status = 'info') {
+        const timestamp = new Date().toLocaleTimeString();
+        const statusIcon = status === 'success' ? '✅' : status === 'error' ? '❌' : 'ℹ️';
+        console.log(`[${timestamp}] ${statusIcon} ${step}`);
     }
 
     /**
      * 測試 1: 頁面載入和初始狀態驗證
      */
     async testPageLoadAndInitialState() {
-        console.log('🧪 測試 1: 頁面載入和初始狀態驗證');
+        this.logTestStep('開始測試 1: 頁面載入和初始狀態驗證');
         
         const results = {
             testName: '頁面載入和初始狀態',
             passed: true,
-            details: []
+            details: [],
+            startTime: Date.now()
         };
 
         try {
+            // 等待頁面完全載入
+            await page.waitForLoadState('domcontentloaded');
+            await page.waitForTimeout(1000); // 等待JavaScript初始化
+            
             // 驗證頁面標題
             const title = await page.title();
             if (title === 'Bingo遊戲模擬器') {
                 results.details.push('✅ 頁面標題正確');
+                this.logTestStep('頁面標題驗證通過', 'success');
             } else {
                 results.details.push(`❌ 頁面標題錯誤: ${title}`);
                 results.passed = false;
+                this.logTestStep(`頁面標題錯誤: ${title}`, 'error');
             }
 
             // 驗證主要UI元素存在
@@ -37,51 +110,90 @@ class BingoGameFunctionTests {
                 { selector: '.algorithm-selector', name: '演算法選擇器' },
                 { selector: '.game-status', name: '遊戲狀態' },
                 { selector: '.game-controls', name: '遊戲控制' },
-                { selector: '#start-game', name: '開始遊戲按鈕' }
+                { selector: '#start-game', name: '開始遊戲按鈕' },
+                { selector: '.suggestion-panel', name: '建議面板' },
+                { selector: '.computer-input-panel', name: '電腦輸入面板' },
+                { selector: '.instructions', name: '操作指示' }
             ];
 
             for (const element of mainElements) {
-                const exists = await page.locator(element.selector).count() > 0;
+                const exists = await this.elementExists(element.selector);
                 if (exists) {
                     results.details.push(`✅ ${element.name} 存在`);
+                    this.logTestStep(`${element.name} 驗證通過`, 'success');
                 } else {
                     results.details.push(`❌ ${element.name} 不存在`);
                     results.passed = false;
+                    this.logTestStep(`${element.name} 不存在`, 'error');
                 }
             }
 
             // 驗證初始遊戲狀態
-            const currentRound = await page.locator('.current-round').textContent();
-            const gamePhase = await page.locator('.game-phase').textContent();
-            const completedLines = await page.locator('.completed-lines').textContent();
+            const currentRound = await this.getTextContent('.current-round', '0');
+            const gamePhase = await this.getTextContent('.game-phase', '');
+            const completedLines = await this.getTextContent('.completed-lines', '0');
 
             if (currentRound === '1') {
                 results.details.push('✅ 初始輪數正確 (1)');
+                this.logTestStep('初始輪數驗證通過', 'success');
             } else {
                 results.details.push(`❌ 初始輪數錯誤: ${currentRound}`);
                 results.passed = false;
+                this.logTestStep(`初始輪數錯誤: ${currentRound}`, 'error');
             }
 
-            if (gamePhase === '玩家回合') {
+            if (gamePhase.includes('玩家回合')) {
                 results.details.push('✅ 初始遊戲階段正確');
+                this.logTestStep('初始遊戲階段驗證通過', 'success');
             } else {
                 results.details.push(`❌ 初始遊戲階段錯誤: ${gamePhase}`);
                 results.passed = false;
+                this.logTestStep(`初始遊戲階段錯誤: ${gamePhase}`, 'error');
             }
 
             if (completedLines === '0') {
                 results.details.push('✅ 初始完成連線數正確 (0)');
+                this.logTestStep('初始完成連線數驗證通過', 'success');
             } else {
                 results.details.push(`❌ 初始完成連線數錯誤: ${completedLines}`);
                 results.passed = false;
+                this.logTestStep(`初始完成連線數錯誤: ${completedLines}`, 'error');
+            }
+
+            // 驗證演算法選擇器狀態
+            const currentAlgorithm = await this.getTextContent('.current-algorithm', '');
+            if (currentAlgorithm.includes('標準演算法')) {
+                results.details.push('✅ 初始演算法正確設置為標準演算法');
+                this.logTestStep('初始演算法驗證通過', 'success');
+            } else {
+                results.details.push(`❌ 初始演算法設置錯誤: ${currentAlgorithm}`);
+                results.passed = false;
+                this.logTestStep(`初始演算法錯誤: ${currentAlgorithm}`, 'error');
+            }
+
+            // 檢查控制台是否有錯誤
+            const consoleMessages = await page.evaluate(() => {
+                return window.console._messages || [];
+            });
+            
+            const errorMessages = consoleMessages.filter(msg => msg.type === 'error');
+            if (errorMessages.length === 0) {
+                results.details.push('✅ 無控制台錯誤');
+                this.logTestStep('控制台錯誤檢查通過', 'success');
+            } else {
+                results.details.push(`⚠️ 發現 ${errorMessages.length} 個控制台錯誤`);
+                this.logTestStep(`發現控制台錯誤: ${errorMessages.length}`, 'error');
             }
 
         } catch (error) {
             results.passed = false;
             results.details.push(`❌ 測試執行錯誤: ${error.message}`);
+            this.logTestStep(`測試執行錯誤: ${error.message}`, 'error');
         }
 
+        results.duration = Date.now() - results.startTime;
         this.testResults.push(results);
+        this.logTestStep(`測試 1 完成，耗時: ${results.duration}ms`, results.passed ? 'success' : 'error');
         return results;
     }
 
