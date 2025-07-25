@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AI 學習系統演示</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #333;
+        }
+        
+        .container {
+            background: white;
+            border-radius: 10px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+        }
+        
+        h1 {
+            color: #4a5568;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        
+        .demo-section {
+            margin-bottom: 30px;
+            padding: 20px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            background: #f7fafc;
+        }
+        
+        .demo-section h3 {
+            color: #2d3748;
+            margin-bottom: 15px;
+        }
+        
+        button {
+            background: #4299e1;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 5px;
+            transition: background 0.3s;
+        }
+        
+        button:hover {
+            background: #3182ce;
+        }
+        
+        .output {
+            background: #1a202c;
+            color: #e2e8f0;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            white-space: pre-wrap;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 10px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+        
+        .stat-card {
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #4299e1;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            color: #718096;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #2d3748;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🤖 AI 學習系統演示</h1>
+        
+        <div class="demo-section">
+            <h3>1. 基本功能測試</h3>
+            <p>測試 AI 學習系統的初始化和基本功能</p>
+            <button onclick="testBasicFunctionality()">運行基本測試</button>
+            <div id="basic-output" class="output" style="display: none;"></div>
+        </div>
+        
+        <div class="demo-section">
+            <h3>2. 遊戲數據學習</h3>
+            <p>模擬遊戲數據並觀察 AI 系統的學習過程</p>
+            <button onclick="simulateGameLearning()">模擬學習過程</button>
+            <button onclick="showLearningStats()">顯示學習統計</button>
+            <div id="learning-output" class="output" style="display: none;"></div>
+        </div>
+        
+        <div class="demo-section">
+            <h3>3. 移動預測演示</h3>
+            <p>展示 AI 系統如何預測最佳移動</p>
+            <button onclick="demonstratePrediction()">預測移動</button>
+            <div id="prediction-output" class="output" style="display: none;"></div>
+        </div>
+        
+        <div class="demo-section">
+            <h3>4. 難度自適應</h3>
+            <p>展示系統如何根據表現調整難度</p>
+            <button onclick="demonstrateDifficultyAdjustment()">測試難度調整</button>
+            <div id="difficulty-output" class="output" style="display: none;"></div>
+        </div>
+        
+        <div class="demo-section">
+            <h3>5. 學習統計儀表板</h3>
+            <div class="stats-grid" id="stats-dashboard">
+                <!-- 統計卡片將在這裡動態生成 -->
+            </div>
+            <button onclick="updateStatsDashboard()">更新統計</button>
+        </div>
+        
+        <div class="demo-section">
+            <h3>6. 性能測試</h3>
+            <p>測試 AI 系統處理大量數據的性能</p>
+            <button onclick="runPerformanceTest()">運行性能測試</button>
+            <div id="performance-output" class="output" style="display: none;"></div>
+        </div>
+    </div>
+
+    <script src="aiLearningSystem.js"></script>
+    <script>
+        let aiSystem = null;
+        
+        function initializeAI() {
+            if (!aiSystem) {
+                aiSystem = new AILearningSystem();
+                console.log('AI 學習系統已初始化');
+            }
+            return aiSystem;
+        }
+        
+        function testBasicFunctionality() {
+            const output = document.getElementById('basic-output');
+            output.style.display = 'block';
+            
+            try {
+                const ai = initializeAI();
+                
+                let result = '=== AI 學習系統基本功能測試 ===\n';
+                result += `✓ 系統初始化成功\n`;
+                result += `初始技能等級: ${(ai.playerModel.skillLevel * 100).toFixed(1)}%\n`;
+                result += `初始遊戲風格: ${ai.playerModel.playStyle}\n`;
+                result += `初始難度等級: ${ai.difficultySystem.currentLevel}\n`;
+                result += `配置的難度等級: ${ai.config.difficultyLevels.join(', ')}\n`;
+                result += `學習率: ${ai.config.learningRate}\n`;
+                result += `最大歷史記錄: ${ai.config.maxHistorySize}\n`;
+                
+                output.textContent = result;
+            } catch (error) {
+                output.textContent = `錯誤: ${error.message}`;
+            }
+        }
+        
+        function simulateGameLearning() {
+            const output = document.getElementById('learning-output');
+            output.style.display = 'block';
+            
+            try {
+                const ai = initializeAI();
+                
+                let result = '=== 模擬遊戲學習過程 ===\n';
+                
+                // 模擬5場遊戲
+                for (let gameNum = 1; gameNum <= 5; gameNum++) {
+                    const mockGameData = {
+                        board: Array(5).fill().map(() => Array(5).fill(Math.floor(Math.random() * 3))),
+                        playerMoves: Array(4).fill().map((_, idx) => ({
+                            row: Math.floor(Math.random() * 5),
+                            col: Math.floor(Math.random() * 5),
+                            round: idx + 1
+                        })),
+                        computerMoves: Array(4).fill().map((_, idx) => ({
+                            row: Math.floor(Math.random() * 5),
+                            col: Math.floor(Math.random() * 5),
+                            round: idx + 1
+                        })),
+                        finalScore: Math.floor(Math.random() * 8) + 1,
+                        completedLines: [],
+                        gameOutcome: ['poor', 'average', 'good', 'excellent'][Math.floor(Math.random() * 4)]
+                    };
+                    
+                    ai.recordGameData(mockGameData);
+                    
+                    result += `遊戲 ${gameNum}:\n`;
+                    result += `  分數: ${mockGameData.finalScore}\n`;
+                    result += `  結果: ${mockGameData.gameOutcome}\n`;
+                    result += `  技能等級: ${(ai.playerModel.skillLevel * 100).toFixed(1)}%\n`;
+                    result += `  遊戲風格: ${ai.playerModel.playStyle}\n`;
+                    result += `  難度等級: ${ai.difficultySystem.currentLevel}\n\n`;
+                }
+                
+                result += `學習完成！總共處理了 ${ai.gameHistory.length} 場遊戲。`;
+                
+                output.textContent = result;
+                updateStatsDashboard();
+            } catch (error) {
+                output.textContent = `錯誤: ${error.message}`;
+            }
+        }
+        
+        function showLearningStats() {
+            const output = document.getElementById('learning-output');
+            output.style.display = 'block';
+            
+            try {
+                const ai = initializeAI();
+                const stats = ai.getLearningStats();
+                
+                let result = '=== 學習統計信息 ===\n';
+                result += `已玩遊戲數: ${stats.gamesPlayed}\n`;
+                result += `當前技能等級: ${(stats.currentSkillLevel * 100).toFixed(1)}%\n`;
+                result += `遊戲風格: ${stats.playStyle}\n`;
+                result += `難度等級: ${stats.difficultyLevel}\n`;
+                result += `適應次數: ${stats.adaptationCount}\n`;
+                result += `平均表現: ${(stats.averagePerformance * 100).toFixed(1)}%\n`;
+                result += `學習進度: ${stats.learningProgress.trend} (${(stats.learningProgress.improvement * 100).toFixed(1)}%)\n`;
+                result += `個性化策略數: ${stats.personalizedStrategies}\n`;
+                
+                output.textContent = result;
+            } catch (error) {
+                output.textContent = `錯誤: ${error.message}`;
+            }
+        }
+        
+        function demonstratePrediction() {
+            const output = document.getElementById('prediction-output');
+            output.style.display = 'block';
+            
+            try {
+                const ai = initializeAI();
+                
+                // 創建測試棋盤
+                const testBoard = [
+                    [1, 2, 0, 0, 0],
+                    [0, 1, 0, 2, 0],
+                    [0, 0, 0, 0, 0],
+                    [2, 0, 0, 1, 0],
+                    [0, 0, 0, 0, 0]
+                ];
+                
+                const gameContext = {
+                    currentRound: 3,
+                    maxRounds: 8,
+                    playerMoves: 2,
+                    computerMoves: 2,
+                    completedLines: 0,
+                    gamePhase: 'player-turn'
+                };
+                
+                const prediction = ai.predictBestMove(testBoard, gameContext);
+                
+                let result = '=== 移動預測演示 ===\n';
+                result += '測試棋盤狀態:\n';
+                for (let row = 0; row < 5; row++) {
+                    result += testBoard[row].map(cell => 
+                        cell === 0 ? '·' : cell === 1 ? '○' : '●'
+                    ).join(' ') + '\n';
+                }
+                result += '\n';
+                
+                if (prediction.move) {
+                    result += `預測最佳移動: (${prediction.move.row}, ${prediction.move.col})\n`;
+                    result += `信心度: ${(prediction.confidence * 100).toFixed(1)}%\n`;
+                    result += `推理說明: ${prediction.reasoning}\n\n`;
+                    
+                    result += '替代選項:\n';
+                    prediction.alternatives.forEach((alt, index) => {
+                        result += `${index + 1}. (${alt.row}, ${alt.col}) - 信心度: ${(alt.confidence * 100).toFixed(1)}%\n`;
+                        result += `   推理: ${alt.reasoning}\n`;
+                    });
+                } else {
+                    result += '無可用移動\n';
+                }
+                
+                output.textContent = result;
+            } catch (error) {
+                output.textContent = `錯誤: ${error.message}`;
+            }
+        }
+        
+        function demonstrateDifficultyAdjustment() {
+            const output = document.getElementById('difficulty-output');
+            output.style.display = 'block';
+            
+            try {
+                const ai = initializeAI();
+                
+                let result = '=== 難度自適應演示 ===\n';
+                result += `初始難度: ${ai.difficultySystem.currentLevel}\n\n`;
+                
+                // 模擬高表現遊戲來觸發難度提升
+                result += '模擬高表現遊戲...\n';
+                for (let i = 0; i < 8; i++) {
+                    const highPerformanceGame = {
+                        board: Array(5).fill().map(() => Array(5).fill(0)),
+                        playerMoves: Array(4).fill().map((_, idx) => ({ row: idx, col: idx, round: idx + 1 })),
+                        computerMoves: Array(4).fill().map((_, idx) => ({ row: idx, col: idx + 1, round: idx + 1 })),
+                        finalScore: 8, // 高分
+                        completedLines: [],
+                        gameOutcome: 'excellent'
+                    };
+                    
+                    ai.recordGameData(highPerformanceGame);
+                    result += `遊戲 ${i + 1}: 分數 8, 難度 ${ai.difficultySystem.currentLevel}\n`;
+                }
+                
+                result += `\n最終難度: ${ai.difficultySystem.currentLevel}\n`;
+                result += `適應次數: ${ai.difficultySystem.adaptationCounter}\n`;
+                result += `平均表現: ${(ai.calculateAveragePerformance() * 100).toFixed(1)}%\n`;
+                
+                output.textContent = result;
+                updateStatsDashboard();
+            } catch (error) {
+                output.textContent = `錯誤: ${error.message}`;
+            }
+        }
+        
+        function updateStatsDashboard() {
+            const dashboard = document.getElementById('stats-dashboard');
+            
+            try {
+                const ai = initializeAI();
+                const stats = ai.getLearningStats();
+                
+                const statCards = [
+                    { label: '已玩遊戲', value: stats.gamesPlayed },
+                    { label: '技能等級', value: `${(stats.currentSkillLevel * 100).toFixed(1)}%` },
+                    { label: '遊戲風格', value: stats.playStyle },
+                    { label: '難度等級', value: stats.difficultyLevel },
+                    { label: '適應次數', value: stats.adaptationCount },
+                    { label: '平均表現', value: `${(stats.averagePerformance * 100).toFixed(1)}%` }
+                ];
+                
+                dashboard.innerHTML = statCards.map(stat => `
+                    <div class="stat-card">
+                        <div class="stat-label">${stat.label}</div>
+                        <div class="stat-value">${stat.value}</div>
+                    </div>
+                `).join('');
+            } catch (error) {
+                dashboard.innerHTML = `<div class="stat-card"><div class="stat-value">錯誤: ${error.message}</div></div>`;
+            }
+        }
+        
+        function runPerformanceTest() {
+            const output = document.getElementById('performance-output');
+            output.style.display = 'block';
+            
+            try {
+                const ai = initializeAI();
+                
+                let result = '=== 性能測試 ===\n';
+                result += '測試處理 1000 場遊戲的性能...\n\n';
+                
+                const startTime = performance.now();
+                
+                for (let i = 0; i < 1000; i++) {
+                    const mockGame = {
+                        board: Array(5).fill().map(() => Array(5).fill(Math.floor(Math.random() * 3))),
+                        playerMoves: Array(4).fill().map((_, idx) => ({
+                            row: Math.floor(Math.random() * 5),
+                            col: Math.floor(Math.random() * 5),
+                            round: idx + 1
+                        })),
+                        computerMoves: Array(4).fill().map((_, idx) => ({
+                            row: Math.floor(Math.random() * 5),
+                            col: Math.floor(Math.random() * 5),
+                            round: idx + 1
+                        })),
+                        finalScore: Math.floor(Math.random() * 10),
+                        completedLines: [],
+                        gameOutcome: ['poor', 'average', 'good', 'excellent'][Math.floor(Math.random() * 4)]
+                    };
+                    
+                    ai.recordGameData(mockGame);
+                    
+                    if ((i + 1) % 100 === 0) {
+                        result += `處理了 ${i + 1} 場遊戲...\n`;
+                        output.textContent = result;
+                    }
+                }
+                
+                const endTime = performance.now();
+                const processingTime = endTime - startTime;
+                
+                result += `\n性能測試完成！\n`;
+                result += `總處理時間: ${processingTime.toFixed(2)}ms\n`;
+                result += `平均每場遊戲: ${(processingTime / 1000).toFixed(3)}ms\n`;
+                result += `處理速度: ${(1000 / (processingTime / 1000)).toFixed(0)} 場/秒\n`;
+                result += `最終遊戲歷史數量: ${ai.gameHistory.length}\n`;
+                result += `記憶體使用效率: ${ai.gameHistory.length <= ai.config.maxHistorySize ? '✓' : '✗'}\n`;
+                
+                output.textContent = result;
+                updateStatsDashboard();
+            } catch (error) {
+                output.textContent = `錯誤: ${error.message}`;
+            }
+        }
+        
+        // 頁面載入時初始化統計儀表板
+        window.addEventListener('load', function() {
+            updateStatsDashboard();
+        });
+    </script>
+</body>
+</html>

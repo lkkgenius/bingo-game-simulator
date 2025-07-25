@@ -17,8 +17,8 @@ node gameFlow.test.js
 node algorithmComparison.test.js
 node e2e.test.js
 
-# 運行原有的獨立測試
-node test-enhanced-calculator.js
+# 運行所有測試（推薦）
+node testRunner.js
 ```
 
 ## 測試文件結構
@@ -31,7 +31,7 @@ node test-enhanced-calculator.js
 - `probabilityCalculator.enhanced.test.js` - 測試增強版機率計算器功能
 - `gameEngine.test.js` - 測試遊戲引擎功能
 - `gameBoard.test.js` - 測試遊戲板UI組件功能
-- `test-enhanced-calculator.js` - 原有的增強版機率計算器測試
+
 
 ### 整合測試
 - `gameFlow.test.js` - 測試遊戲流程和組件間互動

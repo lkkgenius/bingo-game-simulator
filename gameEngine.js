@@ -1,9 +1,10 @@
 // 在Node.js環境中載入依賴模組
-let LineDetector, ProbabilityCalculator;
+let LineDetector, ProbabilityCalculator, AILearningSystem;
 
 if (typeof require !== 'undefined') {
     LineDetector = require('./lineDetector.js');
     ProbabilityCalculator = require('./probabilityCalculator.js');
+    AILearningSystem = require('./aiLearningSystem.js');
 }
 
 /**
@@ -43,7 +44,12 @@ class GameEngine {
         // 初始化組件
         this.lineDetector = new LineDetector();
         this.probabilityCalculator = new ProbabilityCalculator();
+        this.aiLearningSystem = new AILearningSystem();
         this.gameBoard = null; // 將由外部設置
+        
+        // AI 學習系統配置
+        this.useAILearning = true;
+        this.learningMode = 'adaptive'; // 'adaptive', 'personalized', 'traditional'
         
         // 事件回調
         this.onGameStateChange = null;
@@ -251,6 +257,11 @@ class GameEngine {
         
         const finalStats = this.getGameStats();
         
+        // 記錄遊戲數據用於AI學習
+        if (this.useAILearning && this.aiLearningSystem) {
+            this.recordGameDataForLearning(finalStats);
+        }
+        
         // 觸發遊戲完成事件
         if (this.onGameComplete) {
             this.onGameComplete(finalStats);
@@ -261,6 +272,12 @@ class GameEngine {
         
         console.log('遊戲結束！');
         console.log(`最終結果：完成了 ${finalStats.totalLines} 條連線`);
+        
+        // 顯示學習統計
+        if (this.useAILearning) {
+            const learningStats = this.aiLearningSystem.getLearningStats();
+            console.log('AI學習統計:', learningStats);
+        }
     }
 
     /**
@@ -271,7 +288,29 @@ class GameEngine {
             return;
         }
         
-        const suggestion = this.probabilityCalculator.getBestSuggestion(this.gameState.board);
+        let suggestion;
+        
+        // 根據學習模式選擇建議算法
+        if (this.useAILearning && this.aiLearningSystem) {
+            switch (this.learningMode) {
+                case 'personalized':
+                    suggestion = this.aiLearningSystem.getPersonalizedSuggestion(
+                        this.gameState.board, 
+                        this.getGameContext()
+                    );
+                    break;
+                case 'adaptive':
+                    suggestion = this.aiLearningSystem.predictBestMove(
+                        this.gameState.board, 
+                        this.getGameContext()
+                    );
+                    break;
+                default:
+                    suggestion = this.probabilityCalculator.getBestSuggestion(this.gameState.board);
+            }
+        } else {
+            suggestion = this.probabilityCalculator.getBestSuggestion(this.gameState.board);
+        }
         
         if (suggestion) {
             this.gameState.lastSuggestion = suggestion;
@@ -534,6 +573,176 @@ class GameEngine {
             newLinesCount: newLinesCount,
             totalLines: lines.length
         };
+    }
+
+    /**
+     * 記錄遊戲數據用於AI學習
+     * @param {Object} finalStats - 最終遊戲統計
+     */
+    recordGameDataForLearning(finalStats) {
+        const gameData = {
+            board: this.gameState.board,
+            playerMoves: this.gameState.playerMoves,
+            computerMoves: this.gameState.computerMoves,
+            finalScore: finalStats.totalLines,
+            completedLines: finalStats.completedLines,
+            gameOutcome: this.determineGameOutcome(finalStats),
+            roundsPlayed: this.gameState.currentRound - 1,
+            timestamp: Date.now()
+        };
+
+        this.aiLearningSystem.recordGameData(gameData);
+    }
+
+    /**
+     * 確定遊戲結果
+     * @param {Object} finalStats - 最終統計
+     * @returns {string} 遊戲結果
+     */
+    determineGameOutcome(finalStats) {
+        if (finalStats.totalLines >= 6) return 'excellent';
+        if (finalStats.totalLines >= 4) return 'good';
+        if (finalStats.totalLines >= 2) return 'average';
+        return 'poor';
+    }
+
+    /**
+     * 獲取遊戲上下文信息
+     * @returns {Object} 遊戲上下文
+     */
+    getGameContext() {
+        return {
+            currentRound: this.gameState.currentRound,
+            maxRounds: this.MAX_ROUNDS,
+            playerMoves: this.gameState.playerMoves.length,
+            computerMoves: this.gameState.computerMoves.length,
+            completedLines: this.gameState.completedLines.length,
+            gamePhase: this.gameState.gamePhase,
+            remainingMoves: this.getRemainingMoves()
+        };
+    }
+
+    /**
+     * 設置AI學習模式
+     * @param {string} mode - 學習模式 ('adaptive', 'personalized', 'traditional')
+     */
+    setLearningMode(mode) {
+        const validModes = ['adaptive', 'personalized', 'traditional'];
+        if (validModes.includes(mode)) {
+            this.learningMode = mode;
+            console.log(`AI學習模式設置為: ${mode}`);
+        } else {
+            console.warn(`無效的學習模式: ${mode}`);
+        }
+    }
+
+    /**
+     * 啟用或禁用AI學習
+     * @param {boolean} enabled - 是否啟用
+     */
+    setAILearningEnabled(enabled) {
+        this.useAILearning = enabled;
+        console.log(`AI學習系統${enabled ? '已啟用' : '已禁用'}`);
+    }
+
+    /**
+     * 獲取AI學習統計
+     * @returns {Object} 學習統計信息
+     */
+    getAILearningStats() {
+        if (this.useAILearning && this.aiLearningSystem) {
+            return this.aiLearningSystem.getLearningStats();
+        }
+        return null;
+    }
+
+    /**
+     * 重置AI學習數據
+     */
+    resetAILearning() {
+        if (this.aiLearningSystem) {
+            this.aiLearningSystem = new AILearningSystem();
+            console.log('AI學習數據已重置');
+        }
+    }
+
+    /**
+     * 獲取當前難度等級
+     * @returns {string} 難度等級
+     */
+    getCurrentDifficulty() {
+        if (this.useAILearning && this.aiLearningSystem) {
+            return this.aiLearningSystem.difficultySystem.currentLevel;
+        }
+        return 'medium';
+    }
+
+    /**
+     * 獲取玩家技能等級
+     * @returns {number} 技能等級 (0-1)
+     */
+    getPlayerSkillLevel() {
+        if (this.useAILearning && this.aiLearningSystem) {
+            return this.aiLearningSystem.playerModel.skillLevel;
+        }
+        return 0.5;
+    }
+
+    /**
+     * 獲取玩家遊戲風格
+     * @returns {string} 遊戲風格
+     */
+    getPlayerStyle() {
+        if (this.useAILearning && this.aiLearningSystem) {
+            return this.aiLearningSystem.playerModel.playStyle;
+        }
+        return 'balanced';
+    }
+
+    /**
+     * 導出學習數據
+     * @returns {Object} 學習數據
+     */
+    exportLearningData() {
+        if (this.useAILearning && this.aiLearningSystem) {
+            return {
+                gameHistory: this.aiLearningSystem.gameHistory,
+                playerModel: this.aiLearningSystem.playerModel,
+                difficultySystem: this.aiLearningSystem.difficultySystem,
+                personalizationSystem: this.aiLearningSystem.personalizationSystem,
+                performanceMetrics: this.aiLearningSystem.performanceMetrics
+            };
+        }
+        return null;
+    }
+
+    /**
+     * 導入學習數據
+     * @param {Object} learningData - 學習數據
+     */
+    importLearningData(learningData) {
+        if (this.useAILearning && this.aiLearningSystem && learningData) {
+            try {
+                if (learningData.gameHistory) {
+                    this.aiLearningSystem.gameHistory = learningData.gameHistory;
+                }
+                if (learningData.playerModel) {
+                    this.aiLearningSystem.playerModel = learningData.playerModel;
+                }
+                if (learningData.difficultySystem) {
+                    this.aiLearningSystem.difficultySystem = learningData.difficultySystem;
+                }
+                if (learningData.personalizationSystem) {
+                    this.aiLearningSystem.personalizationSystem = learningData.personalizationSystem;
+                }
+                if (learningData.performanceMetrics) {
+                    this.aiLearningSystem.performanceMetrics = learningData.performanceMetrics;
+                }
+                console.log('學習數據導入成功');
+            } catch (error) {
+                console.error('學習數據導入失敗:', error);
+            }
+        }
     }
 }
 

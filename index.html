@@ -114,6 +114,16 @@
                             <li>多線完成獎勵</li>
                         </ul>
                     </div>
+                    <div class="algorithm-option" data-algorithm="ai-learning">
+                        <div class="algorithm-name">AI 學習演算法</div>
+                        <div class="algorithm-description">基於機器學習的智能建議系統</div>
+                        <ul class="algorithm-features">
+                            <li>歷史數據學習</li>
+                            <li>行為模式預測</li>
+                            <li>自適應難度調整</li>
+                            <li>個性化遊戲體驗</li>
+                        </ul>
+                    </div>
                 </div>
                 <div class="current-algorithm">當前使用: <span id="current-algorithm-name">標準演算法</span></div>
             </div>
@@ -131,6 +141,35 @@
                 <div class="status-item">
                     <span class="label">完成連線:</span>
                     <span id="completed-lines" class="value">0</span>
+                </div>
+            </div>
+
+            <!-- AI 學習系統狀態 -->
+            <div id="ai-learning-status" class="ai-learning-status hidden">
+                <h3>AI 學習系統狀態</h3>
+                <div class="ai-stats">
+                    <div class="ai-stat-item">
+                        <span class="label">技能等級:</span>
+                        <span id="skill-level" class="value">50%</span>
+                    </div>
+                    <div class="ai-stat-item">
+                        <span class="label">遊戲風格:</span>
+                        <span id="play-style" class="value">平衡型</span>
+                    </div>
+                    <div class="ai-stat-item">
+                        <span class="label">難度等級:</span>
+                        <span id="difficulty-level" class="value">中等</span>
+                    </div>
+                    <div class="ai-stat-item">
+                        <span class="label">已玩遊戲:</span>
+                        <span id="games-played" class="value">0</span>
+                    </div>
+                </div>
+                <div class="ai-controls">
+                    <button id="reset-ai-learning" class="secondary-btn">重置學習數據</button>
+                    <button id="export-learning-data" class="secondary-btn">導出學習數據</button>
+                    <input type="file" id="import-learning-data" accept=".json" style="display: none;">
+                    <button id="import-learning-data-btn" class="secondary-btn">導入學習數據</button>
                 </div>
             </div>
 

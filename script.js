@@ -288,6 +288,12 @@ function initializeGame() {
         lineDetector = new LineDetector();
         probabilityCalculator = new ProbabilityCalculator();
         
+        // Initialize AI learning system if available
+        if (typeof AILearningSystem !== 'undefined') {
+            aiLearningSystem = new AILearningSystem();
+            console.log('AI Learning System initialized');
+        }
+        
         console.log('Game components created');
         
         // Set up game board click handler
@@ -347,7 +353,218 @@ function setupUIEventListeners() {
         playAgainButton.addEventListener('click', handlePlayAgain);
     }
     
+    // AI 學習系統事件監聽器
+    setupAILearningEventListeners();
+    
     console.log('UI event listeners setup complete');
+}
+
+/**
+ * 設置 AI 學習系統的事件監聽器
+ */
+function setupAILearningEventListeners() {
+    // 算法選擇器
+    const algorithmOptions = document.querySelectorAll('.algorithm-option');
+    algorithmOptions.forEach(option => {
+        option.addEventListener('click', function() {
+            const algorithm = this.dataset.algorithm;
+            selectAlgorithm(algorithm);
+        });
+    });
+    
+    // AI 學習控制按鈕
+    const resetAIButton = document.getElementById('reset-ai-learning');
+    if (resetAIButton) {
+        resetAIButton.addEventListener('click', resetAILearning);
+    }
+    
+    const exportDataButton = document.getElementById('export-learning-data');
+    if (exportDataButton) {
+        exportDataButton.addEventListener('click', exportLearningData);
+    }
+    
+    const importDataButton = document.getElementById('import-learning-data-btn');
+    const importDataInput = document.getElementById('import-learning-data');
+    if (importDataButton && importDataInput) {
+        importDataButton.addEventListener('click', () => importDataInput.click());
+        importDataInput.addEventListener('change', importLearningData);
+    }
+}
+
+/**
+ * 選擇算法
+ * @param {string} algorithm - 算法類型
+ */
+function selectAlgorithm(algorithm) {
+    // 更新 UI 選擇狀態
+    document.querySelectorAll('.algorithm-option').forEach(option => {
+        option.classList.remove('selected');
+    });
+    
+    const selectedOption = document.querySelector(`[data-algorithm="${algorithm}"]`);
+    if (selectedOption) {
+        selectedOption.classList.add('selected');
+    }
+    
+    // 更新當前算法顯示
+    const currentAlgorithmName = document.getElementById('current-algorithm-name');
+    const algorithmNames = {
+        'standard': '標準演算法',
+        'enhanced': '增強演算法',
+        'ai-learning': 'AI 學習演算法'
+    };
+    
+    if (currentAlgorithmName) {
+        currentAlgorithmName.textContent = algorithmNames[algorithm] || '未知演算法';
+    }
+    
+    // 顯示或隱藏 AI 學習狀態面板
+    const aiStatusPanel = document.getElementById('ai-learning-status');
+    if (aiStatusPanel) {
+        if (algorithm === 'ai-learning') {
+            aiStatusPanel.classList.remove('hidden');
+            updateAILearningStatus();
+        } else {
+            aiStatusPanel.classList.add('hidden');
+        }
+    }
+    
+    // 更新遊戲引擎的算法設置
+    if (typeof gameEngine !== 'undefined' && gameEngine) {
+        switch (algorithm) {
+            case 'ai-learning':
+                gameEngine.setAILearningEnabled(true);
+                gameEngine.setLearningMode('personalized');
+                break;
+            case 'enhanced':
+                gameEngine.setAILearningEnabled(false);
+                // 這裡可以設置使用增強算法
+                break;
+            default:
+                gameEngine.setAILearningEnabled(false);
+                // 使用標準算法
+                break;
+        }
+    }
+    
+    console.log(`算法切換至: ${algorithm}`);
+}
+
+/**
+ * 更新 AI 學習系統狀態顯示
+ */
+function updateAILearningStatus() {
+    if (typeof gameEngine === 'undefined' || !gameEngine || !gameEngine.aiLearningSystem) {
+        return;
+    }
+    
+    const learningStats = gameEngine.getAILearningStats();
+    if (!learningStats) return;
+    
+    // 更新技能等級
+    const skillLevelElement = document.getElementById('skill-level');
+    if (skillLevelElement) {
+        skillLevelElement.textContent = `${Math.round(learningStats.currentSkillLevel * 100)}%`;
+    }
+    
+    // 更新遊戲風格
+    const playStyleElement = document.getElementById('play-style');
+    if (playStyleElement) {
+        const styleNames = {
+            'aggressive': '攻擊型',
+            'defensive': '防守型',
+            'balanced': '平衡型',
+            'strategic': '策略型'
+        };
+        playStyleElement.textContent = styleNames[learningStats.playStyle] || '未知';
+    }
+    
+    // 更新難度等級
+    const difficultyElement = document.getElementById('difficulty-level');
+    if (difficultyElement) {
+        const difficultyNames = {
+            'easy': '簡單',
+            'medium': '中等',
+            'hard': '困難',
+            'expert': '專家'
+        };
+        difficultyElement.textContent = difficultyNames[learningStats.difficultyLevel] || '未知';
+    }
+    
+    // 更新已玩遊戲數
+    const gamesPlayedElement = document.getElementById('games-played');
+    if (gamesPlayedElement) {
+        gamesPlayedElement.textContent = learningStats.gamesPlayed.toString();
+    }
+}
+
+/**
+ * 重置 AI 學習數據
+ */
+function resetAILearning() {
+    if (confirm('確定要重置所有 AI 學習數據嗎？此操作無法撤銷。')) {
+        if (typeof gameEngine !== 'undefined' && gameEngine) {
+            gameEngine.resetAILearning();
+            updateAILearningStatus();
+            showSuccessMessage('AI 學習數據已重置');
+        }
+    }
+}
+
+/**
+ * 導出學習數據
+ */
+function exportLearningData() {
+    if (typeof gameEngine === 'undefined' || !gameEngine) {
+        showErrorMessage('遊戲引擎未初始化');
+        return;
+    }
+    
+    const learningData = gameEngine.exportLearningData();
+    if (!learningData) {
+        showErrorMessage('沒有學習數據可導出');
+        return;
+    }
+    
+    const dataStr = JSON.stringify(learningData, null, 2);
+    const dataBlob = new Blob([dataStr], { type: 'application/json' });
+    
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(dataBlob);
+    link.download = `bingo-ai-learning-data-${new Date().toISOString().split('T')[0]}.json`;
+    link.click();
+    
+    showSuccessMessage('學習數據已導出');
+}
+
+/**
+ * 導入學習數據
+ * @param {Event} event - 文件選擇事件
+ */
+function importLearningData(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const learningData = JSON.parse(e.target.result);
+            
+            if (typeof gameEngine !== 'undefined' && gameEngine) {
+                gameEngine.importLearningData(learningData);
+                updateAILearningStatus();
+                showSuccessMessage('學習數據導入成功');
+            }
+        } catch (error) {
+            console.error('導入學習數據失敗:', error);
+            showErrorMessage('學習數據格式錯誤');
+        }
+    };
+    
+    reader.readAsText(file);
+    
+    // 清除文件選擇
+    event.target.value = '';
 }
 
 /**
