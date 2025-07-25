@@ -188,6 +188,9 @@ class ProgressiveLoader {
         this.totalComponents = 0;
         this.onProgress = null;
         this.onComplete = null;
+        this.loadStartTime = performance.now();
+        this.componentLoadTimes = new Map();
+        this.criticalComponents = new Set(['GameState', 'LineDetector', 'ProbabilityCalculator']); // 關鍵組件優先載入
     }
     
     setTotalComponents(total) {
@@ -195,15 +198,44 @@ class ProgressiveLoader {
     }
     
     markComponentLoaded(componentName) {
+        const loadTime = performance.now() - this.loadStartTime;
+        this.componentLoadTimes.set(componentName, loadTime);
         this.loadedComponents.add(componentName);
+        
         const progress = (this.loadedComponents.size / this.totalComponents) * 100;
+        
+        console.log(`Component loaded: ${componentName} (${loadTime.toFixed(2)}ms)`);
         
         if (this.onProgress) {
             this.onProgress(progress, componentName);
         }
         
+        // 檢查關鍵組件是否已載入完成
+        const criticalLoaded = Array.from(this.criticalComponents).every(comp => 
+            this.loadedComponents.has(comp)
+        );
+        
+        if (criticalLoaded && this.loadedComponents.size >= this.criticalComponents.size) {
+            // 關鍵組件載入完成，可以開始基本功能
+            this.onCriticalComponentsLoaded?.();
+        }
+        
         if (this.loadedComponents.size === this.totalComponents && this.onComplete) {
+            const totalLoadTime = performance.now() - this.loadStartTime;
+            console.log(`All components loaded in ${totalLoadTime.toFixed(2)}ms`);
+            this.logLoadingPerformance();
             this.onComplete();
+        }
+    }
+    
+    setCriticalComponentsCallback(callback) {
+        this.onCriticalComponentsLoaded = callback;
+    }
+    
+    logLoadingPerformance() {
+        console.log('Loading Performance Report:');
+        for (const [component, time] of this.componentLoadTimes) {
+            console.log(`  ${component}: ${time.toFixed(2)}ms`);
         }
     }
     
@@ -237,10 +269,22 @@ function updateLoadingProgress(progress, componentName) {
  * 初始化漸進式載入
  */
 function initializeProgressiveLoading() {
-    progressiveLoader.setTotalComponents(5); // LineDetector, ProbabilityCalculator, GameBoard, GameEngine, Enhanced Algorithm
+    progressiveLoader.setTotalComponents(6); // LineDetector, ProbabilityCalculator, GameBoard, GameEngine, Enhanced Algorithm, UI
     progressiveLoader.setProgressCallback(updateLoadingProgress);
     progressiveLoader.setCompleteCallback(() => {
-        setTimeout(hideGlobalLoading, 500);
+        // 添加載入完成動畫
+        const loadingOverlay = document.getElementById('global-loading');
+        if (loadingOverlay) {
+            loadingOverlay.style.transition = 'opacity 0.5s ease-out';
+            loadingOverlay.style.opacity = '0';
+            setTimeout(() => {
+                hideGlobalLoading();
+                showSuccessMessage('遊戲載入完成！');
+            }, 500);
+        } else {
+            hideGlobalLoading();
+            showSuccessMessage('遊戲載入完成！');
+        }
     });
 }
 
@@ -253,12 +297,22 @@ function initializeProgressiveLoading() {
 function showErrorModal(title, message, options = {}) {
     console.log('顯示錯誤模態框:', title, message);
     
+    // Enhanced input validation
+    if (typeof title !== 'string' || typeof message !== 'string') {
+        console.error('Invalid parameters for showErrorModal');
+        title = '錯誤';
+        message = '發生未知錯誤';
+    }
+    
     const {
         type = 'error',
         autoClose = false,
         autoCloseDelay = 5000,
         showRetry = false,
-        onRetry = null
+        onRetry = null,
+        showDetails = false,
+        details = null,
+        persistent = false // 是否為持久性錯誤（不能自動關閉）
     } = options;
     
     // 移除現有的錯誤模態框
@@ -289,6 +343,30 @@ function showErrorModal(title, message, options = {}) {
     const errorMessage = document.createElement('p');
     errorMessage.className = 'error-message';
     errorMessage.textContent = message;
+    errorMessage.style.marginBottom = '15px';
+    errorMessage.style.lineHeight = '1.5';
+    
+    // 添加詳細信息區域
+    let detailsContainer = null;
+    if (showDetails && details) {
+        detailsContainer = document.createElement('div');
+        detailsContainer.className = 'error-details';
+        detailsContainer.style.background = '#f8f9fa';
+        detailsContainer.style.padding = '10px';
+        detailsContainer.style.borderRadius = '5px';
+        detailsContainer.style.marginTop = '10px';
+        detailsContainer.style.fontSize = '0.9rem';
+        detailsContainer.style.color = '#666';
+        detailsContainer.style.maxHeight = '150px';
+        detailsContainer.style.overflowY = 'auto';
+        detailsContainer.style.display = 'none';
+        
+        const detailsText = document.createElement('pre');
+        detailsText.style.whiteSpace = 'pre-wrap';
+        detailsText.style.margin = '0';
+        detailsText.textContent = typeof details === 'string' ? details : JSON.stringify(details, null, 2);
+        detailsContainer.appendChild(detailsText);
+    }
     
     const buttonContainer = document.createElement('div');
     buttonContainer.style.display = 'flex';

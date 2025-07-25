@@ -321,6 +321,9 @@ function setupUIEventListeners() {
     const randomComputerMoveButton = document.getElementById('random-computer-move');
     const playAgainButton = document.getElementById('play-again');
     
+    // 設置無障礙功能
+    setupAccessibilityFeatures();
+    
     if (startButton) {
         console.log('Found start button, adding event listener');
         startButton.addEventListener('click', function() {
@@ -357,6 +360,221 @@ function setupUIEventListeners() {
     setupAILearningEventListeners();
     
     console.log('UI event listeners setup complete');
+}
+
+/**
+ * 設置無障礙功能
+ */
+function setupAccessibilityFeatures() {
+    console.log('Setting up accessibility features...');
+    
+    // 為遊戲板添加鍵盤導航支持
+    setupKeyboardNavigation();
+    
+    // 設置 ARIA 標籤和角色
+    setupARIALabels();
+    
+    // 設置螢幕閱讀器支持
+    setupScreenReaderSupport();
+    
+    // 檢測用戶偏好設置
+    detectUserPreferences();
+}
+
+/**
+ * 設置鍵盤導航
+ */
+function setupKeyboardNavigation() {
+    const gameBoard = document.getElementById('game-board');
+    if (!gameBoard) return;
+    
+    let focusedRow = 0;
+    let focusedCol = 0;
+    
+    // 為遊戲板添加 tabindex 使其可聚焦
+    gameBoard.setAttribute('tabindex', '0');
+    gameBoard.setAttribute('role', 'grid');
+    gameBoard.setAttribute('aria-label', '5x5 Bingo 遊戲板');
+    
+    // 鍵盤事件處理
+    gameBoard.addEventListener('keydown', function(event) {
+        if (!gameState || !gameState.gameStarted || gameState.gameEnded) {
+            return;
+        }
+        
+        let handled = false;
+        
+        switch (event.key) {
+            case 'ArrowUp':
+                focusedRow = Math.max(0, focusedRow - 1);
+                handled = true;
+                break;
+            case 'ArrowDown':
+                focusedRow = Math.min(4, focusedRow + 1);
+                handled = true;
+                break;
+            case 'ArrowLeft':
+                focusedCol = Math.max(0, focusedCol - 1);
+                handled = true;
+                break;
+            case 'ArrowRight':
+                focusedCol = Math.min(4, focusedCol + 1);
+                handled = true;
+                break;
+            case 'Enter':
+            case ' ':
+                handleCellClick(focusedRow, focusedCol);
+                handled = true;
+                break;
+        }
+        
+        if (handled) {
+            event.preventDefault();
+            updateKeyboardFocus(focusedRow, focusedCol);
+            announceCurrentPosition(focusedRow, focusedCol);
+        }
+    });
+    
+    // 初始焦點
+    updateKeyboardFocus(0, 0);
+}
+
+/**
+ * 更新鍵盤焦點視覺指示
+ */
+function updateKeyboardFocus(row, col) {
+    // 移除所有現有焦點
+    document.querySelectorAll('.game-cell.keyboard-focus').forEach(cell => {
+        cell.classList.remove('keyboard-focus');
+    });
+    
+    // 添加新焦點
+    const cells = document.querySelectorAll('.game-cell');
+    const targetCell = cells[row * 5 + col];
+    if (targetCell) {
+        targetCell.classList.add('keyboard-focus');
+        targetCell.setAttribute('aria-selected', 'true');
+    }
+    
+    // 移除其他格子的 aria-selected
+    cells.forEach((cell, index) => {
+        if (index !== row * 5 + col) {
+            cell.setAttribute('aria-selected', 'false');
+        }
+    });
+}
+
+/**
+ * 設置 ARIA 標籤
+ */
+function setupARIALabels() {
+    // 遊戲狀態區域
+    const gameStatus = document.querySelector('.game-status');
+    if (gameStatus) {
+        gameStatus.setAttribute('role', 'status');
+        gameStatus.setAttribute('aria-live', 'polite');
+        gameStatus.setAttribute('aria-label', '遊戲狀態信息');
+    }
+    
+    // 建議區域
+    const suggestionArea = document.querySelector('.suggestion-area');
+    if (suggestionArea) {
+        suggestionArea.setAttribute('role', 'region');
+        suggestionArea.setAttribute('aria-label', '移動建議');
+        suggestionArea.setAttribute('aria-live', 'polite');
+    }
+    
+    // 按鈕標籤
+    const startButton = document.getElementById('start-game');
+    if (startButton) {
+        startButton.setAttribute('aria-describedby', 'game-instructions');
+    }
+    
+    // 遊戲板格子
+    const cells = document.querySelectorAll('.game-cell');
+    cells.forEach((cell, index) => {
+        const row = Math.floor(index / 5) + 1;
+        const col = (index % 5) + 1;
+        cell.setAttribute('role', 'gridcell');
+        cell.setAttribute('aria-label', `第${row}行第${col}列`);
+        cell.setAttribute('aria-selected', 'false');
+        cell.setAttribute('tabindex', '-1');
+    });
+}
+
+/**
+ * 設置螢幕閱讀器支持
+ */
+function setupScreenReaderSupport() {
+    // 創建螢幕閱讀器專用的狀態更新區域
+    const srStatus = document.createElement('div');
+    srStatus.id = 'sr-status';
+    srStatus.setAttribute('aria-live', 'assertive');
+    srStatus.setAttribute('aria-atomic', 'true');
+    srStatus.style.position = 'absolute';
+    srStatus.style.left = '-10000px';
+    srStatus.style.width = '1px';
+    srStatus.style.height = '1px';
+    srStatus.style.overflow = 'hidden';
+    document.body.appendChild(srStatus);
+}
+
+/**
+ * 宣告當前位置（螢幕閱讀器）
+ */
+function announceCurrentPosition(row, col) {
+    const srStatus = document.getElementById('sr-status');
+    if (!srStatus) return;
+    
+    const board = gameState ? gameState.getState().board : null;
+    if (!board) return;
+    
+    let cellState = '';
+    switch (board[row][col]) {
+        case 1:
+            cellState = '玩家已選擇';
+            break;
+        case 2:
+            cellState = '電腦已選擇';
+            break;
+        default:
+            cellState = '空格子';
+    }
+    
+    srStatus.textContent = `第${row + 1}行第${col + 1}列，${cellState}`;
+}
+
+/**
+ * 宣告遊戲狀態變化
+ */
+function announceGameStateChange(message) {
+    const srStatus = document.getElementById('sr-status');
+    if (srStatus) {
+        srStatus.textContent = message;
+    }
+}
+
+/**
+ * 檢測用戶偏好設置
+ */
+function detectUserPreferences() {
+    // 檢測減少動畫偏好
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+        document.body.classList.add('reduce-motion');
+        console.log('Reduced motion preference detected');
+    }
+    
+    // 檢測高對比度偏好
+    if (window.matchMedia && window.matchMedia('(prefers-contrast: high)').matches) {
+        document.body.classList.add('high-contrast');
+        console.log('High contrast preference detected');
+    }
+    
+    // 檢測深色模式偏好
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+        document.body.classList.add('dark-mode');
+        console.log('Dark mode preference detected');
+    }
 }
 
 /**
@@ -600,6 +818,14 @@ const handleCellClick = debounce(function(row, col, cellElement) {
     try {
         console.log(`Cell clicked: (${row}, ${col})`);
         
+        // Enhanced input validation
+        if (typeof row !== 'number' || typeof col !== 'number' || 
+            row < 0 || row >= 5 || col < 0 || col >= 5) {
+            console.error('Invalid cell coordinates:', row, col);
+            showWarningMessage('無效的格子位置');
+            return;
+        }
+        
         // 如果游戏未开始或已结束，不处理点击
         if (!gameState || !gameState.gameStarted || gameState.gameEnded) {
             console.log('Game not started or already ended');
@@ -795,11 +1021,19 @@ function restartGame() {
 function showPlayerSuggestion() {
     try {
         if (!gameState || !probabilityCalculator) {
+            console.warn('Game state or probability calculator not available');
             return;
         }
         
         const currentBoard = gameState.getState().board;
         const suggestionDisplay = document.getElementById('suggestion-display');
+        
+        // Validate board state
+        if (!currentBoard || !Array.isArray(currentBoard) || currentBoard.length !== 5) {
+            console.error('Invalid board state');
+            showWarningMessage('遊戲狀態異常，請重新開始遊戲');
+            return;
+        }
         
         // 顯示載入狀態
         if (suggestionDisplay) {
@@ -816,7 +1050,17 @@ function showPlayerSuggestion() {
             suggestionDisplay.classList.remove('loading');
         }
         
-        if (suggestion) {
+        if (suggestion && typeof suggestion === 'object' && 
+            typeof suggestion.row === 'number' && typeof suggestion.col === 'number') {
+            
+            // Validate suggestion coordinates
+            if (suggestion.row < 0 || suggestion.row >= 5 || 
+                suggestion.col < 0 || suggestion.col >= 5) {
+                console.error('Invalid suggestion coordinates:', suggestion);
+                updateSuggestionDisplay(null);
+                return;
+            }
+            
             // 使用性能監控測量渲染時間
             performanceMonitor.measureRenderPerformance('suggestion-highlight', () => {
                 gameBoard.highlightSuggestion(suggestion.row, suggestion.col, {
@@ -842,7 +1086,12 @@ function showPlayerSuggestion() {
             suggestionDisplay.classList.remove('loading');
         }
         
-        showWarningMessage('無法生成移動建議');
+        showErrorModal('建議生成失敗', '無法生成移動建議，請檢查遊戲狀態', {
+            showRetry: true,
+            onRetry: () => {
+                setTimeout(showPlayerSuggestion, 100);
+            }
+        });
     }
 }
 

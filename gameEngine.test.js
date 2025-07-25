@@ -2,8 +2,6 @@
  * GameEngine 單元測試
  */
 const GameEngine = require('./gameEngine.js');
-const LineDetector = require('./lineDetector.js');
-const ProbabilityCalculator = require('./probabilityCalculator.js');
 
 describe('GameEngine', () => {
   let engine;
@@ -25,7 +23,7 @@ describe('GameEngine', () => {
   });
   
   test('should process player turn correctly', () => {
-    const result = engine.processPlayerTurn(2, 2);
+    engine.processPlayerTurn(2, 2);
     
     const board = engine.getBoardCopy();
     expect(board[2][2]).toBe(1); // 1 表示玩家
@@ -60,7 +58,7 @@ describe('GameEngine', () => {
     engine.processPlayerTurn(2, 2);
     
     // 現在是電腦輸入階段
-    const result = engine.processComputerTurn(3, 3);
+    engine.processComputerTurn(3, 3);
     
     const board = engine.getBoardCopy();
     expect(board[3][3]).toBe(2); // 2 表示電腦

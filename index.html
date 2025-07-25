@@ -86,14 +86,14 @@
 <body>
     <div class="container">
 
-        <header>
+        <header role="banner">
             <h1>Bingo遊戲模擬器</h1>
             <p class="game-description">與電腦進行8輪翻牌遊戲，目標是完成最多的連線！</p>
         </header>
 
-        <main>
-            <div class="algorithm-selector">
-                <h3>選擇演算法</h3>
+        <main role="main">
+            <div class="algorithm-selector" role="region" aria-labelledby="algorithm-selector-title">
+                <h3 id="algorithm-selector-title">選擇演算法</h3>
                 <div class="algorithm-options">
                     <div class="algorithm-option selected" data-algorithm="standard">
                         <div class="algorithm-name">標準演算法</div>
@@ -128,19 +128,19 @@
                 <div class="current-algorithm">當前使用: <span id="current-algorithm-name">標準演算法</span></div>
             </div>
 
-            <div class="game-status">
+            <div class="game-status" role="status" aria-live="polite" aria-label="遊戲狀態信息">
                 <div class="status-item">
                     <span class="label">當前輪數:</span>
-                    <span id="current-round" class="value">1</span>
+                    <span id="current-round" class="value" aria-label="當前輪數">1</span>
                     <span class="total">/ 8</span>
                 </div>
                 <div class="status-item">
                     <span class="label">遊戲階段:</span>
-                    <span id="game-phase" class="value">玩家回合</span>
+                    <span id="game-phase" class="value" aria-label="當前遊戲階段">玩家回合</span>
                 </div>
                 <div class="status-item">
                     <span class="label">完成連線:</span>
-                    <span id="completed-lines" class="value">0</span>
+                    <span id="completed-lines" class="value" aria-label="已完成的連線數量">0</span>
                 </div>
             </div>
 
@@ -174,14 +174,15 @@
             </div>
 
             <div class="game-board-container">
-                <div id="game-board" class="game-board"></div>
-                <div class="board-controls">
-                    <button id="start-game" class="primary-btn">開始遊戲</button>
-                    <button id="restart-game" class="secondary-btn" disabled>重新開始</button>
-                    <button id="random-computer-move" class="secondary-btn">電腦隨機下棋</button>
+                <div id="game-board" class="game-board" role="grid" aria-label="5x5 Bingo 遊戲板" tabindex="0"></div>
+                <div class="board-controls" role="group" aria-label="遊戲控制按鈕">
+                    <button id="start-game" class="primary-btn" aria-describedby="game-instructions">開始遊戲</button>
+                    <button id="restart-game" class="secondary-btn" disabled aria-label="重新開始遊戲">重新開始</button>
+                    <button id="random-computer-move" class="secondary-btn" aria-label="讓電腦隨機選擇位置">電腦隨機下棋</button>
                     <div class="auto-random-container">
-                        <input type="checkbox" id="auto-random-move" />
+                        <input type="checkbox" id="auto-random-move" aria-describedby="auto-random-description" />
                         <label for="auto-random-move">電腦自動隨機下棋</label>
+                        <div id="auto-random-description" class="sr-only">啟用後，電腦將在每回合自動隨機選擇位置</div>
                     </div>
                 </div>
             </div>
@@ -207,9 +208,9 @@
                 </div>
 
                 <div id="game-active-panel">
-                    <div class="suggestion-area">
+                    <div class="suggestion-area" role="region" aria-label="移動建議" aria-live="polite">
                         <h3>建議移動</h3>
-                        <div id="suggestion-display" class="suggestion-display">
+                        <div id="suggestion-display" class="suggestion-display" aria-label="當前移動建議">
                             <span id="suggestion-text">點擊開始遊戲獲得建議</span>
                         </div>
                     </div>
@@ -225,10 +226,10 @@
                 </div>
             </div>
 
-            <div class="instructions">
-                <h3>操作指示</h3>
-                <div id="instruction-text" class="instruction-text">
-                    點擊「開始遊戲」按鈕開始新的遊戲
+            <div class="instructions" role="region" aria-labelledby="instructions-title">
+                <h3 id="instructions-title">操作指示</h3>
+                <div id="instruction-text" class="instruction-text" id="game-instructions" aria-live="polite">
+                    點擊「開始遊戲」按鈕開始新的遊戲。使用方向鍵導航遊戲板，按 Enter 或空格鍵選擇格子。
                 </div>
             </div>
         </main>

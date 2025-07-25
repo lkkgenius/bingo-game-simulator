@@ -33,19 +33,33 @@ class PerformanceMonitor {
         this.isMonitoring = true;
         console.log('Performance monitoring started');
         
-        // 監控幀率
-        this.startFrameRateMonitoring();
-        
-        // 監控記憶體使用
-        this.startMemoryMonitoring();
-        
-        // 監控渲染性能
-        this.startRenderMonitoring();
-        
-        // 設置定期報告
-        this.reportInterval = setInterval(() => {
-            this.generatePerformanceReport();
-        }, 30000); // 每30秒報告一次
+        try {
+            // 監控幀率
+            this.startFrameRateMonitoring();
+            
+            // 監控記憶體使用
+            this.startMemoryMonitoring();
+            
+            // 監控渲染性能
+            this.startRenderMonitoring();
+            
+            // 設置定期報告 - 在生產環境中減少頻率
+            const reportInterval = this.isProduction() ? 60000 : 30000; // 生產環境60秒，開發環境30秒
+            this.reportInterval = setInterval(() => {
+                try {
+                    this.generatePerformanceReport();
+                } catch (error) {
+                    console.error('Error generating performance report:', error);
+                }
+            }, reportInterval);
+            
+            // 監聽頁面可見性變化以優化性能
+            this.setupVisibilityChangeHandler();
+            
+        } catch (error) {
+            console.error('Error starting performance monitoring:', error);
+            this.isMonitoring = false;
+        }
     }
 
     /**
@@ -418,26 +432,96 @@ class PerformanceMonitor {
     }
 
     /**
+     * 檢查是否為生產環境
+     */
+    isProduction() {
+        // 在 Node.js 環境中，window 可能不存在
+        if (typeof window === 'undefined' || !window.location) {
+            return false; // 在測試環境中視為開發環境
+        }
+        
+        return window.location.hostname !== 'localhost' && 
+               window.location.hostname !== '127.0.0.1' &&
+               !window.location.hostname.includes('github.io') === false; // GitHub Pages 也視為生產環境
+    }
+    
+    /**
+     * 設置頁面可見性變化處理器
+     */
+    setupVisibilityChangeHandler() {
+        if (typeof document.visibilityState !== 'undefined') {
+            document.addEventListener('visibilitychange', () => {
+                if (document.hidden) {
+                    // 頁面隱藏時暫停監控以節省資源
+                    this.pauseMonitoring();
+                } else {
+                    // 頁面可見時恢復監控
+                    this.resumeMonitoring();
+                }
+            });
+        }
+    }
+    
+    /**
+     * 暫停監控
+     */
+    pauseMonitoring() {
+        if (this.frameRateRAF) {
+            cancelAnimationFrame(this.frameRateRAF);
+        }
+        this.isPaused = true;
+        console.log('Performance monitoring paused');
+    }
+    
+    /**
+     * 恢復監控
+     */
+    resumeMonitoring() {
+        if (this.isMonitoring && this.isPaused) {
+            this.startFrameRateMonitoring();
+            this.isPaused = false;
+            console.log('Performance monitoring resumed');
+        }
+    }
+    
+    /**
      * 獲取性能統計
      */
     getPerformanceStats() {
-        return {
-            frameRate: {
-                current: this.metrics.frameRate[this.metrics.frameRate.length - 1] || 0,
-                average: this.calculateAverageFrameRate(),
-                min: Math.min(...this.metrics.frameRate),
-                max: Math.max(...this.metrics.frameRate)
-            },
-            memory: this.getLatestMemoryUsage(),
-            renderTime: {
-                average: this.calculateAverageRenderTime(),
-                samples: this.metrics.renderTime.length
-            },
-            algorithmTime: {
-                average: this.calculateAverageAlgorithmTime(),
-                samples: this.metrics.algorithmTime.length
-            }
-        };
+        try {
+            const frameRateData = this.metrics.frameRate.length > 0 ? this.metrics.frameRate : [0];
+            
+            return {
+                frameRate: {
+                    current: frameRateData[frameRateData.length - 1] || 0,
+                    average: this.calculateAverageFrameRate(),
+                    min: frameRateData.length > 0 ? Math.min(...frameRateData) : 0,
+                    max: frameRateData.length > 0 ? Math.max(...frameRateData) : 0
+                },
+                memory: this.getLatestMemoryUsage(),
+                renderTime: {
+                    average: this.calculateAverageRenderTime(),
+                    samples: this.metrics.renderTime.length
+                },
+                algorithmTime: {
+                    average: this.calculateAverageAlgorithmTime(),
+                    samples: this.metrics.algorithmTime.length
+                },
+                isMonitoring: this.isMonitoring,
+                isPaused: this.isPaused || false
+            };
+        } catch (error) {
+            console.error('Error getting performance stats:', error);
+            return {
+                frameRate: { current: 0, average: 0, min: 0, max: 0 },
+                memory: null,
+                renderTime: { average: 0, samples: 0 },
+                algorithmTime: { average: 0, samples: 0 },
+                isMonitoring: this.isMonitoring,
+                isPaused: this.isPaused || false,
+                error: error.message
+            };
+        }
     }
 }
 
@@ -445,7 +529,8 @@ class PerformanceMonitor {
 const performanceMonitor = new PerformanceMonitor();
 
 // 自動啟動性能監控（在開發模式下）
-if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+if (typeof window !== 'undefined' && window.location && 
+    (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
     performanceMonitor.startMonitoring();
 }
 
