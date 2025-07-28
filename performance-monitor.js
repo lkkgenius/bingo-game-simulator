@@ -234,7 +234,7 @@ class PerformanceMonitor {
         
         performance.mark(startMark);
         
-        const result = algorithmFunction();
+        const result = algorithmFunction.call(this);
         
         performance.mark(endMark);
         performance.measure(measureName, startMark, endMark);
@@ -309,7 +309,7 @@ class PerformanceMonitor {
         
         performance.mark(startMark);
         
-        const result = renderFunction();
+        const result = renderFunction.call(this);
         
         performance.mark(endMark);
         performance.measure(measureName, startMark, endMark);

@@ -1,0 +1,389 @@
+name: Maintenance
+
+on:
+  schedule:
+    # Run maintenance tasks monthly on the 1st at 5 AM UTC
+    - cron: '0 5 1 * *'
+  workflow_dispatch: # Allow manual trigger
+
+jobs:
+  dependency-update:
+    name: Dependency Update Check
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        
+    - name: Check for outdated global dependencies
+      run: |
+        echo "Checking for outdated global dependencies..."
+        
+        # Check current versions of tools we use
+        echo "=== CURRENT TOOL VERSIONS ==="
+        echo "Node.js: $(node --version)"
+        echo "npm: $(npm --version)"
+        
+        # Check if tools are available and their versions
+        if command -v eslint &> /dev/null; then
+          echo "ESLint: $(eslint --version)"
+        else
+          echo "ESLint: Not installed globally"
+        fi
+        
+        if command -v jshint &> /dev/null; then
+          echo "JSHint: $(jshint --version)"
+        else
+          echo "JSHint: Not installed globally"
+        fi
+        
+        if command -v playwright &> /dev/null; then
+          echo "Playwright: $(npx playwright --version)"
+        else
+          echo "Playwright: Not installed"
+        fi
+        
+        if command -v lighthouse &> /dev/null; then
+          echo "Lighthouse: $(lighthouse --version)"
+        else
+          echo "Lighthouse: Not installed"
+        fi
+        
+    - name: Check package.json for updates
+      run: |
+        echo "Checking package.json for potential updates..."
+        
+        if [ -f package.json ]; then
+          # Check if devDependencies need updates
+          echo "=== DEVELOPMENT DEPENDENCIES ==="
+          
+          node -e "
+            const pkg = JSON.parse(require('fs').readFileSync('package.json', 'utf8'));
+            const devDeps = pkg.devDependencies || {};
+            
+            console.log('Current devDependencies:');
+            Object.entries(devDeps).forEach(([name, version]) => {
+              console.log('  ' + name + ': ' + version);
+            });
+            
+            // Suggest updates (this is a basic check)
+            const suggestions = {
+              'eslint': '^8.0.0',
+              'jshint': '^2.13.0',
+              'playwright': '^1.40.0',
+              'lighthouse': '^11.0.0',
+              'http-server': '^14.0.0'
+            };
+            
+            console.log('\\nSuggested versions:');
+            Object.entries(suggestions).forEach(([name, version]) => {
+              if (devDeps[name] && devDeps[name] !== version) {
+                console.log('  ' + name + ': ' + devDeps[name] + ' → ' + version);
+              }
+            });
+          "
+        fi
+        
+    - name: Security audit
+      run: |
+        echo "Running security audit..."
+        
+        # Run our custom security scanner
+        node security-scan.js
+        
+        # Check for known vulnerabilities in any dependencies
+        if [ -f package.json ]; then
+          echo "Checking for npm audit issues..."
+          npm audit --audit-level=moderate || echo "Audit completed with findings"
+        fi
+        
+    - name: Check for browser compatibility updates
+      run: |
+        echo "Checking browser compatibility..."
+        
+        # Check if our browserslist in package.json is up to date
+        if [ -f package.json ]; then
+          node -e "
+            const pkg = JSON.parse(require('fs').readFileSync('package.json', 'utf8'));
+            const browserslist = pkg.browserslist;
+            
+            if (browserslist) {
+              console.log('Current browserslist:');
+              browserslist.forEach(rule => console.log('  ' + rule));
+              
+              // Suggest modern browserslist
+              const modernList = [
+                '> 1%',
+                'last 2 versions',
+                'not dead',
+                'not ie 11'
+              ];
+              
+              console.log('\\nSuggested modern browserslist:');
+              modernList.forEach(rule => console.log('  ' + rule));
+            }
+          "
+        fi
+        
+  code-maintenance:
+    name: Code Maintenance
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Check for code maintenance issues
+      run: |
+        echo "Checking for code maintenance issues..."
+        
+        # Check for TODO/FIXME comments
+        echo "=== TODO/FIXME COMMENTS ==="
+        grep -r "TODO\|FIXME" *.js *.html *.css --exclude-dir=node_modules || echo "No TODO/FIXME comments found"
+        
+        # Check for console.log statements in production code
+        echo "=== CONSOLE STATEMENTS ==="
+        grep -r "console\." *.js --exclude="*.test.js" --exclude="testRunner.js" --exclude="security-scan.js" --exclude="performance-monitor.js" | head -10 || echo "No console statements found"
+        
+        # Check for large files
+        echo "=== LARGE FILES ==="
+        find . -name "*.js" -o -name "*.css" -o -name "*.html" | while read -r file; do
+          size=$(wc -c < "$file")
+          if [ "$size" -gt 10240 ]; then # > 10KB
+            echo "Large file: $file ($(($size / 1024))KB)"
+          fi
+        done || echo "No large files found"
+        
+        # Check for duplicate code patterns
+        echo "=== POTENTIAL DUPLICATE CODE ==="
+        # Simple check for repeated function names
+        grep -h "function\|=>" *.js | sort | uniq -d | head -5 || echo "No obvious duplicate patterns found"
+        
+    - name: Check documentation
+      run: |
+        echo "Checking documentation..."
+        
+        # Check if README is up to date
+        if [ -f README.md ]; then
+          echo "README.md exists"
+          
+          # Check if README mentions current features
+          FEATURES=("bingo" "algorithm" "probability" "performance" "mobile")
+          for feature in "${FEATURES[@]}"; do
+            if grep -qi "$feature" README.md; then
+              echo "✅ README mentions $feature"
+            else
+              echo "⚠️  README might be missing $feature documentation"
+            fi
+          done
+        else
+          echo "❌ README.md is missing"
+        fi
+        
+        # Check for JSDoc coverage
+        echo "=== JSDOC COVERAGE ==="
+        for file in *.js; do
+          if [ -f "$file" ] && [[ "$file" != *.test.js ]]; then
+            functions=$(grep -c "function\|class " "$file" || echo "0")
+            jsdocs=$(grep -c "/\*\*" "$file" || echo "0")
+            
+            if [ "$functions" -gt 0 ]; then
+              coverage=$((jsdocs * 100 / functions))
+              echo "$file: ${coverage}% JSDoc coverage ($jsdocs/$functions)"
+            fi
+          fi
+        done
+        
+    - name: Performance maintenance check
+      run: |
+        echo "Checking for performance maintenance issues..."
+        
+        # Check bundle size trends
+        echo "=== BUNDLE SIZE CHECK ==="
+        total_size=0
+        for file in index.html styles.css script.js gameEngine.js gameBoard.js lineDetector.js probabilityCalculator.js; do
+          if [ -f "$file" ]; then
+            size=$(wc -c < "$file")
+            size_kb=$((size / 1024))
+            total_size=$((total_size + size))
+            echo "$file: ${size_kb}KB"
+          fi
+        done
+        
+        total_kb=$((total_size / 1024))
+        echo "Total bundle size: ${total_kb}KB"
+        
+        if [ "$total_size" -gt 512000 ]; then # > 500KB
+          echo "⚠️  Bundle size is getting large (>${total_kb}KB)"
+        fi
+        
+        # Check for performance anti-patterns
+        echo "=== PERFORMANCE ANTI-PATTERNS ==="
+        grep -r "setInterval\|setTimeout.*0" *.js && echo "⚠️  Potential performance issue with timers" || echo "No timer issues found"
+        grep -r "innerHTML.*+\|outerHTML.*+" *.js && echo "⚠️  String concatenation with innerHTML" || echo "No innerHTML concatenation found"
+        
+  security-maintenance:
+    name: Security Maintenance
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Update security configurations
+      run: |
+        echo "Checking security configurations..."
+        
+        # Check ESLint security rules
+        if [ -f eslint.config.js ]; then
+          echo "=== ESLINT SECURITY RULES ==="
+          
+          # Check if security rules are present
+          SECURITY_RULES=("no-eval" "no-implied-eval" "no-new-func" "no-script-url")
+          for rule in "${SECURITY_RULES[@]}"; do
+            if grep -q "$rule" eslint.config.js; then
+              echo "✅ $rule rule is configured"
+            else
+              echo "⚠️  $rule rule might be missing"
+            fi
+          done
+        fi
+        
+        # Check Content Security Policy
+        echo "=== CONTENT SECURITY POLICY ==="
+        if grep -q "Content-Security-Policy" index.html; then
+          echo "✅ CSP header found"
+        else
+          echo "⚠️  Consider adding Content Security Policy"
+        fi
+        
+        # Check for HTTPS usage
+        echo "=== HTTPS USAGE ==="
+        if grep -q "http://" *.html *.js *.css; then
+          echo "⚠️  HTTP URLs found - consider upgrading to HTTPS"
+        else
+          echo "✅ No HTTP URLs found"
+        fi
+        
+    - name: Generate maintenance report
+      run: |
+        echo "Generating maintenance report..."
+        
+        cat > maintenance-report.md << 'EOF'
+        # Maintenance Report
+        
+        **Date:** $(date)
+        **Repository:** ${{ github.repository }}
+        **Branch:** ${{ github.ref_name }}
+        
+        ## Summary
+        
+        This report contains the results of automated maintenance checks.
+        
+        ## Dependency Status
+        
+        - Global tool versions checked
+        - Package.json dependencies reviewed
+        - Security audit completed
+        - Browser compatibility checked
+        
+        ## Code Maintenance
+        
+        - TODO/FIXME comments identified
+        - Console statements reviewed
+        - Large files identified
+        - Duplicate code patterns checked
+        
+        ## Documentation
+        
+        - README.md status verified
+        - JSDoc coverage analyzed
+        - Feature documentation checked
+        
+        ## Performance
+        
+        - Bundle size analyzed
+        - Performance anti-patterns checked
+        - Optimization opportunities identified
+        
+        ## Security
+        
+        - Security configurations reviewed
+        - CSP implementation checked
+        - HTTPS usage verified
+        
+        ## Recommendations
+        
+        1. Review and address any TODO/FIXME comments
+        2. Update dependencies to latest stable versions
+        3. Improve JSDoc coverage where needed
+        4. Monitor bundle size growth
+        5. Keep security configurations up to date
+        
+        ## Next Steps
+        
+        - Schedule regular maintenance reviews
+        - Update documentation as needed
+        - Plan dependency updates
+        - Address security recommendations
+        EOF
+        
+    - name: Upload maintenance report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: maintenance-report
+        path: maintenance-report.md
+        
+  cleanup:
+    name: Repository Cleanup
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Clean up old artifacts
+      run: |
+        echo "Cleaning up repository..."
+        
+        # Remove temporary files that might have been committed
+        find . -name "*.log" -type f -delete || true
+        find . -name "*.tmp" -type f -delete || true
+        find . -name ".DS_Store" -type f -delete || true
+        
+        # Check for large files that shouldn't be in git
+        echo "=== LARGE FILE CHECK ==="
+        find . -type f -size +1M ! -path "./.git/*" | while read -r file; do
+          echo "Large file found: $file ($(du -h "$file" | cut -f1))"
+        done || echo "No large files found"
+        
+        # Check git repository health
+        echo "=== REPOSITORY HEALTH ==="
+        echo "Repository size: $(du -sh .git | cut -f1)"
+        echo "Number of commits: $(git rev-list --count HEAD)"
+        echo "Number of branches: $(git branch -r | wc -l)"
+        
+    - name: Suggest optimizations
+      run: |
+        echo "=== OPTIMIZATION SUGGESTIONS ==="
+        
+        # Suggest file optimizations
+        echo "File optimization suggestions:"
+        
+        # Check for unminified CSS in production
+        if [ -f styles.css ] && grep -q "/\*" styles.css; then
+          echo "- Consider minifying CSS for production"
+        fi
+        
+        # Check for unused files
+        echo "- Review files for unused code"
+        echo "- Consider implementing tree shaking for JavaScript"
+        echo "- Optimize images if any are added in the future"
+        
+        echo "✅ Maintenance tasks completed"

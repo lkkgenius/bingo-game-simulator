@@ -1,0 +1,81 @@
+# GitHub Pages Deployment Configuration
+# This file contains configuration for automated deployment
+
+deployment:
+  # Target branch for deployment
+  branch: main
+  
+  # Files to include in deployment
+  include:
+    - "index.html"
+    - "styles.css"
+    - "script.js"
+    - "gameEngine.js"
+    - "gameBoard.js"
+    - "lineDetector.js"
+    - "probabilityCalculator.js"
+    - "probabilityCalculator.enhanced.js"
+    - "algorithmComparison.js"
+    - "performance-monitor.js"
+    - "loading-functions.js"
+    - "aiLearningSystem.js"
+    - "ai-demo.html"
+    - "pwa-manager.js"
+    - "sw.js"
+    - "manifest.json"
+    - "browserconfig.xml"
+    - "README.md"
+    - "LICENSE"
+  
+  # Files to exclude from deployment
+  exclude:
+    - "*.test.js"
+    - "testRunner.js"
+    - "security-scan.js"
+    - "performance-regression.test.js"
+    - "simple-loading-test.js"
+    - "loading-flow.test.js"
+    - "e2e.test.js"
+    - "playwright-e2e.test.js"
+    - "package.json"
+    - "package-lock.json"
+    - ".eslintrc.js"
+    - ".jshintrc"
+    - ".github/"
+    - ".git/"
+    - "node_modules/"
+    - "playwright-report/"
+    - "test-results/"
+    - "*.log"
+    - "*.md" # Exclude except README.md (handled in include)
+  
+  # Optimization settings
+  optimization:
+    minify_css: true
+    minify_js: false # Keep readable for educational purposes
+    compress_images: true
+    cache_busting: true
+  
+  # Performance settings
+  performance:
+    # Enable gzip compression
+    gzip: true
+    
+    # Set cache headers
+    cache_control:
+      html: "max-age=3600" # 1 hour
+      css: "max-age=86400" # 1 day
+      js: "max-age=86400" # 1 day
+      images: "max-age=604800" # 1 week
+  
+  # Security headers
+  security:
+    content_security_policy: "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'"
+    x_frame_options: "DENY"
+    x_content_type_options: "nosniff"
+    referrer_policy: "strict-origin-when-cross-origin"
+  
+  # Environment variables for deployment
+  environment:
+    NODE_ENV: "production"
+    DEPLOYMENT_TARGET: "github-pages"

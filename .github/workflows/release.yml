@@ -1,0 +1,341 @@
+name: Release Management
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release version (e.g., v1.0.0)'
+        required: true
+        type: string
+
+jobs:
+  validate-release:
+    name: Validate Release
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        
+    - name: Install dependencies
+      run: |
+        npm install -g eslint jshint playwright lighthouse http-server
+        npx playwright install
+        
+    - name: Run comprehensive tests
+      run: |
+        echo "Running comprehensive test suite for release..."
+        
+        # Run all tests
+        npm run ci
+        
+        # Additional release-specific checks
+        echo "Running release-specific validations..."
+        
+        # Check that all files are properly formatted
+        npm run format:check || {
+          echo "❌ Code formatting issues found"
+          exit 1
+        }
+        
+        # Ensure no TODO/FIXME comments in production code
+        echo "Checking for TODO/FIXME comments..."
+        if grep -r "TODO\|FIXME" *.js --exclude="*.test.js" --exclude="testRunner.js"; then
+          echo "⚠️  TODO/FIXME comments found in production code"
+        fi
+        
+        # Validate that all required files exist
+        REQUIRED_FILES=(
+          "index.html"
+          "styles.css"
+          "script.js"
+          "gameEngine.js"
+          "gameBoard.js"
+          "lineDetector.js"
+          "probabilityCalculator.js"
+          "README.md"
+          "LICENSE"
+        )
+        
+        for file in "${REQUIRED_FILES[@]}"; do
+          if [ ! -f "$file" ]; then
+            echo "❌ Required file missing: $file"
+            exit 1
+          fi
+        done
+        
+        echo "✅ All required files present"
+        
+    - name: Performance validation
+      run: |
+        echo "Running performance validation for release..."
+        
+        # Start server
+        http-server . -p 8080 &
+        sleep 5
+        
+        # Run Lighthouse with strict thresholds for release
+        npx lighthouse http://localhost:8080 \
+          --output=json \
+          --output-path=release-lighthouse.json \
+          --chrome-flags="--headless --no-sandbox"
+          
+        # Validate performance scores
+        node -e "
+          const report = JSON.parse(require('fs').readFileSync('release-lighthouse.json', 'utf8'));
+          const performance = Math.round(report.lhr.categories.performance.score * 100);
+          const accessibility = Math.round(report.lhr.categories.accessibility.score * 100);
+          const bestPractices = Math.round(report.lhr.categories['best-practices'].score * 100);
+          const seo = Math.round(report.lhr.categories.seo.score * 100);
+          
+          console.log('=== RELEASE PERFORMANCE VALIDATION ===');
+          console.log('Performance:', performance);
+          console.log('Accessibility:', accessibility);
+          console.log('Best Practices:', bestPractices);
+          console.log('SEO:', seo);
+          
+          // Strict thresholds for release
+          if (performance < 85) {
+            console.log('❌ Performance score too low for release (minimum: 85)');
+            process.exit(1);
+          }
+          if (accessibility < 95) {
+            console.log('❌ Accessibility score too low for release (minimum: 95)');
+            process.exit(1);
+          }
+          if (bestPractices < 90) {
+            console.log('❌ Best Practices score too low for release (minimum: 90)');
+            process.exit(1);
+          }
+          if (seo < 95) {
+            console.log('❌ SEO score too low for release (minimum: 95)');
+            process.exit(1);
+          }
+          
+          console.log('✅ All performance thresholds met for release');
+        "
+        
+    - name: Security validation
+      run: |
+        echo "Running security validation for release..."
+        
+        # Run comprehensive security scan
+        node security-scan.js
+        
+        # Additional security checks for release
+        echo "Running additional security checks..."
+        
+        # Check for console.log statements in production code
+        if grep -r "console\.log" *.js --exclude="*.test.js" --exclude="testRunner.js" --exclude="security-scan.js" --exclude="performance-monitor.js"; then
+          echo "⚠️  console.log statements found in production code"
+        fi
+        
+        # Check for debug statements
+        if grep -r "debugger\|console\.debug" *.js --exclude="*.test.js"; then
+          echo "❌ Debug statements found in production code"
+          exit 1
+        fi
+        
+        echo "✅ Security validation completed"
+        
+  create-release:
+    name: Create Release
+    runs-on: ubuntu-latest
+    needs: validate-release
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Get version
+      id: version
+      run: |
+        if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+          VERSION="${{ github.event.inputs.version }}"
+        else
+          VERSION="${GITHUB_REF#refs/tags/}"
+        fi
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        echo "Version: $VERSION"
+        
+    - name: Generate changelog
+      run: |
+        echo "Generating changelog for ${{ steps.version.outputs.version }}..."
+        
+        # Create a basic changelog
+        cat > CHANGELOG.md << 'EOF'
+        # Changelog
+        
+        ## ${{ steps.version.outputs.version }} - $(date +%Y-%m-%d)
+        
+        ### Features
+        - Cooperative Bingo game simulation
+        - Intelligent move suggestions with dual algorithms
+        - Real-time performance monitoring
+        - Comprehensive test suite
+        - Mobile-optimized responsive design
+        - Progressive Web App capabilities
+        
+        ### Technical Improvements
+        - Enhanced CI/CD pipeline
+        - Automated security scanning
+        - Performance regression testing
+        - Cross-browser compatibility testing
+        - Accessibility compliance
+        
+        ### Bug Fixes
+        - Various performance optimizations
+        - UI/UX improvements
+        - Algorithm accuracy enhancements
+        
+        ### Security
+        - Comprehensive security scanning
+        - Content Security Policy implementation
+        - Input validation and sanitization
+        EOF
+        
+    - name: Create release package
+      run: |
+        echo "Creating release package..."
+        
+        # Create release directory
+        mkdir -p release-package
+        
+        # Copy production files
+        cp index.html release-package/
+        cp styles.css release-package/
+        cp script.js release-package/
+        cp gameEngine.js release-package/
+        cp gameBoard.js release-package/
+        cp lineDetector.js release-package/
+        cp probabilityCalculator.js release-package/
+        cp probabilityCalculator.enhanced.js release-package/
+        cp algorithmComparison.js release-package/
+        cp performance-monitor.js release-package/
+        cp loading-functions.js release-package/
+        cp aiLearningSystem.js release-package/
+        cp ai-demo.html release-package/
+        cp pwa-manager.js release-package/
+        cp sw.js release-package/
+        cp manifest.json release-package/
+        cp browserconfig.xml release-package/
+        cp README.md release-package/
+        cp LICENSE release-package/
+        cp CHANGELOG.md release-package/
+        
+        # Create version info file
+        cat > release-package/version.json << EOF
+        {
+          "version": "${{ steps.version.outputs.version }}",
+          "buildDate": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+          "commit": "$GITHUB_SHA",
+          "branch": "$GITHUB_REF_NAME"
+        }
+        EOF
+        
+        # Create archive
+        cd release-package
+        tar -czf ../bingo-game-simulator-${{ steps.version.outputs.version }}.tar.gz *
+        zip -r ../bingo-game-simulator-${{ steps.version.outputs.version }}.zip *
+        cd ..
+        
+    - name: Create GitHub Release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ steps.version.outputs.version }}
+        release_name: Bingo Game Simulator ${{ steps.version.outputs.version }}
+        body_path: CHANGELOG.md
+        draft: false
+        prerelease: false
+        
+    - name: Upload release assets
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./bingo-game-simulator-${{ steps.version.outputs.version }}.tar.gz
+        asset_name: bingo-game-simulator-${{ steps.version.outputs.version }}.tar.gz
+        asset_content_type: application/gzip
+        
+    - name: Upload ZIP asset
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./bingo-game-simulator-${{ steps.version.outputs.version }}.zip
+        asset_name: bingo-game-simulator-${{ steps.version.outputs.version }}.zip
+        asset_content_type: application/zip
+        
+  deploy-release:
+    name: Deploy Release
+    runs-on: ubuntu-latest
+    needs: create-release
+    
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+      
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+      
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Pages
+      uses: actions/configure-pages@v4
+      
+    - name: Optimize for production deployment
+      run: |
+        echo "Optimizing for production deployment..."
+        
+        # Run production build
+        npm run build:production
+        
+        # Add release information to HTML
+        sed -i 's/<head>/<head>\n    <meta name="version" content="${{ steps.version.outputs.version }}">\n    <meta name="build-date" content="$(date -u +%Y-%m-%dT%H:%M:%SZ)">/g' index.html
+        
+    - name: Upload artifact
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: '.'
+        
+    - name: Deploy to GitHub Pages
+      id: deployment
+      uses: actions/deploy-pages@v4
+      
+  notify-release:
+    name: Notify Release
+    runs-on: ubuntu-latest
+    needs: [create-release, deploy-release]
+    if: always()
+    
+    steps:
+    - name: Notify release status
+      run: |
+        echo "Release process completed for ${{ steps.version.outputs.version }}"
+        echo "Deployment URL: ${{ needs.deploy-release.outputs.page_url }}"
+        
+        # Here you could add notifications to Slack, Discord, email, etc.
+        # For now, we'll just log the completion
+        
+        if [ "${{ needs.create-release.result }}" = "success" ] && [ "${{ needs.deploy-release.result }}" = "success" ]; then
+          echo "✅ Release and deployment successful"
+        else
+          echo "❌ Release or deployment failed"
+          exit 1
+        fi

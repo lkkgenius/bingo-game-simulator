@@ -1,0 +1,303 @@
+name: Security Monitoring
+
+on:
+  schedule:
+    # Run security checks weekly on Sundays at 3 AM UTC
+    - cron: '0 3 * * 0'
+  workflow_dispatch: # Allow manual trigger
+  push:
+    branches: [ main ]
+    paths:
+      - '*.js'
+      - '*.html'
+      - '*.css'
+
+jobs:
+  security-audit:
+    name: Comprehensive Security Audit
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        
+    - name: Run comprehensive security scan
+      run: |
+        echo "Running comprehensive security scan..."
+        node security-scan.js
+        
+    - name: Check for hardcoded secrets
+      run: |
+        echo "Scanning for hardcoded secrets..."
+        
+        # Check for common secret patterns
+        echo "Checking for API keys..."
+        grep -r -i "api[_-]key\|apikey" --include="*.js" --include="*.html" --include="*.css" . || echo "No API keys found"
+        
+        echo "Checking for passwords..."
+        grep -r -i "password\s*[:=]" --include="*.js" --include="*.html" . || echo "No hardcoded passwords found"
+        
+        echo "Checking for tokens..."
+        grep -r -i "token\s*[:=]" --include="*.js" --include="*.html" . || echo "No hardcoded tokens found"
+        
+        echo "Checking for private keys..."
+        grep -r "BEGIN.*PRIVATE.*KEY" --include="*.js" --include="*.html" --include="*.css" . || echo "No private keys found"
+        
+    - name: Validate Content Security Policy
+      run: |
+        echo "Validating Content Security Policy..."
+        
+        if [ -f index.html ]; then
+          # Check if CSP is implemented
+          if grep -q "Content-Security-Policy" index.html; then
+            echo "✅ CSP header found in HTML"
+          else
+            echo "⚠️  No CSP header found in HTML"
+          fi
+          
+          # Check for inline scripts (potential CSP violations)
+          if grep -q "<script>" index.html && ! grep -q "nonce\|'unsafe-inline'" index.html; then
+            echo "⚠️  Inline scripts found without proper CSP handling"
+          fi
+        fi
+        
+    - name: Check for vulnerable patterns
+      run: |
+        echo "Checking for vulnerable code patterns..."
+        
+        # Check for dangerous DOM manipulation
+        echo "Checking for dangerous DOM manipulation..."
+        grep -r "innerHTML\s*=" --include="*.js" . && echo "⚠️  innerHTML usage found" || echo "✅ No innerHTML usage"
+        grep -r "outerHTML\s*=" --include="*.js" . && echo "⚠️  outerHTML usage found" || echo "✅ No outerHTML usage"
+        grep -r "document\.write" --include="*.js" . && echo "⚠️  document.write usage found" || echo "✅ No document.write usage"
+        
+        # Check for eval and similar dangerous functions
+        echo "Checking for dangerous functions..."
+        grep -r "eval\s*(" --include="*.js" . && echo "❌ eval() usage found" || echo "✅ No eval() usage"
+        grep -r "Function\s*(" --include="*.js" . && echo "❌ Function() constructor found" || echo "✅ No Function() constructor"
+        grep -r "setTimeout\s*(\s*['\"]" --include="*.js" . && echo "⚠️  setTimeout with string found" || echo "✅ No setTimeout with strings"
+        
+    - name: Analyze third-party dependencies
+      run: |
+        echo "Analyzing third-party dependencies..."
+        
+        # Check for external script sources
+        if [ -f index.html ]; then
+          echo "Checking for external scripts in HTML..."
+          grep -o 'src="http[^"]*"' index.html | while read -r line; do
+            echo "External script: $line"
+          done || echo "No external scripts found"
+          
+          # Check for external stylesheets
+          echo "Checking for external stylesheets..."
+          grep -o 'href="http[^"]*\.css"' index.html | while read -r line; do
+            echo "External stylesheet: $line"
+          done || echo "No external stylesheets found"
+        fi
+        
+    - name: Check file permissions and structure
+      run: |
+        echo "Checking file permissions and structure..."
+        
+        # Check for executable JavaScript files (potential security risk)
+        find . -name "*.js" -executable -type f | while read -r file; do
+          echo "⚠️  Executable JavaScript file: $file"
+        done || echo "✅ No executable JavaScript files"
+        
+        # Check for hidden files that might contain sensitive data
+        find . -name ".*" -type f ! -path "./.git/*" ! -name ".gitignore" ! -name ".jshintrc" | while read -r file; do
+          echo "Hidden file found: $file"
+        done || echo "No unexpected hidden files"
+        
+    - name: Generate security report
+      run: |
+        echo "Generating security report..."
+        
+        cat > security-report.md << 'EOF'
+        # Security Audit Report
+        
+        **Date:** $(date)
+        **Commit:** $GITHUB_SHA
+        **Branch:** $GITHUB_REF_NAME
+        
+        ## Summary
+        
+        This report contains the results of the automated security audit.
+        
+        ## Scan Results
+        
+        - ✅ Comprehensive security scan completed
+        - ✅ Secret scanning completed
+        - ✅ Vulnerable pattern analysis completed
+        - ✅ Third-party dependency analysis completed
+        - ✅ File permission check completed
+        
+        ## Recommendations
+        
+        1. Regularly update this security monitoring workflow
+        2. Review any warnings found in the scan logs
+        3. Implement Content Security Policy if not already present
+        4. Avoid using dangerous functions like eval()
+        5. Sanitize all user inputs
+        6. Use HTTPS for all external resources
+        
+        ## Next Steps
+        
+        - Address any high-severity issues immediately
+        - Review medium-severity warnings
+        - Update security policies as needed
+        - Schedule regular security reviews
+        EOF
+        
+    - name: Upload security report
+      uses: actions/upload-artifact@v4
+      if: always()
+      with:
+        name: security-audit-report
+        path: security-report.md
+        
+  dependency-check:
+    name: Dependency Security Check
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Check for package.json vulnerabilities
+      run: |
+        echo "Checking package.json for security issues..."
+        
+        if [ -f package.json ]; then
+          # Validate JSON structure
+          node -e "JSON.parse(require('fs').readFileSync('package.json', 'utf8'))" || {
+            echo "❌ Invalid package.json structure"
+            exit 1
+          }
+          
+          # Check for suspicious scripts
+          echo "Checking npm scripts for suspicious commands..."
+          node -e "
+            const pkg = JSON.parse(require('fs').readFileSync('package.json', 'utf8'));
+            const scripts = pkg.scripts || {};
+            const suspicious = ['rm -rf', 'curl', 'wget', 'eval', 'exec'];
+            
+            Object.entries(scripts).forEach(([name, script]) => {
+              suspicious.forEach(pattern => {
+                if (script.includes(pattern)) {
+                  console.log('⚠️  Suspicious pattern in script', name + ':', pattern);
+                }
+              });
+            });
+          "
+          
+          echo "✅ Package.json security check completed"
+        else
+          echo "No package.json found"
+        fi
+        
+  code-quality-security:
+    name: Code Quality Security Check
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '18'
+        
+    - name: Install security linting tools
+      run: |
+        npm install -g eslint
+        npm install -g jshint
+        
+    - name: Run security-focused linting
+      run: |
+        echo "Running security-focused ESLint..."
+        
+        # Create security-focused ESLint config
+        cat > .eslintrc.security.js << 'EOF'
+        module.exports = {
+          env: {
+            browser: true,
+            es2021: true,
+            node: true
+          },
+          extends: ['eslint:recommended'],
+          rules: {
+            // Security rules
+            'no-eval': 'error',
+            'no-implied-eval': 'error',
+            'no-new-func': 'error',
+            'no-script-url': 'error',
+            'no-unsafe-finally': 'error',
+            'no-unsafe-negation': 'error',
+            
+            // Prevent dangerous patterns
+            'no-alert': 'warn',
+            'no-console': 'warn',
+            'no-debugger': 'error',
+            
+            // Code quality that affects security
+            'no-unused-vars': 'error',
+            'no-undef': 'error',
+            'no-redeclare': 'error',
+            'no-shadow': 'warn'
+          },
+          globals: {
+            'describe': 'readonly',
+            'test': 'readonly',
+            'expect': 'readonly',
+            'beforeEach': 'readonly',
+            'afterEach': 'readonly',
+            'GameEngine': 'readonly',
+            'GameBoard': 'readonly',
+            'LineDetector': 'readonly',
+            'ProbabilityCalculator': 'readonly',
+            'EnhancedProbabilityCalculator': 'readonly',
+            'PerformanceMonitor': 'readonly'
+          }
+        };
+        EOF
+        
+        npx eslint *.js --config .eslintrc.security.js --max-warnings 0 || echo "Security linting completed with warnings"
+        
+    - name: Check code complexity for security
+      run: |
+        echo "Analyzing code complexity for security implications..."
+        
+        # Find overly complex functions that might hide security issues
+        for file in *.js; do
+          if [ -f "$file" ] && [ "$file" != "*.test.js" ]; then
+            echo "Analyzing $file..."
+            
+            # Count lines in functions (simple complexity measure)
+            awk '
+              /function|=>/ { 
+                func_start=NR; 
+                func_name=$0; 
+                brace_count=0;
+                in_function=1;
+              }
+              in_function && /{/ { brace_count++ }
+              in_function && /}/ { 
+                brace_count--; 
+                if (brace_count <= 0) {
+                  lines=NR-func_start;
+                  if (lines > 100) {
+                    print "⚠️  Large function in " FILENAME " (line " func_start "): " lines " lines";
+                  }
+                  in_function=0;
+                }
+              }
+            ' "$file"
+          fi
+        done

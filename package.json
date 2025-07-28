@@ -1,0 +1,75 @@
+{
+  "name": "bingo-game-simulator",
+  "version": "1.0.0",
+  "description": "A cooperative Bingo game simulator with intelligent move suggestions",
+  "main": "index.html",
+  "scripts": {
+    "start": "http-server . -p 8080",
+    "dev": "http-server . -p 8080 --cors",
+    "test": "node testRunner.js",
+    "test:unit": "node testRunner.js",
+    "test:e2e": "npx playwright test playwright-e2e.test.js",
+    "test:e2e:headed": "npx playwright test playwright-e2e.test.js --headed",
+    "test:performance": "node performance-regression.test.js",
+    "test:security": "node security-scan.js",
+    "test:all": "npm run test:unit && npm run test:e2e && npm run test:performance && npm run test:security",
+    "lint": "eslint *.js --fix",
+    "lint:check": "eslint *.js --max-warnings 10",
+    "lint:security": "eslint *.js --config .eslintrc.security.js",
+    "format": "prettier --write *.js *.html *.css",
+    "format:check": "prettier --check *.js *.html *.css",
+    "quality": "jshint *.js",
+    "quality:report": "jshint *.js --reporter=json > jshint-report.json",
+    "complexity": "echo 'Running complexity analysis...' && node -e \"console.log('Complexity analysis would run here')\"",
+    "build": "npm run lint:check && npm run test:all",
+    "build:production": "npm run build && npm run optimize",
+    "optimize": "echo 'Optimizing for production...' && npm run minify:css",
+    "minify:css": "if [ -f styles.css ]; then sed 's/\\/\\*.*\\*\\///g; s/  */ /g; s/^ *//g; s/ *$//g; /^$/d' styles.css > styles.min.css && mv styles.min.css styles.css; fi",
+    "deploy": "npm run build:production && echo 'Ready for deployment'",
+    "deploy:github": "npm run deploy && echo 'Deploying to GitHub Pages...'",
+    "audit": "npm run test:security",
+    "audit:full": "npm run test:security && npm run lint:security && npm run quality",
+    "ci": "npm run lint:check && npm run test:all && npm run audit",
+    "ci:fast": "npm run lint:check && npm run test:unit && npm run test:security",
+    "lighthouse": "lighthouse http://localhost:8080 --output=html --output-path=lighthouse-report.html",
+    "lighthouse:mobile": "lighthouse http://localhost:8080 --preset=perf --form-factor=mobile --output=html --output-path=lighthouse-mobile.html",
+    "performance": "npm run lighthouse && npm run test:performance",
+    "validate": "npm run format:check && npm run lint:check && npm run quality",
+    "precommit": "npm run validate && npm run test:unit",
+    "prepush": "npm run ci:fast",
+    "clean": "rm -f *.log *.report.* lighthouse-*.html lighthouse-*.json",
+    "docs": "echo 'Generating documentation...' && echo 'Documentation generation would run here'",
+    "analyze": "npm run complexity && npm run quality:report && echo 'Analysis complete'"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/username/bingo-game-simulator.git"
+  },
+  "keywords": [
+    "bingo",
+    "game",
+    "simulator",
+    "javascript",
+    "html5",
+    "css3",
+    "probability",
+    "algorithm"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "devDependencies": {
+    "eslint": "^8.0.0",
+    "jshint": "^2.13.0",
+    "playwright": "^1.40.0",
+    "http-server": "^14.0.0",
+    "lighthouse": "^11.0.0"
+  },
+  "engines": {
+    "node": ">=14.0.0"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead"
+  ]
+}

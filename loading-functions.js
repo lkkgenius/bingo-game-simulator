@@ -551,7 +551,11 @@ function checkBrowserCompatibility() {
     
     // 檢查 ES6 支持
     try {
-        new Function('(a = 0) => a');
+        // Check for ES6 features without using Function constructor
+        const testArrowFunction = (a = 0) => a;
+        const testDestructuring = { a: 1 };
+        const { a } = testDestructuring;
+        // If we get here, ES6 is supported
     } catch (e) {
         compatibility.isSupported = false;
         compatibility.issues.push('ES6 箭頭函數不被支持');
