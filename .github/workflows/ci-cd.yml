@@ -199,63 +199,6 @@ jobs:
         path: |
           playwright-report/
           test-results/
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
-        cache: 'npm'
-        
-    - name: Install dependencies
-      run: |
-        npm install -g http-server
-        npm install -g eslint
-        npm install -g jshint
-        npm install -g playwright
-        npm install -g lighthouse
-        npx playwright install
-        
-    - name: Run linting
-      run: |
-        echo "Running ESLint..."
-        npx eslint *.js --max-warnings 10 || echo "ESLint completed with warnings"
-        
-        echo "Running JSHint..."
-        npx jshint *.js || echo "JSHint completed with warnings"
-        
-    - name: Run unit tests
-      run: |
-        echo "Running unit tests..."
-        node testRunner.js || true
-        
-    - name: Start HTTP server for E2E tests
-      run: |
-        echo "Starting HTTP server..."
-        http-server . -p 8080 &
-        sleep 5
-        
-    - name: Run Playwright E2E tests
-      run: |
-        echo "Running Playwright E2E tests..."
-        npx playwright test playwright-e2e.test.js --reporter=html || true
-        
-    - name: Run performance tests
-      run: |
-        echo "Running performance tests..."
-        node performance.test.js || true
-        
-    - name: Upload test results
-      uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: test-results
-        path: |
-          playwright-report/
-          test-results/
           
   # Security scanning
   security-scan:
