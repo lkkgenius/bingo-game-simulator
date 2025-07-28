@@ -109,6 +109,57 @@ async function testGameInitialization() {
         TestUtils.recordTest('頁面載入測試', false, error);
     }
 
+    // 測試 1.1.1: 載入畫面隱藏測試
+    try {
+        const loadingState = await browser_evaluate({
+            function: `() => {
+                const loadingOverlay = document.getElementById('global-loading');
+                return {
+                    exists: !!loadingOverlay,
+                    isHidden: loadingOverlay ? loadingOverlay.classList.contains('hidden') : true,
+                    opacity: loadingOverlay ? loadingOverlay.style.opacity : '1'
+                };
+            }`
+        });
+
+        TestUtils.assert(loadingState.exists, '載入畫面元素應該存在');
+        TestUtils.assert(loadingState.isHidden || loadingState.opacity === '0', '載入畫面應該已隱藏');
+        TestUtils.recordTest('載入畫面隱藏測試', true);
+    } catch (error) {
+        TestUtils.recordTest('載入畫面隱藏測試', false, error);
+    }
+
+    // 測試 1.1.2: 漸進式載入組件檢查
+    try {
+        const componentState = await browser_evaluate({
+            function: `() => {
+                // 檢查關鍵組件是否已載入
+                const components = {
+                    gameState: typeof gameState !== 'undefined' && gameState !== null,
+                    gameBoard: typeof gameBoard !== 'undefined' && gameBoard !== null,
+                    lineDetector: typeof lineDetector !== 'undefined' && lineDetector !== null,
+                    probabilityCalculator: typeof probabilityCalculator !== 'undefined' && probabilityCalculator !== null,
+                    progressiveLoader: typeof progressiveLoader !== 'undefined' && progressiveLoader !== null
+                };
+                
+                const loadedCount = Object.values(components).filter(Boolean).length;
+                
+                return {
+                    components,
+                    loadedCount,
+                    totalExpected: 5
+                };
+            }`
+        });
+
+        TestUtils.assert(componentState.loadedCount >= 4, `至少應該載入 4 個核心組件，實際載入: ${componentState.loadedCount}`);
+        TestUtils.assert(componentState.components.gameState, 'GameState 應該已載入');
+        TestUtils.assert(componentState.components.gameBoard, 'GameBoard 應該已載入');
+        TestUtils.recordTest('漸進式載入組件檢查', true);
+    } catch (error) {
+        TestUtils.recordTest('漸進式載入組件檢查', false, error);
+    }
+
     // 測試 1.2: 核心元素存在性測試
     try {
         const elements = await browser_evaluate({
@@ -720,14 +771,14 @@ async function testPerformance() {
         // 測試多次點擊響應時間
         for (let i = 0; i < 5; i++) {
             const startTime = Date.now();
-            
+
             await browser_click({
                 element: '標準演算法選項',
                 ref: 'e10'
             });
-            
+
             await TestUtils.sleep(100);
-            
+
             const endTime = Date.now();
             interactionTimes.push(endTime - startTime);
         }
@@ -776,6 +827,125 @@ async function testPerformance() {
 }
 
 /**
+ * 測試套件 7: 載入流程專項測試
+ */
+async function testLoadingFlow() {
+    console.log('\n=== 載入流程專項測試 ===');
+
+    // 測試 7.1: 載入進度追蹤測試
+    try {
+        // 重新載入頁面以測試載入流程
+        await browser_navigate({
+            url: TEST_CONFIG.baseUrl
+        });
+
+        // 等待載入開始
+        await TestUtils.sleep(100);
+
+        // 檢查載入進度是否正常更新
+        let loadingProgress = [];
+        let maxAttempts = 50; // 最多等待 5 秒
+        let attempts = 0;
+
+        while (attempts < maxAttempts) {
+            const progress = await browser_evaluate({
+                function: `() => {
+                    const loadingText = document.querySelector('#global-loading .loading-text');
+                    const loadingOverlay = document.getElementById('global-loading');
+                    
+                    return {
+                        text: loadingText ? loadingText.textContent : '',
+                        isVisible: loadingOverlay ? !loadingOverlay.classList.contains('hidden') : false,
+                        opacity: loadingOverlay ? loadingOverlay.style.opacity : '1'
+                    };
+                }`
+            });
+
+            if (progress.text && progress.isVisible) {
+                loadingProgress.push(progress.text);
+            }
+
+            // 如果載入完成（不可見或透明），跳出循環
+            if (!progress.isVisible || progress.opacity === '0') {
+                break;
+            }
+
+            await TestUtils.sleep(100);
+            attempts++;
+        }
+
+        TestUtils.assert(attempts < maxAttempts, '載入不應該超時（5秒內應該完成）');
+        TestUtils.assert(loadingProgress.length > 0, '應該有載入進度更新');
+
+        // 檢查是否有 83% 相關的進度
+        const has83Percent = loadingProgress.some(text => text.includes('83%'));
+        if (has83Percent) {
+            console.log('  ⚠️  檢測到 83% 進度，但載入最終完成了');
+        }
+
+        TestUtils.recordTest('載入進度追蹤測試', true);
+    } catch (error) {
+        TestUtils.recordTest('載入進度追蹤測試', false, error);
+    }
+
+    // 測試 7.2: 載入完成驗證測試
+    try {
+        // 等待載入完全完成
+        await TestUtils.sleep(2000);
+
+        const finalState = await browser_evaluate({
+            function: `() => {
+                const loadingOverlay = document.getElementById('global-loading');
+                const startButton = document.getElementById('start-game');
+                
+                return {
+                    loadingHidden: loadingOverlay ? loadingOverlay.classList.contains('hidden') : true,
+                    loadingOpacity: loadingOverlay ? loadingOverlay.style.opacity : '1',
+                    startButtonEnabled: startButton ? !startButton.disabled : false,
+                    gameComponentsLoaded: {
+                        gameState: typeof gameState !== 'undefined',
+                        gameBoard: typeof gameBoard !== 'undefined',
+                        lineDetector: typeof lineDetector !== 'undefined',
+                        probabilityCalculator: typeof probabilityCalculator !== 'undefined'
+                    }
+                };
+            }`
+        });
+
+        TestUtils.assert(finalState.loadingHidden || finalState.loadingOpacity === '0', '載入畫面應該已隱藏');
+        TestUtils.assert(finalState.startButtonEnabled, '開始遊戲按鈕應該已啟用');
+        TestUtils.assert(finalState.gameComponentsLoaded.gameState, 'GameState 應該已載入');
+        TestUtils.assert(finalState.gameComponentsLoaded.gameBoard, 'GameBoard 應該已載入');
+
+        TestUtils.recordTest('載入完成驗證測試', true);
+    } catch (error) {
+        TestUtils.recordTest('載入完成驗證測試', false, error);
+    }
+
+    // 測試 7.3: 載入錯誤處理測試
+    try {
+        // 檢查是否有載入錯誤
+        const errorState = await browser_evaluate({
+            function: `() => {
+                const errorModal = document.getElementById('error-modal');
+                const consoleErrors = [];
+                
+                // 模擬檢查 console 錯誤（實際實現中可能需要不同的方法）
+                return {
+                    hasErrorModal: !!errorModal && !errorModal.classList.contains('hidden'),
+                    consoleErrorCount: consoleErrors.length
+                };
+            }`
+        });
+
+        TestUtils.assert(!errorState.hasErrorModal, '不應該有錯誤模態框顯示');
+        TestUtils.recordTest('載入錯誤處理測試', true);
+    } catch (error) {
+        TestUtils.recordTest('載入錯誤處理測試', false, error);
+    }
+}
+
+/**
  * 主測試執行函數
  */
 async function runPlaywrightE2ETests() {
@@ -785,6 +955,7 @@ async function runPlaywrightE2ETests() {
 
     try {
         // 執行所有測試套件
+        await testLoadingFlow(); // 優先測試載入流程
         await testGameInitialization();
         await testGameInteraction();
         await testAlgorithmSwitching();

@@ -174,6 +174,10 @@ let gameBoard = null;
 let lineDetector = null;
 let probabilityCalculator = null;
 
+// Algorithm instances
+let StandardProbabilityCalculator = null;
+let EnhancedProbabilityCalculator = null;
+
 /**
  * Initialize the game when DOM is loaded
  */
@@ -218,6 +222,44 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 /**
+ * Load enhanced algorithm asynchronously
+ */
+function loadEnhancedAlgorithmAsync() {
+    return new Promise((resolve, reject) => {
+        // Check if enhanced algorithm is already loaded
+        if (typeof EnhancedProbabilityCalculator !== 'undefined' && EnhancedProbabilityCalculator) {
+            resolve();
+            return;
+        }
+        
+        const script = document.createElement('script');
+        script.src = 'probabilityCalculator.enhanced.js';
+        
+        script.onload = function() {
+            try {
+                // Store the enhanced calculator
+                if (typeof ProbabilityCalculator !== 'undefined') {
+                    window.EnhancedProbabilityCalculator = ProbabilityCalculator;
+                    // Restore the standard calculator
+                    if (typeof StandardProbabilityCalculator !== 'undefined') {
+                        window.ProbabilityCalculator = StandardProbabilityCalculator;
+                    }
+                }
+                resolve();
+            } catch (error) {
+                reject(error);
+            }
+        };
+        
+        script.onerror = function() {
+            reject(new Error('Failed to load enhanced algorithm'));
+        };
+        
+        document.head.appendChild(script);
+    });
+}
+
+/**
  * Initialize game with progressive loading
  */
 function initializeGameWithProgressiveLoading() {
@@ -240,6 +282,8 @@ function initializeGameWithProgressiveLoading() {
                 requestAnimationFrame(() => {
                     // Step 3: Initialize probability calculator
                     showGlobalLoading('正在載入機率計算器...');
+                    // Save reference to standard algorithm
+                    StandardProbabilityCalculator = ProbabilityCalculator;
                     probabilityCalculator = new ProbabilityCalculator();
                     progressiveLoader.markComponentLoaded('ProbabilityCalculator');
                     
@@ -251,13 +295,32 @@ function initializeGameWithProgressiveLoading() {
                         progressiveLoader.markComponentLoaded('GameBoard');
                         
                         requestAnimationFrame(() => {
-                            // Step 5: Setup UI event listeners
-                            showGlobalLoading('正在設置用戶界面...');
-                            setupUIEventListeners();
-                            progressiveLoader.markComponentLoaded('UI');
-                            
-                            console.log('Game initialized successfully with progressive loading');
-                            showSuccessMessage('遊戲載入完成！');
+                            // Step 5: Load Enhanced Algorithm
+                            showGlobalLoading('正在載入增強演算法...');
+                            loadEnhancedAlgorithmAsync().then(() => {
+                                progressiveLoader.markComponentLoaded('Enhanced Algorithm');
+                                
+                                requestAnimationFrame(() => {
+                                    // Step 6: Setup UI event listeners
+                                    showGlobalLoading('正在設置用戶界面...');
+                                    setupUIEventListeners();
+                                    progressiveLoader.markComponentLoaded('UI');
+                                    
+                                    console.log('Game initialized successfully with progressive loading');
+                                });
+                            }).catch((error) => {
+                                console.warn('Enhanced algorithm loading failed, continuing with standard only:', error);
+                                progressiveLoader.markComponentLoaded('Enhanced Algorithm');
+                                
+                                requestAnimationFrame(() => {
+                                    // Step 6: Setup UI event listeners
+                                    showGlobalLoading('正在設置用戶界面...');
+                                    setupUIEventListeners();
+                                    progressiveLoader.markComponentLoaded('UI');
+                                    
+                                    console.log('Game initialized successfully with progressive loading');
+                                });
+                            });
                         });
                     });
                 });
