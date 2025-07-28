@@ -2,8 +2,32 @@
 <html lang="zh-TW">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
     <title>Bingo遊戲模擬器</title>
+    
+    <!-- PWA Meta Tags -->
+    <meta name="description" content="一個合作式 Bingo 遊戲模擬器，玩家與電腦合作完成連線">
+    <meta name="theme-color" content="#5C6BC0">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="Bingo模擬器">
+    <meta name="msapplication-TileColor" content="#4A90E2">
+    <meta name="msapplication-config" content="/browserconfig.xml">
+    
+    <!-- Manifest -->
+    <link rel="manifest" href="/manifest.json">
+    
+    <!-- Icons -->
+    <link rel="icon" type="image/png" sizes="32x32" href="/icons/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/icons/favicon-16x16.png">
+    <link rel="apple-touch-icon" sizes="180x180" href="/icons/apple-touch-icon.png">
+    <link rel="mask-icon" href="/icons/safari-pinned-tab.svg" color="#5C6BC0">
+    
+    <!-- Preload Critical Resources -->
+    <link rel="preload" href="styles.css" as="style">
+    <link rel="preload" href="script.js" as="script">
+    <link rel="preload" href="gameEngine.js" as="script">
+    
     <link rel="stylesheet" href="styles.css">
     <style>
         /* 演算法選擇區域樣式 */
@@ -400,6 +424,71 @@
                 }
             }
         }
+    </script>
+    
+    <!-- Mobile Touch and Gesture Support -->
+    <script src="mobile-touch.js"></script>
+    <script src="gesture-support.js"></script>
+    
+    <!-- PWA Manager -->
+    <script src="pwa-manager.js"></script>
+    
+    <!-- PWA Installation Script -->
+    <script>
+        // 處理 PWA 快捷方式參數
+        const urlParams = new URLSearchParams(window.location.search);
+        const action = urlParams.get('action');
+        
+        if (action === 'new-game') {
+            // 自動開始新遊戲
+            document.addEventListener('DOMContentLoaded', () => {
+                setTimeout(() => {
+                    const startButton = document.getElementById('start-game');
+                    if (startButton && !startButton.disabled) {
+                        startButton.click();
+                    }
+                }, 1000);
+            });
+        } else if (action === 'stats') {
+            // 顯示統計信息
+            document.addEventListener('DOMContentLoaded', () => {
+                setTimeout(() => {
+                    if (typeof gestureSupport !== 'undefined' && gestureSupport) {
+                        gestureSupport.showGameStats();
+                    }
+                }, 1000);
+            });
+        }
+        
+        // 性能監控
+        if ('performance' in window) {
+            window.addEventListener('load', () => {
+                // 記錄頁面加載性能
+                const perfData = performance.getEntriesByType('navigation')[0];
+                if (perfData) {
+                    console.log('Page load time:', perfData.loadEventEnd - perfData.fetchStart, 'ms');
+                }
+                
+                // 記錄資源加載性能
+                const resources = performance.getEntriesByType('resource');
+                resources.forEach(resource => {
+                    if (resource.duration > 1000) {
+                        console.warn('Slow resource:', resource.name, resource.duration, 'ms');
+                    }
+                });
+            });
+        }
+        
+        // 離線狀態處理
+        window.addEventListener('online', () => {
+            console.log('App is online');
+            // 可以在這裡同步離線時的數據
+        });
+        
+        window.addEventListener('offline', () => {
+            console.log('App is offline');
+            // 可以在這裡保存當前狀態
+        });
     </script>
 </body>
 </html>

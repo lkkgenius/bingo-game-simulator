@@ -298,6 +298,142 @@ class MobileTouchOptimizer {
                 e.preventDefault();
             }
         }, { passive: false });
+        
+        // 優化移動設備性能
+        this.optimizeMobilePerformance();
+    }
+    
+    /**
+     * 優化移動設備性能
+     */
+    optimizeMobilePerformance() {
+        if (!this.isTouch) return;
+        
+        // 減少重繪和回流
+        const gameBoard = document.getElementById('game-board');
+        if (gameBoard) {
+            gameBoard.style.willChange = 'transform';
+            gameBoard.style.transform = 'translateZ(0)'; // 啟用硬件加速
+        }
+        
+        // 優化動畫性能
+        const animatedElements = document.querySelectorAll('.game-cell, button, .algorithm-option');
+        animatedElements.forEach(element => {
+            element.style.willChange = 'transform, opacity';
+            element.style.backfaceVisibility = 'hidden';
+        });
+        
+        // 節流觸控事件
+        this.throttleTouchEvents();
+        
+        // 監控性能
+        this.monitorMobilePerformance();
+    }
+    
+    /**
+     * 節流觸控事件
+     */
+    throttleTouchEvents() {
+        let touchMoveThrottle = null;
+        
+        document.addEventListener('touchmove', () => {
+            if (touchMoveThrottle) return;
+            
+            touchMoveThrottle = setTimeout(() => {
+                touchMoveThrottle = null;
+            }, 16); // 60fps
+        }, { passive: true });
+    }
+    
+    /**
+     * 監控移動設備性能
+     */
+    monitorMobilePerformance() {
+        if (!window.performance) return;
+        
+        // 監控內存使用
+        if (performance.memory) {
+            setInterval(() => {
+                const memoryInfo = performance.memory;
+                const memoryUsage = (memoryInfo.usedJSHeapSize / memoryInfo.totalJSHeapSize) * 100;
+                
+                if (memoryUsage > 80) {
+                    console.warn('High memory usage detected:', memoryUsage.toFixed(2) + '%');
+                    this.optimizeMemoryUsage();
+                }
+            }, 10000); // 每10秒檢查一次
+        }
+        
+        // 監控幀率
+        this.monitorFrameRate();
+    }
+    
+    /**
+     * 監控幀率
+     */
+    monitorFrameRate() {
+        let lastTime = performance.now();
+        let frameCount = 0;
+        let fps = 60;
+        
+        const measureFPS = (currentTime) => {
+            frameCount++;
+            
+            if (currentTime - lastTime >= 1000) {
+                fps = Math.round((frameCount * 1000) / (currentTime - lastTime));
+                frameCount = 0;
+                lastTime = currentTime;
+                
+                if (fps < 30) {
+                    console.warn('Low FPS detected:', fps);
+                    this.reduceMobileAnimations();
+                }
+            }
+            
+            requestAnimationFrame(measureFPS);
+        };
+        
+        requestAnimationFrame(measureFPS);
+    }
+    
+    /**
+     * 優化內存使用
+     */
+    optimizeMemoryUsage() {
+        // 清理未使用的事件監聽器
+        const unusedElements = document.querySelectorAll('.removed, .hidden');
+        unusedElements.forEach(element => {
+            element.removeEventListener('touchstart', null);
+            element.removeEventListener('touchend', null);
+            element.removeEventListener('touchmove', null);
+        });
+        
+        // 強制垃圾回收（如果可用）
+        if (window.gc) {
+            window.gc();
+        }
+    }
+    
+    /**
+     * 減少移動設備動畫
+     */
+    reduceMobileAnimations() {
+        document.body.classList.add('reduce-animations');
+        
+        // 禁用非必要動畫
+        const style = document.createElement('style');
+        style.textContent = `
+            .reduce-animations * {
+                animation-duration: 0.1s !important;
+                transition-duration: 0.1s !important;
+            }
+        `;
+        document.head.appendChild(style);
+        
+        setTimeout(() => {
+            document.body.classList.remove('reduce-animations');
+            document.head.removeChild(style);
+        }, 5000);
     }
 }
 
