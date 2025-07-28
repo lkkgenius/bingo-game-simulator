@@ -10,18 +10,36 @@ class PerformanceMonitor {
             memoryUsage: [],
             renderTime: [],
             algorithmTime: [],
-            userInteractionTime: []
+            userInteractionTime: [],
+            touchLatency: [],
+            batteryLevel: [],
+            networkSpeed: []
         };
         this.isMonitoring = false;
         this.performanceObserver = null;
         this.frameCount = 0;
         this.lastFrameTime = performance.now();
-        this.warningThresholds = {
+        this.isMobile = this.detectMobileDevice();
+        this.performanceLevel = this.detectPerformanceLevel();
+        this.batteryAPI = null;
+        this.networkAPI = null;
+        
+        // 根據設備類型調整閾值
+        this.warningThresholds = this.isMobile ? {
+            lowFrameRate: 25, // 移動設備較低的幀率要求
+            highMemoryUsage: 30 * 1024 * 1024, // 30MB for mobile
+            slowRenderTime: 20, // 移動設備允許較慢的渲染
+            slowAlgorithmTime: 150, // 移動設備允許較慢的算法執行
+            highTouchLatency: 100 // 觸控延遲閾值
+        } : {
             lowFrameRate: 30,
             highMemoryUsage: 50 * 1024 * 1024, // 50MB
             slowRenderTime: 16.67, // 60fps = 16.67ms per frame
-            slowAlgorithmTime: 100 // 100ms
+            slowAlgorithmTime: 100, // 100ms
+            highTouchLatency: 50
         };
+        
+        this.initMobileAPIs();
     }
 
     /**
@@ -31,7 +49,7 @@ class PerformanceMonitor {
         if (this.isMonitoring) return;
         
         this.isMonitoring = true;
-        console.log('Performance monitoring started');
+        console.log(`Performance monitoring started (${this.isMobile ? 'Mobile' : 'Desktop'} mode)`);
         
         try {
             // 監控幀率
@@ -43,8 +61,16 @@ class PerformanceMonitor {
             // 監控渲染性能
             this.startRenderMonitoring();
             
-            // 設置定期報告 - 在生產環境中減少頻率
-            const reportInterval = this.isProduction() ? 60000 : 30000; // 生產環境60秒，開發環境30秒
+            // 移動設備特定監控
+            if (this.isMobile) {
+                this.startTouchLatencyMonitoring();
+                this.startBatteryMonitoring();
+                this.startNetworkMonitoring();
+                this.optimizeForMobile();
+            }
+            
+            // 設置定期報告 - 移動設備減少頻率以節省電池
+            const reportInterval = this.isMobile ? 90000 : (this.isProduction() ? 60000 : 30000);
             this.reportInterval = setInterval(() => {
                 try {
                     this.generatePerformanceReport();
@@ -55,6 +81,11 @@ class PerformanceMonitor {
             
             // 監聽頁面可見性變化以優化性能
             this.setupVisibilityChangeHandler();
+            
+            // 移動設備電池優化
+            if (this.isMobile) {
+                this.setupBatteryOptimization();
+            }
             
         } catch (error) {
             console.error('Error starting performance monitoring:', error);
@@ -441,8 +472,7 @@ class PerformanceMonitor {
         }
         
         return window.location.hostname !== 'localhost' && 
-               window.location.hostname !== '127.0.0.1' &&
-               !window.location.hostname.includes('github.io') === false; // GitHub Pages 也視為生產環境
+               window.location.hostname !== '127.0.0.1';
     }
     
     /**
@@ -521,6 +551,246 @@ class PerformanceMonitor {
                 isPaused: this.isPaused || false,
                 error: error.message
             };
+        }
+    }
+
+    /**
+     * 檢測移動設備
+     */
+    detectMobileDevice() {
+        const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+        return /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent) ||
+               (navigator.maxTouchPoints && navigator.maxTouchPoints > 2) ||
+               window.innerWidth <= 768;
+    }
+    
+    /**
+     * 檢測設備性能等級
+     */
+    detectPerformanceLevel() {
+        const hardwareConcurrency = navigator.hardwareConcurrency || 2;
+        const memory = navigator.deviceMemory || 2;
+        
+        if (hardwareConcurrency >= 8 && memory >= 8) {
+            return 'high';
+        } else if (hardwareConcurrency >= 4 && memory >= 4) {
+            return 'medium';
+        } else {
+            return 'low';
+        }
+    }
+
+    /**
+     * 初始化移動設備 API
+     */
+    initMobileAPIs() {
+        // 電池 API
+        if (typeof navigator !== 'undefined' && 'getBattery' in navigator) {
+            navigator.getBattery().then(battery => {
+                this.batteryAPI = battery;
+            }).catch(error => {
+                console.warn('Battery API not available:', error);
+            });
+        }
+        
+        // 網絡 API
+        if (typeof navigator !== 'undefined') {
+            if ('connection' in navigator) {
+                this.networkAPI = navigator.connection;
+            } else if ('mozConnection' in navigator) {
+                this.networkAPI = navigator.mozConnection;
+            } else if ('webkitConnection' in navigator) {
+                this.networkAPI = navigator.webkitConnection;
+            }
+        }
+    }
+
+    /**
+     * 開始觸控延遲監控
+     */
+    startTouchLatencyMonitoring() {
+        if (typeof document === 'undefined') return;
+        
+        let touchStartTime = 0;
+        
+        document.addEventListener('touchstart', (e) => {
+            touchStartTime = performance.now();
+        }, { passive: true });
+        
+        document.addEventListener('touchend', (e) => {
+            if (touchStartTime > 0) {
+                const latency = performance.now() - touchStartTime;
+                this.metrics.touchLatency.push({
+                    latency,
+                    timestamp: performance.now()
+                });
+                
+                // 保持最近50個記錄
+                if (this.metrics.touchLatency.length > 50) {
+                    this.metrics.touchLatency.shift();
+                }
+                
+                if (latency > this.warningThresholds.highTouchLatency) {
+                    this.handlePerformanceWarning('high-touch-latency', latency);
+                }
+                
+                touchStartTime = 0;
+            }
+        }, { passive: true });
+    }
+
+    /**
+     * 開始電池監控
+     */
+    startBatteryMonitoring() {
+        if (!this.batteryAPI) return;
+        
+        const updateBatteryInfo = () => {
+            if (!this.batteryAPI) return;
+            
+            const batteryInfo = {
+                level: this.batteryAPI.level,
+                charging: this.batteryAPI.charging,
+                chargingTime: this.batteryAPI.chargingTime,
+                dischargingTime: this.batteryAPI.dischargingTime,
+                timestamp: performance.now()
+            };
+            
+            this.metrics.batteryLevel.push(batteryInfo);
+            
+            // 保持最近20個記錄
+            if (this.metrics.batteryLevel.length > 20) {
+                this.metrics.batteryLevel.shift();
+            }
+        };
+        
+        // 初始更新
+        updateBatteryInfo();
+        
+        // 監聽電池事件
+        this.batteryAPI.addEventListener('levelchange', updateBatteryInfo);
+        this.batteryAPI.addEventListener('chargingchange', updateBatteryInfo);
+    }
+
+    /**
+     * 開始網絡監控
+     */
+    startNetworkMonitoring() {
+        if (!this.networkAPI) return;
+        
+        const updateNetworkInfo = () => {
+            const networkInfo = {
+                effectiveType: this.networkAPI.effectiveType,
+                downlink: this.networkAPI.downlink,
+                rtt: this.networkAPI.rtt,
+                saveData: this.networkAPI.saveData,
+                timestamp: performance.now()
+            };
+            
+            this.metrics.networkSpeed.push(networkInfo);
+            
+            // 保持最近20個記錄
+            if (this.metrics.networkSpeed.length > 20) {
+                this.metrics.networkSpeed.shift();
+            }
+        };
+        
+        // 初始更新
+        updateNetworkInfo();
+        
+        // 監聽網絡變化
+        this.networkAPI.addEventListener('change', updateNetworkInfo);
+    }
+
+    /**
+     * 移動設備優化
+     */
+    optimizeForMobile() {
+        if (typeof document === 'undefined') return;
+        
+        // 減少動畫幀率
+        if (this.performanceLevel === 'low') {
+            document.documentElement.style.setProperty('--animation-duration', '0.5s');
+        }
+        
+        // 啟用硬件加速
+        const gameBoard = document.getElementById('game-board');
+        if (gameBoard) {
+            gameBoard.style.transform = 'translateZ(0)';
+            gameBoard.style.willChange = 'transform';
+        }
+        
+        // 優化觸控響應
+        document.body.style.touchAction = 'manipulation';
+        
+        // 禁用不必要的視覺效果
+        if (this.performanceLevel === 'low') {
+            document.body.classList.add('low-performance');
+        }
+    }
+
+    /**
+     * 設置電池優化
+     */
+    setupBatteryOptimization() {
+        if (typeof document === 'undefined') return;
+        
+        // 監聽頁面可見性以節省電池
+        document.addEventListener('visibilitychange', () => {
+            if (document.hidden) {
+                this.reducePowerConsumption();
+            } else {
+                this.restorePowerConsumption();
+            }
+        });
+        
+        // 監聽設備方向變化
+        if (typeof window !== 'undefined') {
+            window.addEventListener('orientationchange', () => {
+                // 延遲處理以等待布局穩定
+                setTimeout(() => {
+                    this.handleOrientationChange();
+                }, 100);
+            });
+        }
+    }
+
+    /**
+     * 減少電力消耗
+     */
+    reducePowerConsumption() {
+        if (typeof document === 'undefined') return;
+        
+        // 暫停非必要的動畫
+        document.body.classList.add('reduced-power');
+        
+        // 降低監控頻率
+        this.pauseMonitoring();
+    }
+
+    /**
+     * 恢復電力消耗
+     */
+    restorePowerConsumption() {
+        if (typeof document === 'undefined') return;
+        
+        document.body.classList.remove('reduced-power');
+        this.resumeMonitoring();
+    }
+
+    /**
+     * 處理設備方向變化
+     */
+    handleOrientationChange() {
+        if (typeof document === 'undefined') return;
+        
+        // 重新計算布局
+        const gameBoard = document.getElementById('game-board');
+        if (gameBoard) {
+            // 觸發重新渲染
+            gameBoard.style.display = 'none';
+            gameBoard.offsetHeight; // 強制重排
+            gameBoard.style.display = '';
         }
     }
 }

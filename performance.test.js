@@ -144,7 +144,7 @@ describe('Performance Monitor', () => {
     
     test('should detect production environment', () => {
         // 模擬不同的主機名
-        const originalLocation = global.window?.location;
+        const originalWindow = global.window;
         
         // 測試本地開發環境
         global.window = { location: { hostname: 'localhost' } };
@@ -155,9 +155,7 @@ describe('Performance Monitor', () => {
         expect(monitor.isProduction()).toBeTruthy();
         
         // 恢復原始設置
-        if (originalLocation) {
-            global.window.location = originalLocation;
-        }
+        global.window = originalWindow;
     });
     
     test('should register and run algorithm tests', () => {
@@ -171,7 +169,7 @@ describe('Performance Monitor', () => {
     
     test('should handle algorithm test errors gracefully', () => {
         const result = monitor.runAlgorithmTest('non-existent-test', 1, 2);
-        expect(result).toBeNull();
+        expect(result).toBe(null);
     });
     
     test('should suggest optimizations based on performance issues', () => {
