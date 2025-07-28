@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>離線模式 - Bingo 遊戲模擬器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #333;
+        }
+
+        .offline-container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+            text-align: center;
+            max-width: 500px;
+            margin: 20px;
+            animation: fadeIn 0.5s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .offline-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.1);
+            }
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+            font-size: 2rem;
+        }
+
+        .offline-message {
+            color: #7f8c8d;
+            margin-bottom: 30px;
+            line-height: 1.6;
+            font-size: 1.1rem;
+        }
+
+        .offline-features {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+            text-align: left;
+        }
+
+        .offline-features h3 {
+            color: #2c3e50;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .offline-features ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        .offline-features li {
+            padding: 8px 0;
+            border-bottom: 1px solid #ecf0f1;
+            position: relative;
+            padding-left: 25px;
+        }
+
+        .offline-features li:before {
+            content: "✓";
+            position: absolute;
+            left: 0;
+            color: #27ae60;
+            font-weight: bold;
+        }
+
+        .offline-features li:last-child {
+            border-bottom: none;
+        }
+
+        .action-buttons {
+            display: flex;
+            gap: 15px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 500;
+            text-decoration: none;
+            display: inline-block;
+            transition: all 0.3s ease;
+            min-width: 120px;
+        }
+
+        .btn-primary {
+            background: #3498db;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #2980b9;
+            transform: translateY(-2px);
+        }
+
+        .btn-secondary {
+            background: #95a5a6;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #7f8c8d;
+            transform: translateY(-2px);
+        }
+
+        .connection-status {
+            margin-top: 20px;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 0.9rem;
+        }
+
+        .status-offline {
+            background: #ffebee;
+            color: #c62828;
+            border: 1px solid #ffcdd2;
+        }
+
+        .status-online {
+            background: #e8f5e8;
+            color: #2e7d32;
+            border: 1px solid #c8e6c9;
+        }
+
+        @media (max-width: 600px) {
+            .offline-container {
+                padding: 30px 20px;
+                margin: 10px;
+            }
+
+            h1 {
+                font-size: 1.5rem;
+            }
+
+            .offline-icon {
+                font-size: 60px;
+            }
+
+            .action-buttons {
+                flex-direction: column;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="offline-container">
+        <div class="offline-icon">📱</div>
+        <h1>您目前處於離線模式</h1>
+        
+        <div class="offline-message">
+            <p>看起來您的網路連接出現了問題。不過別擔心，您仍然可以享受部分功能！</p>
+        </div>
+
+        <div class="offline-features">
+            <h3>離線可用功能</h3>
+            <ul>
+                <li>繼續進行當前遊戲</li>
+                <li>查看遊戲歷史記錄</li>
+                <li>使用所有演算法</li>
+                <li>本地數據存儲</li>
+                <li>完整的遊戲體驗</li>
+            </ul>
+        </div>
+
+        <div class="action-buttons">
+            <button class="btn btn-primary" onclick="retryConnection()">重試連接</button>
+            <a href="/" class="btn btn-secondary">返回遊戲</a>
+        </div>
+
+        <div id="connection-status" class="connection-status status-offline">
+            🔴 離線狀態 - 某些功能可能受限
+        </div>
+    </div>
+
+    <script>
+        // 檢查網路狀態
+        function updateConnectionStatus() {
+            const statusElement = document.getElementById('connection-status');
+            
+            if (navigator.onLine) {
+                statusElement.className = 'connection-status status-online';
+                statusElement.innerHTML = '🟢 已連接 - 所有功能可用';
+                
+                // 自動重定向到主頁面
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 2000);
+            } else {
+                statusElement.className = 'connection-status status-offline';
+                statusElement.innerHTML = '🔴 離線狀態 - 某些功能可能受限';
+            }
+        }
+
+        // 重試連接
+        function retryConnection() {
+            const button = event.target;
+            button.disabled = true;
+            button.textContent = '檢查中...';
+            
+            // 嘗試載入一個小的資源來測試連接
+            fetch('/', { 
+                method: 'HEAD',
+                cache: 'no-cache'
+            })
+            .then(() => {
+                // 連接成功
+                updateConnectionStatus();
+                button.textContent = '連接成功！';
+                setTimeout(() => {
+                    window.location.href = '/';
+                }, 1000);
+            })
+            .catch(() => {
+                // 連接失敗
+                button.disabled = false;
+                button.textContent = '重試連接';
+                
+                // 顯示錯誤訊息
+                const errorMsg = document.createElement('div');
+                errorMsg.style.cssText = `
+                    background: #ffebee;
+                    color: #c62828;
+                    padding: 10px;
+                    border-radius: 5px;
+                    margin-top: 10px;
+                    font-size: 0.9rem;
+                `;
+                errorMsg.textContent = '仍然無法連接到網路，請檢查您的網路設置';
+                
+                // 移除之前的錯誤訊息
+                const existingError = document.querySelector('.error-message');
+                if (existingError) {
+                    existingError.remove();
+                }
+                
+                errorMsg.className = 'error-message';
+                document.querySelector('.offline-container').appendChild(errorMsg);
+                
+                // 3秒後移除錯誤訊息
+                setTimeout(() => {
+                    errorMsg.remove();
+                }, 3000);
+            });
+        }
+
+        // 監聽網路狀態變化
+        window.addEventListener('online', updateConnectionStatus);
+        window.addEventListener('offline', updateConnectionStatus);
+
+        // 初始化狀態
+        updateConnectionStatus();
+
+        // 定期檢查連接狀態
+        setInterval(updateConnectionStatus, 30000); // 每30秒檢查一次
+
+        // 鍵盤快捷鍵
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter' || event.key === ' ') {
+                retryConnection();
+            } else if (event.key === 'Escape') {
+                window.location.href = '/';
+            }
+        });
+
+        // 添加一些動畫效果
+        document.addEventListener('DOMContentLoaded', () => {
+            const container = document.querySelector('.offline-container');
+            container.style.transform = 'scale(0.9)';
+            container.style.opacity = '0';
+            
+            setTimeout(() => {
+                container.style.transition = 'all 0.5s ease-out';
+                container.style.transform = 'scale(1)';
+                container.style.opacity = '1';
+            }, 100);
+        });
+    </script>
+</body>
+</html>

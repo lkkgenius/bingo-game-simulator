@@ -881,11 +881,19 @@ const handleCellClick = debounce(function(row, col, cellElement) {
     try {
         console.log(`Cell clicked: (${row}, ${col})`);
         
-        // Enhanced input validation
-        if (typeof row !== 'number' || typeof col !== 'number' || 
-            row < 0 || row >= 5 || col < 0 || col >= 5) {
-            console.error('Invalid cell coordinates:', row, col);
+        // Enhanced input validation using SecurityUtils
+        try {
+            const validatedCoords = SecurityUtils.validateGameCoordinate(row, col);
+            row = validatedCoords.row;
+            col = validatedCoords.col;
+        } catch (securityError) {
+            console.error('Security validation failed:', securityError);
             showWarningMessage('無效的格子位置');
+            globalErrorBoundary.handleError({
+                type: 'game',
+                message: securityError.message,
+                error: securityError
+            });
             return;
         }
         
