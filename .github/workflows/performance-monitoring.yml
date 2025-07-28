@@ -280,8 +280,22 @@ jobs:
       uses: actions/checkout@v4
       with:
         path: current
+        fetch-depth: 2
+        
+    - name: Check if previous commit exists
+      id: check_previous
+      run: |
+        cd current
+        if git rev-parse --verify HEAD~1 >/dev/null 2>&1; then
+          echo "has_previous=true" >> $GITHUB_OUTPUT
+          echo "Previous commit exists"
+        else
+          echo "has_previous=false" >> $GITHUB_OUTPUT
+          echo "No previous commit found"
+        fi
         
     - name: Checkout previous commit
+      if: steps.check_previous.outputs.has_previous == 'true'
       uses: actions/checkout@v4
       with:
         path: previous
@@ -313,6 +327,7 @@ jobs:
         cd ..
         
     - name: Test previous version
+      if: steps.check_previous.outputs.has_previous == 'true'
       run: |
         echo "Testing previous version..."
         cd previous
@@ -327,6 +342,12 @@ jobs:
         pkill -f "http-server.*8081" || true
         cd ..
         
+    - name: Create placeholder for missing previous version
+      if: steps.check_previous.outputs.has_previous == 'false'
+      run: |
+        echo "Previous version not available, creating placeholder"
+        echo '{"lhr":{"categories":{"performance":{"score":0}}}}' > previous-performance.json
+        
     - name: Compare performance
       run: |
         echo "Comparing performance between versions..."
@@ -335,11 +356,31 @@ jobs:
           const fs = require('fs');
           
           try {
-            const current = JSON.parse(fs.readFileSync('current-performance.json', 'utf8'));
-            const previous = JSON.parse(fs.readFileSync('previous-performance.json', 'utf8'));
+            if (!fs.existsSync('current-performance.json')) {
+              console.log('❌ Current performance data not available');
+              process.exit(1);
+            }
             
+            const current = JSON.parse(fs.readFileSync('current-performance.json', 'utf8'));
             const currentScore = Math.round(current.lhr.categories.performance.score * 100);
+            
+            if (!fs.existsSync('previous-performance.json')) {
+              console.log('=== PERFORMANCE BASELINE ===');
+              console.log('Current Score:', currentScore);
+              console.log('✅ Baseline performance recorded');
+              process.exit(0);
+            }
+            
+            const previous = JSON.parse(fs.readFileSync('previous-performance.json', 'utf8'));
             const previousScore = Math.round(previous.lhr.categories.performance.score * 100);
+            
+            // Skip comparison if previous score is 0 (placeholder)
+            if (previousScore === 0) {
+              console.log('=== PERFORMANCE BASELINE ===');
+              console.log('Current Score:', currentScore);
+              console.log('✅ Baseline performance recorded (no previous data)');
+              process.exit(0);
+            }
             
             const difference = currentScore - previousScore;
             
@@ -361,6 +402,7 @@ jobs:
             
           } catch (error) {
             console.log('Could not compare performance:', error.message);
+            console.log('✅ Performance comparison completed with warnings');
           }
         " || echo "Performance comparison completed with warnings"
         
