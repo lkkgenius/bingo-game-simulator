@@ -174,9 +174,9 @@ let gameBoard = null;
 let lineDetector = null;
 let probabilityCalculator = null;
 
-// Algorithm instances
-let StandardProbabilityCalculator = null;
-let EnhancedProbabilityCalculator = null;
+// Algorithm instances (declared in index.html)
+// let StandardProbabilityCalculator = null;
+// let EnhancedProbabilityCalculator = null;
 
 /**
  * Initialize the game when DOM is loaded
@@ -239,10 +239,10 @@ function loadEnhancedAlgorithmAsync() {
             try {
                 // Store the enhanced calculator
                 if (typeof ProbabilityCalculator !== 'undefined') {
-                    window.EnhancedProbabilityCalculator = ProbabilityCalculator;
+                    EnhancedProbabilityCalculator = ProbabilityCalculator;
                     // Restore the standard calculator
                     if (typeof StandardProbabilityCalculator !== 'undefined') {
-                        window.ProbabilityCalculator = StandardProbabilityCalculator;
+                        ProbabilityCalculator = StandardProbabilityCalculator;
                     }
                 }
                 resolve();
