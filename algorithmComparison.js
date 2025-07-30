@@ -910,22 +910,65 @@ class AlgorithmComparison {
     container.className = 'algorithm-comparison';
     
     // 創建性能比較部分
-    const performanceSection = document.createElement('div');
-    performanceSection.className = 'comparison-section performance';
-    performanceSection.innerHTML = `
-      <h3>性能比較</h3>
-      <div class="comparison-chart">
-        <div class="bar-container">
-          <div class="bar-label">標準算法</div>
-          <div class="bar standard" style="width: 100%;">${result.performance.standardTime}</div>
-        </div>
-        <div class="bar-container">
-          <div class="bar-label">增強版算法</div>
-          <div class="bar enhanced" style="width: ${(parseFloat(result.performance.enhancedTime) / parseFloat(result.performance.standardTime) * 100).toFixed(0)}%;">${result.performance.enhancedTime}</div>
-        </div>
-      </div>
-      <div class="improvement">性能提升: ${result.performance.improvement}</div>
-    `;
+    const performanceSection = SafeDOM.createStructure({
+        tag: 'div',
+        attributes: { class: 'comparison-section performance' },
+        children: [
+            {
+                tag: 'h3',
+                textContent: '性能比較'
+            },
+            {
+                tag: 'div',
+                attributes: { class: 'comparison-chart' },
+                children: [
+                    {
+                        tag: 'div',
+                        attributes: { class: 'bar-container' },
+                        children: [
+                            {
+                                tag: 'div',
+                                attributes: { class: 'bar-label' },
+                                textContent: '標準算法'
+                            },
+                            {
+                                tag: 'div',
+                                attributes: { 
+                                    class: 'bar standard',
+                                    style: 'width: 100%;'
+                                },
+                                textContent: result.performance.standardTime
+                            }
+                        ]
+                    },
+                    {
+                        tag: 'div',
+                        attributes: { class: 'bar-container' },
+                        children: [
+                            {
+                                tag: 'div',
+                                attributes: { class: 'bar-label' },
+                                textContent: '增強版算法'
+                            },
+                            {
+                                tag: 'div',
+                                attributes: { 
+                                    class: 'bar enhanced',
+                                    style: `width: ${(parseFloat(result.performance.enhancedTime) / parseFloat(result.performance.standardTime) * 100).toFixed(0)}%;`
+                                },
+                                textContent: result.performance.enhancedTime
+                            }
+                        ]
+                    }
+                ]
+            },
+            {
+                tag: 'div',
+                attributes: { class: 'improvement' },
+                textContent: `性能提升: ${result.performance.improvement}`
+            }
+        ]
+    });
     
     // 創建建議比較部分
     const suggestionSection = document.createElement('div');
