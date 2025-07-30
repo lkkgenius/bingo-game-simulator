@@ -3,6 +3,11 @@ if (typeof SafeDOM === 'undefined' && typeof require !== 'undefined') {
     const SafeDOM = require('./safe-dom.js');
 }
 
+// 確保 ProductionLogger 可用
+if (typeof logger === 'undefined' && typeof require !== 'undefined') {
+    const { logger } = require('./production-logger.js');
+}
+
 // Constants for game state management
 const CELL_STATES = {
     EMPTY: 0,
@@ -187,7 +192,7 @@ let probabilityCalculator = null;
  * Initialize the game when DOM is loaded
  */
 document.addEventListener('DOMContentLoaded', function() {
-    console.log('DOM loaded, initializing game...');
+    logger.info('DOM loaded, initializing game...');
     
     // 檢查瀏覽器兼容性
     const compatibility = initializeCompatibilityCheck();
