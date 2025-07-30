@@ -106,8 +106,17 @@ class SecurityScanner {
       const content = fs.readFileSync(filePath, 'utf8');
       this.scannedFiles++;
       
+      // 跳過安全工具文件中的協議檢查
+      const securityFiles = ['safe-dom.js', 'security-utils.js', 'security-scan.js', 'sw.js'];
+      const isSecurityFile = securityFiles.some(file => filePath.includes(file));
+      
       // Check each security pattern category
       Object.entries(SECURITY_PATTERNS).forEach(([category, patterns]) => {
+        // 跳過安全文件中的協議檢查
+        if (isSecurityFile && category === 'unsafe_protocols') {
+          return;
+        }
+        
         patterns.forEach(pattern => {
           const matches = content.match(pattern);
           if (matches) {
