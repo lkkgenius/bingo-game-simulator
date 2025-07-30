@@ -308,21 +308,57 @@ class PWAManager {
      * 顯示更新提示
      */
     showUpdatePrompt() {
-        const updateBanner = document.createElement('div');
-        updateBanner.className = 'pwa-update-banner';
-        updateBanner.innerHTML = `
-            <div class="update-content">
-                <div class="update-icon">🔄</div>
-                <div class="update-text">
-                    <h3>新版本可用</h3>
-                    <p>點擊更新以獲得最新功能</p>
-                </div>
-                <div class="update-actions">
-                    <button class="update-btn" id="pwa-update-btn">更新</button>
-                    <button class="dismiss-btn" id="pwa-update-dismiss-btn">稍後</button>
-                </div>
-            </div>
-        `;
+        const updateBanner = SafeDOM.createStructure({
+            tag: 'div',
+            attributes: { class: 'pwa-update-banner' },
+            children: [{
+                tag: 'div',
+                attributes: { class: 'update-content' },
+                children: [
+                    {
+                        tag: 'div',
+                        attributes: { class: 'update-icon' },
+                        textContent: '🔄'
+                    },
+                    {
+                        tag: 'div',
+                        attributes: { class: 'update-text' },
+                        children: [
+                            {
+                                tag: 'h3',
+                                textContent: '新版本可用'
+                            },
+                            {
+                                tag: 'p',
+                                textContent: '點擊更新以獲得最新功能'
+                            }
+                        ]
+                    },
+                    {
+                        tag: 'div',
+                        attributes: { class: 'update-actions' },
+                        children: [
+                            {
+                                tag: 'button',
+                                attributes: { 
+                                    class: 'update-btn',
+                                    id: 'pwa-update-btn'
+                                },
+                                textContent: '更新'
+                            },
+                            {
+                                tag: 'button',
+                                attributes: { 
+                                    class: 'dismiss-btn',
+                                    id: 'pwa-update-dismiss-btn'
+                                },
+                                textContent: '稍後'
+                            }
+                        ]
+                    }
+                ]
+            }]
+        });
         
         document.body.appendChild(updateBanner);
         
