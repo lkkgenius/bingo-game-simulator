@@ -267,7 +267,7 @@ function loadEnhancedAlgorithmAsync() {
  * Initialize game with progressive loading
  */
 function initializeGameWithProgressiveLoading() {
-    console.log('Starting progressive game initialization...');
+    logger.info('Starting progressive game initialization...');
     
     // 使用 requestAnimationFrame 來優化性能
     requestAnimationFrame(() => {
@@ -347,7 +347,7 @@ function initializeGameWithProgressiveLoading() {
  */
 function initializeGame() {
     try {
-        console.log('Starting game initialization...');
+        logger.info('Starting game initialization...');
         
         // Initialize game components
         gameState = new GameState();
@@ -369,7 +369,7 @@ function initializeGame() {
         // Set up UI event listeners
         setupUIEventListeners();
         
-        console.log('Game initialized successfully');
+        logger.info('Game initialized successfully');
     } catch (error) {
         console.error('Failed to initialize game:', error);
         alert('遊戲初始化失敗：' + error.message);
