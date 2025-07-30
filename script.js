@@ -422,6 +422,12 @@ function setupUIEventListeners() {
     // AI 學習系統事件監聽器
     setupAILearningEventListeners();
     
+    // 語言變更事件監聽器
+    document.addEventListener('languageChanged', function(event) {
+        console.log('Language changed, updating game UI...');
+        updateGameUIForLanguageChange();
+    });
+    
     console.log('UI event listeners setup complete');
 }
 
@@ -536,15 +542,19 @@ function setupARIALabels() {
     if (gameStatus) {
         gameStatus.setAttribute('role', 'status');
         gameStatus.setAttribute('aria-live', 'polite');
-        gameStatus.setAttribute('aria-label', '遊戲狀態信息');
+        if (typeof i18n !== 'undefined') {
+            gameStatus.setAttribute('aria-label', i18n.t('aria.game-status'));
+        }
     }
     
     // 建議區域
     const suggestionArea = document.querySelector('.suggestion-area');
     if (suggestionArea) {
         suggestionArea.setAttribute('role', 'region');
-        suggestionArea.setAttribute('aria-label', '移動建議');
         suggestionArea.setAttribute('aria-live', 'polite');
+        if (typeof i18n !== 'undefined') {
+            suggestionArea.setAttribute('aria-label', i18n.t('aria.move-suggestion'));
+        }
     }
     
     // 按鈕標籤
@@ -554,12 +564,26 @@ function setupARIALabels() {
     }
     
     // 遊戲板格子
+    updateGameBoardCellLabels();
+}
+
+/**
+ * 更新遊戲板格子的 ARIA 標籤
+ */
+function updateGameBoardCellLabels() {
     const cells = document.querySelectorAll('.game-cell');
     cells.forEach((cell, index) => {
-        const row = Math.floor(index / 5) + 1;
-        const col = (index % 5) + 1;
+        const row = Math.floor(index / 5);
+        const col = index % 5;
         cell.setAttribute('role', 'gridcell');
-        cell.setAttribute('aria-label', `第${row}行第${col}列`);
+        
+        if (typeof i18n !== 'undefined') {
+            cell.setAttribute('aria-label', i18n.formatPosition(row, col));
+        } else {
+            // Fallback
+            cell.setAttribute('aria-label', `第${row + 1}行第${col + 1}列`);
+        }
+        
         cell.setAttribute('aria-selected', 'false');
         cell.setAttribute('tabindex', '-1');
     });
@@ -592,19 +616,37 @@ function announceCurrentPosition(row, col) {
     const board = gameState ? gameState.getState().board : null;
     if (!board) return;
     
-    let cellState = '';
+    let cellStateKey = '';
     switch (board[row][col]) {
         case 1:
-            cellState = '玩家已選擇';
+            cellStateKey = 'cell.player';
             break;
         case 2:
-            cellState = '電腦已選擇';
+            cellStateKey = 'cell.computer';
             break;
         default:
-            cellState = '空格子';
+            cellStateKey = 'cell.empty';
     }
     
-    srStatus.textContent = `第${row + 1}行第${col + 1}列，${cellState}`;
+    // Use i18n if available, otherwise fallback to Chinese
+    let cellState = '';
+    let position = '';
+    
+    if (typeof i18n !== 'undefined') {
+        cellState = i18n.t(cellStateKey);
+        position = i18n.formatPosition(row, col);
+    } else {
+        // Fallback
+        const cellStates = {
+            'cell.player': '玩家已選擇',
+            'cell.computer': '電腦已選擇',
+            'cell.empty': '空格子'
+        };
+        cellState = cellStates[cellStateKey];
+        position = `第${row + 1}行第${col + 1}列`;
+    }
+    
+    srStatus.textContent = `${position}，${cellState}`;
 }
 
 /**
@@ -669,6 +711,86 @@ function setupAILearningEventListeners() {
     if (importDataButton && importDataInput) {
         importDataButton.addEventListener('click', () => importDataInput.click());
         importDataInput.addEventListener('change', importLearningData);
+    }
+}
+
+/**
+ * 更新遊戲 UI 以適應語言變更
+ */
+function updateGameUIForLanguageChange() {
+    try {
+        // 更新 ARIA 標籤
+        setupARIALabels();
+        updateGameBoardCellLabels();
+        
+        // 更新遊戲狀態顯示
+        updateGameStatusDisplay();
+        
+        // 更新建議顯示
+        if (gameState && gameState.gamePhase === GAME_PHASES.PLAYER_TURN) {
+            showPlayerSuggestion();
+        }
+        
+        // 更新指示文字
+        updateInstructionsForCurrentPhase();
+        
+        // 更新載入文字
+        updateLoadingText();
+        
+        console.log('Game UI updated for language change');
+    } catch (error) {
+        console.error('Error updating game UI for language change:', error);
+    }
+}
+
+/**
+ * 更新遊戲狀態顯示
+ */
+function updateGameStatusDisplay() {
+    if (!gameState || typeof i18n === 'undefined') return;
+    
+    const gamePhaseElement = document.getElementById('game-phase');
+    if (gamePhaseElement) {
+        const phaseKey = `phase.${gameState.gamePhase}`;
+        gamePhaseElement.textContent = i18n.t(phaseKey);
+    }
+}
+
+/**
+ * 根據當前遊戲階段更新指示文字
+ */
+function updateInstructionsForCurrentPhase() {
+    if (typeof i18n === 'undefined') return;
+    
+    const instructionText = document.getElementById('instruction-text');
+    if (!instructionText) return;
+    
+    let instructionKey = 'instructions.default';
+    
+    if (gameState) {
+        if (!gameState.gameStarted) {
+            instructionKey = 'instructions.default';
+        } else if (gameState.gameEnded) {
+            instructionKey = 'instructions.game-over';
+        } else if (gameState.gamePhase === GAME_PHASES.PLAYER_TURN) {
+            instructionKey = 'instructions.player-turn';
+        } else if (gameState.gamePhase === GAME_PHASES.COMPUTER_TURN) {
+            instructionKey = 'instructions.computer-turn';
+        }
+    }
+    
+    instructionText.textContent = i18n.t(instructionKey);
+}
+
+/**
+ * 更新載入文字
+ */
+function updateLoadingText() {
+    if (typeof i18n === 'undefined') return;
+    
+    const loadingText = document.querySelector('.loading-text');
+    if (loadingText) {
+        loadingText.textContent = i18n.t('loading.components');
     }
 }
 

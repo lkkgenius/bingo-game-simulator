@@ -30,6 +30,62 @@
     
     <link rel="stylesheet" href="styles.css">
     <style>
+        /* 語言選擇區域樣式 */
+        .header-top {
+            display: flex;
+            justify-content: flex-end;
+            margin-bottom: 20px;
+        }
+        
+        .language-selector {
+            background: rgba(255, 255, 255, 0.9);
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            min-width: 200px;
+        }
+        
+        .language-selector h3 {
+            color: #2c3e50;
+            margin: 0 0 10px 0;
+            font-size: 1rem;
+            text-align: center;
+        }
+        
+        .language-options {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .language-option {
+            flex: 1;
+            padding: 8px 12px;
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.9rem;
+            color: #2c3e50;
+        }
+        
+        .language-option:hover {
+            border-color: #3498db;
+            background-color: #f8f9fa;
+        }
+        
+        .language-option.selected {
+            border-color: #3498db;
+            background-color: #ebf5fb;
+            color: #2980b9;
+            font-weight: bold;
+        }
+        
+        .language-option:focus {
+            outline: 2px solid #3498db;
+            outline-offset: 2px;
+        }
+        
         /* 演算法選擇區域樣式 */
         .algorithm-selector {
             background: rgba(255, 255, 255, 0.95);
@@ -105,144 +161,227 @@
             display: inline-block;
             margin-top: 10px;
         }
+        
+        /* 語言切換消息樣式 */
+        .language-change-message {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: #4CAF50;
+            color: white;
+            padding: 12px 20px;
+            border-radius: 6px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            z-index: 10000;
+            font-size: 14px;
+            opacity: 0;
+            transform: translateY(-20px);
+            transition: all 0.3s ease;
+        }
+        
+        /* 英文版本的佈局調整 */
+        [lang="en-US"] .algorithm-name {
+            font-size: 1rem;
+        }
+        
+        [lang="en-US"] .algorithm-description {
+            font-size: 0.85rem;
+        }
+        
+        [lang="en-US"] .algorithm-features {
+            font-size: 0.8rem;
+        }
+        
+        [lang="en-US"] .language-option {
+            font-size: 0.85rem;
+            padding: 6px 10px;
+        }
+        
+        /* 響應式設計 - 英文版本 */
+        @media (max-width: 768px) {
+            [lang="en-US"] .algorithm-options {
+                flex-direction: column;
+            }
+            
+            [lang="en-US"] .algorithm-option {
+                margin-bottom: 10px;
+            }
+            
+            [lang="en-US"] .language-options {
+                flex-direction: column;
+                gap: 5px;
+            }
+        }
+        
+        /* 數字和日期格式化樣式 */
+        .formatted-number {
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        
+        .formatted-percentage {
+            color: #27ae60;
+            font-weight: bold;
+        }
+        
+        .formatted-position {
+            background-color: #f8f9fa;
+            padding: 2px 6px;
+            border-radius: 3px;
+            font-family: monospace;
+            font-size: 0.9em;
+        }
     </style>
 </head>
 <body>
     <div class="container">
 
         <header role="banner">
-            <h1>Bingo遊戲模擬器</h1>
-            <p class="game-description">與電腦進行8輪翻牌遊戲，目標是完成最多的連線！</p>
+            <div class="header-top">
+                <div class="language-selector" role="region" aria-labelledby="language-selector-title">
+                    <h3 id="language-selector-title" data-i18n="language.selector.title">語言選擇</h3>
+                    <div class="language-options">
+                        <button class="language-option selected" data-language="zh-TW" aria-pressed="true">
+                            <span data-i18n="language.chinese">繁體中文</span>
+                        </button>
+                        <button class="language-option" data-language="en-US" aria-pressed="false">
+                            <span data-i18n="language.english">English</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <h1 data-i18n="header.title">Bingo遊戲模擬器</h1>
+            <p class="game-description" data-i18n="header.description">與電腦進行8輪翻牌遊戲，目標是完成最多的連線！</p>
         </header>
 
         <main role="main">
             <div class="algorithm-selector" role="region" aria-labelledby="algorithm-selector-title">
-                <h3 id="algorithm-selector-title">選擇演算法</h3>
+                <h3 id="algorithm-selector-title" data-i18n="algorithm.selector.title">選擇演算法</h3>
                 <div class="algorithm-options">
                     <div class="algorithm-option selected" data-algorithm="standard">
-                        <div class="algorithm-name">標準演算法</div>
-                        <div class="algorithm-description">基本的機率計算，平衡考慮各種因素</div>
+                        <div class="algorithm-name" data-i18n="algorithm.standard.name">標準演算法</div>
+                        <div class="algorithm-description" data-i18n="algorithm.standard.description">基本的機率計算，平衡考慮各種因素</div>
                         <ul class="algorithm-features">
-                            <li>基本連線檢測</li>
-                            <li>簡單的機率計算</li>
-                            <li>中心位置獎勵</li>
+                            <li data-i18n="algorithm.standard.features.1">基本連線檢測</li>
+                            <li data-i18n="algorithm.standard.features.2">簡單的機率計算</li>
+                            <li data-i18n="algorithm.standard.features.3">中心位置獎勵</li>
                         </ul>
                     </div>
                     <div class="algorithm-option" data-algorithm="enhanced">
-                        <div class="algorithm-name">增強演算法</div>
-                        <div class="algorithm-description">專注於最大化完成三條連線的機會</div>
+                        <div class="algorithm-name" data-i18n="algorithm.enhanced.name">增強演算法</div>
+                        <div class="algorithm-description" data-i18n="algorithm.enhanced.description">專注於最大化完成三條連線的機會</div>
                         <ul class="algorithm-features">
-                            <li>交叉點優先策略</li>
-                            <li>接近完成的線優先</li>
-                            <li>戰略位置評估</li>
-                            <li>多線完成獎勵</li>
+                            <li data-i18n="algorithm.enhanced.features.1">交叉點優先策略</li>
+                            <li data-i18n="algorithm.enhanced.features.2">接近完成的線優先</li>
+                            <li data-i18n="algorithm.enhanced.features.3">戰略位置評估</li>
+                            <li data-i18n="algorithm.enhanced.features.4">多線完成獎勵</li>
                         </ul>
                     </div>
                     <div class="algorithm-option" data-algorithm="ai-learning">
-                        <div class="algorithm-name">AI 學習演算法</div>
-                        <div class="algorithm-description">基於機器學習的智能建議系統</div>
+                        <div class="algorithm-name" data-i18n="algorithm.ai-learning.name">AI 學習演算法</div>
+                        <div class="algorithm-description" data-i18n="algorithm.ai-learning.description">基於機器學習的智能建議系統</div>
                         <ul class="algorithm-features">
-                            <li>歷史數據學習</li>
-                            <li>行為模式預測</li>
-                            <li>自適應難度調整</li>
-                            <li>個性化遊戲體驗</li>
+                            <li data-i18n="algorithm.ai-learning.features.1">歷史數據學習</li>
+                            <li data-i18n="algorithm.ai-learning.features.2">行為模式預測</li>
+                            <li data-i18n="algorithm.ai-learning.features.3">自適應難度調整</li>
+                            <li data-i18n="algorithm.ai-learning.features.4">個性化遊戲體驗</li>
                         </ul>
                     </div>
                 </div>
-                <div class="current-algorithm">當前使用: <span id="current-algorithm-name">標準演算法</span></div>
+                <div class="current-algorithm"><span data-i18n="algorithm.current">當前使用</span>: <span id="current-algorithm-name" data-i18n="algorithm.standard.name">標準演算法</span></div>
             </div>
 
-            <div class="game-status" role="status" aria-live="polite" aria-label="遊戲狀態信息">
+            <div class="game-status" role="status" aria-live="polite" data-i18n-aria="aria.game-status">
                 <div class="status-item">
-                    <span class="label">當前輪數:</span>
-                    <span id="current-round" class="value" aria-label="當前輪數">1</span>
-                    <span class="total">/ 8</span>
+                    <span class="label" data-i18n="status.current-round">當前輪數</span>:
+                    <span id="current-round" class="value" data-i18n-aria="aria.current-round">1</span>
+                    <span class="total">/ <span data-i18n="status.total-rounds">8</span></span>
                 </div>
                 <div class="status-item">
-                    <span class="label">遊戲階段:</span>
-                    <span id="game-phase" class="value" aria-label="當前遊戲階段">玩家回合</span>
+                    <span class="label" data-i18n="status.game-phase">遊戲階段</span>:
+                    <span id="game-phase" class="value" data-i18n="phase.player-turn" data-i18n-aria="aria.game-phase">玩家回合</span>
                 </div>
                 <div class="status-item">
-                    <span class="label">完成連線:</span>
-                    <span id="completed-lines" class="value" aria-label="已完成的連線數量">0</span>
+                    <span class="label" data-i18n="status.completed-lines">完成連線</span>:
+                    <span id="completed-lines" class="value" data-i18n-aria="aria.completed-lines">0</span>
                 </div>
             </div>
 
             <!-- AI 學習系統狀態 -->
             <div id="ai-learning-status" class="ai-learning-status hidden">
-                <h3>AI 學習系統狀態</h3>
+                <h3 data-i18n="ai.status.title">AI 學習系統狀態</h3>
                 <div class="ai-stats">
                     <div class="ai-stat-item">
-                        <span class="label">技能等級:</span>
+                        <span class="label" data-i18n="ai.status.skill-level">技能等級</span>:
                         <span id="skill-level" class="value">50%</span>
                     </div>
                     <div class="ai-stat-item">
-                        <span class="label">遊戲風格:</span>
-                        <span id="play-style" class="value">平衡型</span>
+                        <span class="label" data-i18n="ai.status.play-style">遊戲風格</span>:
+                        <span id="play-style" class="value" data-i18n="ai.style.balanced">平衡型</span>
                     </div>
                     <div class="ai-stat-item">
-                        <span class="label">難度等級:</span>
-                        <span id="difficulty-level" class="value">中等</span>
+                        <span class="label" data-i18n="ai.status.difficulty-level">難度等級</span>:
+                        <span id="difficulty-level" class="value" data-i18n="ai.difficulty.medium">中等</span>
                     </div>
                     <div class="ai-stat-item">
-                        <span class="label">已玩遊戲:</span>
+                        <span class="label" data-i18n="ai.status.games-played">已玩遊戲</span>:
                         <span id="games-played" class="value">0</span>
                     </div>
                 </div>
                 <div class="ai-controls">
-                    <button id="reset-ai-learning" class="secondary-btn">重置學習數據</button>
-                    <button id="export-learning-data" class="secondary-btn">導出學習數據</button>
+                    <button id="reset-ai-learning" class="secondary-btn" data-i18n="ai.controls.reset">重置學習數據</button>
+                    <button id="export-learning-data" class="secondary-btn" data-i18n="ai.controls.export">導出學習數據</button>
                     <input type="file" id="import-learning-data" accept=".json" style="display: none;">
-                    <button id="import-learning-data-btn" class="secondary-btn">導入學習數據</button>
+                    <button id="import-learning-data-btn" class="secondary-btn" data-i18n="ai.controls.import">導入學習數據</button>
                 </div>
             </div>
 
             <div class="game-board-container">
-                <div id="game-board" class="game-board" role="grid" aria-label="5x5 Bingo 遊戲板" tabindex="0"></div>
-                <div class="board-controls" role="group" aria-label="遊戲控制按鈕">
-                    <button id="start-game" class="primary-btn" aria-describedby="game-instructions">開始遊戲</button>
-                    <button id="restart-game" class="secondary-btn" disabled aria-label="重新開始遊戲">重新開始</button>
-                    <button id="random-computer-move" class="secondary-btn" aria-label="讓電腦隨機選擇位置">電腦隨機下棋</button>
+                <div id="game-board" class="game-board" role="grid" data-i18n-aria="aria.game-board" tabindex="0"></div>
+                <div class="board-controls" role="group" data-i18n-aria="aria.game-controls">
+                    <button id="start-game" class="primary-btn" aria-describedby="game-instructions" data-i18n="controls.start-game">開始遊戲</button>
+                    <button id="restart-game" class="secondary-btn" disabled data-i18n="controls.restart-game" data-i18n-aria="controls.restart-game">重新開始</button>
+                    <button id="random-computer-move" class="secondary-btn" data-i18n="controls.random-computer-move" data-i18n-aria="controls.random-computer-move">電腦隨機下棋</button>
                     <div class="auto-random-container">
                         <input type="checkbox" id="auto-random-move" aria-describedby="auto-random-description" />
-                        <label for="auto-random-move">電腦自動隨機下棋</label>
-                        <div id="auto-random-description" class="sr-only">啟用後，電腦將在每回合自動隨機選擇位置</div>
+                        <label for="auto-random-move" data-i18n="controls.auto-random-move">電腦自動隨機下棋</label>
+                        <div id="auto-random-description" class="sr-only" data-i18n="controls.auto-random-description">啟用後，電腦將在每回合自動隨機選擇位置</div>
                     </div>
                 </div>
             </div>
 
             <div class="control-panel">
                 <div id="game-result-panel" class="result-panel hidden">
-                    <h3>遊戲結束！</h3>
+                    <h3 data-i18n="results.game-over">遊戲結束！</h3>
                     <div class="final-stats">
                         <div class="stat-item">
-                            <span class="stat-label">總連線數:</span>
+                            <span class="stat-label" data-i18n="results.total-lines">總連線數:</span>
                             <span id="final-lines-count" class="stat-value">0</span>
                         </div>
                         <div class="stat-item">
-                            <span class="stat-label">玩家移動:</span>
+                            <span class="stat-label" data-i18n="results.player-moves">玩家移動:</span>
                             <span id="player-moves-count" class="stat-value">8</span>
                         </div>
                         <div class="stat-item">
-                            <span class="stat-label">電腦移動:</span>
+                            <span class="stat-label" data-i18n="results.computer-moves">電腦移動:</span>
                             <span id="computer-moves-count" class="stat-value">8</span>
                         </div>
                     </div>
-                    <button id="play-again" class="primary-btn">再玩一次</button>
+                    <button id="play-again" class="primary-btn" data-i18n="results.play-again">再玩一次</button>
                 </div>
 
                 <div id="game-active-panel">
-                    <div class="suggestion-area" role="region" aria-label="移動建議" aria-live="polite">
-                        <h3>建議移動</h3>
-                        <div id="suggestion-display" class="suggestion-display" aria-label="當前移動建議">
-                            <span id="suggestion-text">點擊開始遊戲獲得建議</span>
+                    <div class="suggestion-area" role="region" data-i18n-aria="aria.move-suggestion" aria-live="polite">
+                        <h3 data-i18n="suggestion.title">建議移動</h3>
+                        <div id="suggestion-display" class="suggestion-display" data-i18n-aria="aria.move-suggestion">
+                            <span id="suggestion-text" data-i18n="suggestion.default">點擊開始遊戲獲得建議</span>
                         </div>
                     </div>
 
                     <div class="input-area">
-                        <h3>電腦選擇輸入</h3>
+                        <h3 data-i18n="computer.input.title">電腦選擇輸入</h3>
                         <div class="computer-input">
-                            <p id="computer-turn-message">電腦回合時，請直接點擊棋盤上的空格子或使用棋盤旁的隨機下棋按鈕</p>
+                            <p id="computer-turn-message" data-i18n="computer.input.message">電腦回合時，請直接點擊棋盤上的空格子或使用棋盤旁的隨機下棋按鈕</p>
                         </div>
                     </div>
 
@@ -251,8 +390,8 @@
             </div>
 
             <div class="instructions" role="region" aria-labelledby="instructions-title">
-                <h3 id="instructions-title">操作指示</h3>
-                <div id="instruction-text" class="instruction-text" id="game-instructions" aria-live="polite">
+                <h3 id="instructions-title" data-i18n="instructions.title">操作指示</h3>
+                <div id="instruction-text" class="instruction-text" id="game-instructions" aria-live="polite" data-i18n="instructions.default">
                     點擊「開始遊戲」按鈕開始新的遊戲。使用方向鍵導航遊戲板，按 Enter 或空格鍵選擇格子。
                 </div>
             </div>
@@ -265,12 +404,15 @@
 
     <div id="global-loading" class="global-loading">
         <div class="loading-spinner"></div>
-        <div class="loading-text">正在載入遊戲組件...</div>
+        <div class="loading-text" data-i18n="loading.components">正在載入遊戲組件...</div>
     </div>
 
     <!-- Security and Error Handling -->
     <script src="security-utils.js"></script>
     <script src="error-boundary.js"></script>
+    
+    <!-- Internationalization -->
+    <script src="i18n.js"></script>
     
     <script src="loading-functions.js"></script>
     <script src="performance-monitor.js"></script>
@@ -387,7 +529,14 @@
             
             const currentAlgorithmName = document.getElementById('current-algorithm-name');
             if (currentAlgorithmName) {
-                currentAlgorithmName.textContent = algorithm === 'standard' ? '標準演算法' : '增強演算法';
+                currentAlgorithmName.setAttribute('data-algorithm', algorithm);
+                const algorithmKey = `algorithm.${algorithm}.name`;
+                if (typeof i18n !== 'undefined') {
+                    currentAlgorithmName.textContent = i18n.t(algorithmKey);
+                } else {
+                    // Fallback for when i18n is not loaded yet
+                    currentAlgorithmName.textContent = algorithm === 'standard' ? '標準演算法' : '增強演算法';
+                }
             }
             
             if (algorithm === 'standard') {
@@ -405,23 +554,25 @@
                     startNewGame();
                     
                     const instructionText = document.getElementById('instruction-text');
-                    if (instructionText) {
-                        instructionText.textContent = `已切換到${algorithm === 'standard' ? '標準' : '增強'}版演算法，遊戲已重新開始`;
+                    if (instructionText && typeof i18n !== 'undefined') {
+                        const algorithmName = i18n.t(`algorithm.${algorithm}.name`);
+                        instructionText.textContent = i18n.t('success.algorithm-switched', { algorithm: algorithmName });
                         instructionText.classList.add('success');
                         
                         setTimeout(() => {
-                            instructionText.textContent = '點擊「開始遊戲」按鈕開始新的遊戲';
+                            instructionText.textContent = i18n.t('instructions.default');
                             instructionText.classList.remove('success');
                         }, 3000);
                     }
                 } else {
                     const instructionText = document.getElementById('instruction-text');
-                    if (instructionText) {
-                        instructionText.textContent = `已切換到${algorithm === 'standard' ? '標準' : '增強'}版演算法`;
+                    if (instructionText && typeof i18n !== 'undefined') {
+                        const algorithmName = i18n.t(`algorithm.${algorithm}.name`);
+                        instructionText.textContent = i18n.t('success.algorithm-switched', { algorithm: algorithmName });
                         instructionText.classList.add('success');
                         
                         setTimeout(() => {
-                            instructionText.textContent = '點擊「開始遊戲」按鈕開始新的遊戲';
+                            instructionText.textContent = i18n.t('instructions.default');
                             instructionText.classList.remove('success');
                         }, 3000);
                     }
@@ -493,6 +644,86 @@
             console.log('App is offline');
             // 可以在這裡保存當前狀態
         });
+        
+        // 語言變更事件處理
+        document.addEventListener('languageChanged', (event) => {
+            console.log('Language changed event received:', event.detail.language);
+            
+            // 更新遊戲狀態顯示
+            updateGameStatusLanguage();
+            
+            // 更新建議顯示
+            updateSuggestionLanguage();
+            
+            // 更新指示文字
+            updateInstructionsLanguage();
+            
+            // 更新演算法名稱
+            updateAlgorithmNamesLanguage();
+        });
+        
+        // 更新遊戲狀態的語言
+        function updateGameStatusLanguage() {
+            if (typeof gameState !== 'undefined' && gameState) {
+                const currentRound = document.getElementById('current-round');
+                const gamePhase = document.getElementById('game-phase');
+                
+                if (currentRound && gameState.currentRound) {
+                    // 保持數字，只更新格式
+                    currentRound.textContent = gameState.currentRound.toString();
+                }
+                
+                if (gamePhase && gameState.gamePhase) {
+                    const phaseKey = `phase.${gameState.gamePhase}`;
+                    if (typeof i18n !== 'undefined') {
+                        gamePhase.textContent = i18n.t(phaseKey);
+                    }
+                }
+            }
+        }
+        
+        // 更新建議顯示的語言
+        function updateSuggestionLanguage() {
+            const suggestionText = document.getElementById('suggestion-text');
+            if (suggestionText && typeof i18n !== 'undefined') {
+                // 如果顯示的是默認建議文字，更新它
+                if (suggestionText.textContent.includes('點擊開始遊戲') || 
+                    suggestionText.textContent.includes('Click Start Game')) {
+                    suggestionText.textContent = i18n.t('suggestion.default');
+                }
+            }
+        }
+        
+        // 更新指示文字的語言
+        function updateInstructionsLanguage() {
+            const instructionText = document.getElementById('instruction-text');
+            if (instructionText && typeof i18n !== 'undefined') {
+                // 根據當前遊戲狀態更新指示
+                if (typeof gameState !== 'undefined' && gameState) {
+                    if (!gameState.gameStarted) {
+                        instructionText.textContent = i18n.t('instructions.default');
+                    } else if (gameState.gameEnded) {
+                        instructionText.textContent = i18n.t('instructions.game-over');
+                    } else if (gameState.gamePhase === 'player-turn') {
+                        instructionText.textContent = i18n.t('instructions.player-turn');
+                    } else if (gameState.gamePhase === 'computer-turn') {
+                        instructionText.textContent = i18n.t('instructions.computer-turn');
+                    }
+                } else {
+                    instructionText.textContent = i18n.t('instructions.default');
+                }
+            }
+        }
+        
+        // 更新演算法名稱的語言
+        function updateAlgorithmNamesLanguage() {
+            const currentAlgorithmName = document.getElementById('current-algorithm-name');
+            if (currentAlgorithmName && typeof i18n !== 'undefined') {
+                const algorithmType = currentAlgorithmName.getAttribute('data-algorithm') || 'standard';
+                const algorithmKey = `algorithm.${algorithmType}.name`;
+                currentAlgorithmName.textContent = i18n.t(algorithmKey);
+            }
+        }
     </script>
 </body>
 </html>
