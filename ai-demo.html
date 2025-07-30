@@ -361,14 +361,44 @@
                     { label: '平均表現', value: `${(stats.averagePerformance * 100).toFixed(1)}%` }
                 ];
                 
-                dashboard.innerHTML = statCards.map(stat => `
-                    <div class="stat-card">
-                        <div class="stat-label">${stat.label}</div>
-                        <div class="stat-value">${stat.value}</div>
-                    </div>
-                `).join('');
+                // 清空 dashboard
+                while (dashboard.firstChild) {
+                    dashboard.removeChild(dashboard.firstChild);
+                }
+                
+                // 安全地添加統計卡片
+                statCards.forEach(stat => {
+                    const card = document.createElement('div');
+                    card.className = 'stat-card';
+                    
+                    const label = document.createElement('div');
+                    label.className = 'stat-label';
+                    label.textContent = stat.label;
+                    
+                    const value = document.createElement('div');
+                    value.className = 'stat-value';
+                    value.textContent = stat.value;
+                    
+                    card.appendChild(label);
+                    card.appendChild(value);
+                    dashboard.appendChild(card);
+                });
             } catch (error) {
-                dashboard.innerHTML = `<div class="stat-card"><div class="stat-value">錯誤: ${error.message}</div></div>`;
+                // 清空 dashboard
+                while (dashboard.firstChild) {
+                    dashboard.removeChild(dashboard.firstChild);
+                }
+                
+                // 安全地添加錯誤信息
+                const errorCard = document.createElement('div');
+                errorCard.className = 'stat-card';
+                
+                const errorValue = document.createElement('div');
+                errorValue.className = 'stat-value';
+                errorValue.textContent = `錯誤: ${error.message}`;
+                
+                errorCard.appendChild(errorValue);
+                dashboard.appendChild(errorCard);
             }
         }
         

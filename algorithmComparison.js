@@ -979,39 +979,107 @@ class AlgorithmComparison {
     const sameMove = result.suggestions.qualityComparison.sameMove ? '相同' : '不同';
     const moveClass = result.suggestions.qualityComparison.sameMove ? 'same' : 'different';
     
-    suggestionSection.innerHTML = `
-      <h3>建議比較</h3>
-      <div class="suggestion-comparison">
-        <div class="suggestion-item">
-          <div class="suggestion-label">標準算法建議:</div>
-          <div class="suggestion-value">${standardPos}</div>
-        </div>
-        <div class="suggestion-item">
-          <div class="suggestion-label">增強版算法建議:</div>
-          <div class="suggestion-value">${enhancedPos}</div>
-        </div>
-        <div class="suggestion-result ${moveClass}">建議結果: ${sameMove}</div>
-      </div>
-    `;
+    SafeDOM.replaceContent(suggestionSection, [
+        {
+            tag: 'h3',
+            textContent: '建議比較'
+        },
+        {
+            tag: 'div',
+            attributes: { class: 'suggestion-comparison' },
+            children: [
+                {
+                    tag: 'div',
+                    attributes: { class: 'suggestion-item' },
+                    children: [
+                        {
+                            tag: 'div',
+                            attributes: { class: 'suggestion-label' },
+                            textContent: '標準算法建議:'
+                        },
+                        {
+                            tag: 'div',
+                            attributes: { class: 'suggestion-value' },
+                            textContent: standardPos
+                        }
+                    ]
+                },
+                {
+                    tag: 'div',
+                    attributes: { class: 'suggestion-item' },
+                    children: [
+                        {
+                            tag: 'div',
+                            attributes: { class: 'suggestion-label' },
+                            textContent: '增強版算法建議:'
+                        },
+                        {
+                            tag: 'div',
+                            attributes: { class: 'suggestion-value' },
+                            textContent: enhancedPos
+                        }
+                    ]
+                },
+                {
+                    tag: 'div',
+                    attributes: { 
+                        class: `suggestion-result ${moveClass}`
+                    },
+                    textContent: `建議結果: ${sameMove}`
+                }
+            ]
+        }
+    ]);
     
     // 創建指標比較部分
     const metricsSection = document.createElement('div');
     metricsSection.className = 'comparison-section metrics';
     
     const enhancedMetrics = result.metrics.enhanced;
-    metricsSection.innerHTML = `
-      <h3>緩存效率</h3>
-      <div class="metrics-data">
-        <div class="metric-item">
-          <div class="metric-label">緩存命中率:</div>
-          <div class="metric-value">${enhancedMetrics.cacheHitRate}</div>
-        </div>
-        <div class="metric-item">
-          <div class="metric-label">平均計算時間:</div>
-          <div class="metric-value">${enhancedMetrics.averageCalculationTime}</div>
-        </div>
-      </div>
-    `;
+    SafeDOM.replaceContent(metricsSection, [
+        {
+            tag: 'h3',
+            textContent: '緩存效率'
+        },
+        {
+            tag: 'div',
+            attributes: { class: 'metrics-data' },
+            children: [
+                {
+                    tag: 'div',
+                    attributes: { class: 'metric-item' },
+                    children: [
+                        {
+                            tag: 'div',
+                            attributes: { class: 'metric-label' },
+                            textContent: '緩存命中率:'
+                        },
+                        {
+                            tag: 'div',
+                            attributes: { class: 'metric-value' },
+                            textContent: enhancedMetrics.cacheHitRate
+                        }
+                    ]
+                },
+                {
+                    tag: 'div',
+                    attributes: { class: 'metric-item' },
+                    children: [
+                        {
+                            tag: 'div',
+                            attributes: { class: 'metric-label' },
+                            textContent: '平均計算時間:'
+                        },
+                        {
+                            tag: 'div',
+                            attributes: { class: 'metric-value' },
+                            textContent: enhancedMetrics.averageCalculationTime
+                        }
+                    ]
+                }
+            ]
+        }
+    ]);
     
     container.appendChild(performanceSection);
     container.appendChild(suggestionSection);
