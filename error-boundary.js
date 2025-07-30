@@ -128,7 +128,7 @@ class ErrorBoundary {
      */
     showUserError(errorEntry) {
         const errorMessages = {
-            javascript: '應用程式遇到了一個錯誤，正在嘗試恢復...',
+            script: '應用程式遇到了一個錯誤，正在嘗試恢復...',
             promise: '操作失敗，請稍後再試',
             resource: '資源載入失敗，請檢查網路連接',
             game: '遊戲遇到錯誤，正在重置...',

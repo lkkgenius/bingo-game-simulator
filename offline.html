@@ -233,7 +233,7 @@
                 
                 // 自動重定向到主頁面
                 setTimeout(() => {
-                    window.location.href = '/';
+                    this.safeRedirect('/');
                 }, 2000);
             } else {
                 statusElement.className = 'connection-status status-offline';
@@ -257,7 +257,7 @@
                 updateConnectionStatus();
                 button.textContent = '連接成功！';
                 setTimeout(() => {
-                    window.location.href = '/';
+                    this.safeRedirect('/');
                 }, 1000);
             })
             .catch(() => {

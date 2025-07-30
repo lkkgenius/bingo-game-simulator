@@ -74,10 +74,8 @@ class SecurityUtils {
         // 移除潛在的 HTML 標籤
         str = str.replace(/<[^>]*>/g, '');
 
-        // 移除潛在的腳本內容
-        str = str.replace(/javascript:/gi, '');
-        str = str.replace(/vbscript:/gi, '');
-        str = str.replace(/data:/gi, '');
+        // 移除潛在的腳本內容 - 使用安全的協議檢查
+        str = this.removeUnsafeProtocols(str);
 
         // 轉義特殊字符
         str = str.replace(/[<>&"']/g, (match) => {

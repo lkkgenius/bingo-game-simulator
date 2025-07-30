@@ -446,9 +446,9 @@ function isSecureRequest(request) {
     
     // 檢查是否為惡意 URL 模式
     const maliciousPatterns = [
-        /javascript:/i,
-        /data:/i,
-        /vbscript:/i,
+        /^javascript:/i,
+        /^data:/i,
+        /^vbscript:/i,
         /<script/i,
         /eval\(/i
     ];
