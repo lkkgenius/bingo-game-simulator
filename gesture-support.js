@@ -486,14 +486,24 @@ class GestureSupport {
         const col = cellIndex % 5;
         
         // 創建信息提示
-        const tooltip = document.createElement('div');
-        tooltip.className = 'cell-info-tooltip';
-        tooltip.innerHTML = `
-            <div class="tooltip-content">
-                <p>位置: 第${row + 1}行第${col + 1}列</p>
-                <p>狀態: ${this.getCellStateText(cell)}</p>
-            </div>
-        `;
+        const tooltip = SafeDOM.createStructure({
+            tag: 'div',
+            attributes: { class: 'cell-info-tooltip' },
+            children: [{
+                tag: 'div',
+                attributes: { class: 'tooltip-content' },
+                children: [
+                    {
+                        tag: 'p',
+                        textContent: `位置: 第${row + 1}行第${col + 1}列`
+                    },
+                    {
+                        tag: 'p',
+                        textContent: `狀態: ${this.getCellStateText(cell)}`
+                    }
+                ]
+            }]
+        });
         
         document.body.appendChild(tooltip);
         

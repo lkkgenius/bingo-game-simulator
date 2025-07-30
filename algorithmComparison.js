@@ -8,6 +8,11 @@
  * 3. 評估兩種算法的建議質量
  * 4. 提供視覺化的比較結果
  */
+
+// 確保 SafeDOM 可用
+if (typeof SafeDOM === 'undefined' && typeof require !== 'undefined') {
+    const SafeDOM = require('./safe-dom.js');
+}
 class AlgorithmComparison {
   constructor() {
     this.standardCalculator = new ProbabilityCalculator();
