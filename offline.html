@@ -223,6 +223,28 @@
     </div>
 
     <script>
+        // 安全重定向函數
+        function safeRedirect(url) {
+            try {
+                // 驗證 URL 是否安全
+                if (typeof url !== 'string' || url.trim() === '') {
+                    console.warn('Invalid redirect URL');
+                    return;
+                }
+                
+                // 只允許相對路徑和同源 URL
+                if (url.startsWith('/') || url.startsWith('./') || url.startsWith('../')) {
+                    window.location.href = url;
+                } else {
+                    console.warn('Unsafe redirect URL blocked:', url);
+                    window.location.href = '/';
+                }
+            } catch (error) {
+                console.error('Redirect failed:', error);
+                window.location.href = '/';
+            }
+        }
+
         // 檢查網路狀態
         function updateConnectionStatus() {
             const statusElement = document.getElementById('connection-status');
@@ -308,7 +330,7 @@
             if (event.key === 'Enter' || event.key === ' ') {
                 retryConnection();
             } else if (event.key === 'Escape') {
-                window.location.href = '/';
+                this.safeRedirect('/');
             }
         });
 

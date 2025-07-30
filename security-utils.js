@@ -257,6 +257,31 @@ class SecurityUtils {
     }
 
     /**
+     * 移除不安全的協議
+     */
+    static removeUnsafeProtocols(str) {
+        if (typeof str !== 'string') {
+            return '';
+        }
+
+        // 移除危險的協議
+        const unsafeProtocols = [
+            /javascript:/gi,
+            /vbscript:/gi,
+            /data:/gi,
+            /file:/gi,
+            /about:/gi
+        ];
+
+        let cleanStr = str;
+        unsafeProtocols.forEach(protocol => {
+            cleanStr = cleanStr.replace(protocol, '');
+        });
+
+        return cleanStr;
+    }
+
+    /**
      * 安全的 JSON 解析
      */
     static safeJSONParse(jsonString, defaultValue = null) {
