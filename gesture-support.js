@@ -3,6 +3,11 @@
  * 實作手勢支持（滑動、縮放等）
  */
 
+// 確保 SafeDOM 可用
+if (typeof SafeDOM === 'undefined' && typeof require !== 'undefined') {
+    const SafeDOM = require('./safe-dom.js');
+}
+
 class GestureSupport {
     constructor() {
         this.isEnabled = false;
@@ -225,23 +230,73 @@ class GestureSupport {
         panel.id = 'mobile-stats-panel';
         panel.className = 'mobile-stats-panel';
         
-        panel.innerHTML = `
-            <div class="stats-content">
-                <h3>遊戲統計</h3>
-                <div class="stat-item">
-                    <span class="label">當前輪數:</span>
-                    <span class="value" id="mobile-current-round">1</span>
-                </div>
-                <div class="stat-item">
-                    <span class="label">完成連線:</span>
-                    <span class="value" id="mobile-completed-lines">0</span>
-                </div>
-                <div class="stat-item">
-                    <span class="label">當前算法:</span>
-                    <span class="value" id="mobile-current-algorithm">標準演算法</span>
-                </div>
-            </div>
-        `;
+        SafeDOM.replaceContent(panel, {
+            tag: 'div',
+            attributes: { class: 'stats-content' },
+            children: [
+                {
+                    tag: 'h3',
+                    textContent: '遊戲統計'
+                },
+                {
+                    tag: 'div',
+                    attributes: { class: 'stat-item' },
+                    children: [
+                        {
+                            tag: 'span',
+                            attributes: { class: 'label' },
+                            textContent: '當前輪數:'
+                        },
+                        {
+                            tag: 'span',
+                            attributes: { 
+                                class: 'value',
+                                id: 'mobile-current-round'
+                            },
+                            textContent: '1'
+                        }
+                    ]
+                },
+                {
+                    tag: 'div',
+                    attributes: { class: 'stat-item' },
+                    children: [
+                        {
+                            tag: 'span',
+                            attributes: { class: 'label' },
+                            textContent: '完成連線:'
+                        },
+                        {
+                            tag: 'span',
+                            attributes: { 
+                                class: 'value',
+                                id: 'mobile-completed-lines'
+                            },
+                            textContent: '0'
+                        }
+                    ]
+                },
+                {
+                    tag: 'div',
+                    attributes: { class: 'stat-item' },
+                    children: [
+                        {
+                            tag: 'span',
+                            attributes: { class: 'label' },
+                            textContent: '當前算法:'
+                        },
+                        {
+                            tag: 'span',
+                            attributes: { 
+                                class: 'value',
+                                id: 'mobile-current-algorithm'
+                            },
+                            textContent: '標準演算法'
+                        }
+                    ]
+                }
+            ]
+        });
         
         return panel;
     }

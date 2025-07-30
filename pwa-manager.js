@@ -421,19 +421,39 @@ class PWAManager {
         statusBanner.className = `connection-status ${status}`;
         
         if (status === 'offline') {
-            statusBanner.innerHTML = `
-                <div class="status-content">
-                    <span class="status-icon">📡</span>
-                    <span class="status-text">離線模式 - 部分功能可能受限</span>
-                </div>
-            `;
+            SafeDOM.replaceContent(statusBanner, {
+                tag: 'div',
+                attributes: { class: 'status-content' },
+                children: [
+                    {
+                        tag: 'span',
+                        attributes: { class: 'status-icon' },
+                        textContent: '📡'
+                    },
+                    {
+                        tag: 'span',
+                        attributes: { class: 'status-text' },
+                        textContent: '離線模式 - 部分功能可能受限'
+                    }
+                ]
+            });
         } else {
-            statusBanner.innerHTML = `
-                <div class="status-content">
-                    <span class="status-icon">✅</span>
-                    <span class="status-text">已重新連接</span>
-                </div>
-            `;
+            SafeDOM.replaceContent(statusBanner, {
+                tag: 'div',
+                attributes: { class: 'status-content' },
+                children: [
+                    {
+                        tag: 'span',
+                        attributes: { class: 'status-icon' },
+                        textContent: '✅'
+                    },
+                    {
+                        tag: 'span',
+                        attributes: { class: 'status-text' },
+                        textContent: '已重新連接'
+                    }
+                ]
+            });
         }
         
         document.body.appendChild(statusBanner);
