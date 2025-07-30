@@ -237,14 +237,8 @@ function loadEnhancedAlgorithmAsync() {
         
         script.onload = function() {
             try {
-                // Store the enhanced calculator
-                if (typeof ProbabilityCalculator !== 'undefined') {
-                    EnhancedProbabilityCalculator = ProbabilityCalculator;
-                    // Restore the standard calculator
-                    if (typeof StandardProbabilityCalculator !== 'undefined') {
-                        ProbabilityCalculator = StandardProbabilityCalculator;
-                    }
-                }
+                // EnhancedProbabilityCalculator class is now available
+                // No need to manipulate ProbabilityCalculator variable
                 resolve();
             } catch (error) {
                 reject(error);

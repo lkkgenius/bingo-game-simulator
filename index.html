@@ -440,7 +440,6 @@
                     alert('遊戲組件加載失敗：GameBoard');
                 }
                 
-                loadEnhancedAlgorithm();
                 setupAlgorithmSelection();
                 
                 const startButton = document.getElementById('start-game');
@@ -456,29 +455,7 @@
             }
         });
         
-        function loadEnhancedAlgorithm() {
-            const script = document.createElement('script');
-            script.src = 'probabilityCalculator.enhanced.js';
-            
-            script.onload = function() {
-                const tempEnhanced = ProbabilityCalculator;
-                ProbabilityCalculator = StandardProbabilityCalculator;
-                EnhancedProbabilityCalculator = tempEnhanced;
-                enableAlgorithmSelection();
-            };
-            
-            script.onerror = function() {
-                alert('加載增強版機率計算器失敗，只能使用標準版本');
-                const enhancedOption = document.querySelector('.algorithm-option[data-algorithm="enhanced"]');
-                if (enhancedOption) {
-                    enhancedOption.classList.add('disabled');
-                    enhancedOption.style.opacity = '0.5';
-                    enhancedOption.style.cursor = 'not-allowed';
-                }
-            };
-            
-            document.body.appendChild(script);
-        }
+        // Enhanced algorithm loading is now handled in script.js
         
         function setupAlgorithmSelection() {
             const algorithmOptions = document.querySelectorAll('.algorithm-option');
@@ -539,10 +516,13 @@
                 }
             }
             
-            if (algorithm === 'standard') {
-                ProbabilityCalculator = StandardProbabilityCalculator;
-            } else {
-                ProbabilityCalculator = EnhancedProbabilityCalculator;
+            // Update the global probabilityCalculator instance
+            if (typeof probabilityCalculator !== 'undefined') {
+                if (algorithm === 'standard') {
+                    probabilityCalculator = new ProbabilityCalculator();
+                } else if (algorithm === 'enhanced' && typeof EnhancedProbabilityCalculator !== 'undefined') {
+                    probabilityCalculator = new EnhancedProbabilityCalculator();
+                }
             }
             
             if (typeof initializeGame === 'function' && typeof gameState !== 'undefined') {
