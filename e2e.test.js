@@ -3,6 +3,9 @@
  * 模擬完整的用戶交互流程
  */
 
+// 載入 SafeDOM
+const SafeDOM = require('./safe-dom.js');
+
 // 模擬 DOM 環境
 global.document = {
   createElement: () => ({

@@ -3,6 +3,11 @@
  * 管理 PWA 功能，包括安裝提示、更新檢查等
  */
 
+// 確保 SafeDOM 可用
+if (typeof SafeDOM === 'undefined' && typeof require !== 'undefined') {
+    const SafeDOM = require('./safe-dom.js');
+}
+
 class PWAManager {
     constructor() {
         this.deferredPrompt = null;
@@ -116,21 +121,57 @@ class PWAManager {
      * 創建安裝橫幅
      */
     createInstallBanner() {
-        const banner = document.createElement('div');
-        banner.className = 'pwa-install-banner';
-        banner.innerHTML = `
-            <div class="install-content">
-                <div class="install-icon">📱</div>
-                <div class="install-text">
-                    <h3>安裝 Bingo 遊戲</h3>
-                    <p>安裝到主屏幕，隨時隨地暢玩</p>
-                </div>
-                <div class="install-actions">
-                    <button class="install-btn" id="pwa-install-btn">安裝</button>
-                    <button class="dismiss-btn" id="pwa-dismiss-btn">×</button>
-                </div>
-            </div>
-        `;
+        const banner = SafeDOM.createStructure({
+            tag: 'div',
+            attributes: { class: 'pwa-install-banner' },
+            children: [{
+                tag: 'div',
+                attributes: { class: 'install-content' },
+                children: [
+                    {
+                        tag: 'div',
+                        attributes: { class: 'install-icon' },
+                        textContent: '📱'
+                    },
+                    {
+                        tag: 'div',
+                        attributes: { class: 'install-text' },
+                        children: [
+                            {
+                                tag: 'h3',
+                                textContent: '安裝 Bingo 遊戲'
+                            },
+                            {
+                                tag: 'p',
+                                textContent: '安裝到主屏幕，隨時隨地暢玩'
+                            }
+                        ]
+                    },
+                    {
+                        tag: 'div',
+                        attributes: { class: 'install-actions' },
+                        children: [
+                            {
+                                tag: 'button',
+                                attributes: { 
+                                    class: 'install-btn',
+                                    id: 'pwa-install-btn'
+                                },
+                                textContent: '安裝'
+                            },
+                            {
+                                tag: 'button',
+                                attributes: { 
+                                    class: 'dismiss-btn',
+                                    id: 'pwa-dismiss-btn'
+                                },
+                                textContent: '×'
+                            }
+                        ]
+                    }
+                ]
+            }]
+        });
         
         // 綁定事件
         banner.querySelector('#pwa-install-btn').addEventListener('click', () => {
@@ -187,17 +228,35 @@ class PWAManager {
      * 顯示安裝成功消息
      */
     showInstallSuccessMessage() {
-        const message = document.createElement('div');
-        message.className = 'pwa-success-message';
-        message.innerHTML = `
-            <div class="success-content">
-                <div class="success-icon">✅</div>
-                <div class="success-text">
-                    <h3>安裝成功！</h3>
-                    <p>Bingo 遊戲已添加到主屏幕</p>
-                </div>
-            </div>
-        `;
+        const message = SafeDOM.createStructure({
+            tag: 'div',
+            attributes: { class: 'pwa-success-message' },
+            children: [{
+                tag: 'div',
+                attributes: { class: 'success-content' },
+                children: [
+                    {
+                        tag: 'div',
+                        attributes: { class: 'success-icon' },
+                        textContent: '✅'
+                    },
+                    {
+                        tag: 'div',
+                        attributes: { class: 'success-text' },
+                        children: [
+                            {
+                                tag: 'h3',
+                                textContent: '安裝成功！'
+                            },
+                            {
+                                tag: 'p',
+                                textContent: 'Bingo 遊戲已添加到主屏幕'
+                            }
+                        ]
+                    }
+                ]
+            }]
+        });
         
         document.body.appendChild(message);
         
@@ -368,7 +427,7 @@ class PWAManager {
         
         const installBtn = document.createElement('button');
         installBtn.className = 'floating-install-btn';
-        installBtn.innerHTML = '📱 安裝應用';
+        installBtn.textContent = '📱 安裝應用';
         installBtn.style.display = 'none';
         
         installBtn.addEventListener('click', () => {

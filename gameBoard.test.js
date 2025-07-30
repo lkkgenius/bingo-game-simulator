@@ -2,6 +2,9 @@
  * GameBoard 單元測試
  */
 
+// 載入 SafeDOM
+const SafeDOM = require('./safe-dom.js');
+
 // 模擬 DOM 環境
 global.document = {
   createElement: () => {

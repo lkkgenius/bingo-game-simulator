@@ -156,19 +156,47 @@ class ErrorBoundary {
             return;
         }
 
-        const notification = document.createElement('div');
-        notification.className = 'error-notification';
-        notification.innerHTML = `
-            <div class="error-notification-content">
-                <div class="error-icon">⚠️</div>
-                <div class="error-message">${message}</div>
-                <div class="error-actions">
-                    <button class="error-retry-btn">重試</button>
-                    <button class="error-dismiss-btn">關閉</button>
-                    <button class="error-report-btn">回報問題</button>
-                </div>
-            </div>
-        `;
+        const notification = SafeDOM.createStructure({
+            tag: 'div',
+            attributes: { class: 'error-notification' },
+            children: [{
+                tag: 'div',
+                attributes: { class: 'error-notification-content' },
+                children: [
+                    {
+                        tag: 'div',
+                        attributes: { class: 'error-icon' },
+                        textContent: '⚠️'
+                    },
+                    {
+                        tag: 'div',
+                        attributes: { class: 'error-message' },
+                        textContent: message
+                    },
+                    {
+                        tag: 'div',
+                        attributes: { class: 'error-actions' },
+                        children: [
+                            {
+                                tag: 'button',
+                                attributes: { class: 'error-retry-btn' },
+                                textContent: '重試'
+                            },
+                            {
+                                tag: 'button',
+                                attributes: { class: 'error-dismiss-btn' },
+                                textContent: '關閉'
+                            },
+                            {
+                                tag: 'button',
+                                attributes: { class: 'error-report-btn' },
+                                textContent: '回報問題'
+                            }
+                        ]
+                    }
+                ]
+            }]
+        });
 
         // 添加樣式
         notification.style.cssText = `
@@ -214,22 +242,60 @@ class ErrorBoundary {
      * 顯示錯誤頁面
      */
     showErrorPage(errorEntry) {
-        const errorPage = document.createElement('div');
-        errorPage.className = 'error-page';
-        errorPage.innerHTML = `
-            <div class="error-page-content">
-                <h1>應用程式遇到錯誤</h1>
-                <p>很抱歉，應用程式遇到了一個無法恢復的錯誤。</p>
-                <div class="error-details">
-                    <p><strong>錯誤 ID:</strong> ${errorEntry.id}</p>
-                    <p><strong>時間:</strong> ${new Date(errorEntry.timestamp).toLocaleString()}</p>
-                </div>
-                <div class="error-actions">
-                    <button class="reload-btn">重新載入頁面</button>
-                    <button class="report-btn">回報問題</button>
-                </div>
-            </div>
-        `;
+        const errorPage = SafeDOM.createStructure({
+            tag: 'div',
+            attributes: { class: 'error-page' },
+            children: [{
+                tag: 'div',
+                attributes: { class: 'error-page-content' },
+                children: [
+                    {
+                        tag: 'h1',
+                        textContent: '應用程式遇到錯誤'
+                    },
+                    {
+                        tag: 'p',
+                        textContent: '很抱歉，應用程式遇到了一個無法恢復的錯誤。'
+                    },
+                    {
+                        tag: 'div',
+                        attributes: { class: 'error-details' },
+                        children: [
+                            {
+                                tag: 'p',
+                                children: [
+                                    { tag: 'strong', textContent: '錯誤 ID:' },
+                                    ` ${errorEntry.id}`
+                                ]
+                            },
+                            {
+                                tag: 'p',
+                                children: [
+                                    { tag: 'strong', textContent: '時間:' },
+                                    ` ${new Date(errorEntry.timestamp).toLocaleString()}`
+                                ]
+                            }
+                        ]
+                    },
+                    {
+                        tag: 'div',
+                        attributes: { class: 'error-actions' },
+                        children: [
+                            {
+                                tag: 'button',
+                                attributes: { class: 'reload-btn' },
+                                textContent: '重新載入頁面'
+                            },
+                            {
+                                tag: 'button',
+                                attributes: { class: 'report-btn' },
+                                textContent: '回報問題'
+                            }
+                        ]
+                    }
+                ]
+            }]
+        });
 
         // 添加樣式
         errorPage.style.cssText = `
@@ -271,19 +337,47 @@ class ErrorBoundary {
      * 顯示錯誤回報對話框
      */
     showErrorReportDialog(errorEntry) {
-        const dialog = document.createElement('div');
-        dialog.className = 'error-report-dialog';
-        dialog.innerHTML = `
-            <div class="dialog-content">
-                <h3>回報錯誤</h3>
-                <p>請描述發生錯誤時您正在做什麼：</p>
-                <textarea class="error-description" placeholder="請描述您的操作步驟..."></textarea>
-                <div class="dialog-actions">
-                    <button class="send-report-btn">發送回報</button>
-                    <button class="cancel-btn">取消</button>
-                </div>
-            </div>
-        `;
+        const dialog = SafeDOM.createStructure({
+            tag: 'div',
+            attributes: { class: 'error-report-dialog' },
+            children: [{
+                tag: 'div',
+                attributes: { class: 'dialog-content' },
+                children: [
+                    {
+                        tag: 'h3',
+                        textContent: '回報錯誤'
+                    },
+                    {
+                        tag: 'p',
+                        textContent: '請描述發生錯誤時您正在做什麼：'
+                    },
+                    {
+                        tag: 'textarea',
+                        attributes: { 
+                            class: 'error-description',
+                            placeholder: '請描述您的操作步驟...'
+                        }
+                    },
+                    {
+                        tag: 'div',
+                        attributes: { class: 'dialog-actions' },
+                        children: [
+                            {
+                                tag: 'button',
+                                attributes: { class: 'send-report-btn' },
+                                textContent: '發送回報'
+                            },
+                            {
+                                tag: 'button',
+                                attributes: { class: 'cancel-btn' },
+                                textContent: '取消'
+                            }
+                        ]
+                    }
+                ]
+            }]
+        });
 
         // 添加樣式
         dialog.style.cssText = `

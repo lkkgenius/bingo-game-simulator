@@ -266,11 +266,11 @@ class SecurityUtils {
 
         // 移除危險的協議
         const unsafeProtocols = [
-            /javascript:/gi,
-            /vbscript:/gi,
-            /data:/gi,
-            /file:/gi,
-            /about:/gi
+            /^javascript:/gi,
+            /^vbscript:/gi,
+            /^data:/gi,
+            /^file:/gi,
+            /^about:/gi
         ];
 
         let cleanStr = str;

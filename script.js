@@ -1,3 +1,8 @@
+// 確保 SafeDOM 可用
+if (typeof SafeDOM === 'undefined' && typeof require !== 'undefined') {
+    const SafeDOM = require('./safe-dom.js');
+}
+
 // Constants for game state management
 const CELL_STATES = {
     EMPTY: 0,
@@ -1294,7 +1299,7 @@ function updateSuggestionDisplay(suggestion) {
     }
     
     // 清除現有內容和類別
-    suggestionDisplay.innerHTML = '';
+    SafeDOM.clearContent(suggestionDisplay);
     suggestionDisplay.className = 'suggestion-display';
     
     if (suggestion) {
@@ -1306,14 +1311,14 @@ function updateSuggestionDisplay(suggestion) {
         // 創建主要建議文本
         const mainSuggestion = document.createElement('div');
         mainSuggestion.id = 'suggestion-text';
-        mainSuggestion.innerHTML = createSuggestionHTML(suggestion);
+        SafeDOM.setTextContent(mainSuggestion, createSuggestionText(suggestion));
         suggestionDisplay.appendChild(mainSuggestion);
         
         // 創建價值解釋
         if (suggestion.value !== undefined) {
             const valueExplanation = document.createElement('div');
             valueExplanation.className = 'value-explanation';
-            valueExplanation.innerHTML = createValueExplanation(suggestion.value, suggestion.confidence);
+            valueExplanation.textContent = createValueExplanationText(suggestion.value, suggestion.confidence);
             suggestionDisplay.appendChild(valueExplanation);
         }
         
@@ -1321,7 +1326,7 @@ function updateSuggestionDisplay(suggestion) {
         if (suggestion.alternatives && suggestion.alternatives.length > 0) {
             const alternativesContainer = document.createElement('div');
             alternativesContainer.className = 'alternatives-container';
-            alternativesContainer.innerHTML = createAlternativesHTML(suggestion.alternatives);
+            alternativesContainer.textContent = createAlternativesText(suggestion.alternatives);
             suggestionDisplay.appendChild(alternativesContainer);
             
             // 為替代建議添加點擊事件
@@ -1338,7 +1343,7 @@ function updateSuggestionDisplay(suggestion) {
         // 沒有建議時的顯示
         const noSuggestion = document.createElement('div');
         noSuggestion.id = 'suggestion-text';
-        noSuggestion.innerHTML = '<i class="fa fa-info-circle"></i> 沒有可用的移動建議';
+        noSuggestion.textContent = '沒有可用的移動建議';
         noSuggestion.style.color = '#FF6F00';
         suggestionDisplay.appendChild(noSuggestion);
         
@@ -1384,6 +1389,34 @@ function createSuggestionHTML(suggestion) {
             ${icon} ${confidenceLabel}
         </span>
     `;
+}
+
+/**
+ * 創建建議顯示的安全文本內容
+ * @param {Object} suggestion - 建議對象
+ * @returns {string} 純文本字符串
+ */
+function createSuggestionText(suggestion) {
+    const confidenceText = {
+        'very-high': '非常高的信心度',
+        'high': '高信心度',
+        'medium': '中等信心度',
+        'low': '低信心度'
+    };
+    
+    const confidenceLabel = confidenceText[suggestion.confidence] || '中等信心度';
+    
+    // 添加圖標以增強視覺效果
+    const icons = {
+        'very-high': '★★★',
+        'high': '★★☆',
+        'medium': '★☆☆',
+        'low': '☆☆☆'
+    };
+    
+    const icon = icons[suggestion.confidence] || '★☆☆';
+    
+    return `建議移動: 第${suggestion.row + 1}行, 第${suggestion.col + 1}列 ${icon} ${confidenceLabel}`;
 }
 
 /**
@@ -1438,6 +1471,49 @@ function createValueExplanation(value, confidence) {
     }
     
     return explanation;
+}
+
+/**
+ * 創建價值解釋的安全文本版本
+ * @param {number} value - 價值分數
+ * @param {string} confidence - 信心度
+ * @returns {string} 純文本解釋
+ */
+function createValueExplanationText(value, confidence) {
+    const roundedValue = Math.round(value);
+    
+    let explanation = `預期價值: ${roundedValue} 分`;
+    
+    // 根據價值提供詳細解釋
+    if (value >= 100) {
+        explanation += ' - 極高價值! 此移動可能直接完成一條連線，是最佳選擇。';
+    } else if (value >= 50) {
+        explanation += ' - 高價值: 此移動大幅增加完成連線的機會，強烈推薦。';
+    } else if (value >= 10) {
+        explanation += ' - 中等價值: 此移動增加未來連線的潛力，為後續回合創造機會。';
+    } else {
+        explanation += ' - 基本價值: 此移動提供基本的戰略價值，但可能不會立即產生明顯效果。';
+    }
+    
+    return explanation;
+}
+
+/**
+ * 創建替代建議的安全文本版本
+ * @param {Array} alternatives - 替代建議陣列
+ * @returns {string} 純文本字符串
+ */
+function createAlternativesText(alternatives) {
+    if (!alternatives || alternatives.length === 0) {
+        return '沒有其他建議';
+    }
+    
+    let text = '其他選擇: ';
+    const altTexts = alternatives.slice(0, 3).map(alt => 
+        `第${alt.row + 1}行第${alt.col + 1}列 (${Math.round(alt.value)}分)`
+    );
+    
+    return text + altTexts.join(', ');
 }
 
 /**

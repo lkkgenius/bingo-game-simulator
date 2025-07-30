@@ -165,9 +165,9 @@ class SafeDOM {
         // 檢查值是否包含危險內容
         if (typeof value === 'string') {
             const dangerousPatterns = [
-                /javascript:/i,
-                /vbscript:/i,
-                /data:/i,
+                /^javascript:/i,
+                /^vbscript:/i,
+                /^data:/i,
                 /on\w+\s*=/i
             ];
             

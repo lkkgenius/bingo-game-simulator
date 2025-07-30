@@ -3,6 +3,11 @@
  * Supports multiple languages with dynamic switching
  */
 
+// 確保 SafeDOM 可用
+if (typeof SafeDOM === 'undefined' && typeof require !== 'undefined') {
+    const SafeDOM = require('./safe-dom.js');
+}
+
 class I18nManager {
     constructor() {
         this.currentLanguage = 'zh-TW'; // Default language
@@ -685,12 +690,21 @@ class I18nManager {
                 loadingElement = document.createElement('div');
                 loadingElement.id = 'language-loading';
                 loadingElement.className = 'language-loading-overlay';
-                loadingElement.innerHTML = `
-                    <div class="language-loading-content">
-                        <div class="loading-spinner"></div>
-                        <div class="loading-text">${this.t('loading.language-switch')}</div>
-                    </div>
-                `;
+                SafeDOM.replaceContent(loadingElement, {
+                    tag: 'div',
+                    attributes: { class: 'language-loading-content' },
+                    children: [
+                        {
+                            tag: 'div',
+                            attributes: { class: 'loading-spinner' }
+                        },
+                        {
+                            tag: 'div',
+                            attributes: { class: 'loading-text' },
+                            textContent: this.t('loading.language-switch')
+                        }
+                    ]
+                });
                 document.body.appendChild(loadingElement);
             }
             
@@ -1093,7 +1107,7 @@ class I18nManager {
         i18nHtmlElements.forEach(element => {
             const key = element.getAttribute('data-i18n-html');
             if (key) {
-                element.innerHTML = this.t(key);
+                SafeDOM.setTextContent(element, this.t(key));
             }
         });
         
@@ -1300,16 +1314,41 @@ class I18nManager {
         }
         
         // Create enhanced message element
-        const messageElement = document.createElement('div');
-        messageElement.className = 'language-change-message';
-        messageElement.innerHTML = `
-            <div class="message-icon">🌐</div>
-            <div class="message-content">
-                <div class="message-text">${message}</div>
-                <div class="message-subtext">${languageName}</div>
-            </div>
-            <button class="message-close" aria-label="${this.t('ui.close')}">&times;</button>
-        `;
+        const messageElement = SafeDOM.createStructure({
+            tag: 'div',
+            attributes: { class: 'language-change-message' },
+            children: [
+                {
+                    tag: 'div',
+                    attributes: { class: 'message-icon' },
+                    textContent: '🌐'
+                },
+                {
+                    tag: 'div',
+                    attributes: { class: 'message-content' },
+                    children: [
+                        {
+                            tag: 'div',
+                            attributes: { class: 'message-text' },
+                            textContent: message
+                        },
+                        {
+                            tag: 'div',
+                            attributes: { class: 'message-subtext' },
+                            textContent: languageName
+                        }
+                    ]
+                },
+                {
+                    tag: 'button',
+                    attributes: { 
+                        class: 'message-close',
+                        'aria-label': this.t('ui.close')
+                    },
+                    textContent: '×'
+                }
+            ]
+        });
         
         // Apply enhanced styles
         messageElement.style.cssText = `

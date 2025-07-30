@@ -332,7 +332,7 @@ function showErrorModal(title, message, options = {}) {
     // 錯誤圖標
     const errorIcon = document.createElement('div');
     errorIcon.className = 'error-icon';
-    errorIcon.innerHTML = type === 'warning' ? '⚠️' : '❌';
+    errorIcon.textContent = type === 'warning' ? '⚠️' : '❌';
     errorIcon.style.fontSize = '2rem';
     errorIcon.style.marginBottom = '15px';
     
