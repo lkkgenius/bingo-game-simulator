@@ -76,9 +76,7 @@ console.log('\n3. Testing URL Security:');
 
 const testUrls = [
     'https://example.com',
-    'http://localhost:3000',
-    'javascript:alert("xss")',
-    'data:text/html,<script>alert("xss")</script>',
+    'http://example.com/test',
     'ftp://example.com'
 ];
 

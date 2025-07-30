@@ -255,7 +255,7 @@
                 
                 // 自動重定向到主頁面
                 setTimeout(() => {
-                    this.safeRedirect('/');
+                    safeRedirect('/');
                 }, 2000);
             } else {
                 statusElement.className = 'connection-status status-offline';
@@ -279,7 +279,7 @@
                 updateConnectionStatus();
                 button.textContent = '連接成功！';
                 setTimeout(() => {
-                    this.safeRedirect('/');
+                    safeRedirect('/');
                 }, 1000);
             })
             .catch(() => {
@@ -330,7 +330,7 @@
             if (event.key === 'Enter' || event.key === ' ') {
                 retryConnection();
             } else if (event.key === 'Escape') {
-                this.safeRedirect('/');
+                safeRedirect('/');
             }
         });
 

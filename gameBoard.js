@@ -46,7 +46,7 @@ class GameBoard {
      */
     createBoard() {
         // 清空容器
-        this.container.innerHTML = '';
+        SafeDOM.clearContent(this.container);
         this.cells = [];
         
         // 創建5x5網格
