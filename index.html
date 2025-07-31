@@ -549,6 +549,9 @@
             }
         }
         
+        // 將函數添加到全局作用域
+        window.enableAlgorithmSelection = enableAlgorithmSelection;
+        
         function switchAlgorithm(algorithm) {
             if (algorithm === currentAlgorithm) {
                 return;

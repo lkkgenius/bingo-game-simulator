@@ -304,6 +304,19 @@ function initializeGameWithProgressiveLoading() {
                             loadEnhancedAlgorithmAsync().then(() => {
                                 progressiveLoader.markComponentLoaded('Enhanced Algorithm');
                                 
+                                // 啟用增強演算法選擇
+                                if (typeof window.enableAlgorithmSelection === 'function') {
+                                    window.enableAlgorithmSelection();
+                                } else {
+                                    // 直接啟用增強演算法選項
+                                    const enhancedOption = document.querySelector('.algorithm-option[data-algorithm="enhanced"]');
+                                    if (enhancedOption) {
+                                        enhancedOption.style.opacity = '1';
+                                        enhancedOption.style.cursor = 'pointer';
+                                        enhancedOption.title = '點擊切換到增強版演算法';
+                                    }
+                                }
+                                
                                 requestAnimationFrame(() => {
                                     // Step 6: Setup UI event listeners
                                     showGlobalLoading('正在設置用戶界面...');
