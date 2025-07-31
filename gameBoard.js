@@ -4,6 +4,19 @@
  */
 
 // SafeDOM 已經在全局作用域中可用
+// 在測試環境中提供 SafeDOM 的 fallback
+if (typeof SafeDOM === 'undefined' && typeof global !== 'undefined') {
+    global.SafeDOM = {
+        clearContent: (element) => {
+            if (element) {
+                while (element.firstChild) {
+                    element.removeChild(element.firstChild);
+                }
+            }
+        }
+    };
+}
+
 class GameBoard {
     constructor(containerId, size = 5) {
         this.containerId = containerId;

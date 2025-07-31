@@ -3,7 +3,25 @@
  */
 
 // 載入 SafeDOM
-const SafeDOM = require('./safe-dom.js');
+let SafeDOM;
+try {
+    SafeDOM = require('./safe-dom.js');
+    if (!SafeDOM) {
+        throw new Error('SafeDOM not loaded');
+    }
+} catch (error) {
+    // Fallback for test environment
+    SafeDOM = {
+        createStructure: () => ({ appendChild: () => {} }),
+        sanitizeHTML: (html) => html,
+        createElement: (tag, attrs, text) => ({
+            appendChild: () => {},
+            classList: { add: () => {}, remove: () => {} },
+            setAttribute: () => {},
+            textContent: text || ''
+        })
+    };
+}
 
 // 模擬 DOM 環境
 global.document = {

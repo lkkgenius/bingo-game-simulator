@@ -429,12 +429,16 @@
         let currentAlgorithm = 'standard';
         
         window.addEventListener('load', function() {
-            // Add a small delay to ensure all scripts are fully loaded
+            // Add a longer delay to ensure all scripts are fully loaded
             setTimeout(function() {
                 console.log('Checking component loading...');
                 console.log('LineDetector:', typeof LineDetector);
                 console.log('ProbabilityCalculator:', typeof ProbabilityCalculator);
                 console.log('GameBoard:', typeof GameBoard);
+                console.log('window.GameBoard:', typeof window.GameBoard);
+                
+                // Check if GameBoard class exists in window object
+                const gameboardExists = typeof GameBoard !== 'undefined' || typeof window.GameBoard !== 'undefined';
                 
                 if (typeof LineDetector === 'undefined') {
                     alert('遊戲組件加載失敗：LineDetector');
@@ -448,26 +452,41 @@
                     StandardProbabilityCalculator = ProbabilityCalculator;
                 }
                 
-                if (typeof GameBoard === 'undefined') {
-                    alert('遊戲組件加載失敗：GameBoard');
+                if (!gameboardExists) {
+                    console.error('GameBoard not found. Retrying in 500ms...');
+                    setTimeout(function() {
+                        if (typeof GameBoard === 'undefined' && typeof window.GameBoard === 'undefined') {
+                            alert('遊戲組件加載失敗：GameBoard');
+                            return;
+                        }
+                        console.log('GameBoard found on retry');
+                        setupAlgorithmSelection();
+                        setupStartButton();
+                    }, 500);
                     return;
                 }
                 
                 console.log('All components loaded successfully');
                 setupAlgorithmSelection();
-                
-                const startButton = document.getElementById('start-game');
-                if (startButton) {
-                    startButton.addEventListener('click', function() {
-                        if (typeof startNewGame === 'function') {
-                            startNewGame();
-                        } else {
-                            alert('遊戲啟動失敗：找不到 startNewGame 函數');
-                        }
-                    });
-                }
-            }, 100); // Small delay to ensure all scripts are loaded
+                setupStartButton();
+            }, 200); // Increased delay
         });
+        
+        function setupStartButton() {
+        }
+        
+        function setupStartButton() {
+            const startButton = document.getElementById('start-game');
+            if (startButton) {
+                startButton.addEventListener('click', function() {
+                    if (typeof startNewGame === 'function') {
+                        startNewGame();
+                    } else {
+                        alert('遊戲啟動失敗：找不到 startNewGame 函數');
+                    }
+                });
+            }
+        }
         
         // Enhanced algorithm loading is now handled in script.js
         
