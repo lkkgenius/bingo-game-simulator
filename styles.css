@@ -532,26 +532,44 @@ header h1 {
 .game-cell.vertical-line,
 .game-cell.diagonal-line,
 .game-cell.anti-diagonal-line {
-    background-color: transparent;
+    background-repeat: no-repeat;
+    background-position: center center;
+    position: relative;
+}
+
+/* 為連線添加偽元素覆蓋層，確保在所有背景之上顯示 */
+.game-cell.line-completed::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* 水平線 */
+.game-cell.horizontal-line::after {
+    background-image: linear-gradient(to right, transparent 10%, #4CAF50 10%, #4CAF50 90%, transparent 90%);
+    background-size: 100% 6px;
     background-repeat: no-repeat;
     background-position: center center;
 }
 
-/* 水平線 */
-.game-cell.horizontal-line {
-    background-image: linear-gradient(to right, transparent 10%, #4CAF50 10%, #4CAF50 90%, transparent 90%);
-    background-size: 100% 6px;
-}
-
 /* 垂直線 */
-.game-cell.vertical-line {
+.game-cell.vertical-line::after {
     background-image: linear-gradient(to bottom, transparent 10%, #4CAF50 10%, #4CAF50 90%, transparent 90%);
     background-size: 6px 100%;
+    background-repeat: no-repeat;
+    background-position: center center;
 }
 
 /* 主對角線（左上到右下）*/
-.game-cell.diagonal-line {
+.game-cell.diagonal-line::after {
     background-image: linear-gradient(45deg, transparent 47%, #4CAF50 47%, #4CAF50 53%, transparent 53%);
+    background-repeat: no-repeat;
+    background-position: center center;
 }
 
 /* 反對角線（右上到左下）*/
