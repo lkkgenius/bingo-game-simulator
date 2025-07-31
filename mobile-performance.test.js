@@ -273,11 +273,11 @@ function testCacheStrategies() {
     console.log('Testing cache strategies...');
     
     const resources = [
-        { url: '/index.html', type: 'document', strategy: 'networkFirst' },
-        { url: '/styles.css', type: 'stylesheet', strategy: 'cacheFirst' },
-        { url: '/script.js', type: 'script', strategy: 'cacheFirst' },
-        { url: '/api/stats', type: 'api', strategy: 'networkFirst' },
-        { url: '/images/icon.png', type: 'image', strategy: 'staleWhileRevalidate' }
+        { url: './index.html', type: 'document', strategy: 'networkFirst' },
+        { url: './styles.css', type: 'stylesheet', strategy: 'cacheFirst' },
+        { url: './script.js', type: 'script', strategy: 'cacheFirst' },
+        { url: './api/stats', type: 'api', strategy: 'networkFirst' },
+        { url: './images/icon.png', type: 'image', strategy: 'staleWhileRevalidate' }
     ];
     
     resources.forEach(resource => {

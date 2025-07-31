@@ -3,13 +3,16 @@
  * 包含格子點擊事件處理、建議高亮顯示和連線高亮顯示功能
  */
 
-// 確保 SafeDOM 可用
-let SafeDOM;
-if (typeof window !== 'undefined' && window.SafeDOM) {
-    SafeDOM = window.SafeDOM;
-} else if (typeof require !== 'undefined') {
-    SafeDOM = require('./safe-dom.js');
-}
+// 確保 SafeDOM 可用 - 使用全局 SafeDOM 或導入
+(function() {
+    if (typeof window !== 'undefined' && window.SafeDOM) {
+        // 瀏覽器環境，使用全局 SafeDOM
+        window.GameBoardSafeDOM = window.SafeDOM;
+    } else if (typeof require !== 'undefined') {
+        // Node.js 環境
+        window.GameBoardSafeDOM = require('./safe-dom.js');
+    }
+})();
 class GameBoard {
     constructor(containerId, size = 5) {
         this.containerId = containerId;
