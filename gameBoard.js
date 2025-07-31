@@ -393,11 +393,23 @@ class GameBoard {
             return;
         }
         
-        lines.forEach(line => {
+        // 確保每條線都有有效的格子陣列
+        const validLines = lines.filter(line => {
+            return line && line.cells && Array.isArray(line.cells) && line.cells.length > 0;
+        });
+        
+        if (validLines.length === 0) {
+            console.log('No valid lines to highlight');
+            return;
+        }
+        
+        console.log(`Highlighting ${validLines.length} lines:`, validLines);
+        
+        validLines.forEach(line => {
             this.highlightSingleLine(line);
         });
         
-        this.highlightedLines = [...lines];
+        this.highlightedLines = [...validLines];
     }
 
     /**
@@ -406,22 +418,35 @@ class GameBoard {
      */
     highlightSingleLine(line) {
         if (!line || !line.cells || !Array.isArray(line.cells)) {
-            console.warn('Invalid line object provided');
+            console.warn('Invalid line object provided:', line);
             return;
         }
         
         const lineClass = this.getLineClass(line.type);
+        console.log(`Highlighting line type: ${line.type}, class: ${lineClass}, cells:`, line.cells);
         
         line.cells.forEach(([row, col]) => {
             if (this.isValidPosition(row, col)) {
                 const cell = this.cells[row][col];
+                
+                // 確保格子存在
+                if (!cell) {
+                    console.warn(`Cell not found at position (${row}, ${col})`);
+                    return;
+                }
+                
+                // 添加連線樣式
                 cell.classList.add('line-completed', lineClass);
+                
+                console.log(`Added classes to cell (${row}, ${col}):`, cell.className);
                 
                 // 更新無障礙標籤
                 const currentLabel = cell.getAttribute('aria-label');
                 if (!currentLabel.includes('完成連線')) {
                     cell.setAttribute('aria-label', `${currentLabel} - 完成連線`);
                 }
+            } else {
+                console.warn(`Invalid position for line highlight: (${row}, ${col})`);
             }
         });
     }
@@ -450,29 +475,31 @@ class GameBoard {
      * 清除所有連線高亮
      */
     clearLineHighlights() {
-        this.highlightedLines.forEach(line => {
-            if (line.cells) {
-                line.cells.forEach(([row, col]) => {
-                    if (this.isValidPosition(row, col)) {
-                        const cell = this.cells[row][col];
-                        cell.classList.remove(
-                            'line-completed',
-                            'horizontal-line',
-                            'vertical-line',
-                            'diagonal-line',
-                            'anti-diagonal-line'
-                        );
-                        
-                        // 恢復原始標籤
-                        const currentLabel = cell.getAttribute('aria-label');
+        // 清除所有格子的連線樣式
+        for (let row = 0; row < this.size; row++) {
+            for (let col = 0; col < this.size; col++) {
+                const cell = this.cells[row][col];
+                if (cell) {
+                    cell.classList.remove(
+                        'line-completed',
+                        'horizontal-line',
+                        'vertical-line',
+                        'diagonal-line',
+                        'anti-diagonal-line'
+                    );
+                    
+                    // 恢復原始標籤
+                    const currentLabel = cell.getAttribute('aria-label');
+                    if (currentLabel && currentLabel.includes(' - 完成連線')) {
                         const cleanLabel = currentLabel.replace(' - 完成連線', '');
                         cell.setAttribute('aria-label', cleanLabel);
                     }
-                });
+                }
             }
-        });
+        }
         
         this.highlightedLines = [];
+        console.log('Cleared all line highlights');
     }
 
     /**

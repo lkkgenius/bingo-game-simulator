@@ -1900,26 +1900,37 @@ const makeRandomComputerMove = throttle(function() {
 function updateCompletedLines() {
     try {
         if (!gameState || !lineDetector) {
+            console.warn('Missing gameState or lineDetector');
             return;
         }
         
         const currentBoard = gameState.getState().board;
+        console.log('Current board state:', currentBoard);
+        
         const completedLines = lineDetector.getAllLines(currentBoard);
+        console.log('Detected completed lines:', completedLines);
         
         // Update game state
         gameState.updateCompletedLines(completedLines);
         
         // Highlight lines on board
-        gameBoard.highlightLines(completedLines);
+        if (gameBoard) {
+            console.log('Highlighting lines on game board');
+            gameBoard.highlightLines(completedLines);
+        } else {
+            console.warn('GameBoard not available for highlighting');
+        }
         
         // Update completed lines counter
         const completedLinesElement = document.getElementById('completed-lines');
         if (completedLinesElement) {
             completedLinesElement.textContent = completedLines.length;
+            console.log(`Updated completed lines counter to: ${completedLines.length}`);
         }
         
     } catch (error) {
         console.error('Error updating completed lines:', error);
+        console.error('Stack trace:', error.stack);
     }
 }
 
