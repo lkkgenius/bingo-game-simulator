@@ -340,8 +340,9 @@ class GameEngine {
         const previousLineCount = this.gameState.completedLines.length;
         this.gameState.completedLines = newLines;
         
-        // 如果有新的連線完成，在UI上高亮顯示
-        if (newLines.length > previousLineCount && this.gameBoard) {
+        // 總是更新UI上的連線高亮顯示，確保顯示一致性
+        if (this.gameBoard) {
+            console.log(`Updating line highlights: ${newLines.length} lines found`);
             this.gameBoard.highlightLines(newLines);
         }
         

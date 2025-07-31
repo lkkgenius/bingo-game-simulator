@@ -522,6 +522,8 @@ class GameBoard {
                 this.updateCell(row, col, this.CELL_STATES.EMPTY);
             }
         }
+        
+        console.log('GameBoard reset completed');
     }
 
     /**
@@ -735,6 +737,24 @@ class GameBoard {
                 const cell = this.cells[row][col];
                 cell.setAttribute('tabindex', disabled ? '-1' : '0');
             }
+        }
+    }
+
+    /**
+     * 強制刷新連線顯示
+     * @param {Array} lines - 要顯示的連線陣列
+     */
+    forceRefreshLines(lines) {
+        console.log('Force refreshing line highlights');
+        
+        // 先清除所有連線高亮
+        this.clearLineHighlights();
+        
+        // 然後重新高亮顯示
+        if (Array.isArray(lines) && lines.length > 0) {
+            setTimeout(() => {
+                this.highlightLines(lines);
+            }, 50); // 短暫延遲確保清除操作完成
         }
     }
 
