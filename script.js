@@ -243,7 +243,7 @@ function loadEnhancedAlgorithmAsync() {
         }
         
         const script = document.createElement('script');
-        script.src = 'probabilityCalculator.enhanced.js';
+        script.src = './probabilityCalculator.enhanced.js';
         
         script.onload = function() {
             try {

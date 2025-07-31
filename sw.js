@@ -12,30 +12,30 @@ const OFFLINE_CACHE_NAME = `bingo-offline-v${CACHE_VERSION}`;
 
 // 需要緩存的靜態資源
 const STATIC_ASSETS = [
-    '/',
-    '/index.html',
-    '/styles.css',
-    '/script.js',
-    '/gameBoard.js',
-    '/gameEngine.js',
-    '/lineDetector.js',
-    '/probabilityCalculator.js',
-    '/probabilityCalculator.enhanced.js',
-    '/mobile-touch.js',
-    '/gesture-support.js',
-    '/performance-monitor.js',
-    '/loading-functions.js',
-    '/algorithmComparison.js',
-    '/aiLearningSystem.js',
-    '/security-utils.js',
-    '/error-boundary.js',
-    '/manifest.json'
+    './',
+    './index.html',
+    './styles.css',
+    './script.js',
+    './gameBoard.js',
+    './gameEngine.js',
+    './lineDetector.js',
+    './probabilityCalculator.js',
+    './probabilityCalculator.enhanced.js',
+    './mobile-touch.js',
+    './gesture-support.js',
+    './performance-monitor.js',
+    './loading-functions.js',
+    './algorithmComparison.js',
+    './aiLearningSystem.js',
+    './security-utils.js',
+    './error-boundary.js',
+    './manifest.json'
 ];
 
 // 離線頁面和資源
 const OFFLINE_ASSETS = [
-    '/offline.html',
-    '/offline-game.js'
+    './offline.html',
+    './offline-game.js'
 ];
 
 // 動態緩存的資源模式
