@@ -1069,6 +1069,10 @@ EnhancedProbabilityCalculator.prototype.registerWithPerformanceMonitor = functio
 
 // 如果在瀏覽器環境中，自動與全局性能監控集成
 if (typeof window !== 'undefined' && typeof performanceMonitor !== 'undefined') {
-  const enhancedCalculator = new EnhancedProbabilityCalculator();
-  enhancedCalculator.registerWithPerformanceMonitor(performanceMonitor);
+  try {
+    const enhancedCalculator = new EnhancedProbabilityCalculator();
+    enhancedCalculator.registerWithPerformanceMonitor(performanceMonitor);
+  } catch (error) {
+    console.warn('Failed to register enhanced calculator with performance monitor:', error);
+  }
 }

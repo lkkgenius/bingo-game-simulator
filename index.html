@@ -425,7 +425,7 @@
     
     <script>
         let StandardProbabilityCalculator = null;
-        let EnhancedProbabilityCalculator = null;
+        // EnhancedProbabilityCalculator will be loaded dynamically
         let currentAlgorithm = 'standard';
         
         window.addEventListener('load', function() {
@@ -478,7 +478,7 @@
                 option.addEventListener('click', function() {
                     const algorithm = this.getAttribute('data-algorithm');
                     
-                    if ((algorithm === 'enhanced' && !EnhancedProbabilityCalculator) || 
+                    if ((algorithm === 'enhanced' && typeof EnhancedProbabilityCalculator === 'undefined') || 
                         algorithm === currentAlgorithm) {
                         return;
                     }
