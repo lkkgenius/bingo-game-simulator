@@ -323,6 +323,11 @@ function initializeGameWithProgressiveLoading() {
                                     setupUIEventListeners();
                                     progressiveLoader.markComponentLoaded('UI');
                                     
+                                    // 隱藏載入狀態
+                                    if (typeof hideGlobalLoading === 'function') {
+                                        hideGlobalLoading();
+                                    }
+                                    
                                     console.log('Game initialized successfully with progressive loading');
                                 });
                             }).catch((error) => {
@@ -334,6 +339,11 @@ function initializeGameWithProgressiveLoading() {
                                     showGlobalLoading('正在設置用戶界面...');
                                     setupUIEventListeners();
                                     progressiveLoader.markComponentLoaded('UI');
+                                    
+                                    // 隱藏載入狀態
+                                    if (typeof hideGlobalLoading === 'function') {
+                                        hideGlobalLoading();
+                                    }
                                     
                                     console.log('Game initialized successfully with progressive loading');
                                 });

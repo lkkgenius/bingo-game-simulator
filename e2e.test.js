@@ -36,6 +36,9 @@ global.document = {
     dataset: {},
     style: {},
     appendChild: () => {},
+    removeChild: () => {},
+    querySelector: () => null,
+    querySelectorAll: () => [],
     addEventListener: (event, callback) => {
       // 存儲點擊回調以便測試
       if (event === 'click') {
@@ -49,11 +52,19 @@ global.document = {
   getElementById: () => ({
     innerHTML: '',
     appendChild: () => {},
+    removeChild: () => {},
+    querySelector: () => null,
+    querySelectorAll: () => [],
     addEventListener: () => {},
     classList: {
-      toggle: () => {}
+      toggle: () => {},
+      add: () => {},
+      remove: () => {},
+      contains: () => false
     }
-  })
+  }),
+  querySelector: () => null,
+  querySelectorAll: () => []
 };
 
 // 模擬 window.performance

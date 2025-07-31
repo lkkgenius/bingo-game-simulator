@@ -516,9 +516,18 @@
                 option.addEventListener('click', function() {
                     const algorithm = this.getAttribute('data-algorithm');
                     
-                    if ((algorithm === 'enhanced' && typeof EnhancedProbabilityCalculator === 'undefined') || 
-                        algorithm === currentAlgorithm) {
+                    // 檢查是否為當前演算法
+                    if (algorithm === currentAlgorithm) {
                         return;
+                    }
+                    
+                    // 檢查增強演算法是否可用
+                    if (algorithm === 'enhanced') {
+                        // 檢查按鈕是否被禁用（透明度小於1表示被禁用）
+                        const isDisabled = this.style.opacity === '0.5' || this.style.cursor === 'not-allowed';
+                        if (isDisabled) {
+                            return;
+                        }
                     }
                     
                     algorithmOptions.forEach(opt => opt.classList.remove('selected'));
