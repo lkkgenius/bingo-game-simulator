@@ -723,3 +723,8 @@ class GameBoard {
 if (typeof module !== 'undefined' && module.exports) {
     module.exports = GameBoard;
 }
+
+// 在瀏覽器環境中，將 GameBoard 添加到全局作用域
+if (typeof window !== 'undefined') {
+    window.GameBoard = GameBoard;
+}

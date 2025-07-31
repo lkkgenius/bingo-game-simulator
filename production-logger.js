@@ -16,12 +16,17 @@ class ProductionLogger {
      */
     checkDevelopmentMode() {
         // 檢查多個指標來確定是否為開發環境
+        // 在 Node.js 環境中，window 可能不存在
+        if (typeof window === 'undefined' || !window.location) {
+            return true; // 在測試環境中視為開發環境
+        }
+        
         return (
             window.location.hostname === 'localhost' ||
             window.location.hostname === '127.0.0.1' ||
             window.location.hostname.includes('dev') ||
             window.location.search.includes('debug=true') ||
-            localStorage.getItem('debug-mode') === 'true'
+            (typeof localStorage !== 'undefined' && localStorage.getItem('debug-mode') === 'true')
         );
     }
 

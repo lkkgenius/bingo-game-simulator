@@ -1028,6 +1028,11 @@ if (typeof module !== 'undefined' && module.exports) {
   module.exports = EnhancedProbabilityCalculator;
 }
 
+// 在瀏覽器環境中，將 EnhancedProbabilityCalculator 添加到全局作用域
+if (typeof window !== 'undefined') {
+    window.EnhancedProbabilityCalculator = EnhancedProbabilityCalculator;
+}
+
 /**
  * 與性能監控系統集成
  * @param {PerformanceMonitor} monitor - 性能監控實例

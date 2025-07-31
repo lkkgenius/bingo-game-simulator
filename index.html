@@ -429,19 +429,31 @@
         let currentAlgorithm = 'standard';
         
         window.addEventListener('load', function() {
-            if (typeof LineDetector === 'undefined') {
-                alert('遊戲組件加載失敗：LineDetector');
-            } else {
+            // Add a small delay to ensure all scripts are fully loaded
+            setTimeout(function() {
+                console.log('Checking component loading...');
+                console.log('LineDetector:', typeof LineDetector);
+                console.log('ProbabilityCalculator:', typeof ProbabilityCalculator);
+                console.log('GameBoard:', typeof GameBoard);
+                
+                if (typeof LineDetector === 'undefined') {
+                    alert('遊戲組件加載失敗：LineDetector');
+                    return;
+                }
+                
                 if (typeof ProbabilityCalculator === 'undefined') {
                     alert('遊戲組件加載失敗：ProbabilityCalculator');
+                    return;
                 } else {
                     StandardProbabilityCalculator = ProbabilityCalculator;
                 }
                 
                 if (typeof GameBoard === 'undefined') {
                     alert('遊戲組件加載失敗：GameBoard');
+                    return;
                 }
                 
+                console.log('All components loaded successfully');
                 setupAlgorithmSelection();
                 
                 const startButton = document.getElementById('start-game');
@@ -454,7 +466,7 @@
                         }
                     });
                 }
-            }
+            }, 100); // Small delay to ensure all scripts are loaded
         });
         
         // Enhanced algorithm loading is now handled in script.js

@@ -578,3 +578,8 @@ class ProbabilityCalculator {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = ProbabilityCalculator;
 }
+
+// 在瀏覽器環境中，將 ProbabilityCalculator 添加到全局作用域
+if (typeof window !== 'undefined') {
+    window.ProbabilityCalculator = ProbabilityCalculator;
+}

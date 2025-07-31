@@ -178,3 +178,8 @@ class LineDetector {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = LineDetector;
 }
+
+// 在瀏覽器環境中，將 LineDetector 添加到全局作用域
+if (typeof window !== 'undefined') {
+    window.LineDetector = LineDetector;
+}

@@ -1,10 +1,14 @@
 // 在Node.js環境中載入依賴模組
-let LineDetector, ProbabilityCalculator, AILearningSystem;
+let LineDetector, ProbabilityCalculator, AILearningSystem, logger;
 
 if (typeof require !== 'undefined') {
     LineDetector = require('./lineDetector.js');
     ProbabilityCalculator = require('./probabilityCalculator.js');
     AILearningSystem = require('./aiLearningSystem.js');
+    const { logger: prodLogger } = require('./production-logger.js');
+    logger = prodLogger;
+} else if (typeof window !== 'undefined' && window.logger) {
+    logger = window.logger;
 }
 
 /**
@@ -111,7 +115,7 @@ class GameEngine {
         // 觸發狀態變更事件
         this.triggerStateChange();
         
-        console.log('遊戲開始！輪到玩家選擇。');
+        if (logger) logger.info('遊戲開始！輪到玩家選擇。');
     }
 
     /**
