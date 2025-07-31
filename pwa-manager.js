@@ -50,7 +50,7 @@ class PWAManager {
     async registerServiceWorker() {
         if ('serviceWorker' in navigator) {
             try {
-                this.registration = await navigator.serviceWorker.register('/sw.js');
+                this.registration = await navigator.serviceWorker.register('./sw.js');
                 console.log('Service Worker registered successfully');
                 
                 // 監聽更新

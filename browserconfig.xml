@@ -2,13 +2,13 @@
 <browserconfig>
     <msapplication>
         <tile>
-            <square70x70logo src="/icons/icon-72x72.png"/>
-            <square150x150logo src="/icons/icon-152x152.png"/>
-            <square310x310logo src="/icons/icon-384x384.png"/>
+            <square70x70logo src="./icons/icon-72x72.png"/>
+            <square150x150logo src="./icons/icon-152x152.png"/>
+            <square310x310logo src="./icons/icon-384x384.png"/>
             <TileColor>#4A90E2</TileColor>
         </tile>
         <notification>
-            <polling-uri src="/api/notifications/poll"/>
+            <polling-uri src="./api/notifications/poll"/>
             <frequency>30</frequency>
             <cycle>1</cycle>
         </notification>

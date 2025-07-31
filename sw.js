@@ -153,7 +153,7 @@ self.addEventListener('fetch', (event) => {
     }
     
     // 跳過 Service Worker 自身的請求
-    if (url.pathname === '/sw.js') {
+    if (url.pathname.endsWith('/sw.js')) {
         return;
     }
     
@@ -461,7 +461,7 @@ function isSecureRequest(request) {
  */
 async function getOfflineResponse(request) {
     // 嘗試從離線緩存獲取
-    const offlineResponse = await caches.match('/offline.html', {
+    const offlineResponse = await caches.match('./offline.html', {
         cacheName: OFFLINE_CACHE_NAME
     });
     
@@ -539,20 +539,20 @@ self.addEventListener('push', (event) => {
     const data = event.data.json();
     const options = {
         body: data.body,
-        icon: '/icons/icon-192x192.png',
-        badge: '/icons/badge-72x72.png',
+        icon: './icons/icon-192x192.png',
+        badge: './icons/badge-72x72.png',
         vibrate: [100, 50, 100],
         data: data.data,
         actions: [
             {
                 action: 'open',
                 title: '打開遊戲',
-                icon: '/icons/open-96x96.png'
+                icon: './icons/open-96x96.png'
             },
             {
                 action: 'close',
                 title: '關閉',
-                icon: '/icons/close-96x96.png'
+                icon: './icons/close-96x96.png'
             }
         ]
     };
