@@ -438,6 +438,9 @@ class GameBoard {
                 // 添加連線樣式
                 cell.classList.add('line-completed', lineClass);
                 
+                // 創建連線覆蓋層
+                this.createLineOverlay(cell, line.type);
+                
                 console.log(`Added classes to cell (${row}, ${col}):`, cell.className);
                 
                 // 更新無障礙標籤
@@ -487,6 +490,9 @@ class GameBoard {
                         'diagonal-line',
                         'anti-diagonal-line'
                     );
+                    
+                    // 清除連線覆蓋層
+                    this.clearLineOverlay(cell);
                     
                     // 恢復原始標籤
                     const currentLabel = cell.getAttribute('aria-label');
@@ -755,6 +761,65 @@ class GameBoard {
             setTimeout(() => {
                 this.highlightLines(lines);
             }, 50); // 短暫延遲確保清除操作完成
+        }
+    }
+
+    /**
+     * 創建連線覆蓋層
+     * @param {HTMLElement} cell - 格子元素
+     * @param {string} lineType - 連線類型
+     */
+    createLineOverlay(cell, lineType) {
+        // 清除現有的連線覆蓋層
+        const existingOverlay = cell.querySelector('.line-overlay');
+        if (existingOverlay) {
+            cell.removeChild(existingOverlay);
+        }
+        
+        const overlay = document.createElement('div');
+        overlay.className = 'line-overlay';
+        overlay.style.cssText = `
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            pointer-events: none;
+            z-index: 1;
+        `;
+        
+        // 根據連線類型設置不同的背景
+        switch (lineType) {
+            case this.LINE_TYPES.HORIZONTAL:
+                overlay.style.backgroundImage = 'linear-gradient(to right, transparent 10%, #4CAF50 10%, #4CAF50 90%, transparent 90%)';
+                overlay.style.backgroundSize = '100% 6px';
+                break;
+            case this.LINE_TYPES.VERTICAL:
+                overlay.style.backgroundImage = 'linear-gradient(to bottom, transparent 10%, #4CAF50 10%, #4CAF50 90%, transparent 90%)';
+                overlay.style.backgroundSize = '6px 100%';
+                break;
+            case this.LINE_TYPES.DIAGONAL_MAIN:
+                overlay.style.backgroundImage = 'linear-gradient(45deg, transparent 47%, #4CAF50 47%, #4CAF50 53%, transparent 53%)';
+                break;
+            case this.LINE_TYPES.DIAGONAL_ANTI:
+                overlay.style.backgroundImage = 'linear-gradient(-45deg, transparent 47%, #4CAF50 47%, #4CAF50 53%, transparent 53%)';
+                break;
+        }
+        
+        overlay.style.backgroundRepeat = 'no-repeat';
+        overlay.style.backgroundPosition = 'center center';
+        
+        cell.appendChild(overlay);
+    }
+
+    /**
+     * 清除格子的連線覆蓋層
+     * @param {HTMLElement} cell - 格子元素
+     */
+    clearLineOverlay(cell) {
+        const overlay = cell.querySelector('.line-overlay');
+        if (overlay) {
+            cell.removeChild(overlay);
         }
     }
 
