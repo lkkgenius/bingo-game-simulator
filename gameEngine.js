@@ -343,7 +343,12 @@ class GameEngine {
         // 總是更新UI上的連線高亮顯示，確保顯示一致性
         if (this.gameBoard) {
             console.log(`Updating line highlights: ${newLines.length} lines found`);
-            this.gameBoard.highlightLines(newLines);
+            // 使用強制刷新方法確保連線正確顯示
+            if (typeof this.gameBoard.forceRefreshLines === 'function') {
+                this.gameBoard.forceRefreshLines(newLines);
+            } else {
+                this.gameBoard.highlightLines(newLines);
+            }
         }
         
         if (newLines.length > previousLineCount) {

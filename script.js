@@ -1913,10 +1913,10 @@ function updateCompletedLines() {
         // Update game state
         gameState.updateCompletedLines(completedLines);
         
-        // Highlight lines on board
+        // Force refresh lines on board to ensure they display correctly
         if (gameBoard) {
-            console.log('Highlighting lines on game board');
-            gameBoard.highlightLines(completedLines);
+            console.log('Force refreshing lines on game board');
+            gameBoard.forceRefreshLines(completedLines);
         } else {
             console.warn('GameBoard not available for highlighting');
         }
