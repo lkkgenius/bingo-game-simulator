@@ -1199,6 +1199,9 @@ function startNewGame() {
         
         console.log('New game started successfully');
         
+        // 初始化調試功能
+        initializeDebugPanel();
+        
     } catch (error) {
         console.error('Error starting new game:', error);
         alert('開始新遊戲失敗：' + error.message);
@@ -2111,6 +2114,279 @@ function handlePlayAgain() {
         console.log('Starting new game from results panel');
     } catch (error) {
         console.error('Error handling play again:', error);
+    }
+}
+
+/**
+ * 調試功能
+ */
+let debugMode = false;
+
+function initializeDebugPanel() {
+    // 檢查是否在開發環境或有特殊參數
+    const urlParams = new URLSearchParams(window.location.search);
+    const showDebug = urlParams.get('debug') === 'true' || 
+                     window.location.hostname === 'localhost' || 
+                     window.location.hostname === '127.0.0.1';
+    
+    // 在開發環境下顯示調試提示
+    const debugHint = document.getElementById('debug-hint');
+    if (debugHint && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+        debugHint.style.display = 'block';
+    }
+    
+    if (showDebug) {
+        enableDebugMode();
+    }
+    
+    // 添加鍵盤快捷鍵 Ctrl+Shift+D 來切換調試模式
+    document.addEventListener('keydown', function(event) {
+        if (event.ctrlKey && event.shiftKey && event.key === 'D') {
+            event.preventDefault();
+            toggleDebugMode();
+        }
+    });
+}
+
+function enableDebugMode() {
+    debugMode = true;
+    const debugPanel = document.getElementById('debug-panel');
+    if (debugPanel) {
+        debugPanel.style.display = 'block';
+        document.body.classList.add('debug-mode');
+        setupDebugEventListeners();
+        logDebug('調試模式已啟用', 'success');
+    }
+}
+
+function disableDebugMode() {
+    debugMode = false;
+    const debugPanel = document.getElementById('debug-panel');
+    if (debugPanel) {
+        debugPanel.style.display = 'none';
+        document.body.classList.remove('debug-mode');
+        logDebug('調試模式已禁用', 'warning');
+    }
+}
+
+function toggleDebugMode() {
+    if (debugMode) {
+        disableDebugMode();
+    } else {
+        enableDebugMode();
+    }
+}
+
+function setupDebugEventListeners() {
+    const debugButtons = {
+        'debug-test-horizontal': testHorizontalLine,
+        'debug-test-vertical': testVerticalLine,
+        'debug-test-diagonal': testDiagonalLine,
+        'debug-test-multiple': testMultipleLines,
+        'debug-clear-board': clearDebugBoard,
+        'debug-force-refresh': forceRefreshLines
+    };
+    
+    Object.entries(debugButtons).forEach(([id, handler]) => {
+        const button = document.getElementById(id);
+        if (button) {
+            button.addEventListener('click', handler);
+        }
+    });
+}
+
+function logDebug(message, type = 'info') {
+    const debugInfo = document.getElementById('debug-info');
+    if (debugInfo) {
+        const p = document.createElement('p');
+        p.className = `debug-${type}`;
+        p.textContent = `${new Date().toLocaleTimeString()}: ${message}`;
+        debugInfo.appendChild(p);
+        debugInfo.scrollTop = debugInfo.scrollHeight;
+        
+        // 限制日誌條目數量
+        const logs = debugInfo.querySelectorAll('p');
+        if (logs.length > 50) {
+            debugInfo.removeChild(logs[0]);
+        }
+    }
+    console.log(`[DEBUG] ${message}`);
+}
+
+function testHorizontalLine() {
+    logDebug('測試水平線...', 'info');
+    
+    try {
+        // 創建一個有水平線的測試板
+        const testBoard = [
+            [1, 1, 1, 1, 1], // 第一行完成
+            [0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0],
+            [0, 0, 0, 0, 0]
+        ];
+        
+        // 更新遊戲板顯示
+        if (gameBoard) {
+            gameBoard.updateBoard(testBoard);
+            
+            // 檢測連線
+            if (lineDetector) {
+                const lines = lineDetector.getAllLines(testBoard);
+                logDebug(`檢測到 ${lines.length} 條連線`, 'success');
+                
+                // 高亮顯示連線
+                gameBoard.highlightLines(lines);
+                logDebug('水平線測試完成', 'success');
+            } else {
+                logDebug('LineDetector 未初始化', 'error');
+            }
+        } else {
+            logDebug('GameBoard 未初始化', 'error');
+        }
+    } catch (error) {
+        logDebug(`水平線測試失敗: ${error.message}`, 'error');
+    }
+}
+
+function testVerticalLine() {
+    logDebug('測試垂直線...', 'info');
+    
+    try {
+        const testBoard = [
+            [2, 0, 0, 0, 0], // 第一列完成
+            [2, 0, 0, 0, 0],
+            [2, 0, 0, 0, 0],
+            [2, 0, 0, 0, 0],
+            [2, 0, 0, 0, 0]
+        ];
+        
+        if (gameBoard) {
+            gameBoard.updateBoard(testBoard);
+            
+            if (lineDetector) {
+                const lines = lineDetector.getAllLines(testBoard);
+                logDebug(`檢測到 ${lines.length} 條連線`, 'success');
+                gameBoard.highlightLines(lines);
+                logDebug('垂直線測試完成', 'success');
+            } else {
+                logDebug('LineDetector 未初始化', 'error');
+            }
+        } else {
+            logDebug('GameBoard 未初始化', 'error');
+        }
+    } catch (error) {
+        logDebug(`垂直線測試失敗: ${error.message}`, 'error');
+    }
+}
+
+function testDiagonalLine() {
+    logDebug('測試對角線...', 'info');
+    
+    try {
+        const testBoard = [
+            [1, 0, 0, 0, 0], // 主對角線完成
+            [0, 1, 0, 0, 0],
+            [0, 0, 1, 0, 0],
+            [0, 0, 0, 1, 0],
+            [0, 0, 0, 0, 1]
+        ];
+        
+        if (gameBoard) {
+            gameBoard.updateBoard(testBoard);
+            
+            if (lineDetector) {
+                const lines = lineDetector.getAllLines(testBoard);
+                logDebug(`檢測到 ${lines.length} 條連線`, 'success');
+                gameBoard.highlightLines(lines);
+                logDebug('對角線測試完成', 'success');
+            } else {
+                logDebug('LineDetector 未初始化', 'error');
+            }
+        } else {
+            logDebug('GameBoard 未初始化', 'error');
+        }
+    } catch (error) {
+        logDebug(`對角線測試失敗: ${error.message}`, 'error');
+    }
+}
+
+function testMultipleLines() {
+    logDebug('測試多條線...', 'info');
+    
+    try {
+        const testBoard = [
+            [1, 1, 1, 1, 1], // 水平線
+            [2, 0, 0, 0, 2], // 反對角線的一部分
+            [2, 0, 1, 0, 2],
+            [2, 0, 0, 1, 2],
+            [2, 0, 0, 0, 1]  // 垂直線 + 反對角線
+        ];
+        
+        if (gameBoard) {
+            gameBoard.updateBoard(testBoard);
+            
+            if (lineDetector) {
+                const lines = lineDetector.getAllLines(testBoard);
+                logDebug(`檢測到 ${lines.length} 條連線`, 'success');
+                
+                lines.forEach((line, index) => {
+                    logDebug(`連線 ${index + 1}: ${line.type}`, 'info');
+                });
+                
+                gameBoard.highlightLines(lines);
+                logDebug('多條線測試完成', 'success');
+            } else {
+                logDebug('LineDetector 未初始化', 'error');
+            }
+        } else {
+            logDebug('GameBoard 未初始化', 'error');
+        }
+    } catch (error) {
+        logDebug(`多條線測試失敗: ${error.message}`, 'error');
+    }
+}
+
+function clearDebugBoard() {
+    logDebug('清空測試板...', 'info');
+    
+    try {
+        const emptyBoard = Array(5).fill().map(() => Array(5).fill(0));
+        
+        if (gameBoard) {
+            gameBoard.updateBoard(emptyBoard);
+            gameBoard.clearAllHighlights();
+            logDebug('測試板已清空', 'success');
+        } else {
+            logDebug('GameBoard 未初始化', 'error');
+        }
+    } catch (error) {
+        logDebug(`清空測試板失敗: ${error.message}`, 'error');
+    }
+}
+
+function forceRefreshLines() {
+    logDebug('強制刷新連線...', 'info');
+    
+    try {
+        if (gameState && lineDetector && gameBoard) {
+            const currentBoard = gameState.getState().board;
+            const lines = lineDetector.getAllLines(currentBoard);
+            
+            logDebug(`當前遊戲板有 ${lines.length} 條連線`, 'info');
+            
+            if (typeof gameBoard.forceRefreshLines === 'function') {
+                gameBoard.forceRefreshLines(lines);
+                logDebug('使用 forceRefreshLines 刷新', 'success');
+            } else {
+                gameBoard.highlightLines(lines);
+                logDebug('使用 highlightLines 刷新', 'success');
+            }
+        } else {
+            logDebug('遊戲組件未完全初始化', 'error');
+        }
+    } catch (error) {
+        logDebug(`強制刷新失敗: ${error.message}`, 'error');
     }
 }
 
