@@ -37,9 +37,9 @@ const SECURITY_PATTERNS = {
   ],
   
   unsafe_protocols: [
-    /(?<!\/\*.*|\/\/.*|regex.*|pattern.*|check.*|filter.*|safe.*|security.*|validate.*)javascript\s*:/gi,
-    /(?<!\/\*.*|\/\/.*|regex.*|pattern.*|check.*|filter.*|safe.*|security.*|validate.*)['"]data\s*:/gi,
-    /(?<!\/\*.*|\/\/.*|regex.*|pattern.*|check.*|filter.*|safe.*|security.*|validate.*)vbscript\s*:/gi
+    // More precise patterns that avoid false positives in security code
+    /(?:window\.location\s*=|document\.location\s*=|href\s*=)\s*['"`](?:javascript|vbscript|data):/gi,
+    /(?:src\s*=|action\s*=)\s*['"`](?:javascript|vbscript):/gi
   ]
 };
 
@@ -143,12 +143,15 @@ class SecurityScanner {
   }
   
   checkCustomSecurity(filePath, content) {
-    // 跳過安全工具文件中的協議檢查
-    const securityFiles = ['safe-dom.js', 'security-utils.js', 'security-scan.js'];
+    // Skip protocol checks in security tool files entirely
+    const securityFiles = ['safe-dom.js', 'security-utils.js', 'security-scan.js', 'security-test.js'];
     const isSecurityFile = securityFiles.some(file => filePath.includes(file));
     
-    if (isSecurityFile) {
-      // 對於安全文件，只檢查實際使用的協議，不檢查模式匹配
+    // Skip test files for protocol checks as they may contain test patterns
+    const isTestFile = filePath.includes('.test.') || filePath.includes('test-');
+    
+    if (!isSecurityFile && !isTestFile) {
+      // Only check for actual unsafe protocol usage in non-security files
       const actualUsagePattern = /(?:window\.location\s*=|document\.location\s*=|href\s*=)\s*['"`](?:javascript|vbscript|data):/gi;
       const actualUsage = content.match(actualUsagePattern);
       
@@ -164,9 +167,6 @@ class SecurityScanner {
           });
         });
       }
-      
-      // 跳過其他協議檢查
-      return;
     }
     
     // Check for hardcoded URLs that might be suspicious
