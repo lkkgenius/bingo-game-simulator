@@ -172,8 +172,10 @@ class GameEngine {
         // 轉換到電腦輸入階段
         this.gameState.gamePhase = this.GAME_PHASES.COMPUTER_INPUT;
         
-        console.log(`玩家選擇了位置 (${row}, ${col})`);
-        console.log('請輸入電腦的選擇...');
+        if (logger) {
+            logger.info(`玩家選擇了位置 (${row}, ${col})`);
+            logger.info('請輸入電腦的選擇...');
+        }
         
         // 觸發狀態變更事件
         this.triggerStateChange();
@@ -211,7 +213,9 @@ class GameEngine {
             // 完成當前回合
             this.completeRound();
             
-            console.log(`電腦選擇了位置 (${row}, ${col})`);
+            if (logger) {
+                logger.info(`電腦選擇了位置 (${row}, ${col})`);
+            }
             
         } catch (error) {
             this.triggerError(error.message);
@@ -243,8 +247,10 @@ class GameEngine {
         // 觸發狀態變更事件
         this.triggerStateChange();
         
-        console.log(`第 ${this.gameState.currentRound - 1} 回合完成！`);
-        console.log(`開始第 ${this.gameState.currentRound} 回合，輪到玩家選擇。`);
+        if (logger) {
+            logger.info(`第 ${this.gameState.currentRound - 1} 回合完成！`);
+            logger.info(`開始第 ${this.gameState.currentRound} 回合，輪到玩家選擇。`);
+        }
     }
 
     /**
@@ -274,8 +280,10 @@ class GameEngine {
         // 觸發狀態變更事件
         this.triggerStateChange();
         
-        console.log('遊戲結束！');
-        console.log(`最終結果：完成了 ${finalStats.totalLines} 條連線`);
+        if (logger) {
+            logger.info('遊戲結束！');
+            logger.info(`最終結果：完成了 ${finalStats.totalLines} 條連線`);
+        }
         
         // 顯示學習統計
         if (this.useAILearning) {
