@@ -288,7 +288,9 @@ class GameEngine {
         // 顯示學習統計
         if (this.useAILearning) {
             const learningStats = this.aiLearningSystem.getLearningStats();
-            console.log('AI學習統計:', learningStats);
+            if (logger) {
+                logger.info('AI學習統計:', learningStats);
+            }
         }
     }
 
@@ -332,9 +334,13 @@ class GameEngine {
                 this.gameBoard.highlightSuggestion(suggestion.row, suggestion.col);
             }
             
-            console.log(`建議移動：(${suggestion.row}, ${suggestion.col})，價值：${suggestion.value}`);
+            if (logger) {
+                logger.info(`建議移動：(${suggestion.row}, ${suggestion.col})，價值：${suggestion.value}`);
+            }
         } else {
-            console.log('沒有可用的移動建議');
+            if (logger) {
+                logger.info('沒有可用的移動建議');
+            }
         }
     }
 
@@ -350,7 +356,9 @@ class GameEngine {
         
         // 總是更新UI上的連線高亮顯示，確保顯示一致性
         if (this.gameBoard) {
-            console.log(`Updating line highlights: ${newLines.length} lines found`);
+            if (logger) {
+                logger.debug(`Updating line highlights: ${newLines.length} lines found`);
+            }
             // 使用強制刷新方法確保連線正確顯示
             if (typeof this.gameBoard.forceRefreshLines === 'function') {
                 this.gameBoard.forceRefreshLines(newLines);
@@ -361,7 +369,9 @@ class GameEngine {
         
         if (newLines.length > previousLineCount) {
             const newLineCount = newLines.length - previousLineCount;
-            console.log(`完成了 ${newLineCount} 條新連線！總共 ${newLines.length} 條連線。`);
+            if (logger) {
+                logger.info(`完成了 ${newLineCount} 條新連線！總共 ${newLines.length} 條連線。`);
+            }
         }
     }
 
@@ -504,7 +514,9 @@ class GameEngine {
      * @param {string} message - 錯誤訊息
      */
     triggerError(message) {
-        console.error('遊戲錯誤：', message);
+        if (logger) {
+            logger.error('遊戲錯誤：', message);
+        }
         
         if (this.onError) {
             this.onError(message);
@@ -530,7 +542,9 @@ class GameEngine {
             this.gameBoard.reset();
         }
         
-        console.log('遊戲已重置');
+        if (logger) {
+            logger.info('遊戲已重置');
+        }
     }
 
     /**
@@ -648,9 +662,13 @@ class GameEngine {
         const validModes = ['adaptive', 'personalized', 'traditional'];
         if (validModes.includes(mode)) {
             this.learningMode = mode;
-            console.log(`AI學習模式設置為: ${mode}`);
+            if (logger) {
+                logger.info(`AI學習模式設置為: ${mode}`);
+            }
         } else {
-            console.warn(`無效的學習模式: ${mode}`);
+            if (logger) {
+                logger.warn(`無效的學習模式: ${mode}`);
+            }
         }
     }
 
@@ -660,7 +678,9 @@ class GameEngine {
      */
     setAILearningEnabled(enabled) {
         this.useAILearning = enabled;
-        console.log(`AI學習系統${enabled ? '已啟用' : '已禁用'}`);
+        if (logger) {
+            logger.info(`AI學習系統${enabled ? '已啟用' : '已禁用'}`);
+        }
     }
 
     /**
@@ -680,7 +700,9 @@ class GameEngine {
     resetAILearning() {
         if (this.aiLearningSystem) {
             this.aiLearningSystem = new AILearningSystem();
-            console.log('AI學習數據已重置');
+            if (logger) {
+                logger.info('AI學習數據已重置');
+            }
         }
     }
 
@@ -756,9 +778,13 @@ class GameEngine {
                 if (learningData.performanceMetrics) {
                     this.aiLearningSystem.performanceMetrics = learningData.performanceMetrics;
                 }
-                console.log('學習數據導入成功');
+                if (logger) {
+                    logger.info('學習數據導入成功');
+                }
             } catch (error) {
-                console.error('學習數據導入失敗:', error);
+                if (logger) {
+                    logger.error('學習數據導入失敗:', error);
+                }
             }
         }
     }
