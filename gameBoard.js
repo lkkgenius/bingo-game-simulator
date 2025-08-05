@@ -17,6 +17,20 @@ if (typeof SafeDOM === 'undefined' && typeof global !== 'undefined') {
     };
 }
 
+// Logger 初始化
+let logger;
+if (typeof window !== 'undefined' && window.logger) {
+    logger = window.logger;
+} else if (typeof require !== 'undefined') {
+    try {
+        const { logger: prodLogger } = require('./production-logger.js');
+        logger = prodLogger;
+    } catch (e) {
+        // Fallback if production-logger is not available
+        logger = null;
+    }
+}
+
 class GameBoard {
     constructor(containerId, size = 5) {
         this.containerId = containerId;
@@ -150,7 +164,9 @@ class GameBoard {
      */
     updateCell(row, col, state) {
         if (!this.isValidPosition(row, col)) {
-            console.warn(`Invalid position: (${row}, ${col})`);
+            if (logger) {
+                logger.warn(`Invalid position: (${row}, ${col})`);
+            }
             return;
         }
         
@@ -174,7 +190,9 @@ class GameBoard {
                 cell.setAttribute('aria-label', `電腦格子 ${row + 1}, ${col + 1}`);
                 break;
             default:
-                console.warn(`Unknown cell state: ${state}`);
+                if (logger) {
+                    logger.warn(`Unknown cell state: ${state}`);
+                }
                 cell.classList.add('empty');
         }
     }
@@ -185,7 +203,9 @@ class GameBoard {
      */
     updateBoard(board) {
         if (!this.isValidBoard(board)) {
-            console.error('Invalid board provided to updateBoard');
+            if (logger) {
+                logger.error('Invalid board provided to updateBoard');
+            }
             return;
         }
         
@@ -210,7 +230,9 @@ class GameBoard {
         this.clearSuggestionHighlight();
         
         if (!this.isValidPosition(row, col)) {
-            console.warn(`Invalid suggestion position: (${row}, ${col})`);
+            if (logger) {
+                logger.warn(`Invalid suggestion position: (${row}, ${col})`);
+            }
             return;
         }
         
@@ -218,7 +240,9 @@ class GameBoard {
         
         // 只有空白格子才能被建議
         if (!cell.classList.contains('empty')) {
-            console.warn(`Cannot suggest occupied cell: (${row}, ${col})`);
+            if (logger) {
+                logger.warn(`Cannot suggest occupied cell: (${row}, ${col})`);
+            }
             return;
         }
         
@@ -389,7 +413,9 @@ class GameBoard {
         this.clearLineHighlights();
         
         if (!Array.isArray(lines)) {
-            console.warn('Lines parameter must be an array');
+            if (logger) {
+                logger.warn('Lines parameter must be an array');
+            }
             return;
         }
         
