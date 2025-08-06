@@ -571,7 +571,9 @@ class GameBoard {
             }
         }
         
-        console.log('GameBoard reset completed');
+        if (logger) {
+            logger.info('GameBoard reset completed');
+        }
     }
 
     /**
@@ -793,7 +795,9 @@ class GameBoard {
      * @param {Array} lines - 要顯示的連線陣列
      */
     forceRefreshLines(lines) {
-        console.log('Force refreshing line highlights');
+        if (logger) {
+            logger.debug('Force refreshing line highlights');
+        }
         
         // 先清除所有連線高亮
         this.clearLineHighlights();
