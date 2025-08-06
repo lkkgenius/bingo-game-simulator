@@ -1308,7 +1308,9 @@ class I18nManager {
      */
     trackLanguageChange(language) {
         // This could be extended to send analytics data
-        console.log(`Language switched to: ${language}`);
+        if (logger) {
+            logger.info(`Language switched to: ${language}`);
+        }
         
         // Example: Send to analytics service
         if (typeof gtag !== 'undefined') {

@@ -8,6 +8,20 @@ if (typeof SafeDOM === 'undefined' && typeof require !== 'undefined') {
     const SafeDOM = require('./safe-dom.js');
 }
 
+// Logger 初始化
+let logger;
+if (typeof window !== 'undefined' && window.logger) {
+    logger = window.logger;
+} else if (typeof require !== 'undefined') {
+    try {
+        const { logger: prodLogger } = require('./production-logger.js');
+        logger = prodLogger;
+    } catch (e) {
+        // Fallback if production-logger is not available
+        logger = null;
+    }
+}
+
 class PWAManager {
     constructor() {
         this.deferredPrompt = null;
@@ -39,7 +53,9 @@ class PWAManager {
                           window.navigator.standalone === true;
         
         if (this.isInstalled) {
-            console.log('PWA is installed');
+            if (logger) {
+                logger.info('PWA is installed');
+            }
             document.body.classList.add('pwa-installed');
         }
     }
@@ -51,7 +67,9 @@ class PWAManager {
         if ('serviceWorker' in navigator) {
             try {
                 this.registration = await navigator.serviceWorker.register('./sw.js');
-                console.log('Service Worker registered successfully');
+                if (logger) {
+                    logger.info('Service Worker registered successfully');
+                }
                 
                 // 監聽更新
                 this.registration.addEventListener('updatefound', () => {
@@ -64,7 +82,9 @@ class PWAManager {
                 }
                 
             } catch (error) {
-                console.error('Service Worker registration failed:', error);
+                if (logger) {
+                    logger.error('Service Worker registration failed:', error);
+                }
             }
         }
     }
@@ -95,7 +115,9 @@ class PWAManager {
         
         // 監聽安裝完成
         window.addEventListener('appinstalled', () => {
-            console.log('PWA installed successfully');
+            if (logger) {
+                logger.info('PWA installed successfully');
+            }
             this.isInstalled = true;
             this.hideInstallPrompt();
             this.showInstallSuccessMessage();
@@ -196,9 +218,13 @@ class PWAManager {
             const { outcome } = await this.deferredPrompt.userChoice;
             
             if (outcome === 'accepted') {
-                console.log('User accepted the install prompt');
+                if (logger) {
+                    logger.info('User accepted the install prompt');
+                }
             } else {
-                console.log('User dismissed the install prompt');
+                if (logger) {
+                    logger.info('User dismissed the install prompt');
+                }
             }
             
             this.deferredPrompt = null;
