@@ -8,7 +8,7 @@ if (typeof SafeDOM === 'undefined' && typeof require !== 'undefined') {
     const SafeDOM = require('./safe-dom.js');
 }
 
-// Logger 初始化
+// Logger 初始化 - 避免重複宣告
 let logger;
 if (typeof window !== 'undefined' && window.logger) {
     logger = window.logger;
