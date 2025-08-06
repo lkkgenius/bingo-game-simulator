@@ -12,15 +12,17 @@ if (typeof SafeDOM === 'undefined' && typeof require !== 'undefined') {
 const getLogger = () => {
     if (typeof window !== 'undefined' && window.logger) {
         return window.logger;
-} else if (typeof require !== 'undefined') {
-    try {
-        const { logger: prodLogger } = require('./production-logger.js');
-        logger = prodLogger;
-    } catch (e) {
-        // Fallback if production-logger is not available
-        logger = null;
+    } else if (typeof require !== 'undefined') {
+        try {
+            const { logger: prodLogger } = require('./production-logger.js');
+            return prodLogger;
+        } catch (e) {
+            return null;
+        }
     }
-}
+    return null;
+};
+const logger = getLogger();
 
 class PWAManager {
     constructor() {

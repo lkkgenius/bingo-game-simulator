@@ -8,19 +8,21 @@ if (typeof SafeDOM === 'undefined' && typeof require !== 'undefined') {
     const SafeDOM = require('./safe-dom.js');
 }
 
-// Logger 初始化 - 避免重複宣告
-let logger;
-if (typeof window !== 'undefined' && window.logger) {
-    logger = window.logger;
-} else if (typeof require !== 'undefined') {
-    try {
-        const { logger: prodLogger } = require('./production-logger.js');
-        logger = prodLogger;
-    } catch (e) {
-        // Fallback if production-logger is not available
-        logger = null;
+// Logger 初始化 - 使用函數作用域避免全局衝突
+const getLogger = () => {
+    if (typeof window !== 'undefined' && window.logger) {
+        return window.logger;
+    } else if (typeof require !== 'undefined') {
+        try {
+            const { logger: prodLogger } = require('./production-logger.js');
+            return prodLogger;
+        } catch (e) {
+            return null;
+        }
     }
-}
+    return null;
+};
+const logger = getLogger();
 
 class I18nManager {
     constructor() {
