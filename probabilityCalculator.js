@@ -1,48 +1,93 @@
 /**
- * ProbabilityCalculator - 負責計算移動價值和提供最佳移動建議
- * 分析遊戲板狀態，計算每個可能移動的價值，並建議最佳選擇
+ * ProbabilityCalculator - 標準機率計算器
+ * 
+ * 這個類別負責分析遊戲狀態並提供移動建議，核心功能包括：
+ * - 計算每個可能移動的價值分數
+ * - 分析連線完成的機率和潛力
+ * - 評估合作連線的價值（玩家與電腦合作）
+ * - 提供最佳移動建議和理由說明
+ * - 支持不同的評估策略和權重配置
+ * 
+ * 演算法特點：
+ * - 基於啟發式評估函數
+ * - 考慮即時完成和潛在價值
+ * - 支持合作模式的特殊邏輯
+ * - 使用緩存機制提升性能
+ * 
+ * 評估因素：
+ * - 直接完成連線的價值最高
+ * - 幫助完成混合連線有中等價值
+ * - 增加未來連線潛力有基礎價值
+ * - 戰略位置（如中心）有額外獎勵
+ * 
+ * @class ProbabilityCalculator
+ * @version 1.0.0
  */
 class ProbabilityCalculator {
+  /**
+   * 創建標準機率計算器實例
+   * 初始化評估參數和配置
+   */
   constructor() {
-    this.BOARD_SIZE = 5;
+    // 遊戲板配置
+    this.BOARD_SIZE = 5;        // 遊戲板大小
+    
+    // 格子狀態定義（與其他組件保持一致）
     this.CELL_STATES = {
-      EMPTY: 0,
-      PLAYER: 1,
-      COMPUTER: 2
-    };
-    this.LINE_TYPES = {
-      HORIZONTAL: 'horizontal',
-      VERTICAL: 'vertical',
-      DIAGONAL_MAIN: 'diagonal-main',
-      DIAGONAL_ANTI: 'diagonal-anti'
+      EMPTY: 0,       // 空格子
+      PLAYER: 1,      // 玩家選擇
+      COMPUTER: 2     // 電腦選擇
     };
     
-    // 權重設定
+    // 連線類型定義
+    this.LINE_TYPES = {
+      HORIZONTAL: 'horizontal',         // 水平連線
+      VERTICAL: 'vertical',             // 垂直連線
+      DIAGONAL_MAIN: 'diagonal-main',   // 主對角線
+      DIAGONAL_ANTI: 'diagonal-anti'    // 反對角線
+    };
+    
+    // 評估權重配置
+    // 這些權重決定了不同類型移動的相對重要性
     this.WEIGHTS = {
-      COMPLETE_LINE: 100,      // 完成一條線的價值
-      COOPERATIVE_LINE: 50,    // 幫助完成混合連線的價值
-      POTENTIAL_LINE: 10,      // 潛在連線的價值
-      CENTER_BONUS: 5          // 中心位置的額外價值
+      COMPLETE_LINE: 100,      // 直接完成一條連線的價值（最高優先級）
+      COOPERATIVE_LINE: 50,    // 幫助完成混合連線的價值（中等優先級）
+      POTENTIAL_LINE: 10,      // 增加潛在連線機會的價值（基礎價值）
+      CENTER_BONUS: 5          // 中心位置的戰略獎勵（額外獎勵）
     };
   }
 
   /**
-   * 計算特定移動的價值（優化版本）
-   * @param {number[][]} board - 當前遊戲板狀態
-   * @param {number} row - 移動的行位置
-   * @param {number} col - 移動的列位置
-   * @returns {number} 移動的價值分數
+   * 計算特定移動的價值分數（優化版本）
+   * 
+   * 這是核心評估函數，分析在指定位置放置玩家棋子的價值。
+   * 評估考慮多個因素：直接完成連線、合作潛力、戰略位置等。
+   * 
+   * 評估流程：
+   * 1. 驗證移動的有效性
+   * 2. 檢查緩存以避免重複計算
+   * 3. 分析各個方向的連線價值
+   * 4. 計算合作連線的潛力
+   * 5. 添加位置獎勵
+   * 6. 緩存結果並返回
+   * 
+   * @param {number[][]} board - 當前遊戲板狀態（5x5 二維陣列）
+   * @param {number} row - 移動的行位置（0-4）
+   * @param {number} col - 移動的列位置（0-4）
+   * @returns {number} 移動的價值分數（-1 表示無效移動，>=0 表示有效價值）
    */
   calculateMoveValue(board, row, col) {
-    // 快速驗證
+    // 第一步：快速驗證移動的有效性
+    // 檢查位置是否在遊戲板範圍內，以及格子是否為空
     if (row < 0 || row >= this.BOARD_SIZE || col < 0 || col >= this.BOARD_SIZE || 
         board[row][col] !== this.CELL_STATES.EMPTY) {
-      return -1;
+      return -1;  // 無效移動返回 -1
     }
 
     let totalValue = 0;
     
-    // 使用緩存避免重複計算
+    // 第二步：檢查緩存以提升性能
+    // 為相同的遊戲板狀態和位置組合緩存計算結果
     const cacheKey = `${row}-${col}-${this.getBoardHash(board)}`;
     if (this._valueCache && this._valueCache.has(cacheKey)) {
       return this._valueCache.get(cacheKey);

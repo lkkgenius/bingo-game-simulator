@@ -1,44 +1,86 @@
 /**
- * LineDetector - 負責檢測Bingo遊戲中的連線
- * 支援水平線、垂直線和對角線的檢測
+ * LineDetector - Bingo 遊戲連線檢測器
+ * 
+ * 這個類別專門負責檢測遊戲板上的完成連線，支援：
+ * - 水平線檢測（5 個連續的水平格子）
+ * - 垂直線檢測（5 個連續的垂直格子）
+ * - 主對角線檢測（左上到右下）
+ * - 反對角線檢測（右上到左下）
+ * 
+ * 演算法特點：
+ * - 使用高效的線性掃描算法
+ * - 支持混合連線（玩家和電腦合作完成）
+ * - 提供詳細的連線信息（類型、位置、參與者）
+ * - 優化的性能，避免重複計算
+ * 
+ * 連線規則：
+ * - 一條完整連線需要 5 個格子都被填滿（非空）
+ * - 支持玩家和電腦的混合連線（合作模式）
+ * - 每種類型最多可以有多條連線
+ * 
+ * @class LineDetector
+ * @version 1.0.0
  */
 class LineDetector {
+  /**
+   * 創建連線檢測器實例
+   * 初始化檢測所需的常數和配置
+   */
   constructor() {
-    this.BOARD_SIZE = 5;
+    // 遊戲板配置
+    this.BOARD_SIZE = 5;        // 標準 Bingo 遊戲板大小
+    
+    // 連線類型定義
     this.LINE_TYPES = {
-      HORIZONTAL: 'horizontal',
-      VERTICAL: 'vertical',
-      DIAGONAL_MAIN: 'diagonal-main',
-      DIAGONAL_ANTI: 'diagonal-anti'
+      HORIZONTAL: 'horizontal',         // 水平連線
+      VERTICAL: 'vertical',             // 垂直連線
+      DIAGONAL_MAIN: 'diagonal-main',   // 主對角線（\）
+      DIAGONAL_ANTI: 'diagonal-anti'    // 反對角線（/）
     };
+    
+    // 格子狀態定義（與其他組件保持一致）
     this.CELL_STATES = {
-      EMPTY: 0,
-      PLAYER: 1,
-      COMPUTER: 2
+      EMPTY: 0,       // 空格子
+      PLAYER: 1,      // 玩家選擇
+      COMPUTER: 2     // 電腦選擇
     };
   }
 
   /**
-   * 檢測水平線
-   * @param {number[][]} board - 5x5遊戲板
-   * @returns {Array} 完成的水平線陣列
+   * 檢測水平連線
+   * 
+   * 掃描每一行，檢查是否有完整的水平連線。
+   * 一條水平連線需要該行的所有 5 個格子都被填滿（非空）。
+   * 
+   * 演算法複雜度：O(n²) 其中 n 是遊戲板大小
+   * 
+   * @param {number[][]} board - 5x5 遊戲板二維陣列
+   * @returns {Array<Object>} 完成的水平連線陣列，每個對象包含：
+   *   - type: 連線類型 ('horizontal')
+   *   - row: 連線所在的行號
+   *   - cells: 連線包含的格子座標陣列 [[row, col], ...]
+   *   - values: 連線中每個格子的值陣列
    */
   checkHorizontalLines(board) {
     const lines = [];
     
+    // 逐行檢查水平連線
     for (let row = 0; row < this.BOARD_SIZE; row++) {
       // 檢查這一行是否所有格子都被填滿（非空白）
+      // 使用 Array.every() 方法進行高效檢查
       if (board[row].every(cell => cell !== this.CELL_STATES.EMPTY)) {
+        // 收集這條連線中所有格子的座標
         const cells = [];
         for (let col = 0; col < this.BOARD_SIZE; col++) {
           cells.push([row, col]);
         }
         
+        // 創建連線對象，包含完整的連線信息
         lines.push({
-          type: this.LINE_TYPES.HORIZONTAL,
-          row: row,
-          cells: cells,
-          values: [...board[row]]
+          type: this.LINE_TYPES.HORIZONTAL,   // 連線類型
+          row: row,                           // 連線所在行
+          cells: cells,                       // 格子座標陣列
+          values: [...board[row]]             // 格子值的副本
         });
       }
     }

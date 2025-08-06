@@ -300,7 +300,9 @@ class ProgressiveLoader {
    * @param {string[]} modules - Modules to load in this stage
    */
   async loadStage(stageName, modules) {
-    console.log(`Loading stage: ${stageName}`);
+    if (logger) {
+      logger.info(`Loading stage: ${stageName}`);
+    }
     
     try {
       await this.moduleLoader.loadModulesInChunks(modules, 2);
@@ -311,9 +313,13 @@ class ProgressiveLoader {
         callback();
       }
       
-      console.log(`Stage ${stageName} loaded successfully`);
+      if (logger) {
+        logger.info(`Stage ${stageName} loaded successfully`);
+      }
     } catch (error) {
-      console.error(`Stage ${stageName} failed to load:`, error);
+      if (logger) {
+        logger.error(`Stage ${stageName} failed to load:`, error);
+      }
       throw error;
     }
   }
@@ -377,7 +383,9 @@ const LazyLoader = {
     moduleLoader.loadModule(modulePath)
       .then(() => callback())
       .catch(error => {
-        console.error(`Failed to load ${modulePath}:`, error);
+        if (logger) {
+          logger.error(`Failed to load ${modulePath}:`, error);
+        }
       });
   },
 

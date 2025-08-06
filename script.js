@@ -1,36 +1,86 @@
-// 確保 SafeDOM 可用
+/**
+ * Bingo 遊戲模擬器 - 主要應用程式邏輯
+ * 
+ * 這個文件包含了遊戲的核心邏輯和初始化代碼，負責：
+ * - 遊戲狀態管理
+ * - 用戶界面初始化
+ * - 事件處理和協調
+ * - 組件間的通信
+ * 
+ * @author Bingo Game Simulator Team
+ * @version 1.0.0
+ */
+
+// ============================================================================
+// 依賴模塊載入和環境檢查
+// ============================================================================
+
+/**
+ * 確保 SafeDOM 工具可用
+ * SafeDOM 提供安全的 DOM 操作方法，防止 XSS 攻擊
+ */
 if (typeof SafeDOM === 'undefined' && typeof require !== 'undefined') {
     const SafeDOM = require('./safe-dom.js');
 }
 
-// 確保 ProductionLogger 可用
+/**
+ * 確保 ProductionLogger 可用
+ * ProductionLogger 提供統一的日誌記錄功能，支持不同環境
+ */
 if (typeof logger === 'undefined' && typeof require !== 'undefined') {
     const { logger } = require('./production-logger.js');
 }
 
-// Constants for game state management
+// ============================================================================
+// 遊戲常數定義
+// ============================================================================
+
+/**
+ * 遊戲格子狀態常數
+ * 定義遊戲板上每個格子可能的狀態
+ */
 const CELL_STATES = {
-    EMPTY: 0,
-    PLAYER: 1,
-    COMPUTER: 2
+    EMPTY: 0,      // 空格子，尚未被選擇
+    PLAYER: 1,     // 玩家選擇的格子
+    COMPUTER: 2    // 電腦選擇的格子
 };
 
+/**
+ * 遊戲階段常數
+ * 定義遊戲進行過程中的不同階段
+ */
 const GAME_PHASES = {
-    WAITING: 'waiting',
-    PLAYER_TURN: 'player-turn',
-    COMPUTER_TURN: 'computer-turn',
-    GAME_OVER: 'game-over'
+    WAITING: 'waiting',           // 等待遊戲開始
+    PLAYER_TURN: 'player-turn',   // 玩家回合
+    COMPUTER_TURN: 'computer-turn', // 電腦回合（等待輸入）
+    GAME_OVER: 'game-over'        // 遊戲結束
 };
 
+/**
+ * 連線類型常數
+ * 定義 Bingo 遊戲中可能的連線類型
+ */
 const LINE_TYPES = {
-    HORIZONTAL: 'horizontal',
-    VERTICAL: 'vertical',
-    DIAGONAL_MAIN: 'diagonal-main',
-    DIAGONAL_ANTI: 'diagonal-anti'
+    HORIZONTAL: 'horizontal',         // 水平連線
+    VERTICAL: 'vertical',             // 垂直連線
+    DIAGONAL_MAIN: 'diagonal-main',   // 主對角線連線（左上到右下）
+    DIAGONAL_ANTI: 'diagonal-anti'    // 反對角線連線（右上到左下）
 };
 
-// Custom error class for game-related errors
+// ============================================================================
+// 錯誤處理類別和常數
+// ============================================================================
+
+/**
+ * 遊戲相關錯誤的自定義錯誤類別
+ * 提供更詳細的錯誤信息和類型分類
+ */
 class GameError extends Error {
+    /**
+     * 創建遊戲錯誤實例
+     * @param {string} message - 錯誤訊息
+     * @param {string} type - 錯誤類型
+     */
     constructor(message, type) {
         super(message);
         this.name = 'GameError';
@@ -38,32 +88,63 @@ class GameError extends Error {
     }
 }
 
+/**
+ * 錯誤類型常數
+ * 定義可能發生的錯誤類型，便於錯誤處理和調試
+ */
 const ERROR_TYPES = {
-    INVALID_MOVE: 'invalid-move',
-    CELL_OCCUPIED: 'cell-occupied',
-    GAME_OVER: 'game-over',
-    INVALID_PHASE: 'invalid-phase'
+    INVALID_MOVE: 'invalid-move',     // 無效移動
+    CELL_OCCUPIED: 'cell-occupied',   // 格子已被佔用
+    GAME_OVER: 'game-over',           // 遊戲已結束
+    INVALID_PHASE: 'invalid-phase'    // 無效的遊戲階段
 };
 
+// ============================================================================
+// 遊戲狀態管理類別
+// ============================================================================
+
 /**
- * GameState class manages the complete state of the Bingo game
+ * GameState 類別 - 管理 Bingo 遊戲的完整狀態
+ * 
+ * 這個類別負責：
+ * - 維護遊戲板狀態
+ * - 追蹤玩家和電腦的移動
+ * - 管理遊戲回合和階段
+ * - 驗證移動的有效性
+ * - 處理遊戲進度
  */
 class GameState {
+    /**
+     * 創建遊戲狀態實例
+     * @param {number} boardSize - 遊戲板大小（默認 5x5）
+     * @param {number} maxRounds - 最大回合數（默認 8 輪）
+     */
     constructor(boardSize = 5, maxRounds = 8) {
         this.boardSize = boardSize;
         this.maxRounds = maxRounds;
         this.reset();
     }
 
+    /**
+     * 重置遊戲狀態到初始狀態
+     * 清除所有遊戲數據並準備新遊戲
+     */
     reset() {
+        // 創建空的遊戲板（5x5 二維陣列，所有格子初始為空）
         this.board = Array(this.boardSize).fill().map(() => 
             Array(this.boardSize).fill(CELL_STATES.EMPTY)
         );
+        
+        // 重置遊戲進度
         this.currentRound = 1;
         this.gamePhase = GAME_PHASES.WAITING;
-        this.playerMoves = [];
-        this.computerMoves = [];
-        this.completedLines = [];
+        
+        // 清空移動記錄
+        this.playerMoves = [];      // 玩家移動歷史
+        this.computerMoves = [];    // 電腦移動歷史
+        this.completedLines = [];   // 完成的連線記錄
+        
+        // 重置遊戲狀態標誌
         this.gameStarted = false;
         this.gameEnded = false;
     }

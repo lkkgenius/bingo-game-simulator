@@ -1,6 +1,22 @@
 /**
- * GameBoard - 負責處理遊戲板的UI渲染和用戶互動
- * 包含格子點擊事件處理、建議高亮顯示和連線高亮顯示功能
+ * GameBoard - 遊戲板 UI 組件類別
+ * 
+ * 這個類別負責遊戲板的視覺呈現和用戶交互，包括：
+ * - 渲染 5x5 遊戲網格到 DOM
+ * - 處理用戶點擊事件和觸控交互
+ * - 顯示格子的不同狀態（空白、玩家、電腦）
+ * - 高亮顯示移動建議和完成的連線
+ * - 提供視覺反饋和動畫效果
+ * - 支持響應式設計和無障礙功能
+ * 
+ * 設計特點：
+ * - 使用事件委託優化性能
+ * - 支持防抖處理避免重複點擊
+ * - 使用 CSS 類別管理視覺狀態
+ * - 提供豐富的視覺反饋
+ * 
+ * @class GameBoard
+ * @version 1.0.0
  */
 
 // SafeDOM 已經在全局作用域中可用
@@ -32,20 +48,28 @@ if (typeof window !== 'undefined' && window.logger) {
 }
 
 class GameBoard {
+    /**
+     * 創建遊戲板實例
+     * @param {string} containerId - 容器元素的 DOM ID
+     * @param {number} size - 遊戲板大小（默認 5x5）
+     */
     constructor(containerId, size = 5) {
-        this.containerId = containerId;
-        this.size = size;
-        this.container = document.getElementById(containerId);
-        this.cells = [];
-        this.currentSuggestion = null;
-        this.highlightedLines = [];
-        this.clickHandler = null;
+        // 基本配置
+        this.containerId = containerId;     // 容器 ID
+        this.size = size;                   // 遊戲板大小
+        this.container = document.getElementById(containerId); // DOM 容器元素
         
-        // 常數定義
+        // UI 狀態管理
+        this.cells = [];                    // 存儲所有格子的 DOM 元素
+        this.currentSuggestion = null;      // 當前顯示的建議位置
+        this.highlightedLines = [];         // 當前高亮的連線
+        this.clickHandler = null;           // 點擊事件處理器
+        
+        // 遊戲狀態常數（與 GameEngine 保持一致）
         this.CELL_STATES = {
-            EMPTY: 0,
-            PLAYER: 1,
-            COMPUTER: 2
+            EMPTY: 0,       // 空格子狀態
+            PLAYER: 1,      // 玩家選擇狀態
+            COMPUTER: 2     // 電腦選擇狀態
         };
         
         this.LINE_TYPES = {

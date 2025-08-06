@@ -12,42 +12,65 @@ if (typeof require !== 'undefined') {
 }
 
 /**
- * GameEngine - 統合所有遊戲邏輯的核心引擎
- * 負責管理遊戲流程、處理玩家和電腦回合、追蹤遊戲進度
+ * GameEngine - Bingo 遊戲的核心引擎類別
+ * 
+ * 這是整個遊戲系統的中央控制器，負責：
+ * - 統合所有遊戲邏輯組件（連線檢測、機率計算等）
+ * - 管理遊戲流程和狀態轉換
+ * - 處理玩家和電腦的回合邏輯
+ * - 提供遊戲建議和分析
+ * - 追蹤遊戲進度和統計數據
+ * - 協調 UI 更新和事件處理
+ * 
+ * 設計模式：
+ * - 使用觀察者模式處理狀態變更通知
+ * - 使用策略模式支持不同的演算法
+ * - 使用狀態模式管理遊戲階段
+ * 
+ * @class GameEngine
+ * @version 1.0.0
  */
 class GameEngine {
+    /**
+     * 創建遊戲引擎實例
+     * 初始化所有必要的組件和狀態
+     */
     constructor() {
-        this.BOARD_SIZE = 5;
-        this.MAX_ROUNDS = 8;
+        // 遊戲配置常數
+        this.BOARD_SIZE = 5;        // 遊戲板大小（5x5）
+        this.MAX_ROUNDS = 8;        // 最大遊戲回合數
         
+        // 遊戲狀態常數定義
         this.CELL_STATES = {
-            EMPTY: 0,
-            PLAYER: 1,
-            COMPUTER: 2
+            EMPTY: 0,       // 空格子
+            PLAYER: 1,      // 玩家選擇的格子
+            COMPUTER: 2     // 電腦選擇的格子
         };
         
+        // 遊戲階段常數定義
         this.GAME_PHASES = {
-            WAITING_START: 'waiting-start',
-            PLAYER_TURN: 'player-turn',
-            COMPUTER_INPUT: 'computer-input',
-            GAME_OVER: 'game-over'
+            WAITING_START: 'waiting-start',     // 等待遊戲開始
+            PLAYER_TURN: 'player-turn',         // 玩家回合
+            COMPUTER_INPUT: 'computer-input',   // 等待電腦輸入
+            GAME_OVER: 'game-over'              // 遊戲結束
         };
         
-        // 初始化遊戲狀態
+        // 初始化遊戲狀態對象
+        // 包含所有遊戲進行中需要追蹤的數據
         this.gameState = {
-            board: this.createEmptyBoard(),
-            currentRound: 1,
-            gamePhase: this.GAME_PHASES.WAITING_START,
-            playerMoves: [],
-            computerMoves: [],
-            completedLines: [],
-            isGameComplete: false,
-            lastSuggestion: null
+            board: this.createEmptyBoard(),                 // 5x5 遊戲板
+            currentRound: 1,                                // 當前回合數
+            gamePhase: this.GAME_PHASES.WAITING_START,      // 當前遊戲階段
+            playerMoves: [],                                // 玩家移動記錄
+            computerMoves: [],                              // 電腦移動記錄
+            completedLines: [],                             // 完成的連線
+            isGameComplete: false,                          // 遊戲是否完成
+            lastSuggestion: null                            // 最後一次建議
         };
         
-        // 初始化組件
-        this.lineDetector = new LineDetector();
-        this.probabilityCalculator = new ProbabilityCalculator();
+        // 初始化核心遊戲組件
+        this.lineDetector = new LineDetector();            // 連線檢測器
+        this.probabilityCalculator = new ProbabilityCalculator(); // 機率計算器
         this.aiLearningSystem = new AILearningSystem();
         this.gameBoard = null; // 將由外部設置
         
