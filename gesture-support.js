@@ -8,6 +8,20 @@ if (typeof SafeDOM === 'undefined' && typeof require !== 'undefined') {
     const SafeDOM = require('./safe-dom.js');
 }
 
+// Logger 初始化
+let logger;
+if (typeof window !== 'undefined' && window.logger) {
+    logger = window.logger;
+} else if (typeof require !== 'undefined') {
+    try {
+        const { logger: prodLogger } = require('./production-logger.js');
+        logger = prodLogger;
+    } catch (e) {
+        // Fallback if production-logger is not available
+        logger = null;
+    }
+}
+
 class GestureSupport {
     constructor() {
         this.isEnabled = false;
@@ -44,7 +58,9 @@ class GestureSupport {
         
         if (this.isEnabled) {
             document.body.classList.add('gesture-enabled');
-            console.log('Gesture support enabled');
+            if (logger) {
+                logger.info('Gesture support enabled');
+            }
         }
     }
     
@@ -114,7 +130,9 @@ class GestureSupport {
      * 向右滑動處理
      */
     onSwipeRight() {
-        console.log('Swipe right detected');
+        if (logger) {
+            logger.debug('Swipe right detected');
+        }
         
         // 切換到下一個算法
         this.switchToNextAlgorithm();
@@ -127,7 +145,9 @@ class GestureSupport {
      * 向左滑動處理
      */
     onSwipeLeft() {
-        console.log('Swipe left detected');
+        if (logger) {
+            logger.debug('Swipe left detected');
+        }
         
         // 切換到上一個算法
         this.switchToPreviousAlgorithm();
@@ -140,7 +160,9 @@ class GestureSupport {
      * 向上滑動處理
      */
     onSwipeUp() {
-        console.log('Swipe up detected');
+        if (logger) {
+            logger.debug('Swipe up detected');
+        }
         
         // 顯示遊戲統計或幫助信息
         this.showGameStats();
@@ -153,7 +175,9 @@ class GestureSupport {
      * 向下滑動處理
      */
     onSwipeDown() {
-        console.log('Swipe down detected');
+        if (logger) {
+            logger.debug('Swipe down detected');
+        }
         
         // 隱藏額外信息或重置視圖
         this.hideExtraInfo();
@@ -418,7 +442,9 @@ class GestureSupport {
     setupRotationGestures() {
         // 在這個遊戲中，旋轉手勢可能不太適用
         // 但可以用於切換視圖或模式
-        console.log('Rotation gestures setup (placeholder)');
+        if (logger) {
+            logger.debug('Rotation gestures setup (placeholder)');
+        }
     }
     
     /**
@@ -466,7 +492,9 @@ class GestureSupport {
      * 處理長按
      */
     handleLongPress(cell) {
-        console.log('Long press detected on cell:', cell);
+        if (logger) {
+            logger.debug('Long press detected on cell:', cell);
+        }
         
         // 顯示格子信息或上下文菜單
         this.showCellInfo(cell);
