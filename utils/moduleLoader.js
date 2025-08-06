@@ -3,6 +3,20 @@
  * Optimizes performance by loading components only when needed
  */
 
+// Logger 初始化
+let logger;
+if (typeof window !== 'undefined' && window.logger) {
+    logger = window.logger;
+} else if (typeof require !== 'undefined') {
+    try {
+        const { logger: prodLogger } = require('../production-logger.js');
+        logger = prodLogger;
+    } catch (e) {
+        // Fallback if production-logger is not available
+        logger = null;
+    }
+}
+
 class ModuleLoader {
   constructor() {
     this.loadedModules = new Map();
@@ -129,9 +143,13 @@ class ModuleLoader {
 
     try {
       await Promise.all(preloadPromises);
-      console.log('Modules preloaded successfully:', modules);
+      if (logger) {
+        logger.info('Modules preloaded successfully:', modules);
+      }
     } catch (error) {
-      console.warn('Some modules failed to preload:', error);
+      if (logger) {
+        logger.warn('Some modules failed to preload:', error);
+      }
     }
   }
 
@@ -213,7 +231,9 @@ class ModuleLoader {
 
     // Load these in the background
     this.preloadModules(optionalModules).catch(error => {
-      console.warn('Optional modules failed to load:', error);
+      if (logger) {
+        logger.warn('Optional modules failed to load:', error);
+      }
     });
   }
 }
@@ -261,11 +281,15 @@ class ProgressiveLoader {
         'performance-monitor.js',
         'aiLearningSystem.js'
       ]).catch(error => {
-        console.warn('Optional features failed to load:', error);
+        if (logger) {
+          logger.warn('Optional features failed to load:', error);
+        }
       });
 
     } catch (error) {
-      console.error('Progressive loading failed:', error);
+      if (logger) {
+        logger.error('Progressive loading failed:', error);
+      }
       throw error;
     }
   }
