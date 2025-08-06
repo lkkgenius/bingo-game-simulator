@@ -231,7 +231,9 @@ class PWAManager {
             this.hideInstallPrompt();
             
         } catch (error) {
-            console.error('Failed to install PWA:', error);
+            if (logger) {
+                logger.error('Failed to install PWA:', error);
+            }
         }
     }
     
@@ -326,7 +328,9 @@ class PWAManager {
         try {
             await this.registration.update();
         } catch (error) {
-            console.error('Failed to check for updates:', error);
+            if (logger) {
+                logger.error('Failed to check for updates:', error);
+            }
         }
     }
     

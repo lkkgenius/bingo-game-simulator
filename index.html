@@ -450,11 +450,13 @@
         window.addEventListener('load', function() {
             // Add a longer delay to ensure all scripts are fully loaded
             setTimeout(function() {
-                console.log('Checking component loading...');
-                console.log('LineDetector:', typeof LineDetector);
-                console.log('ProbabilityCalculator:', typeof ProbabilityCalculator);
-                console.log('GameBoard:', typeof GameBoard);
-                console.log('window.GameBoard:', typeof window.GameBoard);
+                if (window.logger) {
+                    window.logger.debug('Checking component loading...');
+                    window.logger.debug('LineDetector:', typeof LineDetector);
+                    window.logger.debug('ProbabilityCalculator:', typeof ProbabilityCalculator);
+                    window.logger.debug('GameBoard:', typeof GameBoard);
+                    window.logger.debug('window.GameBoard:', typeof window.GameBoard);
+                }
                 
                 // Check if GameBoard class exists in window object
                 const gameboardExists = typeof GameBoard !== 'undefined' || typeof window.GameBoard !== 'undefined';
@@ -472,20 +474,26 @@
                 }
                 
                 if (!gameboardExists) {
-                    console.error('GameBoard not found. Retrying in 500ms...');
+                    if (window.logger) {
+                        window.logger.error('GameBoard not found. Retrying in 500ms...');
+                    }
                     setTimeout(function() {
                         if (typeof GameBoard === 'undefined' && typeof window.GameBoard === 'undefined') {
                             alert('遊戲組件加載失敗：GameBoard');
                             return;
                         }
-                        console.log('GameBoard found on retry');
+                        if (window.logger) {
+                            window.logger.info('GameBoard found on retry');
+                        }
                         setupAlgorithmSelection();
                         setupStartButton();
                     }, 500);
                     return;
                 }
                 
-                console.log('All components loaded successfully');
+                if (window.logger) {
+                    window.logger.info('All components loaded successfully');
+                }
                 setupAlgorithmSelection();
                 setupStartButton();
             }, 200); // Increased delay
