@@ -8,6 +8,20 @@ if (typeof SafeDOM === 'undefined' && typeof require !== 'undefined') {
     const SafeDOM = require('./safe-dom.js');
 }
 
+// Logger 初始化
+let logger;
+if (typeof window !== 'undefined' && window.logger) {
+    logger = window.logger;
+} else if (typeof require !== 'undefined') {
+    try {
+        const { logger: prodLogger } = require('./production-logger.js');
+        logger = prodLogger;
+    } catch (e) {
+        // Fallback if production-logger is not available
+        logger = null;
+    }
+}
+
 class I18nManager {
     constructor() {
         this.currentLanguage = 'zh-TW'; // Default language
@@ -576,7 +590,9 @@ class I18nManager {
      */
     async setLanguage(language, options = {}) {
         if (!this.supportedLanguages.includes(language)) {
-            console.warn(`Language ${language} is not supported`);
+            if (logger) {
+                logger.warn(`Language ${language} is not supported`);
+            }
             return false;
         }
         
@@ -612,7 +628,9 @@ class I18nManager {
             
             return true;
         } catch (error) {
-            console.error('Failed to change language:', error);
+            if (logger) {
+                logger.error('Failed to change language:', error);
+            }
             
             // Revert to previous language on error
             this.currentLanguage = previousLanguage;
@@ -649,7 +667,9 @@ class I18nManager {
         
         for (const key of criticalKeys) {
             if (!this.translations[newLanguage][key]) {
-                console.warn(`Missing critical translation: ${key} for ${newLanguage}`);
+                if (logger) {
+                    logger.warn(`Missing critical translation: ${key} for ${newLanguage}`);
+                }
             }
         }
     }
@@ -671,7 +691,9 @@ class I18nManager {
                     try {
                         await document.fonts.load(`16px "${fontFamily}"`);
                     } catch (error) {
-                        console.warn(`Failed to preload font: ${fontFamily}`);
+                        if (logger) {
+                            logger.warn(`Failed to preload font: ${fontFamily}`);
+                        }
                     }
                 }
             }
@@ -959,7 +981,9 @@ class I18nManager {
      * @param {Object} options - Change options
      */
     async onLanguageChange(previousLanguage = null, options = {}) {
-        console.log(`Language changed from ${previousLanguage} to: ${this.currentLanguage}`);
+        if (logger) {
+            logger.info(`Language changed from ${previousLanguage} to: ${this.currentLanguage}`);
+        }
         
         // Apply fade transition if requested
         if (options.transition !== false) {
