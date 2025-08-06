@@ -85,7 +85,7 @@ describe('End-to-End Game Test', () => {
   let calculator;
   
   // 在每個測試前初始化
-  beforeEach = () => {
+  function initializeE2ETest() {
     lineDetector = new LineDetector();
     calculator = new ProbabilityCalculator();
     engine = new GameEngine();
@@ -122,7 +122,10 @@ describe('End-to-End Game Test', () => {
     }
     
     engine.startGame();
-  };
+  }
+  
+  // 設置全局 beforeEach
+  global.beforeEach = initializeE2ETest;
   
   test('should simulate complete game flow', () => {
     // 模擬 8 輪遊戲
@@ -167,9 +170,6 @@ describe('End-to-End Game Test', () => {
   });
   
   test('should handle invalid moves correctly', () => {
-    // 重新初始化以確保乾淨的狀態
-    beforeEach();
-    
     // 先進行一個有效移動
     engine.processPlayerTurn(0, 0);
     
@@ -196,9 +196,6 @@ describe('End-to-End Game Test', () => {
   });
   
   test('should handle algorithm switching', () => {
-    // 重新初始化以確保乾淨的狀態
-    beforeEach();
-    
     // 初始使用標準算法
     let suggestion = calculator.getBestSuggestion(engine.getBoardCopy());
     engine.processPlayerTurn(suggestion.row, suggestion.col);
@@ -226,9 +223,6 @@ describe('End-to-End Game Test', () => {
   });
   
   test('should complete game and show results', () => {
-    // 重新初始化以確保乾淨的狀態
-    beforeEach();
-    
     // 快速完成遊戲
     for (let i = 0; i < 8; i++) {
       const row = Math.floor(i / 5);

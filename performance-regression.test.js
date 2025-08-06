@@ -27,12 +27,17 @@ describe('Performance Regression Tests', () => {
   let gameEngine;
   let gameBoard;
   
-  beforeEach(() => {
+  // 在每個測試前初始化
+  function initializePerformanceTest() {
     // Initialize performance monitoring
     if (typeof PerformanceMonitor !== 'undefined') {
       performanceMonitor = new PerformanceMonitor();
       performanceMonitor.startMonitoring();
     }
+  }
+  
+  // 設置全局 beforeEach
+  global.beforeEach = initializePerformanceTest;
     
     // Initialize game components
     if (typeof GameEngine !== 'undefined') {
@@ -45,6 +50,11 @@ describe('Performance Regression Tests', () => {
   });
   
   test('Game initialization should complete within threshold', () => {
+    if (typeof gameEngine === 'undefined') {
+      console.log('gameEngine not available, skipping test');
+      return;
+    }
+    
     const startTime = performance.now();
     
     if (gameEngine) {
@@ -59,8 +69,8 @@ describe('Performance Regression Tests', () => {
   });
   
   test('Move calculation should be fast enough', () => {
-    if (!gameEngine) {
-      console.log('GameEngine not available, skipping test');
+    if (typeof gameEngine === 'undefined') {
+      console.log('gameEngine not available, skipping test');
       return;
     }
     
@@ -104,8 +114,8 @@ describe('Performance Regression Tests', () => {
   });
   
   test('Board rendering should be fast', () => {
-    if (!gameBoard) {
-      console.log('GameBoard not available, skipping test');
+    if (typeof gameBoard === 'undefined') {
+      console.log('gameBoard not available, skipping test');
       return;
     }
     
@@ -148,8 +158,8 @@ describe('Performance Regression Tests', () => {
   });
   
   test('Memory usage should be reasonable', () => {
-    if (!performanceMonitor) {
-      console.log('PerformanceMonitor not available, skipping test');
+    if (typeof performanceMonitor === 'undefined') {
+      console.log('performanceMonitor not available, skipping test');
       return;
     }
     
@@ -176,8 +186,8 @@ describe('Performance Regression Tests', () => {
   });
   
   test('Performance metrics should meet baseline', () => {
-    if (!performanceMonitor) {
-      console.log('PerformanceMonitor not available, skipping test');
+    if (typeof performanceMonitor === 'undefined') {
+      console.log('performanceMonitor not available, skipping test');
       return;
     }
     
@@ -225,7 +235,6 @@ describe('Performance Regression Tests', () => {
     console.log(`Average line detection time: ${averageTime.toFixed(2)}ms`);
     expect(averageTime).toBeLessThan(5); // Should be very fast for 5x5 board
   });
-});
 
 // Export for use in CI/CD
 if (typeof module !== 'undefined' && module.exports) {

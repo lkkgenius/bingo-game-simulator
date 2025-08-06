@@ -31,6 +31,9 @@ global.test = (description, testFn) => {
   } catch (error) {
     console.error(`✗ ${description}`);
     console.error(`  ${error.message}`);
+    if (error.stack) {
+      console.error(`  Stack: ${error.stack.split('\n')[1]?.trim()}`);
+    }
     failedTests++;
   }
 };
@@ -88,6 +91,10 @@ function runAllTests() {
   testFiles.forEach(file => {
     currentTestFile = file;
     console.log(`\n=== Running tests in ${file} ===`);
+    
+    // 重置 beforeEach 函數，避免測試文件間的干擾
+    global.beforeEach = null;
+    
     try {
       require(path.join(process.cwd(), file));
     } catch (error) {

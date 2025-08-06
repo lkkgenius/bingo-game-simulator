@@ -7,9 +7,17 @@ const LineDetector = require('./lineDetector.js');
 const ProbabilityCalculator = require('./probabilityCalculator.js');
 
 describe('Game Flow Integration', () => {
-  // 全局變量，每個測試都會使用
-  const lineDetector = new LineDetector();
-  const calculator = new ProbabilityCalculator();
+  let lineDetector;
+  let calculator;
+  
+  // 在每個測試前初始化
+  function initializeGameFlow() {
+    lineDetector = new LineDetector();
+    calculator = new ProbabilityCalculator();
+  }
+  
+  // 設置全局 beforeEach
+  global.beforeEach = initializeGameFlow;
   
   test('should complete a full game cycle', () => {
     // 初始化遊戲引擎

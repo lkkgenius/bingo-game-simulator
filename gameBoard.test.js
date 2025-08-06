@@ -92,7 +92,7 @@ describe('GameBoard', () => {
   let mockContainer;
   
   // 在每個測試前初始化
-  beforeEach = () => {
+  function initializeGameBoard() {
     // 創建模擬容器
     mockContainer = {
       innerHTML: '',
@@ -115,7 +115,10 @@ describe('GameBoard', () => {
     };
     
     gameBoard = new GameBoard('game-board');
-  };
+  }
+  
+  // 設置全局 beforeEach
+  global.beforeEach = initializeGameBoard;
   
   test('should initialize with correct size', () => {
     expect(gameBoard.size).toBe(5);
@@ -132,9 +135,6 @@ describe('GameBoard', () => {
   });
   
   test('should highlight suggestion', () => {
-    // 重新初始化以確保乾淨的狀態
-    beforeEach();
-    
     // 確保格子是空的
     const cell = gameBoard.getCell(3, 3);
     cell.classList.add('empty'); // 確保格子被標記為空
@@ -170,9 +170,6 @@ describe('GameBoard', () => {
   });
   
   test('should highlight completed lines', () => {
-    // 重新初始化以確保乾淨的狀態
-    beforeEach();
-    
     const lines = [
       { 
         type: 'horizontal', 
@@ -190,9 +187,6 @@ describe('GameBoard', () => {
   });
   
   test('should clear line highlights', () => {
-    // 重新初始化以確保乾淨的狀態
-    beforeEach();
-    
     // 先設置連線高亮
     const lines = [
       { 
@@ -220,9 +214,6 @@ describe('GameBoard', () => {
   });
   
   test('should reset game board', () => {
-    // 重新初始化以確保乾淨的狀態
-    beforeEach();
-    
     // 先設置一些狀態
     gameBoard.updateCell(0, 0, 1); // 玩家
     gameBoard.updateCell(1, 1, 2); // 電腦
