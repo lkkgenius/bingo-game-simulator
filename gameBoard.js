@@ -425,11 +425,15 @@ class GameBoard {
         });
         
         if (validLines.length === 0) {
-            console.log('No valid lines to highlight');
+            if (logger) {
+                logger.debug('No valid lines to highlight');
+            }
             return;
         }
         
-        console.log(`Highlighting ${validLines.length} lines:`, validLines);
+        if (logger) {
+            logger.debug(`Highlighting ${validLines.length} lines:`, validLines);
+        }
         
         validLines.forEach(line => {
             this.highlightSingleLine(line);
@@ -444,12 +448,16 @@ class GameBoard {
      */
     highlightSingleLine(line) {
         if (!line || !line.cells || !Array.isArray(line.cells)) {
-            console.warn('Invalid line object provided:', line);
+            if (logger) {
+                logger.warn('Invalid line object provided:', line);
+            }
             return;
         }
         
         const lineClass = this.getLineClass(line.type);
-        console.log(`Highlighting line type: ${line.type}, class: ${lineClass}, cells:`, line.cells);
+        if (logger) {
+            logger.debug(`Highlighting line type: ${line.type}, class: ${lineClass}, cells:`, line.cells);
+        }
         
         line.cells.forEach(([row, col]) => {
             if (this.isValidPosition(row, col)) {
@@ -457,7 +465,9 @@ class GameBoard {
                 
                 // 確保格子存在
                 if (!cell) {
-                    console.warn(`Cell not found at position (${row}, ${col})`);
+                    if (logger) {
+                        logger.warn(`Cell not found at position (${row}, ${col})`);
+                    }
                     return;
                 }
                 
@@ -467,7 +477,9 @@ class GameBoard {
                 // 創建連線覆蓋層
                 this.createLineOverlay(cell, line.type);
                 
-                console.log(`Added classes to cell (${row}, ${col}):`, cell.className);
+                if (logger) {
+                    logger.debug(`Added classes to cell (${row}, ${col}):`, cell.className);
+                }
                 
                 // 更新無障礙標籤
                 const currentLabel = cell.getAttribute('aria-label');
@@ -475,7 +487,9 @@ class GameBoard {
                     cell.setAttribute('aria-label', `${currentLabel} - 完成連線`);
                 }
             } else {
-                console.warn(`Invalid position for line highlight: (${row}, ${col})`);
+                if (logger) {
+                    logger.warn(`Invalid position for line highlight: (${row}, ${col})`);
+                }
             }
         });
     }
@@ -531,7 +545,9 @@ class GameBoard {
         }
         
         this.highlightedLines = [];
-        console.log('Cleared all line highlights');
+        if (logger) {
+            logger.debug('Cleared all line highlights');
+        }
     }
 
     /**
