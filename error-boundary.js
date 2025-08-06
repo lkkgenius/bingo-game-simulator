@@ -494,9 +494,13 @@ class ErrorBoundary {
                 }
             });
 
-            console.log('Storage state recovered');
+            if (logger) {
+                logger.info('Storage state recovered');
+            }
         } catch (error) {
-            console.error('Failed to recover storage state:', error);
+            if (logger) {
+                logger.error('Failed to recover storage state:', error);
+            }
         }
     }
 
@@ -506,9 +510,13 @@ class ErrorBoundary {
     recoverNetworkState() {
         // 檢查網路連接
         if (navigator.onLine) {
-            console.log('Network connection restored');
+            if (logger) {
+                logger.info('Network connection restored');
+            }
         } else {
-            console.log('Still offline, enabling offline mode');
+            if (logger) {
+                logger.info('Still offline, enabling offline mode');
+            }
             this.enableOfflineMode();
         }
     }
@@ -524,9 +532,13 @@ class ErrorBoundary {
             // 重新初始化關鍵組件
             this.reinitializeCriticalComponents();
 
-            console.log('General recovery completed');
+            if (logger) {
+                logger.info('General recovery completed');
+            }
         } catch (error) {
-            console.error('General recovery failed:', error);
+            if (logger) {
+                logger.error('General recovery failed:', error);
+            }
         }
     }
 
@@ -633,7 +645,9 @@ class ErrorBoundary {
      */
     retryLastAction() {
         // 這裡可以實現重試邏輯
-        console.log('Retrying last action...');
+        if (logger) {
+            logger.info('Retrying last action...');
+        }
         window.location.reload();
     }
 
@@ -643,7 +657,9 @@ class ErrorBoundary {
     sendToErrorTracking(errorEntry) {
         // 這裡可以發送錯誤到外部追蹤服務
         // 例如 Sentry, LogRocket 等
-        console.log('Error would be sent to tracking service:', errorEntry);
+        if (logger) {
+            logger.debug('Error would be sent to tracking service:', errorEntry);
+        }
     }
 
     /**
@@ -656,7 +672,9 @@ class ErrorBoundary {
             reportedAt: new Date().toISOString()
         };
 
-        console.log('Error report:', report);
+        if (logger) {
+            logger.debug('Error report:', report);
+        }
         
         // 這裡可以發送到錯誤回報服務
         // 暫時存儲在本地
@@ -665,7 +683,9 @@ class ErrorBoundary {
             reports.push(report);
             localStorage.setItem('errorReports', JSON.stringify(reports));
         } catch (error) {
-            console.error('Failed to save error report:', error);
+            if (logger) {
+                logger.error('Failed to save error report:', error);
+            }
         }
     }
 
