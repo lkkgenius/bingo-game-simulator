@@ -673,14 +673,18 @@
                 // 記錄頁面加載性能
                 const perfData = performance.getEntriesByType('navigation')[0];
                 if (perfData) {
-                    console.log('Page load time:', perfData.loadEventEnd - perfData.fetchStart, 'ms');
+                    if (window.logger) {
+                        window.logger.info('Page load time:', perfData.loadEventEnd - perfData.fetchStart, 'ms');
+                    }
                 }
                 
                 // 記錄資源加載性能
                 const resources = performance.getEntriesByType('resource');
                 resources.forEach(resource => {
                     if (resource.duration > 1000) {
-                        console.warn('Slow resource:', resource.name, resource.duration, 'ms');
+                        if (window.logger) {
+                            window.logger.warn('Slow resource:', resource.name, resource.duration, 'ms');
+                        }
                     }
                 });
             });
@@ -688,18 +692,24 @@
         
         // 離線狀態處理
         window.addEventListener('online', () => {
-            console.log('App is online');
+            if (window.logger) {
+                window.logger.info('App is online');
+            }
             // 可以在這裡同步離線時的數據
         });
         
         window.addEventListener('offline', () => {
-            console.log('App is offline');
+            if (window.logger) {
+                window.logger.info('App is offline');
+            }
             // 可以在這裡保存當前狀態
         });
         
         // 語言變更事件處理
         document.addEventListener('languageChanged', (event) => {
-            console.log('Language changed event received:', event.detail.language);
+            if (window.logger) {
+                window.logger.info('Language changed event received:', event.detail.language);
+            }
             
             // 更新遊戲狀態顯示
             updateGameStatusLanguage();
