@@ -1,14 +1,18 @@
 // 在Node.js環境中載入依賴模組
-let LineDetector, ProbabilityCalculator, AILearningSystem, logger;
+let LineDetectorClass, ProbabilityCalculatorClass, AILearningSystemClass, logger;
 
 if (typeof require !== 'undefined') {
-    LineDetector = require('./lineDetector.js');
-    ProbabilityCalculator = require('./probabilityCalculator.js');
-    AILearningSystem = require('./aiLearningSystem.js');
+    LineDetectorClass = require('./lineDetector.js');
+    ProbabilityCalculatorClass = require('./probabilityCalculator.js');
+    AILearningSystemClass = require('./aiLearningSystem.js');
     const { logger: prodLogger } = require('./production-logger.js');
     logger = prodLogger;
 } else if (typeof window !== 'undefined' && window.logger) {
     logger = window.logger;
+    // In browser environment, classes are available globally
+    LineDetectorClass = window.LineDetector;
+    ProbabilityCalculatorClass = window.ProbabilityCalculator;
+    AILearningSystemClass = window.AILearningSystem;
 }
 
 /**
@@ -69,9 +73,9 @@ class GameEngine {
         };
         
         // 初始化核心遊戲組件
-        this.lineDetector = new LineDetector();            // 連線檢測器
-        this.probabilityCalculator = new ProbabilityCalculator(); // 機率計算器
-        this.aiLearningSystem = new AILearningSystem();
+        this.lineDetector = new (LineDetectorClass || LineDetector)();            // 連線檢測器
+        this.probabilityCalculator = new (ProbabilityCalculatorClass || ProbabilityCalculator)(); // 機率計算器
+        this.aiLearningSystem = new (AILearningSystemClass || AILearningSystem)();
         this.gameBoard = null; // 將由外部設置
         
         // AI 學習系統配置
