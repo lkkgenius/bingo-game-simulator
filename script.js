@@ -7,97 +7,102 @@
  * - 事件處理和協調
  * - 組件間的通信
  * 
+ * 使用新的模塊載入架構，避免全局變量污染
+ * 
  * @author Bingo Game Simulator Team
- * @version 1.0.0
+ * @version 2.0.0
  */
 
 // ============================================================================
-// 依賴模塊載入和環境檢查
+// 模塊化遊戲應用程式
 // ============================================================================
 
-/**
- * 確保 SafeDOM 工具可用
- * SafeDOM 提供安全的 DOM 操作方法，防止 XSS 攻擊
- */
-if (typeof SafeDOM === 'undefined' && typeof require !== 'undefined') {
-    const SafeDOM = require('./safe-dom.js');
-}
+(function(global) {
+    'use strict';
+    
+    // 使用全局命名空間避免污染
+    const BingoGame = global.BingoGame || (global.BingoGame = {});
+    
+    // 依賴檢查和獲取
+    const getDependency = (name, fallback = null) => {
+        return global[name] || BingoGame.modules[name] || fallback;
+    };
+    
+    // 安全的依賴獲取
+    const SafeDOM = getDependency('SafeDOM');
+    const logger = getDependency('logger') || global.logger;
+    const LineDetector = getDependency('LineDetector');
+    const ProbabilityCalculator = getDependency('ProbabilityCalculator');
+    const GameBoard = getDependency('GameBoard');
+    const GameEngine = getDependency('GameEngine');
 
-/**
- * 確保 ProductionLogger 可用
- * ProductionLogger 提供統一的日誌記錄功能，支持不同環境
- */
-if (typeof logger === 'undefined' && typeof require !== 'undefined') {
-    const { logger } = require('./production-logger.js');
-}
+    // ============================================================================
+    // 遊戲常數定義
+    // ============================================================================
 
-// ============================================================================
-// 遊戲常數定義
-// ============================================================================
-
-/**
- * 遊戲格子狀態常數
- * 定義遊戲板上每個格子可能的狀態
- */
-const CELL_STATES = {
-    EMPTY: 0,      // 空格子，尚未被選擇
-    PLAYER: 1,     // 玩家選擇的格子
-    COMPUTER: 2    // 電腦選擇的格子
-};
-
-/**
- * 遊戲階段常數
- * 定義遊戲進行過程中的不同階段
- */
-const GAME_PHASES = {
-    WAITING: 'waiting',           // 等待遊戲開始
-    PLAYER_TURN: 'player-turn',   // 玩家回合
-    COMPUTER_TURN: 'computer-turn', // 電腦回合（等待輸入）
-    GAME_OVER: 'game-over'        // 遊戲結束
-};
-
-/**
- * 連線類型常數
- * 定義 Bingo 遊戲中可能的連線類型
- */
-const LINE_TYPES = {
-    HORIZONTAL: 'horizontal',         // 水平連線
-    VERTICAL: 'vertical',             // 垂直連線
-    DIAGONAL_MAIN: 'diagonal-main',   // 主對角線連線（左上到右下）
-    DIAGONAL_ANTI: 'diagonal-anti'    // 反對角線連線（右上到左下）
-};
-
-// ============================================================================
-// 錯誤處理類別和常數
-// ============================================================================
-
-/**
- * 遊戲相關錯誤的自定義錯誤類別
- * 提供更詳細的錯誤信息和類型分類
- */
-class GameError extends Error {
     /**
-     * 創建遊戲錯誤實例
-     * @param {string} message - 錯誤訊息
-     * @param {string} type - 錯誤類型
+     * 遊戲格子狀態常數
+     * 定義遊戲板上每個格子可能的狀態
      */
-    constructor(message, type) {
-        super(message);
-        this.name = 'GameError';
-        this.type = type;
-    }
-}
+    const CELL_STATES = {
+        EMPTY: 0,      // 空格子，尚未被選擇
+        PLAYER: 1,     // 玩家選擇的格子
+        COMPUTER: 2    // 電腦選擇的格子
+    };
 
-/**
- * 錯誤類型常數
- * 定義可能發生的錯誤類型，便於錯誤處理和調試
- */
-const ERROR_TYPES = {
-    INVALID_MOVE: 'invalid-move',     // 無效移動
-    CELL_OCCUPIED: 'cell-occupied',   // 格子已被佔用
-    GAME_OVER: 'game-over',           // 遊戲已結束
-    INVALID_PHASE: 'invalid-phase'    // 無效的遊戲階段
-};
+    /**
+     * 遊戲階段常數
+     * 定義遊戲進行過程中的不同階段
+     */
+    const GAME_PHASES = {
+        WAITING: 'waiting',           // 等待遊戲開始
+        PLAYER_TURN: 'player-turn',   // 玩家回合
+        COMPUTER_TURN: 'computer-turn', // 電腦回合（等待輸入）
+        GAME_OVER: 'game-over'        // 遊戲結束
+    };
+
+    /**
+     * 連線類型常數
+     * 定義 Bingo 遊戲中可能的連線類型
+     */
+    const LINE_TYPES = {
+        HORIZONTAL: 'horizontal',         // 水平連線
+        VERTICAL: 'vertical',             // 垂直連線
+        DIAGONAL_MAIN: 'diagonal-main',   // 主對角線連線（左上到右下）
+        DIAGONAL_ANTI: 'diagonal-anti'    // 反對角線連線（右上到左下）
+    };
+
+    // ============================================================================
+    // 錯誤處理類別和常數
+    // ============================================================================
+
+    /**
+     * 遊戲相關錯誤的自定義錯誤類別
+     * 提供更詳細的錯誤信息和類型分類
+     */
+    class GameError extends Error {
+        /**
+         * 創建遊戲錯誤實例
+         * @param {string} message - 錯誤訊息
+         * @param {string} type - 錯誤類型
+         */
+        constructor(message, type) {
+            super(message);
+            this.name = 'GameError';
+            this.type = type;
+        }
+    }
+
+    /**
+     * 錯誤類型常數
+     * 定義可能發生的錯誤類型，便於錯誤處理和調試
+     */
+    const ERROR_TYPES = {
+        INVALID_MOVE: 'invalid-move',     // 無效移動
+        CELL_OCCUPIED: 'cell-occupied',   // 格子已被佔用
+        GAME_OVER: 'game-over',           // 遊戲已結束
+        INVALID_PHASE: 'invalid-phase'    // 無效的遊戲階段
+    };
 
 // ============================================================================
 // 遊戲狀態管理類別
@@ -259,13 +264,17 @@ class GameState {
     }
 }
 
-// Global game instances
-let gameState = null;
-let gameBoard = null;
-let lineDetector = null;
-let probabilityCalculator = null;
+    // ============================================================================
+    // 遊戲實例管理
+    // ============================================================================
 
-// Algorithm instances (declared in index.html)
+    // 遊戲實例（封裝在模塊內，避免全局污染）
+    let gameState = null;
+    let gameBoard = null;
+    let lineDetector = null;
+    let probabilityCalculator = null;
+
+    // 演算法實例管理
 // let StandardProbabilityCalculator = null;
 // let EnhancedProbabilityCalculator = null;
 
@@ -2310,10 +2319,10 @@ function handlePlayAgain() {
     }
 }
 
-/**
- * 調試功能
- */
-let debugMode = false;
+    /**
+     * 調試功能
+     */
+    let debugMode = false;
 
 function initializeDebugPanel() {
     // 檢查是否在開發環境或有特殊參數
@@ -2583,14 +2592,44 @@ function forceRefreshLines() {
     }
 }
 
-// Export for testing (if in Node.js environment)
-if (typeof module !== 'undefined' && module.exports) {
-    module.exports = {
-        GameState,
-        CELL_STATES,
-        GAME_PHASES,
-        LINE_TYPES,
-        ERROR_TYPES,
-        GameError
-    };
-}
+    // ============================================================================
+    // 模塊導出和全局接口
+    // ============================================================================
+
+    // 將必要的函數和類別添加到 BingoGame 命名空間
+    BingoGame.GameState = GameState;
+    BingoGame.CELL_STATES = CELL_STATES;
+    BingoGame.GAME_PHASES = GAME_PHASES;
+    BingoGame.LINE_TYPES = LINE_TYPES;
+    BingoGame.ERROR_TYPES = ERROR_TYPES;
+    BingoGame.GameError = GameError;
+    
+    // 導出主要的遊戲函數到全局作用域（為了向後兼容）
+    global.initializeGame = initializeGame;
+    global.startNewGame = startNewGame;
+    global.handleCellClick = handleCellClick;
+    global.makeRandomComputerMove = makeRandomComputerMove;
+    global.gameState = gameState;
+    global.probabilityCalculator = probabilityCalculator;
+    
+    // 導出調試函數（僅在開發模式下）
+    if (global.Environment && global.Environment.isDevelopment()) {
+        global.debugMode = debugMode;
+        global.initializeDebugPanel = initializeDebugPanel;
+        global.logDebug = logDebug;
+    }
+
+    // Node.js 環境導出（用於測試）
+    if (typeof module !== 'undefined' && module.exports) {
+        module.exports = {
+            GameState,
+            CELL_STATES,
+            GAME_PHASES,
+            LINE_TYPES,
+            ERROR_TYPES,
+            GameError,
+            BingoGame
+        };
+    }
+
+})(typeof window !== 'undefined' ? window : global);

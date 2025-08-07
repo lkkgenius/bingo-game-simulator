@@ -426,96 +426,100 @@
         <div class="loading-text" data-i18n="loading.components">正在載入遊戲組件...</div>
     </div>
 
-    <!-- Security and Error Handling -->
-    <script src="./safe-dom.js"></script>
-    <script src="./production-logger.js"></script>
-    <script src="./security-utils.js"></script>
-    <script src="./error-boundary.js"></script>
-    
-    <!-- Internationalization -->
-    <script src="./i18n.js"></script>
-    
-    <!-- Bug Fixes and Edge Cases -->
-    <script src="./bug-fixes-and-edge-cases.js"></script>
-    
-    <!-- Enhanced User Experience -->
-    <script src="./accessibility-enhancements.js"></script>
-    <script src="./suggestion-enhancements.js"></script>
-    
-    <script src="./loading-functions.js"></script>
-    <script src="./performance-monitor.js"></script>
-    
-    <!-- Core utilities (must load before other components) -->
-    <script src="./utils/common.js"></script>
-    <script src="./utils/baseProbabilityCalculator.js"></script>
-    
-    <script src="./lineDetector.js"></script>
-    <script src="./probabilityCalculator.js"></script>
-    <script src="./gameEngine.js"></script>
-    <script src="./gameBoard.js"></script>
-    <script src="./debug-probability.js"></script>
-    <script src="./script.js"></script>
+    <!-- Enhanced Script Loading Architecture -->
+    <script src="./script-loader.js"></script>
     
     <script>
-        let StandardProbabilityCalculator = null;
-        // EnhancedProbabilityCalculator will be loaded dynamically
+        // Game initialization using the new script loading architecture
         let currentAlgorithm = 'standard';
+        let gameInitialized = false;
         
-        window.addEventListener('load', function() {
-            // Add a longer delay to ensure all scripts are fully loaded
-            setTimeout(function() {
-                if (window.logger) {
-                    window.logger.debug('Checking component loading...');
-                    window.logger.debug('LineDetector:', typeof LineDetector);
-                    window.logger.debug('ProbabilityCalculator:', typeof ProbabilityCalculator);
-                    window.logger.debug('GameBoard:', typeof GameBoard);
-                    window.logger.debug('window.GameBoard:', typeof window.GameBoard);
+        // Initialize the enhanced script loader and load all modules
+        async function initializeGame() {
+            try {
+                // Show loading indicator
+                const loadingElement = document.getElementById('global-loading');
+                if (loadingElement) {
+                    loadingElement.style.display = 'flex';
                 }
                 
-                // Check if GameBoard class exists in window object
-                const gameboardExists = typeof GameBoard !== 'undefined' || typeof window.GameBoard !== 'undefined';
+                // Initialize and load modules using the enhanced script loader
+                await window.scriptLoader.initialize();
+                await window.scriptLoader.loadModules();
                 
-                if (typeof LineDetector === 'undefined') {
-                    alert('遊戲組件加載失敗：LineDetector');
-                    return;
+                // Setup game components after all modules are loaded
+                setupGameComponents();
+                
+                // Hide loading indicator
+                if (loadingElement) {
+                    loadingElement.style.display = 'none';
                 }
                 
-                if (typeof ProbabilityCalculator === 'undefined') {
-                    alert('遊戲組件加載失敗：ProbabilityCalculator');
-                    return;
-                } else {
-                    StandardProbabilityCalculator = ProbabilityCalculator;
+                gameInitialized = true;
+                
+                if (window.Environment && window.Environment.isDevelopment()) {
+                    console.log('🎮 Game initialized successfully');
+                    console.log('Script Loader Status:', window.scriptLoader.getStatus());
                 }
                 
-                if (!gameboardExists) {
-                    if (window.logger) {
-                        window.logger.error('GameBoard not found. Retrying in 500ms...');
-                    }
-                    setTimeout(function() {
-                        if (typeof GameBoard === 'undefined' && typeof window.GameBoard === 'undefined') {
-                            alert('遊戲組件加載失敗：GameBoard');
-                            return;
-                        }
-                        if (window.logger) {
-                            window.logger.info('GameBoard found on retry');
-                        }
-                        setupAlgorithmSelection();
-                        setupStartButton();
-                    }, 500);
-                    return;
+            } catch (error) {
+                console.error('Failed to initialize game:', error);
+                
+                // Show error message to user
+                const loadingText = document.querySelector('.loading-text');
+                if (loadingText) {
+                    loadingText.textContent = '載入失敗，請重新整理頁面';
+                    loadingText.style.color = '#e74c3c';
                 }
                 
-                if (window.logger) {
-                    window.logger.info('All components loaded successfully');
-                }
-                setupAlgorithmSelection();
-                setupStartButton();
-            }, 200); // Increased delay
-        });
-        
-        function setupStartButton() {
+                // Try to provide fallback functionality
+                setTimeout(() => {
+                    setupBasicFallback();
+                }, 2000);
+            }
         }
         
+        // Setup game components after modules are loaded
+        function setupGameComponents() {
+            // Verify critical components are available
+            const criticalComponents = ['LineDetector', 'ProbabilityCalculator', 'GameBoard', 'GameEngine'];
+            const missingComponents = criticalComponents.filter(component => typeof window[component] === 'undefined');
+            
+            if (missingComponents.length > 0) {
+                console.warn('Missing components:', missingComponents);
+                // Try to load missing components on demand
+                missingComponents.forEach(component => {
+                    const modulePath = component.toLowerCase().replace(/([A-Z])/g, '-$1').substring(1) + '.js';
+                    window.scriptLoader.loadOnDemand(modulePath).catch(error => {
+                        console.error(`Failed to load ${component}:`, error);
+                    });
+                });
+            }
+            
+            // Setup algorithm selection
+            setupAlgorithmSelection();
+            
+            // Setup start button
+            setupStartButton();
+            
+            // Setup other UI components
+            setupUIComponents();
+        }
+        
+        // Setup basic fallback functionality
+        function setupBasicFallback() {
+            console.log('Setting up basic fallback functionality');
+            
+            // Provide minimal game functionality
+            const startButton = document.getElementById('start-game');
+            if (startButton) {
+                startButton.addEventListener('click', function() {
+                    alert('遊戲載入失敗，請重新整理頁面後再試');
+                });
+            }
+        }
+        
+        // Setup start button functionality
         function setupStartButton() {
             const startButton = document.getElementById('start-game');
             if (startButton) {
@@ -523,14 +527,24 @@
                     if (typeof startNewGame === 'function') {
                         startNewGame();
                     } else {
-                        alert('遊戲啟動失敗：找不到 startNewGame 函數');
+                        console.error('startNewGame function not available');
+                        // Try to load script.js on demand
+                        window.scriptLoader.loadOnDemand('script.js').then(() => {
+                            if (typeof startNewGame === 'function') {
+                                startNewGame();
+                            } else {
+                                alert('遊戲啟動失敗：找不到 startNewGame 函數');
+                            }
+                        }).catch(error => {
+                            console.error('Failed to load script.js:', error);
+                            alert('遊戲啟動失敗：無法載入遊戲腳本');
+                        });
                     }
                 });
             }
         }
         
-        // Enhanced algorithm loading is now handled in script.js
-        
+        // Setup algorithm selection with enhanced loading
         function setupAlgorithmSelection() {
             const algorithmOptions = document.querySelectorAll('.algorithm-option');
             
@@ -538,51 +552,116 @@
                 option.addEventListener('click', function() {
                     const algorithm = this.getAttribute('data-algorithm');
                     
-                    // 檢查是否為當前演算法
                     if (algorithm === currentAlgorithm) {
                         return;
                     }
                     
-                    // 檢查增強演算法是否可用
-                    if (algorithm === 'enhanced') {
-                        // 檢查按鈕是否被禁用（透明度小於1表示被禁用）
-                        const isDisabled = this.style.opacity === '0.5' || this.style.cursor === 'not-allowed';
-                        if (isDisabled) {
-                            return;
-                        }
+                    // Check if enhanced algorithm needs to be loaded
+                    if (algorithm === 'enhanced' && typeof EnhancedProbabilityCalculator === 'undefined') {
+                        // Load enhanced algorithm on demand
+                        this.style.opacity = '0.5';
+                        this.style.cursor = 'wait';
+                        this.title = '正在載入增強版演算法...';
+                        
+                        window.scriptLoader.loadOnDemand('probabilityCalculator.enhanced.js')
+                            .then(() => {
+                                this.style.opacity = '1';
+                                this.style.cursor = 'pointer';
+                                this.title = '點擊切換到增強版演算法';
+                                
+                                // Now switch to the algorithm
+                                switchAlgorithm(algorithm);
+                                updateAlgorithmSelection(algorithm);
+                            })
+                            .catch(error => {
+                                console.error('Failed to load enhanced algorithm:', error);
+                                this.style.opacity = '0.5';
+                                this.style.cursor = 'not-allowed';
+                                this.title = '增強版演算法載入失敗';
+                            });
+                        return;
                     }
                     
-                    algorithmOptions.forEach(opt => opt.classList.remove('selected'));
-                    this.classList.add('selected');
+                    // Check if AI learning algorithm needs to be loaded
+                    if (algorithm === 'ai-learning' && typeof AILearningSystem === 'undefined') {
+                        this.style.opacity = '0.5';
+                        this.style.cursor = 'wait';
+                        this.title = '正在載入 AI 學習演算法...';
+                        
+                        window.scriptLoader.loadOnDemand('aiLearningSystem.js')
+                            .then(() => {
+                                this.style.opacity = '1';
+                                this.style.cursor = 'pointer';
+                                this.title = '點擊切換到 AI 學習演算法';
+                                
+                                switchAlgorithm(algorithm);
+                                updateAlgorithmSelection(algorithm);
+                            })
+                            .catch(error => {
+                                console.error('Failed to load AI learning algorithm:', error);
+                                this.style.opacity = '0.5';
+                                this.style.cursor = 'not-allowed';
+                                this.title = 'AI 學習演算法載入失敗';
+                            });
+                        return;
+                    }
                     
+                    // Switch algorithm if already loaded
                     switchAlgorithm(algorithm);
+                    updateAlgorithmSelection(algorithm);
                 });
             });
             
+            // Initially disable enhanced algorithms until loaded
             disableAlgorithmSelection();
         }
         
+        // Update algorithm selection UI
+        function updateAlgorithmSelection(algorithm) {
+            const algorithmOptions = document.querySelectorAll('.algorithm-option');
+            algorithmOptions.forEach(opt => opt.classList.remove('selected'));
+            
+            const selectedOption = document.querySelector(`.algorithm-option[data-algorithm="${algorithm}"]`);
+            if (selectedOption) {
+                selectedOption.classList.add('selected');
+            }
+        }
+        
+        // Disable algorithm selection initially
         function disableAlgorithmSelection() {
             const enhancedOption = document.querySelector('.algorithm-option[data-algorithm="enhanced"]');
             if (enhancedOption) {
                 enhancedOption.style.opacity = '0.5';
                 enhancedOption.style.cursor = 'not-allowed';
-                enhancedOption.title = '正在加載增強版演算法...';
+                enhancedOption.title = '正在載入增強版演算法...';
+            }
+            
+            const aiOption = document.querySelector('.algorithm-option[data-algorithm="ai-learning"]');
+            if (aiOption) {
+                aiOption.style.opacity = '0.5';
+                aiOption.style.cursor = 'not-allowed';
+                aiOption.title = '正在載入 AI 學習演算法...';
             }
         }
         
+        // Enable algorithm selection when loaded
         function enableAlgorithmSelection() {
             const enhancedOption = document.querySelector('.algorithm-option[data-algorithm="enhanced"]');
-            if (enhancedOption) {
+            if (enhancedOption && typeof EnhancedProbabilityCalculator !== 'undefined') {
                 enhancedOption.style.opacity = '1';
                 enhancedOption.style.cursor = 'pointer';
                 enhancedOption.title = '點擊切換到增強版演算法';
             }
+            
+            const aiOption = document.querySelector('.algorithm-option[data-algorithm="ai-learning"]');
+            if (aiOption && typeof AILearningSystem !== 'undefined') {
+                aiOption.style.opacity = '1';
+                aiOption.style.cursor = 'pointer';
+                aiOption.title = '點擊切換到 AI 學習演算法';
+            }
         }
         
-        // 將函數添加到全局作用域
-        window.enableAlgorithmSelection = enableAlgorithmSelection;
-        
+        // Switch algorithm implementation
         function switchAlgorithm(algorithm) {
             if (algorithm === currentAlgorithm) {
                 return;
@@ -590,6 +669,7 @@
             
             currentAlgorithm = algorithm;
             
+            // Update current algorithm display
             const currentAlgorithmName = document.getElementById('current-algorithm-name');
             if (currentAlgorithmName) {
                 currentAlgorithmName.setAttribute('data-algorithm', algorithm);
@@ -597,62 +677,147 @@
                 if (typeof i18n !== 'undefined') {
                     currentAlgorithmName.textContent = i18n.t(algorithmKey);
                 } else {
-                    // Fallback for when i18n is not loaded yet
-                    currentAlgorithmName.textContent = algorithm === 'standard' ? '標準演算法' : '增強演算法';
+                    // Fallback text
+                    const algorithmNames = {
+                        'standard': '標準演算法',
+                        'enhanced': '增強演算法',
+                        'ai-learning': 'AI 學習演算法'
+                    };
+                    currentAlgorithmName.textContent = algorithmNames[algorithm] || algorithm;
                 }
             }
             
-            // Update the global probabilityCalculator instance
+            // Update global probabilityCalculator instance
             if (typeof probabilityCalculator !== 'undefined') {
-                if (algorithm === 'standard') {
+                if (algorithm === 'standard' && typeof ProbabilityCalculator !== 'undefined') {
                     probabilityCalculator = new ProbabilityCalculator();
                 } else if (algorithm === 'enhanced' && typeof EnhancedProbabilityCalculator !== 'undefined') {
                     probabilityCalculator = new EnhancedProbabilityCalculator();
+                } else if (algorithm === 'ai-learning' && typeof AILearningSystem !== 'undefined') {
+                    // AI learning system integration would go here
+                    console.log('AI learning algorithm selected');
                 }
             }
             
+            // Reinitialize game if it was already started
             if (typeof initializeGame === 'function' && typeof gameState !== 'undefined') {
                 const wasGameStarted = gameState.gameStarted;
                 
-                initializeGame();
+                if (typeof window.initializeGame === 'function') {
+                    window.initializeGame();
+                }
                 
-                if (wasGameStarted && !gameState.gameEnded) {
+                if (wasGameStarted && !gameState.gameEnded && typeof startNewGame === 'function') {
                     startNewGame();
+                }
+                
+                // Show success message
+                showAlgorithmSwitchMessage(algorithm);
+            }
+        }
+        
+        // Show algorithm switch success message
+        function showAlgorithmSwitchMessage(algorithm) {
+            const instructionText = document.getElementById('instruction-text');
+            if (instructionText) {
+                const algorithmNames = {
+                    'standard': '標準演算法',
+                    'enhanced': '增強演算法',
+                    'ai-learning': 'AI 學習演算法'
+                };
+                
+                const algorithmName = algorithmNames[algorithm] || algorithm;
+                const message = typeof i18n !== 'undefined' 
+                    ? i18n.t('success.algorithm-switched', { algorithm: algorithmName })
+                    : `已切換到${algorithmName}`;
+                
+                instructionText.textContent = message;
+                instructionText.classList.add('success');
+                
+                setTimeout(() => {
+                    const defaultMessage = typeof i18n !== 'undefined' 
+                        ? i18n.t('instructions.default')
+                        : '點擊「開始遊戲」按鈕開始新的遊戲。使用方向鍵導航遊戲板，按 Enter 或空格鍵選擇格子。';
+                    instructionText.textContent = defaultMessage;
+                    instructionText.classList.remove('success');
+                }, 3000);
+            }
+        }
+        
+        // Setup other UI components
+        function setupUIComponents() {
+            // Enable algorithm selection for loaded modules
+            setTimeout(() => {
+                enableAlgorithmSelection();
+            }, 1000);
+            
+            // Setup performance monitoring display (development mode only)
+            if (window.Environment && window.Environment.isDevelopment()) {
+                setupPerformanceDisplay();
+            }
+        }
+        
+        // Setup performance monitoring display (development mode)
+        function setupPerformanceDisplay() {
+            const debugPanel = document.getElementById('debug-panel');
+            if (debugPanel && window.scriptLoader) {
+                const performanceButton = document.createElement('button');
+                performanceButton.className = 'debug-btn';
+                performanceButton.textContent = '顯示載入性能';
+                performanceButton.onclick = () => {
+                    const status = window.scriptLoader.getStatus();
+                    console.log('Script Loader Performance:', status.performance);
                     
-                    const instructionText = document.getElementById('instruction-text');
-                    if (instructionText && typeof i18n !== 'undefined') {
-                        const algorithmName = i18n.t(`algorithm.${algorithm}.name`);
-                        instructionText.textContent = i18n.t('success.algorithm-switched', { algorithm: algorithmName });
-                        instructionText.classList.add('success');
-                        
-                        setTimeout(() => {
-                            instructionText.textContent = i18n.t('instructions.default');
-                            instructionText.classList.remove('success');
-                        }, 3000);
+                    const debugInfo = document.getElementById('debug-info');
+                    if (debugInfo) {
+                        debugInfo.innerHTML = `
+                            <h4>載入性能報告</h4>
+                            <p>總載入時間: ${status.performance.totalLoadTime.toFixed(2)}ms</p>
+                            <p>關鍵路徑時間: ${status.performance.criticalPathTime.toFixed(2)}ms</p>
+                            <p>成功載入模組: ${status.performance.successfulLoads}/${status.performance.moduleCount}</p>
+                            <p>平均載入時間: ${status.performance.averageLoadTime.toFixed(2)}ms</p>
+                            ${status.performance.errors.length > 0 ? `<p style="color: red;">錯誤: ${status.performance.errors.length}</p>` : ''}
+                            ${status.performance.warnings.length > 0 ? `<p style="color: orange;">警告: ${status.performance.warnings.length}</p>` : ''}
+                        `;
                     }
-                } else {
-                    const instructionText = document.getElementById('instruction-text');
-                    if (instructionText && typeof i18n !== 'undefined') {
-                        const algorithmName = i18n.t(`algorithm.${algorithm}.name`);
-                        instructionText.textContent = i18n.t('success.algorithm-switched', { algorithm: algorithmName });
-                        instructionText.classList.add('success');
-                        
-                        setTimeout(() => {
-                            instructionText.textContent = i18n.t('instructions.default');
-                            instructionText.classList.remove('success');
-                        }, 3000);
-                    }
+                };
+                
+                const debugControls = debugPanel.querySelector('.debug-controls');
+                if (debugControls) {
+                    debugControls.appendChild(performanceButton);
                 }
             }
         }
+        
+        // Initialize game when DOM is ready
+        document.addEventListener('DOMContentLoaded', function() {
+            // Small delay to ensure script-loader.js is fully loaded
+            setTimeout(() => {
+                if (window.scriptLoader) {
+                    initializeGame();
+                } else {
+                    console.error('Script loader not available, falling back to basic initialization');
+                    setupBasicFallback();
+                }
+            }, 100);
+        });
+        
+        // Global error handler for unhandled errors
+        window.addEventListener('error', function(event) {
+            console.error('Global error:', event.error);
+            
+            if (!gameInitialized) {
+                // If game hasn't initialized yet, try fallback
+                setupBasicFallback();
+            }
+        });
+        
+        // Expose functions to global scope for compatibility
+        window.enableAlgorithmSelection = enableAlgorithmSelection;
+        window.switchAlgorithm = switchAlgorithm;
+        window.currentAlgorithm = currentAlgorithm;
     </script>
-    
-    <!-- Mobile Touch and Gesture Support -->
-    <script src="./mobile-touch.js"></script>
-    <script src="./gesture-support.js"></script>
-    
-    <!-- PWA Manager -->
-    <script src="./pwa-manager.js"></script>
+
     
     <!-- PWA Installation Script -->
     <script>
