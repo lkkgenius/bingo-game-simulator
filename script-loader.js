@@ -260,18 +260,21 @@ class ConditionalModuleConfig {
     this.configs = {
       development: {
         modules: [
-          // Core modules (always loaded)
-          'utils/common.js',
+          // Core modules (always loaded first)
           'safe-dom.js',
           'production-logger.js',
           'security-utils.js',
           'error-boundary.js',
+          'utils/common.js',
           
           // Game modules
           'lineDetector.js',
           'probabilityCalculator.js',
           'gameBoard.js',
           'gameEngine.js',
+          
+          // Main script
+          'script.js',
           
           // Development-specific modules
           'debug-probability.js',
@@ -305,18 +308,21 @@ class ConditionalModuleConfig {
       
       production: {
         modules: [
-          // Core modules (always loaded)
-          'utils/common.js',
+          // Core modules (always loaded first)
           'safe-dom.js',
           'production-logger.js',
           'security-utils.js',
           'error-boundary.js',
+          'utils/common.js',
           
           // Game modules
           'lineDetector.js',
           'probabilityCalculator.js',
           'gameBoard.js',
           'gameEngine.js',
+          
+          // Main script
+          'script.js',
           
           // Enhanced features (lazy loaded)
           'probabilityCalculator.enhanced.js',

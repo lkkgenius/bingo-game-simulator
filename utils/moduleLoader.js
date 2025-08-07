@@ -45,15 +45,41 @@ class ModuleLoader {
    * Setup module dependencies
    */
   setupDependencies() {
+    // Core utilities (no dependencies)
+    this.dependencies.set('safe-dom.js', []);
+    this.dependencies.set('production-logger.js', []);
+    this.dependencies.set('security-utils.js', []);
+    this.dependencies.set('error-boundary.js', []);
     this.dependencies.set('utils/common.js', []);
+    
+    // Game core modules
     this.dependencies.set('lineDetector.js', ['utils/common.js']);
     this.dependencies.set('probabilityCalculator.js', ['utils/common.js', 'lineDetector.js']);
     this.dependencies.set('probabilityCalculator.enhanced.js', ['utils/common.js', 'lineDetector.js']);
     this.dependencies.set('gameBoard.js', ['utils/common.js']);
     this.dependencies.set('gameEngine.js', ['utils/common.js', 'lineDetector.js', 'probabilityCalculator.js']);
+    
+    // Enhanced features
     this.dependencies.set('algorithmComparison.js', ['probabilityCalculator.js', 'probabilityCalculator.enhanced.js']);
-    this.dependencies.set('performance-monitor.js', ['utils/common.js']);
     this.dependencies.set('aiLearningSystem.js', ['utils/common.js', 'gameEngine.js']);
+    
+    // UI and enhancements
+    this.dependencies.set('i18n.js', ['safe-dom.js']);
+    this.dependencies.set('accessibility-enhancements.js', ['safe-dom.js']);
+    this.dependencies.set('suggestion-enhancements.js', ['safe-dom.js']);
+    this.dependencies.set('bug-fixes-and-edge-cases.js', ['safe-dom.js', 'production-logger.js']);
+    
+    // Performance and monitoring
+    this.dependencies.set('performance-monitor.js', ['utils/common.js']);
+    this.dependencies.set('loading-functions.js', ['utils/common.js']);
+    
+    // Mobile and PWA
+    this.dependencies.set('mobile-touch.js', ['utils/common.js']);
+    this.dependencies.set('gesture-support.js', ['utils/common.js']);
+    this.dependencies.set('pwa-manager.js', ['utils/common.js']);
+    
+    // Main script (depends on core modules)
+    this.dependencies.set('script.js', ['utils/common.js', 'lineDetector.js', 'probabilityCalculator.js', 'gameBoard.js', 'gameEngine.js']);
     
     // Update total count for progress tracking
     this.loadingStats.total = this.dependencies.size;
