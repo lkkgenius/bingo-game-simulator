@@ -17,7 +17,7 @@ if (typeof require !== 'undefined') {
   const common = require('./utils/common.js');
   CONSTANTS = common.CONSTANTS;
   Utils = common.Utils;
-} else if (typeof window !== 'undefined') {
+} else if (typeof window !== 'undefined' && window.CONSTANTS) {
   CONSTANTS = window.CONSTANTS;
   Utils = window.Utils;
 }
