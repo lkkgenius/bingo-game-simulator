@@ -23,9 +23,22 @@ class ModuleLoader {
     this.loadingPromises = new Map();
     this.dependencies = new Map();
     this.loadOrder = [];
+    this.dependencyGraph = new Map();
+    this.loadingState = new Map();
+    this.retryAttempts = new Map();
+    this.maxRetries = 3;
+    this.retryDelay = 1000; // 1 second
+    this.progressCallbacks = [];
+    this.loadingStats = {
+      total: 0,
+      loaded: 0,
+      failed: 0,
+      loading: 0
+    };
     
     // Define module dependencies
     this.setupDependencies();
+    this.buildDependencyGraph();
   }
 
   /**
@@ -41,10 +54,151 @@ class ModuleLoader {
     this.dependencies.set('algorithmComparison.js', ['probabilityCalculator.js', 'probabilityCalculator.enhanced.js']);
     this.dependencies.set('performance-monitor.js', ['utils/common.js']);
     this.dependencies.set('aiLearningSystem.js', ['utils/common.js', 'gameEngine.js']);
+    
+    // Update total count for progress tracking
+    this.loadingStats.total = this.dependencies.size;
   }
 
   /**
-   * Load a module with its dependencies
+   * Build dependency graph for topological sorting
+   */
+  buildDependencyGraph() {
+    // Initialize graph
+    for (const [module, deps] of this.dependencies) {
+      if (!this.dependencyGraph.has(module)) {
+        this.dependencyGraph.set(module, { dependencies: [], dependents: [] });
+      }
+      
+      for (const dep of deps) {
+        if (!this.dependencyGraph.has(dep)) {
+          this.dependencyGraph.set(dep, { dependencies: [], dependents: [] });
+        }
+        
+        this.dependencyGraph.get(module).dependencies.push(dep);
+        this.dependencyGraph.get(dep).dependents.push(module);
+      }
+    }
+  }
+
+  /**
+   * Calculate correct loading order using topological sort
+   * @returns {string[]} Array of modules in correct loading order
+   */
+  calculateLoadOrder() {
+    const visited = new Set();
+    const visiting = new Set();
+    const order = [];
+
+    const visit = (module) => {
+      if (visiting.has(module)) {
+        throw new Error(`Circular dependency detected involving ${module}`);
+      }
+      
+      if (visited.has(module)) {
+        return;
+      }
+
+      visiting.add(module);
+      
+      const node = this.dependencyGraph.get(module);
+      if (node) {
+        for (const dep of node.dependencies) {
+          visit(dep);
+        }
+      }
+
+      visiting.delete(module);
+      visited.add(module);
+      order.push(module);
+    };
+
+    for (const module of this.dependencies.keys()) {
+      if (!visited.has(module)) {
+        visit(module);
+      }
+    }
+
+    this.loadOrder = order;
+    return order;
+  }
+
+  /**
+   * Set loading state for a module
+   * @param {string} modulePath - Path to the module
+   * @param {string} state - Loading state ('pending', 'loading', 'loaded', 'failed')
+   * @param {Error} error - Error if state is 'failed'
+   */
+  setLoadingState(modulePath, state, error = null) {
+    const previousState = this.loadingState.get(modulePath);
+    
+    this.loadingState.set(modulePath, {
+      state,
+      timestamp: Date.now(),
+      error,
+      attempts: this.retryAttempts.get(modulePath) || 0
+    });
+
+    // Update statistics
+    if (previousState) {
+      this.loadingStats[previousState.state]--;
+    }
+    this.loadingStats[state]++;
+
+    // Notify progress callbacks
+    this.notifyProgress();
+
+    if (logger) {
+      logger.debug(`Module ${modulePath} state changed to ${state}`, { error });
+    }
+  }
+
+  /**
+   * Add progress callback
+   * @param {Function} callback - Callback function to receive progress updates
+   */
+  onProgress(callback) {
+    this.progressCallbacks.push(callback);
+  }
+
+  /**
+   * Notify all progress callbacks
+   */
+  notifyProgress() {
+    const progress = this.getLoadingProgress();
+    this.progressCallbacks.forEach(callback => {
+      try {
+        callback(progress);
+      } catch (error) {
+        if (logger) {
+          logger.warn('Progress callback error:', error);
+        }
+      }
+    });
+  }
+
+  /**
+   * Get detailed loading progress
+   * @returns {Object} Progress information
+   */
+  getLoadingProgress() {
+    const { total, loaded, failed, loading } = this.loadingStats;
+    const pending = total - loaded - failed - loading;
+    
+    return {
+      total,
+      loaded,
+      failed,
+      loading,
+      pending,
+      percentage: total > 0 ? Math.round((loaded / total) * 100) : 0,
+      isComplete: loaded + failed === total,
+      hasErrors: failed > 0,
+      modules: Object.fromEntries(this.loadingState)
+    };
+  }
+
+  /**
+   * Load a module with its dependencies and retry mechanism
    * @param {string} modulePath - Path to the module
    * @returns {Promise} Promise that resolves when module is loaded
    */
@@ -59,19 +213,81 @@ class ModuleLoader {
       return this.loadingPromises.get(modulePath);
     }
 
-    // Create loading promise
-    const loadingPromise = this._loadModuleWithDependencies(modulePath);
+    // Initialize loading state
+    this.setLoadingState(modulePath, 'pending');
+
+    // Create loading promise with retry mechanism
+    const loadingPromise = this._loadModuleWithRetry(modulePath);
     this.loadingPromises.set(modulePath, loadingPromise);
 
     try {
       const module = await loadingPromise;
       this.loadedModules.set(modulePath, module);
       this.loadingPromises.delete(modulePath);
+      this.setLoadingState(modulePath, 'loaded');
       return module;
     } catch (error) {
       this.loadingPromises.delete(modulePath);
+      this.setLoadingState(modulePath, 'failed', error);
       throw error;
     }
+  }
+
+  /**
+   * Load module with retry mechanism
+   * @private
+   * @param {string} modulePath - Path to the module
+   * @returns {Promise} Promise that resolves when module is loaded
+   */
+  async _loadModuleWithRetry(modulePath) {
+    let lastError;
+    const maxAttempts = this.maxRetries + 1;
+
+    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+      try {
+        this.retryAttempts.set(modulePath, attempt);
+        this.setLoadingState(modulePath, 'loading');
+        
+        if (logger && attempt > 1) {
+          logger.info(`Retrying module load: ${modulePath} (attempt ${attempt}/${maxAttempts})`);
+        }
+
+        const module = await this._loadModuleWithDependencies(modulePath);
+        
+        // Clear retry count on success
+        this.retryAttempts.delete(modulePath);
+        return module;
+        
+      } catch (error) {
+        lastError = error;
+        
+        if (logger) {
+          logger.warn(`Module load attempt ${attempt} failed for ${modulePath}:`, error.message);
+        }
+
+        // Don't retry on the last attempt
+        if (attempt < maxAttempts) {
+          await this._delay(this.retryDelay * attempt); // Exponential backoff
+        }
+      }
+    }
+
+    // All attempts failed
+    if (logger) {
+      logger.error(`Failed to load module ${modulePath} after ${maxAttempts} attempts:`, lastError);
+    }
+    
+    throw new Error(`Failed to load module ${modulePath} after ${maxAttempts} attempts: ${lastError.message}`);
+  }
+
+  /**
+   * Delay utility for retry mechanism
+   * @private
+   * @param {number} ms - Milliseconds to delay
+   * @returns {Promise} Promise that resolves after delay
+   */
+  _delay(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
   }
 
   /**
@@ -182,7 +398,124 @@ class ModuleLoader {
       loading: Array.from(this.loadingPromises.keys()),
       totalModules: this.dependencies.size,
       loadedCount: this.loadedModules.size,
-      loadingCount: this.loadingPromises.size
+      loadingCount: this.loadingPromises.size,
+      progress: this.getLoadingProgress(),
+      loadOrder: this.loadOrder,
+      dependencyGraph: Object.fromEntries(this.dependencyGraph)
+    };
+  }
+
+  /**
+   * Load modules in optimal order based on dependency graph
+   * @param {string[]} modules - Array of module paths to load
+   * @returns {Promise} Promise that resolves when all modules are loaded
+   */
+  async loadModulesInOrder(modules) {
+    // Filter to only include requested modules and their dependencies
+    const requiredModules = new Set();
+    
+    const addModuleAndDeps = (modulePath) => {
+      if (requiredModules.has(modulePath)) return;
+      
+      requiredModules.add(modulePath);
+      const deps = this.dependencies.get(modulePath) || [];
+      deps.forEach(dep => addModuleAndDeps(dep));
+    };
+
+    modules.forEach(module => addModuleAndDeps(module));
+
+    // Calculate load order for required modules
+    const loadOrder = this.calculateLoadOrder().filter(module => 
+      requiredModules.has(module)
+    );
+
+    if (logger) {
+      logger.info('Loading modules in order:', loadOrder);
+    }
+
+    // Load modules in batches based on dependency levels
+    const loadedInThisBatch = new Set();
+    
+    while (loadedInThisBatch.size < loadOrder.length) {
+      const batch = [];
+      
+      for (const module of loadOrder) {
+        if (loadedInThisBatch.has(module)) continue;
+        
+        // Check if all dependencies are loaded
+        const deps = this.dependencies.get(module) || [];
+        const allDepsLoaded = deps.every(dep => 
+          this.loadedModules.has(dep) || loadedInThisBatch.has(dep)
+        );
+        
+        if (allDepsLoaded) {
+          batch.push(module);
+        }
+      }
+
+      if (batch.length === 0) {
+        // No progress possible - check for circular dependencies or missing modules
+        const remaining = loadOrder.filter(m => !loadedInThisBatch.has(m));
+        throw new Error(`Cannot resolve dependencies for modules: ${remaining.join(', ')}`);
+      }
+
+      // Load current batch in parallel
+      await Promise.all(batch.map(module => this.loadModule(module)));
+      batch.forEach(module => loadedInThisBatch.add(module));
+    }
+
+    return Array.from(loadedInThisBatch);
+  }
+
+  /**
+   * Validate dependency graph for circular dependencies
+   * @returns {Object} Validation result
+   */
+  validateDependencies() {
+    const issues = [];
+    const visited = new Set();
+    const visiting = new Set();
+
+    const checkCircular = (module, path = []) => {
+      if (visiting.has(module)) {
+        const cycle = [...path, module];
+        issues.push({
+          type: 'circular',
+          cycle: cycle.slice(cycle.indexOf(module))
+        });
+        return;
+      }
+
+      if (visited.has(module)) return;
+
+      visiting.add(module);
+      const deps = this.dependencies.get(module) || [];
+      
+      for (const dep of deps) {
+        if (!this.dependencies.has(dep)) {
+          issues.push({
+            type: 'missing',
+            module,
+            missingDependency: dep
+          });
+        } else {
+          checkCircular(dep, [...path, module]);
+        }
+      }
+
+      visiting.delete(module);
+      visited.add(module);
+    };
+
+    for (const module of this.dependencies.keys()) {
+      if (!visited.has(module)) {
+        checkCircular(module);
+      }
+    }
+
+    return {
+      isValid: issues.length === 0,
+      issues
     };
   }
 
@@ -192,6 +525,74 @@ class ModuleLoader {
   clearCache() {
     this.loadedModules.clear();
     this.loadingPromises.clear();
+    this.loadingState.clear();
+    this.retryAttempts.clear();
+    this.loadingStats = {
+      total: this.dependencies.size,
+      loaded: 0,
+      failed: 0,
+      loading: 0
+    };
+    this.notifyProgress();
+  }
+
+  /**
+   * Get detailed module information
+   * @param {string} modulePath - Path to the module
+   * @returns {Object} Module information
+   */
+  getModuleInfo(modulePath) {
+    const state = this.loadingState.get(modulePath);
+    const deps = this.dependencies.get(modulePath) || [];
+    const dependents = this.dependencyGraph.get(modulePath)?.dependents || [];
+    
+    return {
+      path: modulePath,
+      isLoaded: this.loadedModules.has(modulePath),
+      isLoading: this.loadingPromises.has(modulePath),
+      state: state?.state || 'unknown',
+      dependencies: deps,
+      dependents,
+      attempts: state?.attempts || 0,
+      lastError: state?.error?.message,
+      timestamp: state?.timestamp
+    };
+  }
+
+  /**
+   * Get modules that can be loaded next (all dependencies satisfied)
+   * @returns {string[]} Array of module paths ready to load
+   */
+  getReadyToLoadModules() {
+    const ready = [];
+    
+    for (const [module, deps] of this.dependencies) {
+      if (this.loadedModules.has(module) || this.loadingPromises.has(module)) {
+        continue;
+      }
+      
+      const allDepsLoaded = deps.every(dep => this.loadedModules.has(dep));
+      if (allDepsLoaded) {
+        ready.push(module);
+      }
+    }
+    
+    return ready;
+  }
+
+  /**
+   * Force reload a module (ignoring cache)
+   * @param {string} modulePath - Path to the module
+   * @returns {Promise} Promise that resolves when module is reloaded
+   */
+  async reloadModule(modulePath) {
+    // Remove from cache
+    this.loadedModules.delete(modulePath);
+    this.loadingState.delete(modulePath);
+    this.retryAttempts.delete(modulePath);
+    
+    // Reload
+    return this.loadModule(modulePath);
   }
 
   /**
@@ -250,13 +651,39 @@ class ProgressiveLoader {
     ];
     this.currentStage = 0;
     this.stageCallbacks = new Map();
+    this.stageProgress = new Map();
+    
+    // Setup progress tracking
+    this.moduleLoader.onProgress((progress) => {
+      this.updateStageProgress(progress);
+    });
   }
 
   /**
-   * Start progressive loading
+   * Update stage progress based on module loading progress
+   * @param {Object} progress - Progress information from ModuleLoader
+   */
+  updateStageProgress(progress) {
+    const currentStageName = this.loadingStages[this.currentStage];
+    if (currentStageName) {
+      this.stageProgress.set(currentStageName, progress);
+    }
+  }
+
+  /**
+   * Start progressive loading with enhanced dependency resolution
    */
   async startProgressiveLoading() {
     try {
+      // Validate dependencies first
+      const validation = this.moduleLoader.validateDependencies();
+      if (!validation.isValid) {
+        if (logger) {
+          logger.error('Dependency validation failed:', validation.issues);
+        }
+        throw new Error(`Dependency validation failed: ${JSON.stringify(validation.issues)}`);
+      }
+
       // Stage 1: Critical modules
       await this.loadStage('critical', [
         'utils/common.js'
@@ -295,7 +722,7 @@ class ProgressiveLoader {
   }
 
   /**
-   * Load a specific stage
+   * Load a specific stage using optimal dependency order
    * @param {string} stageName - Name of the stage
    * @param {string[]} modules - Modules to load in this stage
    */
@@ -305,12 +732,15 @@ class ProgressiveLoader {
     }
     
     try {
-      await this.moduleLoader.loadModulesInChunks(modules, 2);
+      this.currentStage = this.loadingStages.indexOf(stageName);
+      
+      // Use the enhanced loadModulesInOrder method
+      await this.moduleLoader.loadModulesInOrder(modules);
       
       // Trigger stage completion callback
       const callback = this.stageCallbacks.get(stageName);
       if (callback) {
-        callback();
+        callback(this.stageProgress.get(stageName));
       }
       
       if (logger) {
@@ -334,15 +764,34 @@ class ProgressiveLoader {
   }
 
   /**
-   * Get loading progress
+   * Get loading progress with stage information
    * @returns {Object} Loading progress information
    */
   getProgress() {
     const status = this.moduleLoader.getLoadingStatus();
+    const currentStageName = this.loadingStages[this.currentStage] || 'complete';
+    
     return {
       ...status,
-      currentStage: this.loadingStages[this.currentStage] || 'complete',
-      progress: Math.round((status.loadedCount / status.totalModules) * 100)
+      currentStage: currentStageName,
+      stageProgress: Object.fromEntries(this.stageProgress),
+      overallProgress: Math.round((status.loadedCount / status.totalModules) * 100),
+      readyToLoad: this.moduleLoader.getReadyToLoadModules(),
+      validation: this.moduleLoader.validateDependencies()
+    };
+  }
+
+  /**
+   * Get detailed stage information
+   * @returns {Object} Stage information
+   */
+  getStageInfo() {
+    return {
+      stages: this.loadingStages,
+      currentStage: this.currentStage,
+      currentStageName: this.loadingStages[this.currentStage] || 'complete',
+      completedStages: this.loadingStages.slice(0, this.currentStage),
+      remainingStages: this.loadingStages.slice(this.currentStage + 1)
     };
   }
 }
