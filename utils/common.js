@@ -33,6 +33,45 @@ const CONSTANTS = {
     CELL_OCCUPIED: 'cell-occupied',
     GAME_OVER: 'game-over',
     INVALID_PHASE: 'invalid-phase'
+  },
+  
+  // Algorithm weights for consistent configuration
+  ALGORITHM_WEIGHTS: {
+    STANDARD: {
+      COMPLETE_LINE: 100,
+      COOPERATIVE_LINE: 50,
+      POTENTIAL_LINE: 10,
+      CENTER_BONUS: 5
+    },
+    ENHANCED: {
+      COMPLETE_LINE: 120,
+      COOPERATIVE_LINE: 70,
+      POTENTIAL_LINE: 15,
+      CENTER_BONUS: 8,
+      INTERSECTION_BONUS: 25,
+      NEAR_COMPLETE_BONUS: 40,
+      MULTI_LINE_BONUS: 30
+    }
+  },
+  
+  // Performance configuration
+  PERFORMANCE: {
+    CACHE_SIZE: {
+      VALUE_CACHE: 200,
+      LINE_CACHE: 100,
+      BOARD_ANALYSIS_CACHE: 50
+    },
+    BATCH_SIZE: 5,
+    BATCH_DELAY: 10,
+    DEBOUNCE_DELAY: 100
+  },
+  
+  // UI configuration
+  UI: {
+    ANIMATION_DURATION: 1000,
+    SUGGESTION_PULSE_DURATION: 1500,
+    ALTERNATIVE_PULSE_DURATION: 1200,
+    LOADING_DELAY: 500
   }
 };
 
@@ -305,6 +344,148 @@ const Utils = {
       console.warn('JSON stringify error:', error);
       return defaultValue;
     }
+  },
+
+  /**
+   * Common line detection logic
+   * @param {number[][]} board - Game board
+   * @param {Array} cells - Array of cell positions
+   * @returns {boolean} Whether line is complete
+   */
+  isLineComplete(board, cells) {
+    return cells.every(([row, col]) => 
+      board[row][col] !== CONSTANTS.CELL_STATES.EMPTY
+    );
+  },
+
+  /**
+   * Get all possible lines for a position
+   * @param {number} row - Row position
+   * @param {number} col - Column position
+   * @param {number} boardSize - Board size
+   * @returns {Array} Array of line types that pass through this position
+   */
+  getRelevantLineTypes(row, col, boardSize = CONSTANTS.BOARD_SIZE) {
+    const lines = [CONSTANTS.LINE_TYPES.HORIZONTAL, CONSTANTS.LINE_TYPES.VERTICAL];
+    
+    // Check diagonal lines
+    if (row === col) {
+      lines.push(CONSTANTS.LINE_TYPES.DIAGONAL_MAIN);
+    }
+    
+    if (row + col === boardSize - 1) {
+      lines.push(CONSTANTS.LINE_TYPES.DIAGONAL_ANTI);
+    }
+    
+    return lines;
+  },
+
+  /**
+   * Calculate confidence level based on value differences
+   * @param {Array} moves - Array of move evaluations
+   * @param {Object} weights - Algorithm weights
+   * @returns {string} Confidence level
+   */
+  calculateConfidenceLevel(moves, weights) {
+    if (moves.length < 2) {
+      return 'high';
+    }
+    
+    const bestValue = moves[0].value;
+    const secondBestValue = moves[1].value;
+    const difference = bestValue - secondBestValue;
+    
+    if (difference >= weights.COMPLETE_LINE) {
+      return 'very-high';
+    } else if (difference >= weights.COOPERATIVE_LINE) {
+      return 'high';
+    } else if (difference >= weights.POTENTIAL_LINE) {
+      return 'medium';
+    } else {
+      return 'low';
+    }
+  },
+
+  /**
+   * Create a memoization wrapper for expensive functions
+   * @param {Function} fn - Function to memoize
+   * @param {Function} keyGenerator - Function to generate cache key
+   * @param {number} maxSize - Maximum cache size
+   * @returns {Function} Memoized function
+   */
+  memoize(fn, keyGenerator, maxSize = 100) {
+    const cache = new Map();
+    
+    return function(...args) {
+      const key = keyGenerator ? keyGenerator(...args) : JSON.stringify(args);
+      
+      if (cache.has(key)) {
+        return cache.get(key);
+      }
+      
+      const result = fn.apply(this, args);
+      
+      // Implement LRU eviction
+      if (cache.size >= maxSize) {
+        const firstKey = cache.keys().next().value;
+        cache.delete(firstKey);
+      }
+      
+      cache.set(key, result);
+      return result;
+    };
+  },
+
+  /**
+   * Validate and sanitize input parameters
+   * @param {*} value - Value to validate
+   * @param {string} type - Expected type
+   * @param {*} defaultValue - Default value if validation fails
+   * @returns {*} Validated value
+   */
+  validateInput(value, type, defaultValue = null) {
+    switch (type) {
+      case 'number':
+        return typeof value === 'number' && !isNaN(value) ? value : defaultValue;
+      case 'string':
+        return typeof value === 'string' ? value : defaultValue;
+      case 'boolean':
+        return typeof value === 'boolean' ? value : defaultValue;
+      case 'array':
+        return Array.isArray(value) ? value : defaultValue;
+      case 'object':
+        return value && typeof value === 'object' && !Array.isArray(value) ? value : defaultValue;
+      default:
+        return value !== undefined && value !== null ? value : defaultValue;
+    }
+  },
+
+  /**
+   * Deep clone an object
+   * @param {*} obj - Object to clone
+   * @returns {*} Cloned object
+   */
+  deepClone(obj) {
+    if (obj === null || typeof obj !== 'object') {
+      return obj;
+    }
+    
+    if (obj instanceof Date) {
+      return new Date(obj.getTime());
+    }
+    
+    if (Array.isArray(obj)) {
+      return obj.map(item => this.deepClone(item));
+    }
+    
+    const cloned = {};
+    for (const key in obj) {
+      if (obj.hasOwnProperty(key)) {
+        cloned[key] = this.deepClone(obj[key]);
+      }
+    }
+    
+    return cloned;
   }
 };
 

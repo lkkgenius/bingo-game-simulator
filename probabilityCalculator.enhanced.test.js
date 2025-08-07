@@ -112,10 +112,14 @@ describe('EnhancedProbabilityCalculator', () => {
     }
   });
   
-  test('should get intersection points', () => {
-    const intersectionPoints = calculator.getIntersectionPoints();
-    expect(intersectionPoints).toBeTruthy();
-    expect(intersectionPoints.length).toBeGreaterThan(0);
+  test('should calculate intersection value', () => {
+    // Test intersection value calculation for center position
+    const intersectionValue = calculator.calculateIntersectionValue(2, 2);
+    expect(intersectionValue).toBeGreaterThan(0);
+    
+    // Test intersection value for corner position
+    const cornerValue = calculator.calculateIntersectionValue(0, 0);
+    expect(cornerValue).toBeGreaterThanOrEqual(0);
   });
   
   test('should calculate mixed line potential', () => {
@@ -127,7 +131,7 @@ describe('EnhancedProbabilityCalculator', () => {
       [0, 0, 0, 0, 0]
     ];
     // 混合線潛力測試
-    const mixedValue = calculator.calculateMixedLineValue(board, 2, 2);
+    const mixedValue = calculator.calculateCooperativeValue(board, 2, 2);
     expect(mixedValue).toBeGreaterThan(0);
   });
   
