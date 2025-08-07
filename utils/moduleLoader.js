@@ -727,8 +727,12 @@ class ProgressiveLoader {
         throw new Error(`Dependency validation failed: ${JSON.stringify(validation.issues)}`);
       }
 
-      // Stage 1: Critical modules
+      // Stage 1: Critical modules (security and utilities)
       await this.loadStage('critical', [
+        'safe-dom.js',
+        'production-logger.js',
+        'security-utils.js',
+        'error-boundary.js',
         'utils/common.js'
       ]);
 
@@ -736,20 +740,29 @@ class ProgressiveLoader {
       await this.loadStage('core', [
         'lineDetector.js',
         'probabilityCalculator.js',
-        'gameBoard.js'
+        'gameBoard.js',
+        'gameEngine.js'
       ]);
 
-      // Stage 3: Enhanced features
+      // Stage 3: Main application script
       await this.loadStage('enhanced', [
-        'gameEngine.js',
-        'probabilityCalculator.enhanced.js'
+        'script.js',
+        'i18n.js'
       ]);
 
       // Stage 4: Optional features (background loading)
       this.loadStage('optional', [
+        'probabilityCalculator.enhanced.js',
         'algorithmComparison.js',
         'performance-monitor.js',
-        'aiLearningSystem.js'
+        'aiLearningSystem.js',
+        'accessibility-enhancements.js',
+        'suggestion-enhancements.js',
+        'bug-fixes-and-edge-cases.js',
+        'loading-functions.js',
+        'mobile-touch.js',
+        'gesture-support.js',
+        'pwa-manager.js'
       ]).catch(error => {
         if (logger) {
           logger.warn('Optional features failed to load:', error);
