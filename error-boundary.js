@@ -669,12 +669,12 @@ class ErrorBoundary {
                 }
             });
 
-            if (logger) {
-                logger.info('Storage state recovered');
+            if (errorLogger) {
+                errorLogger.info('Storage state recovered');
             }
         } catch (error) {
-            if (logger) {
-                logger.error('Failed to recover storage state:', error);
+            if (errorLogger) {
+                errorLogger.error('Failed to recover storage state:', error);
             }
         }
     }
@@ -685,12 +685,12 @@ class ErrorBoundary {
     recoverNetworkState() {
         // 檢查網路連接
         if (navigator.onLine) {
-            if (logger) {
-                logger.info('Network connection restored');
+            if (errorLogger) {
+                errorLogger.info('Network connection restored');
             }
         } else {
-            if (logger) {
-                logger.info('Still offline, enabling offline mode');
+            if (errorLogger) {
+                errorLogger.info('Still offline, enabling offline mode');
             }
             this.enableOfflineMode();
         }
@@ -707,12 +707,12 @@ class ErrorBoundary {
             // 重新初始化關鍵組件
             this.reinitializeCriticalComponents();
 
-            if (logger) {
-                logger.info('General recovery completed');
+            if (errorLogger) {
+                errorLogger.info('General recovery completed');
             }
         } catch (error) {
-            if (logger) {
-                logger.error('General recovery failed:', error);
+            if (errorLogger) {
+                errorLogger.error('General recovery failed:', error);
             }
         }
     }
@@ -820,8 +820,8 @@ class ErrorBoundary {
      */
     retryLastAction() {
         // 這裡可以實現重試邏輯
-        if (logger) {
-            logger.info('Retrying last action...');
+        if (errorLogger) {
+            errorLogger.info('Retrying last action...');
         }
         window.location.reload();
     }
@@ -832,8 +832,8 @@ class ErrorBoundary {
     sendToErrorTracking(errorEntry) {
         // 這裡可以發送錯誤到外部追蹤服務
         // 例如 Sentry, LogRocket 等
-        if (logger) {
-            logger.debug('Error would be sent to tracking service:', errorEntry);
+        if (errorLogger) {
+            errorLogger.debug('Error would be sent to tracking service:', errorEntry);
         }
     }
 
@@ -847,8 +847,8 @@ class ErrorBoundary {
             reportedAt: new Date().toISOString()
         };
 
-        if (logger) {
-            logger.debug('Error report:', report);
+        if (errorLogger) {
+            errorLogger.debug('Error report:', report);
         }
         
         // 這裡可以發送到錯誤回報服務
@@ -858,8 +858,8 @@ class ErrorBoundary {
             reports.push(report);
             localStorage.setItem('errorReports', JSON.stringify(reports));
         } catch (error) {
-            if (logger) {
-                logger.error('Failed to save error report:', error);
+            if (errorLogger) {
+                errorLogger.error('Failed to save error report:', error);
             }
         }
     }
