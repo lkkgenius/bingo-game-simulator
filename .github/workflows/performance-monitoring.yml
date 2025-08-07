@@ -273,22 +273,26 @@ jobs:
   performance-comparison:
     name: Performance Comparison
     runs-on: ubuntu-latest
-    if: github.event_name == 'push'
+    # Only run on main branch pushes to avoid issues with shallow git history
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
     
     steps:
     - name: Checkout current code
       uses: actions/checkout@v4
       with:
         path: current
-        fetch-depth: 2
+        fetch-depth: 0  # Fetch full history to ensure we have previous commits
         
     - name: Check if previous commit exists
       id: check_previous
       run: |
         cd current
-        if git rev-parse --verify HEAD~1 >/dev/null 2>&1; then
+        # Get the previous commit hash
+        PREV_COMMIT=$(git rev-parse HEAD~1 2>/dev/null || echo "")
+        if [ -n "$PREV_COMMIT" ]; then
           echo "has_previous=true" >> $GITHUB_OUTPUT
-          echo "Previous commit exists"
+          echo "previous_commit=$PREV_COMMIT" >> $GITHUB_OUTPUT
+          echo "Previous commit exists: $PREV_COMMIT"
         else
           echo "has_previous=false" >> $GITHUB_OUTPUT
           echo "No previous commit found"
@@ -299,7 +303,7 @@ jobs:
       uses: actions/checkout@v4
       with:
         path: previous
-        ref: HEAD~1
+        ref: ${{ steps.check_previous.outputs.previous_commit }}
         
     - name: Setup Node.js
       uses: actions/setup-node@v4
@@ -315,14 +319,30 @@ jobs:
       run: |
         echo "Testing current version..."
         cd current
+        
+        # Start server and verify it's running
         http-server . -p 8080 &
+        SERVER_PID=$!
         sleep 5
         
+        # Verify server is accessible
+        if ! curl -f http://localhost:8080 >/dev/null 2>&1; then
+          echo "❌ Current version server failed to start"
+          kill $SERVER_PID 2>/dev/null || true
+          exit 1
+        fi
+        
+        # Run Lighthouse
         npx lighthouse http://localhost:8080 \
           --output=json \
           --output-path=../current-performance.json \
-          --chrome-flags="--headless --no-sandbox" || true
+          --chrome-flags="--headless --no-sandbox" || {
+          echo "⚠️ Lighthouse failed for current version"
+          echo '{"lhr":{"categories":{"performance":{"score":0}}}}' > ../current-performance.json
+        }
           
+        # Clean up
+        kill $SERVER_PID 2>/dev/null || true
         pkill -f "http-server.*8080" || true
         cd ..
         
@@ -331,14 +351,32 @@ jobs:
       run: |
         echo "Testing previous version..."
         cd previous
+        
+        # Start server and verify it's running
         http-server . -p 8081 &
+        SERVER_PID=$!
         sleep 5
         
+        # Verify server is accessible
+        if ! curl -f http://localhost:8081 >/dev/null 2>&1; then
+          echo "❌ Previous version server failed to start"
+          kill $SERVER_PID 2>/dev/null || true
+          echo '{"lhr":{"categories":{"performance":{"score":0}}}}' > ../previous-performance.json
+          cd ..
+          exit 0
+        fi
+        
+        # Run Lighthouse
         npx lighthouse http://localhost:8081 \
           --output=json \
           --output-path=../previous-performance.json \
-          --chrome-flags="--headless --no-sandbox" || true
+          --chrome-flags="--headless --no-sandbox" || {
+          echo "⚠️ Lighthouse failed for previous version"
+          echo '{"lhr":{"categories":{"performance":{"score":0}}}}' > ../previous-performance.json
+        }
           
+        # Clean up
+        kill $SERVER_PID 2>/dev/null || true
         pkill -f "http-server.*8081" || true
         cd ..
         
