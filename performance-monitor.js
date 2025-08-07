@@ -325,13 +325,303 @@ class PerformanceMonitor {
             'low-framerate': `幀率過低: ${value.toFixed(1)} FPS`,
             'high-memory': `記憶體使用過高: ${(value / 1024 / 1024).toFixed(1)} MB`,
             'slow-render': `渲染速度過慢: ${value.toFixed(1)} ms`,
-            'slow-algorithm': `算法執行過慢: ${value.toFixed(1)} ms`
+            'slow-algorithm': `算法執行過慢: ${value.toFixed(1)} ms`,
+            'high-touch-latency': `觸控延遲過高: ${value.toFixed(1)} ms`
         };
         
         console.warn(`Performance Warning: ${warnings[type]}`);
         
-        // 可以在這裡添加用戶通知或自動優化
+        // 記錄警告
+        this.recordPerformanceWarning(type, value);
+        
+        // 自動優化
+        this.applyAutoOptimizations(type, value);
+        
+        // 用戶通知（僅在嚴重情況下）
+        if (this.isSeverePerformanceIssue(type, value)) {
+            this.showPerformanceNotification(type, value);
+        }
+        
+        // 建議優化措施
         this.suggestOptimizations(type, value);
+    }
+
+    /**
+     * 記錄性能警告
+     */
+    recordPerformanceWarning(type, value) {
+        if (!this.performanceWarnings) {
+            this.performanceWarnings = {};
+        }
+        
+        if (!this.performanceWarnings[type]) {
+            this.performanceWarnings[type] = [];
+        }
+        
+        this.performanceWarnings[type].push({
+            value,
+            timestamp: performance.now(),
+            userAgent: navigator.userAgent,
+            viewport: {
+                width: window.innerWidth,
+                height: window.innerHeight
+            }
+        });
+        
+        // 限制記錄數量
+        if (this.performanceWarnings[type].length > 10) {
+            this.performanceWarnings[type].shift();
+        }
+    }
+
+    /**
+     * 判斷是否為嚴重性能問題
+     */
+    isSeverePerformanceIssue(type, value) {
+        const severeThresholds = {
+            'low-framerate': this.isMobile ? 15 : 20,
+            'high-memory': this.isMobile ? 50 * 1024 * 1024 : 100 * 1024 * 1024,
+            'slow-render': this.isMobile ? 50 : 33.33,
+            'slow-algorithm': this.isMobile ? 300 : 200,
+            'high-touch-latency': 200
+        };
+        
+        return value > (severeThresholds[type] || Infinity);
+    }
+
+    /**
+     * 顯示性能通知
+     */
+    showPerformanceNotification(type, value) {
+        // 避免重複通知
+        if (this.lastPerformanceNotification === type) {
+            return;
+        }
+        
+        this.lastPerformanceNotification = type;
+        
+        const messages = {
+            'low-framerate': '遊戲運行較慢，正在自動優化...',
+            'high-memory': '記憶體使用較高，建議重新載入頁面',
+            'slow-render': '畫面更新較慢，已啟用性能模式',
+            'slow-algorithm': '計算較慢，正在優化算法...',
+            'high-touch-latency': '觸控響應較慢，正在優化...'
+        };
+        
+        const message = messages[type] || '檢測到性能問題，正在優化...';
+        
+        // 使用現有的通知系統
+        if (typeof showWarningMessage === 'function') {
+            showWarningMessage(message, 3000);
+        } else {
+            console.warn(message);
+        }
+        
+        // 重置通知標記
+        setTimeout(() => {
+            this.lastPerformanceNotification = null;
+        }, 30000);
+    }
+
+    /**
+     * 應用自動優化
+     */
+    applyAutoOptimizations(type, value) {
+        switch (type) {
+            case 'low-framerate':
+                this.optimizeForLowFramerate();
+                break;
+            case 'high-memory':
+                this.optimizeMemoryUsage();
+                break;
+            case 'slow-render':
+                this.optimizeRendering();
+                break;
+            case 'slow-algorithm':
+                this.optimizeAlgorithms();
+                break;
+            case 'high-touch-latency':
+                this.optimizeTouchResponse();
+                break;
+        }
+    }
+
+    /**
+     * 優化低幀率
+     */
+    optimizeForLowFramerate() {
+        if (typeof document === 'undefined') return;
+        
+        // 減少動畫
+        if (document.body && document.body.classList) {
+            document.body.classList.add('performance-mode');
+        }
+        
+        // 降低動畫品質
+        if (document.createElement && document.head) {
+            const style = document.createElement('style');
+            style.id = 'framerate-optimization';
+            style.textContent = `
+                .performance-mode * {
+                    animation-duration: 0.1s !important;
+                    transition-duration: 0.1s !important;
+                }
+                
+                .performance-mode .game-cell {
+                    transition: none !important;
+                    animation: none !important;
+                }
+                
+                .performance-mode .suggested {
+                    animation-duration: 0.5s !important;
+                }
+            `;
+            
+            if (!document.getElementById('framerate-optimization')) {
+                document.head.appendChild(style);
+            }
+        }
+        
+        console.log('Applied framerate optimizations');
+    }
+
+    /**
+     * 優化記憶體使用
+     */
+    optimizeMemoryUsage() {
+        // 清理緩存
+        if (window.probabilityCalculator && window.probabilityCalculator.clearCache) {
+            window.probabilityCalculator.clearCache();
+        }
+        
+        // 清理性能數據
+        this.clearOldMetrics();
+        
+        // 建議垃圾回收
+        if (window.gc) {
+            window.gc();
+        }
+        
+        console.log('Applied memory optimizations');
+    }
+
+    /**
+     * 優化渲染
+     */
+    optimizeRendering() {
+        if (typeof document === 'undefined') return;
+        
+        // 啟用硬件加速
+        const gameBoard = document.getElementById('game-board');
+        if (gameBoard) {
+            gameBoard.style.transform = 'translateZ(0)';
+            gameBoard.style.willChange = 'transform';
+        }
+        
+        // 減少重排
+        if (document.body && document.body.classList) {
+            document.body.classList.add('optimized-rendering');
+        }
+        
+        if (document.createElement && document.head) {
+            const style = document.createElement('style');
+            style.id = 'rendering-optimization';
+            style.textContent = `
+                .optimized-rendering .game-cell {
+                    contain: layout style paint;
+                    will-change: transform;
+                }
+                
+                .optimized-rendering .suggestion-display {
+                    contain: layout style;
+                }
+            `;
+            
+            if (!document.getElementById('rendering-optimization')) {
+                document.head.appendChild(style);
+            }
+        }
+        
+        console.log('Applied rendering optimizations');
+    }
+
+    /**
+     * 優化算法
+     */
+    optimizeAlgorithms() {
+        // 啟用算法緩存
+        if (window.probabilityCalculator && window.probabilityCalculator.enableCaching) {
+            window.probabilityCalculator.enableCaching(true);
+        }
+        
+        // 減少計算精度
+        if (window.probabilityCalculator && window.probabilityCalculator.setPerformanceMode) {
+            window.probabilityCalculator.setPerformanceMode(true);
+        }
+        
+        console.log('Applied algorithm optimizations');
+    }
+
+    /**
+     * 優化觸控響應
+     */
+    optimizeTouchResponse() {
+        if (typeof document === 'undefined') return;
+        
+        // 啟用快速觸控
+        if (document.body) {
+            document.body.style.touchAction = 'manipulation';
+        }
+        
+        // 減少觸控延遲
+        if (document.createElement && document.head) {
+            const style = document.createElement('style');
+            style.id = 'touch-optimization';
+            style.textContent = `
+                .game-cell {
+                    touch-action: manipulation;
+                    -webkit-tap-highlight-color: transparent;
+                }
+                
+                button {
+                    touch-action: manipulation;
+                }
+            `;
+            
+            if (!document.getElementById('touch-optimization')) {
+                document.head.appendChild(style);
+            }
+        }
+        
+        console.log('Applied touch optimizations');
+    }
+
+    /**
+     * 清理舊的性能數據
+     */
+    clearOldMetrics() {
+        const maxAge = 60000; // 1 minute
+        const now = performance.now();
+        
+        // 清理幀率數據
+        this.metrics.frameRate = this.metrics.frameRate.filter(
+            (_, index) => index >= this.metrics.frameRate.length - 50
+        );
+        
+        // 清理記憶體數據
+        this.metrics.memoryUsage = this.metrics.memoryUsage.filter(
+            entry => now - entry.timestamp < maxAge
+        );
+        
+        // 清理渲染時間數據
+        this.metrics.renderTime = this.metrics.renderTime.filter(
+            entry => now - entry.timestamp < maxAge
+        );
+        
+        // 清理算法時間數據
+        this.metrics.algorithmTime = this.metrics.algorithmTime.filter(
+            entry => now - entry.timestamp < maxAge
+        );
     }
 
     /**

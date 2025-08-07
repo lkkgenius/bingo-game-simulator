@@ -176,21 +176,35 @@ class ErrorBoundary {
      */
     showErrorNotification(message, errorEntry) {
         // 檢查是否已經有錯誤通知顯示
-        if (document.querySelector('.error-notification')) {
+        const existingNotification = document.querySelector('.error-notification');
+        if (existingNotification) {
+            // 更新現有通知而不是創建新的
+            const messageElement = existingNotification.querySelector('.error-message');
+            if (messageElement) {
+                messageElement.textContent = message;
+            }
             return;
         }
 
         const notification = SafeDOM.createStructure({
             tag: 'div',
-            attributes: { class: 'error-notification' },
+            attributes: { 
+                class: 'error-notification',
+                role: 'alert',
+                'aria-live': 'assertive',
+                'aria-atomic': 'true'
+            },
             children: [{
                 tag: 'div',
                 attributes: { class: 'error-notification-content' },
                 children: [
                     {
                         tag: 'div',
-                        attributes: { class: 'error-icon' },
-                        textContent: '⚠️'
+                        attributes: { 
+                            class: 'error-icon',
+                            'aria-hidden': 'true'
+                        },
+                        textContent: this.getErrorIcon(errorEntry.type)
                     },
                     {
                         tag: 'div',
@@ -199,21 +213,34 @@ class ErrorBoundary {
                     },
                     {
                         tag: 'div',
-                        attributes: { class: 'error-actions' },
+                        attributes: { 
+                            class: 'error-actions',
+                            role: 'group',
+                            'aria-label': '錯誤處理選項'
+                        },
                         children: [
                             {
                                 tag: 'button',
-                                attributes: { class: 'error-retry-btn' },
+                                attributes: { 
+                                    class: 'error-retry-btn',
+                                    'aria-label': '重試上次操作'
+                                },
                                 textContent: '重試'
                             },
                             {
                                 tag: 'button',
-                                attributes: { class: 'error-dismiss-btn' },
+                                attributes: { 
+                                    class: 'error-dismiss-btn',
+                                    'aria-label': '關閉錯誤通知'
+                                },
                                 textContent: '關閉'
                             },
                             {
                                 tag: 'button',
-                                attributes: { class: 'error-report-btn' },
+                                attributes: { 
+                                    class: 'error-report-btn',
+                                    'aria-label': '回報此問題'
+                                },
                                 textContent: '回報問題'
                             }
                         ]
@@ -222,44 +249,190 @@ class ErrorBoundary {
             }]
         });
 
-        // 添加樣式
+        // 添加增強樣式
         notification.style.cssText = `
             position: fixed;
             top: 20px;
             right: 20px;
-            background: #ff4444;
+            background: linear-gradient(135deg, #ff4444, #cc3333);
             color: white;
-            padding: 16px;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.3), 0 4px 8px rgba(255,68,68,0.2);
             z-index: 10000;
-            max-width: 400px;
-            font-family: Arial, sans-serif;
+            max-width: 420px;
+            min-width: 300px;
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            border: 1px solid rgba(255,255,255,0.2);
+            backdrop-filter: blur(10px);
+            animation: slideInFromRight 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
         `;
 
+        // 添加動畫樣式
+        const animationStyles = document.createElement('style');
+        animationStyles.textContent = `
+            @keyframes slideInFromRight {
+                0% {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+                100% {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+            }
+            
+            @keyframes slideOutToRight {
+                0% {
+                    transform: translateX(0);
+                    opacity: 1;
+                }
+                100% {
+                    transform: translateX(100%);
+                    opacity: 0;
+                }
+            }
+            
+            .error-notification-content {
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+            }
+            
+            .error-icon {
+                font-size: 1.5rem;
+                text-align: center;
+            }
+            
+            .error-message {
+                font-size: 1rem;
+                line-height: 1.4;
+                text-align: center;
+            }
+            
+            .error-actions {
+                display: flex;
+                gap: 8px;
+                justify-content: center;
+                flex-wrap: wrap;
+            }
+            
+            .error-actions button {
+                padding: 8px 16px;
+                border: 1px solid rgba(255,255,255,0.3);
+                border-radius: 6px;
+                background: rgba(255,255,255,0.1);
+                color: white;
+                cursor: pointer;
+                font-size: 0.9rem;
+                transition: all 0.2s ease;
+                backdrop-filter: blur(5px);
+            }
+            
+            .error-actions button:hover {
+                background: rgba(255,255,255,0.2);
+                transform: translateY(-1px);
+                box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            }
+            
+            .error-actions button:focus {
+                outline: 2px solid rgba(255,255,255,0.8);
+                outline-offset: 2px;
+            }
+            
+            .error-retry-btn {
+                background: rgba(76, 175, 80, 0.3) !important;
+                border-color: rgba(76, 175, 80, 0.5) !important;
+            }
+            
+            .error-retry-btn:hover {
+                background: rgba(76, 175, 80, 0.5) !important;
+            }
+        `;
+        
+        if (!document.getElementById('error-notification-styles')) {
+            animationStyles.id = 'error-notification-styles';
+            document.head.appendChild(animationStyles);
+        }
+
         // 添加事件監聽器
-        notification.querySelector('.error-retry-btn').addEventListener('click', () => {
+        const retryBtn = notification.querySelector('.error-retry-btn');
+        const dismissBtn = notification.querySelector('.error-dismiss-btn');
+        const reportBtn = notification.querySelector('.error-report-btn');
+
+        retryBtn.addEventListener('click', () => {
             this.retryLastAction();
-            notification.remove();
+            this.dismissNotification(notification);
         });
 
-        notification.querySelector('.error-dismiss-btn').addEventListener('click', () => {
-            notification.remove();
+        dismissBtn.addEventListener('click', () => {
+            this.dismissNotification(notification);
         });
 
-        notification.querySelector('.error-report-btn').addEventListener('click', () => {
+        reportBtn.addEventListener('click', () => {
             this.showErrorReportDialog(errorEntry);
-            notification.remove();
+            this.dismissNotification(notification);
+        });
+
+        // 鍵盤支持
+        notification.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') {
+                this.dismissNotification(notification);
+            }
         });
 
         document.body.appendChild(notification);
 
-        // 自動移除通知
+        // 聚焦到第一個按鈕以便鍵盤導航
+        setTimeout(() => {
+            retryBtn.focus();
+        }, 100);
+
+        // 自動移除通知（但給用戶更多時間）
+        const autoCloseTimeout = setTimeout(() => {
+            if (notification.parentNode) {
+                this.dismissNotification(notification);
+            }
+        }, 15000);
+
+        // 如果用戶與通知互動，取消自動關閉
+        notification.addEventListener('mouseenter', () => {
+            clearTimeout(autoCloseTimeout);
+        });
+
+        // 通知無障礙功能
+        if (window.accessibilityEnhancer) {
+            window.accessibilityEnhancer.announce(`錯誤：${message}`, 'assertive');
+        }
+    }
+
+    /**
+     * 獲取錯誤圖標
+     */
+    getErrorIcon(errorType) {
+        const icons = {
+            'javascript': '🚫',
+            'promise': '⚠️',
+            'resource': '📁',
+            'game': '🎮',
+            'network': '🌐',
+            'storage': '💾'
+        };
+        
+        return icons[errorType] || '❌';
+    }
+
+    /**
+     * 優雅地關閉通知
+     */
+    dismissNotification(notification) {
+        notification.style.animation = 'slideOutToRight 0.3s cubic-bezier(0.55, 0.085, 0.68, 0.53)';
+        
         setTimeout(() => {
             if (notification.parentNode) {
                 notification.remove();
             }
-        }, 10000);
+        }, 300);
     }
 
     /**

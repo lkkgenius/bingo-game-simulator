@@ -353,20 +353,30 @@ function initializeGameWithProgressiveLoading() {
     // 使用 requestAnimationFrame 來優化性能
     requestAnimationFrame(() => {
         try {
-            // Step 1: Initialize game state
+            // Step 1: Initialize game state with validation
             showGlobalLoading('正在初始化遊戲狀態...');
+            updateLoadingProgress(10, '正在初始化遊戲狀態...');
+            
             gameState = new GameState();
+            // Validate and fix game state if needed
+            if (window.bugFixHandler) {
+                gameState = window.bugFixHandler.validateAndFix('gameState', gameState);
+            }
             progressiveLoader.markComponentLoaded('GameState');
             
             requestAnimationFrame(() => {
                 // Step 2: Initialize line detector
                 showGlobalLoading('正在載入連線檢測器...');
+                updateLoadingProgress(25, '正在載入連線檢測器...');
+                
                 lineDetector = new LineDetector();
                 progressiveLoader.markComponentLoaded('LineDetector');
                 
                 requestAnimationFrame(() => {
                     // Step 3: Initialize probability calculator
                     showGlobalLoading('正在載入機率計算器...');
+                    updateLoadingProgress(40, '正在載入機率計算器...');
+                    
                     // Save reference to standard algorithm
                     StandardProbabilityCalculator = ProbabilityCalculator;
                     probabilityCalculator = new ProbabilityCalculator();
@@ -375,6 +385,8 @@ function initializeGameWithProgressiveLoading() {
                     requestAnimationFrame(() => {
                         // Step 4: Initialize game board
                         showGlobalLoading('正在初始化遊戲板...');
+                        updateLoadingProgress(55, '正在初始化遊戲板...');
+                        
                         gameBoard = new GameBoard('game-board');
                         gameBoard.setClickHandler(handleCellClick);
                         progressiveLoader.markComponentLoaded('GameBoard');
@@ -382,6 +394,8 @@ function initializeGameWithProgressiveLoading() {
                         requestAnimationFrame(() => {
                             // Step 5: Load Enhanced Algorithm
                             showGlobalLoading('正在載入增強演算法...');
+                            updateLoadingProgress(70, '正在載入增強演算法...');
+                            
                             loadEnhancedAlgorithmAsync().then(() => {
                                 progressiveLoader.markComponentLoaded('Enhanced Algorithm');
                                 
@@ -399,17 +413,35 @@ function initializeGameWithProgressiveLoading() {
                                 }
                                 
                                 requestAnimationFrame(() => {
-                                    // Step 6: Setup UI event listeners
+                                    // Step 6: Setup UI event listeners and enhancements
                                     showGlobalLoading('正在設置用戶界面...');
+                                    updateLoadingProgress(85, '正在設置用戶界面...');
+                                    
                                     setupUIEventListeners();
+                                    setupEnhancements();
                                     progressiveLoader.markComponentLoaded('UI');
                                     
-                                    // 隱藏載入狀態
-                                    if (typeof hideGlobalLoading === 'function') {
-                                        hideGlobalLoading();
-                                    }
+                                    // Final step: Complete initialization
+                                    updateLoadingProgress(100, '初始化完成！');
                                     
-                                    console.log('Game initialized successfully with progressive loading');
+                                    setTimeout(() => {
+                                        // 隱藏載入狀態
+                                        if (typeof hideGlobalLoading === 'function') {
+                                            hideGlobalLoading();
+                                        }
+                                        
+                                        // Show success message
+                                        if (typeof showSuccessMessage === 'function') {
+                                            showSuccessMessage('遊戲載入完成！歡迎開始遊戲');
+                                        }
+                                        
+                                        console.log('Game initialized successfully with progressive loading');
+                                        
+                                        // Start performance monitoring
+                                        if (window.performanceMonitor && !window.performanceMonitor.isMonitoring) {
+                                            window.performanceMonitor.startMonitoring();
+                                        }
+                                    }, 500);
                                 });
                             }).catch((error) => {
                                 console.warn('Enhanced algorithm loading failed, continuing with standard only:', error);
@@ -418,15 +450,22 @@ function initializeGameWithProgressiveLoading() {
                                 requestAnimationFrame(() => {
                                     // Step 6: Setup UI event listeners
                                     showGlobalLoading('正在設置用戶界面...');
+                                    updateLoadingProgress(90, '正在設置用戶界面...');
+                                    
                                     setupUIEventListeners();
+                                    setupEnhancements();
                                     progressiveLoader.markComponentLoaded('UI');
                                     
-                                    // 隱藏載入狀態
-                                    if (typeof hideGlobalLoading === 'function') {
-                                        hideGlobalLoading();
-                                    }
+                                    updateLoadingProgress(100, '初始化完成！');
                                     
-                                    console.log('Game initialized successfully with progressive loading');
+                                    setTimeout(() => {
+                                        // 隱藏載入狀態
+                                        if (typeof hideGlobalLoading === 'function') {
+                                            hideGlobalLoading();
+                                        }
+                                        
+                                        console.log('Game initialized successfully with progressive loading');
+                                    }, 500);
                                 });
                             });
                         });
@@ -436,14 +475,64 @@ function initializeGameWithProgressiveLoading() {
         } catch (error) {
             console.error('Failed to initialize game:', error);
             hideGlobalLoading();
-            showErrorModal('遊戲初始化失敗', error.message, {
-                showRetry: true,
-                onRetry: () => {
-                    location.reload();
-                }
-            });
+            
+            // Use enhanced error handling
+            if (window.globalErrorBoundary) {
+                window.globalErrorBoundary.handleError({
+                    type: 'game',
+                    message: error.message,
+                    error: error,
+                    stack: error.stack
+                });
+            } else {
+                showErrorModal('遊戲初始化失敗', error.message, {
+                    showRetry: true,
+                    onRetry: () => {
+                        location.reload();
+                    }
+                });
+            }
         }
     });
+}
+
+/**
+ * Setup all enhancements
+ */
+function setupEnhancements() {
+    try {
+        // Initialize accessibility enhancements
+        if (window.accessibilityEnhancer && !window.accessibilityEnhancer.isInitialized) {
+            window.accessibilityEnhancer.init();
+        }
+        
+        // Initialize suggestion enhancements
+        if (window.suggestionEnhancer && !window.suggestionEnhancer.isInitialized) {
+            window.suggestionEnhancer.init();
+        }
+        
+        // Setup performance monitoring integration
+        if (window.performanceMonitor) {
+            // Register algorithm tests
+            window.performanceMonitor.registerAlgorithmTest('standardSuggestion', (board) => {
+                if (probabilityCalculator && probabilityCalculator.getBestSuggestion) {
+                    return probabilityCalculator.getBestSuggestion(board);
+                }
+                return null;
+            });
+            
+            if (typeof EnhancedProbabilityCalculator !== 'undefined') {
+                window.performanceMonitor.registerAlgorithmTest('enhancedSuggestion', (board) => {
+                    const enhancedCalc = new EnhancedProbabilityCalculator();
+                    return enhancedCalc.getBestSuggestion(board);
+                });
+            }
+        }
+        
+        console.log('All enhancements setup completed');
+    } catch (error) {
+        console.error('Failed to setup enhancements:', error);
+    }
 }
 
 /**

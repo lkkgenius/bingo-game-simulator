@@ -164,8 +164,8 @@ class GestureSupport {
      * 向下滑動處理
      */
     onSwipeDown() {
-        if (logger) {
-            logger.debug('Swipe down detected');
+        if (window.logger) {
+            window.logger.debug('Swipe down detected');
         }
         
         // 隱藏額外信息或重置視圖

@@ -9,15 +9,330 @@
 function showGlobalLoading(message = '正在載入遊戲組件...') {
     console.log('顯示全局載入狀態:', message);
     
-    const loadingOverlay = document.getElementById('global-loading');
-    const loadingText = loadingOverlay?.querySelector('.loading-text');
+    let loadingOverlay = document.getElementById('global-loading');
     
-    if (loadingOverlay) {
-        loadingOverlay.classList.remove('hidden');
-        if (loadingText) {
-            loadingText.textContent = message;
+    // 如果載入覆蓋層不存在，創建一個增強版本
+    if (!loadingOverlay) {
+        loadingOverlay = createEnhancedLoadingOverlay();
+        document.body.appendChild(loadingOverlay);
+    }
+    
+    const loadingText = loadingOverlay.querySelector('.loading-text');
+    const progressBar = loadingOverlay.querySelector('.loading-progress-bar');
+    const loadingSpinner = loadingOverlay.querySelector('.loading-spinner');
+    
+    // 更新載入訊息
+    if (loadingText) {
+        loadingText.textContent = message;
+        
+        // 添加打字機效果
+        if (typeof addTypewriterEffect === 'function') {
+            addTypewriterEffect(loadingText, message);
         }
     }
+    
+    // 顯示載入覆蓋層
+    loadingOverlay.classList.remove('hidden');
+    loadingOverlay.style.opacity = '0';
+    
+    // 平滑淡入動畫
+    requestAnimationFrame(() => {
+        loadingOverlay.style.transition = 'opacity 0.3s ease-in-out';
+        loadingOverlay.style.opacity = '1';
+    });
+    
+    // 啟動載入動畫
+    if (loadingSpinner) {
+        loadingSpinner.classList.add('spinning');
+    }
+    
+    // 無障礙支持
+    loadingOverlay.setAttribute('aria-live', 'polite');
+    loadingOverlay.setAttribute('aria-busy', 'true');
+    
+    // 通知螢幕閱讀器
+    if (window.accessibilityEnhancer) {
+        window.accessibilityEnhancer.announce(message);
+    }
+}
+
+/**
+ * 創建增強版載入覆蓋層
+ */
+function createEnhancedLoadingOverlay() {
+    const overlay = SafeDOM.createStructure({
+        tag: 'div',
+        attributes: {
+            id: 'global-loading',
+            class: 'global-loading enhanced-loading',
+            role: 'status',
+            'aria-label': '載入中'
+        },
+        children: [{
+            tag: 'div',
+            attributes: { class: 'loading-container' },
+            children: [
+                {
+                    tag: 'div',
+                    attributes: { class: 'loading-spinner-container' },
+                    children: [{
+                        tag: 'div',
+                        attributes: { 
+                            class: 'loading-spinner',
+                            'aria-hidden': 'true'
+                        }
+                    }]
+                },
+                {
+                    tag: 'div',
+                    attributes: { class: 'loading-content' },
+                    children: [
+                        {
+                            tag: 'div',
+                            attributes: { class: 'loading-text' },
+                            textContent: '正在載入遊戲組件...'
+                        },
+                        {
+                            tag: 'div',
+                            attributes: { class: 'loading-progress' },
+                            children: [{
+                                tag: 'div',
+                                attributes: { 
+                                    class: 'loading-progress-bar',
+                                    role: 'progressbar',
+                                    'aria-valuemin': '0',
+                                    'aria-valuemax': '100',
+                                    'aria-valuenow': '0'
+                                }
+                            }]
+                        },
+                        {
+                            tag: 'div',
+                            attributes: { class: 'loading-tips' },
+                            textContent: '提示：您可以使用鍵盤方向鍵來導航遊戲板'
+                        }
+                    ]
+                }
+            ]
+        }]
+    });
+    
+    // 添加增強樣式
+    const enhancedStyles = document.createElement('style');
+    enhancedStyles.id = 'enhanced-loading-styles';
+    enhancedStyles.textContent = `
+        .enhanced-loading {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, 
+                rgba(74, 144, 226, 0.95) 0%, 
+                rgba(92, 107, 192, 0.95) 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            backdrop-filter: blur(10px);
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+        }
+        
+        .loading-container {
+            text-align: center;
+            max-width: 400px;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+        }
+        
+        .loading-spinner-container {
+            margin-bottom: 30px;
+        }
+        
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top: 4px solid #ffffff;
+            border-radius: 50%;
+            margin: 0 auto;
+            position: relative;
+        }
+        
+        .loading-spinner.spinning {
+            animation: spin 1s linear infinite;
+        }
+        
+        .loading-spinner::after {
+            content: '';
+            position: absolute;
+            top: -4px;
+            left: -4px;
+            right: -4px;
+            bottom: -4px;
+            border: 2px solid transparent;
+            border-top: 2px solid rgba(255, 255, 255, 0.6);
+            border-radius: 50%;
+            animation: spin 2s linear infinite reverse;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .loading-content {
+            color: white;
+        }
+        
+        .loading-text {
+            font-size: 1.2rem;
+            font-weight: 500;
+            margin-bottom: 20px;
+            min-height: 1.5em;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+        }
+        
+        .loading-progress {
+            width: 100%;
+            height: 6px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 15px;
+        }
+        
+        .loading-progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #ffffff, #e3f2fd);
+            border-radius: 3px;
+            width: 0%;
+            transition: width 0.3s ease;
+            position: relative;
+        }
+        
+        .loading-progress-bar::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(90deg, 
+                transparent, 
+                rgba(255, 255, 255, 0.4), 
+                transparent);
+            animation: shimmer 2s infinite;
+        }
+        
+        @keyframes shimmer {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        
+        .loading-tips {
+            font-size: 0.9rem;
+            opacity: 0.8;
+            font-style: italic;
+            text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
+        }
+        
+        /* 響應式設計 */
+        @media (max-width: 768px) {
+            .loading-container {
+                max-width: 300px;
+                padding: 30px 20px;
+            }
+            
+            .loading-spinner {
+                width: 50px;
+                height: 50px;
+            }
+            
+            .loading-text {
+                font-size: 1.1rem;
+            }
+        }
+        
+        /* 減少動畫偏好 */
+        @media (prefers-reduced-motion: reduce) {
+            .loading-spinner,
+            .loading-spinner::after {
+                animation: none;
+            }
+            
+            .loading-progress-bar::after {
+                animation: none;
+            }
+        }
+        
+        /* 高對比度模式 */
+        @media (prefers-contrast: high) {
+            .enhanced-loading {
+                background: #000;
+                color: #fff;
+            }
+            
+            .loading-container {
+                background: #333;
+                border: 2px solid #fff;
+            }
+            
+            .loading-spinner {
+                border-color: #666;
+                border-top-color: #fff;
+            }
+        }
+    `;
+    
+    if (!document.getElementById('enhanced-loading-styles')) {
+        document.head.appendChild(enhancedStyles);
+    }
+    
+    return overlay;
+}
+
+/**
+ * 更新載入進度
+ */
+function updateLoadingProgress(progress, message) {
+    const loadingOverlay = document.getElementById('global-loading');
+    if (!loadingOverlay) return;
+    
+    const progressBar = loadingOverlay.querySelector('.loading-progress-bar');
+    const loadingText = loadingOverlay.querySelector('.loading-text');
+    
+    if (progressBar) {
+        progressBar.style.width = `${Math.min(100, Math.max(0, progress))}%`;
+        progressBar.setAttribute('aria-valuenow', progress.toString());
+    }
+    
+    if (loadingText && message) {
+        loadingText.textContent = message;
+    }
+}
+
+/**
+ * 添加打字機效果
+ */
+function addTypewriterEffect(element, text) {
+    if (!element || typeof text !== 'string') return;
+    
+    element.textContent = '';
+    let index = 0;
+    
+    const typeWriter = () => {
+        if (index < text.length) {
+            element.textContent += text.charAt(index);
+            index++;
+            setTimeout(typeWriter, 50);
+        }
+    };
+    
+    typeWriter();
 }
 
 /**
