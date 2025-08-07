@@ -605,7 +605,7 @@ class ModuleLoader {
   }
 
   /**
-   * Load critical modules first
+   * Load critical modules first with dependency validation
    */
   async loadCriticalModules() {
     const criticalModules = [
@@ -616,7 +616,24 @@ class ModuleLoader {
       'gameEngine.js'
     ];
 
-    await this.loadModulesInChunks(criticalModules, 2);
+    try {
+      await this.loadModulesInChunks(criticalModules, 2);
+      
+      // 載入完成後執行依賴驗證
+      if (typeof window !== 'undefined' && window.dependencyValidator) {
+        const validationResults = await window.dependencyValidator.performRuntimeCheck();
+        if (!validationResults) {
+          if (logger) {
+            logger.warn('關鍵模組載入後依賴驗證失敗，但繼續執行');
+          }
+        }
+      }
+    } catch (error) {
+      if (logger) {
+        logger.error('關鍵模組載入失敗:', error);
+      }
+      throw error;
+    }
   }
 
   /**
