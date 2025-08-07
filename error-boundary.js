@@ -17,7 +17,7 @@ const getLogger = () => {
     }
     return null;
 };
-const logger = getLogger();
+const errorLogger = getLogger();
 
 /**
  * 全局錯誤邊界類
@@ -76,8 +76,8 @@ class ErrorBoundary {
         }, true);
 
         this.isInitialized = true;
-        if (logger) {
-            logger.info('Error boundary initialized');
+        if (errorLogger) {
+            errorLogger.info('Error boundary initialized');
         }
     }
 
@@ -102,8 +102,8 @@ class ErrorBoundary {
             try {
                 handler(errorEntry);
             } catch (handlerError) {
-                if (logger) {
-                    logger.error('Error in error handler:', handlerError);
+                if (errorLogger) {
+                    errorLogger.error('Error in error handler:', handlerError);
                 }
             }
         });
@@ -114,8 +114,8 @@ class ErrorBoundary {
             try {
                 handler(errorEntry);
             } catch (handlerError) {
-                if (logger) {
-                    logger.error('Error in global error handler:', handlerError);
+                if (errorLogger) {
+                    errorLogger.error('Error in global error handler:', handlerError);
                 }
             }
         });
@@ -139,8 +139,8 @@ class ErrorBoundary {
         }
 
         // 輸出到控制台
-        if (logger) {
-            logger.error('Error caught by boundary:', errorEntry);
+        if (errorLogger) {
+            errorLogger.error('Error caught by boundary:', errorEntry);
         }
 
         // 發送到錯誤追蹤服務（如果配置了）
@@ -638,12 +638,12 @@ class ErrorBoundary {
                 window.initializeGame();
             }
 
-            if (logger) {
-                logger.info('Game state recovered');
+            if (errorLogger) {
+                errorLogger.info('Game state recovered');
             }
         } catch (error) {
-            if (logger) {
-                logger.error('Failed to recover game state:', error);
+            if (errorLogger) {
+                errorLogger.error('Failed to recover game state:', error);
             }
         }
     }
@@ -663,8 +663,8 @@ class ErrorBoundary {
                     }
                 } catch (error) {
                     localStorage.removeItem(key);
-                    if (logger) {
-                        logger.info(`Removed corrupted storage key: ${key}`);
+                    if (errorLogger) {
+                        errorLogger.info(`Removed corrupted storage key: ${key}`);
                     }
                 }
             });
