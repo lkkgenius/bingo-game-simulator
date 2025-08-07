@@ -8,21 +8,8 @@ if (typeof SafeDOM === 'undefined' && typeof require !== 'undefined') {
     const SafeDOM = require('./safe-dom.js');
 }
 
-// Logger 初始化 - 使用函數作用域避免全局衝突
-const getLogger = () => {
-    if (typeof window !== 'undefined' && window.logger) {
-        return window.logger;
-    } else if (typeof require !== 'undefined') {
-        try {
-            const { logger: prodLogger } = require('./production-logger.js');
-            return prodLogger;
-        } catch (e) {
-            return null;
-        }
-    }
-    return null;
-};
-const logger = getLogger();
+// Logger 初始化 - 直接使用 window.logger 避免變量衝突
+// production-logger.js 已經將 logger 實例附加到 window.logger
 
 class I18nManager {
     constructor() {
@@ -592,8 +579,8 @@ class I18nManager {
      */
     async setLanguage(language, options = {}) {
         if (!this.supportedLanguages.includes(language)) {
-            if (logger) {
-                logger.warn(`Language ${language} is not supported`);
+            if (window.logger) {
+                window.logger.warn(`Language ${language} is not supported`);
             }
             return false;
         }
@@ -630,8 +617,8 @@ class I18nManager {
             
             return true;
         } catch (error) {
-            if (logger) {
-                logger.error('Failed to change language:', error);
+            if (window.logger) {
+                window.logger.error('Failed to change language:', error);
             }
             
             // Revert to previous language on error
@@ -669,8 +656,8 @@ class I18nManager {
         
         for (const key of criticalKeys) {
             if (!this.translations[newLanguage][key]) {
-                if (logger) {
-                    logger.warn(`Missing critical translation: ${key} for ${newLanguage}`);
+                if (window.logger) {
+                    window.logger.warn(`Missing critical translation: ${key} for ${newLanguage}`);
                 }
             }
         }
@@ -693,8 +680,8 @@ class I18nManager {
                     try {
                         await document.fonts.load(`16px "${fontFamily}"`);
                     } catch (error) {
-                        if (logger) {
-                            logger.warn(`Failed to preload font: ${fontFamily}`);
+                        if (window.logger) {
+                            window.logger.warn(`Failed to preload font: ${fontFamily}`);
                         }
                     }
                 }
@@ -983,8 +970,8 @@ class I18nManager {
      * @param {Object} options - Change options
      */
     async onLanguageChange(previousLanguage = null, options = {}) {
-        if (logger) {
-            logger.info(`Language changed from ${previousLanguage} to: ${this.currentLanguage}`);
+        if (window.logger) {
+            window.logger.info(`Language changed from ${previousLanguage} to: ${this.currentLanguage}`);
         }
         
         // Apply fade transition if requested
@@ -1310,8 +1297,8 @@ class I18nManager {
      */
     trackLanguageChange(language) {
         // This could be extended to send analytics data
-        if (logger) {
-            logger.info(`Language switched to: ${language}`);
+        if (window.logger) {
+            window.logger.info(`Language switched to: ${language}`);
         }
         
         // Example: Send to analytics service

@@ -8,21 +8,8 @@ if (typeof SafeDOM === 'undefined' && typeof require !== 'undefined') {
     const SafeDOM = require('./safe-dom.js');
 }
 
-// Logger 初始化 - 使用函數作用域避免全局衝突
-const getLogger = () => {
-    if (typeof window !== 'undefined' && window.logger) {
-        return window.logger;
-    } else if (typeof require !== 'undefined') {
-        try {
-            const { logger: prodLogger } = require('./production-logger.js');
-            return prodLogger;
-        } catch (e) {
-            return null;
-        }
-    }
-    return null;
-};
-const logger = getLogger();
+// Logger 初始化 - 直接使用 window.logger 避免變量衝突
+// production-logger.js 已經將 logger 實例附加到 window.logger
 
 class GestureSupport {
     constructor() {
@@ -60,8 +47,8 @@ class GestureSupport {
         
         if (this.isEnabled) {
             document.body.classList.add('gesture-enabled');
-            if (logger) {
-                logger.info('Gesture support enabled');
+            if (window.logger) {
+                window.logger.info('Gesture support enabled');
             }
         }
     }
@@ -132,8 +119,8 @@ class GestureSupport {
      * 向右滑動處理
      */
     onSwipeRight() {
-        if (logger) {
-            logger.debug('Swipe right detected');
+        if (window.logger) {
+            window.logger.debug('Swipe right detected');
         }
         
         // 切換到下一個算法
@@ -147,8 +134,8 @@ class GestureSupport {
      * 向左滑動處理
      */
     onSwipeLeft() {
-        if (logger) {
-            logger.debug('Swipe left detected');
+        if (window.logger) {
+            window.logger.debug('Swipe left detected');
         }
         
         // 切換到上一個算法
@@ -162,8 +149,8 @@ class GestureSupport {
      * 向上滑動處理
      */
     onSwipeUp() {
-        if (logger) {
-            logger.debug('Swipe up detected');
+        if (window.logger) {
+            window.logger.debug('Swipe up detected');
         }
         
         // 顯示遊戲統計或幫助信息

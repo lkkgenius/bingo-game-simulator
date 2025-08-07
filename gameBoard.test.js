@@ -23,6 +23,16 @@ try {
     };
 }
 
+// 模擬 window 環境
+global.window = {
+  logger: {
+    warn: () => {},
+    error: () => {},
+    info: () => {},
+    debug: () => {}
+  }
+};
+
 // 模擬 DOM 環境
 global.document = {
   createElement: () => {

@@ -67,6 +67,16 @@ global.document = {
   querySelectorAll: () => []
 };
 
+// 模擬 window 環境
+global.window = {
+  logger: {
+    warn: () => {},
+    error: () => {},
+    info: () => {},
+    debug: () => {}
+  }
+};
+
 // 模擬 window.performance
 global.performance = {
   now: () => Date.now()

@@ -8,21 +8,8 @@ if (typeof SafeDOM === 'undefined' && typeof require !== 'undefined') {
     const SafeDOM = require('./safe-dom.js');
 }
 
-// Logger 初始化 - 使用函數作用域避免全局衝突
-const getLogger = () => {
-    if (typeof window !== 'undefined' && window.logger) {
-        return window.logger;
-    } else if (typeof require !== 'undefined') {
-        try {
-            const { logger: prodLogger } = require('./production-logger.js');
-            return prodLogger;
-        } catch (e) {
-            return null;
-        }
-    }
-    return null;
-};
-const logger = getLogger();
+// Logger 初始化 - 直接使用 window.logger 避免變量衝突
+// production-logger.js 已經將 logger 實例附加到 window.logger
 
 class PWAManager {
     constructor() {
@@ -55,8 +42,8 @@ class PWAManager {
                           window.navigator.standalone === true;
         
         if (this.isInstalled) {
-            if (logger) {
-                logger.info('PWA is installed');
+            if (window.logger) {
+                window.logger.info('PWA is installed');
             }
             document.body.classList.add('pwa-installed');
         }
@@ -69,8 +56,8 @@ class PWAManager {
         if ('serviceWorker' in navigator) {
             try {
                 this.registration = await navigator.serviceWorker.register('./sw.js');
-                if (logger) {
-                    logger.info('Service Worker registered successfully');
+                if (window.logger) {
+                    window.logger.info('Service Worker registered successfully');
                 }
                 
                 // 監聽更新
@@ -84,8 +71,8 @@ class PWAManager {
                 }
                 
             } catch (error) {
-                if (logger) {
-                    logger.error('Service Worker registration failed:', error);
+                if (window.logger) {
+                    window.logger.error('Service Worker registration failed:', error);
                 }
             }
         }
@@ -117,8 +104,8 @@ class PWAManager {
         
         // 監聽安裝完成
         window.addEventListener('appinstalled', () => {
-            if (logger) {
-                logger.info('PWA installed successfully');
+            if (window.logger) {
+                window.logger.info('PWA installed successfully');
             }
             this.isInstalled = true;
             this.hideInstallPrompt();
@@ -220,12 +207,12 @@ class PWAManager {
             const { outcome } = await this.deferredPrompt.userChoice;
             
             if (outcome === 'accepted') {
-                if (logger) {
-                    logger.info('User accepted the install prompt');
+                if (window.logger) {
+                    window.logger.info('User accepted the install prompt');
                 }
             } else {
-                if (logger) {
-                    logger.info('User dismissed the install prompt');
+                if (window.logger) {
+                    window.logger.info('User dismissed the install prompt');
                 }
             }
             
@@ -233,8 +220,8 @@ class PWAManager {
             this.hideInstallPrompt();
             
         } catch (error) {
-            if (logger) {
-                logger.error('Failed to install PWA:', error);
+            if (window.logger) {
+                window.logger.error('Failed to install PWA:', error);
             }
         }
     }
@@ -330,8 +317,8 @@ class PWAManager {
         try {
             await this.registration.update();
         } catch (error) {
-            if (logger) {
-                logger.error('Failed to check for updates:', error);
+            if (window.logger) {
+                window.logger.error('Failed to check for updates:', error);
             }
         }
     }

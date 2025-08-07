@@ -33,21 +33,8 @@ if (typeof SafeDOM === 'undefined' && typeof global !== 'undefined') {
     };
 }
 
-// Logger 初始化 - 使用函數作用域避免全局衝突
-const getLogger = () => {
-    if (typeof window !== 'undefined' && window.logger) {
-        return window.logger;
-    } else if (typeof require !== 'undefined') {
-        try {
-            const { logger: prodLogger } = require('./production-logger.js');
-            return prodLogger;
-        } catch (e) {
-            return null;
-        }
-    }
-    return null;
-};
-const logger = getLogger();
+// Logger 初始化 - 直接使用 window.logger 避免變量衝突
+// production-logger.js 已經將 logger 實例附加到 window.logger
 
 class GameBoard {
     /**
@@ -190,8 +177,8 @@ class GameBoard {
      */
     updateCell(row, col, state) {
         if (!this.isValidPosition(row, col)) {
-            if (logger) {
-                logger.warn(`Invalid position: (${row}, ${col})`);
+            if (window.logger) {
+                window.logger.warn(`Invalid position: (${row}, ${col})`);
             }
             return;
         }
@@ -216,8 +203,8 @@ class GameBoard {
                 cell.setAttribute('aria-label', `電腦格子 ${row + 1}, ${col + 1}`);
                 break;
             default:
-                if (logger) {
-                    logger.warn(`Unknown cell state: ${state}`);
+                if (window.logger) {
+                    window.logger.warn(`Unknown cell state: ${state}`);
                 }
                 cell.classList.add('empty');
         }
@@ -229,8 +216,8 @@ class GameBoard {
      */
     updateBoard(board) {
         if (!this.isValidBoard(board)) {
-            if (logger) {
-                logger.error('Invalid board provided to updateBoard');
+            if (window.logger) {
+                window.logger.error('Invalid board provided to updateBoard');
             }
             return;
         }
@@ -256,8 +243,8 @@ class GameBoard {
         this.clearSuggestionHighlight();
         
         if (!this.isValidPosition(row, col)) {
-            if (logger) {
-                logger.warn(`Invalid suggestion position: (${row}, ${col})`);
+            if (window.logger) {
+                window.logger.warn(`Invalid suggestion position: (${row}, ${col})`);
             }
             return;
         }
@@ -266,8 +253,8 @@ class GameBoard {
         
         // 只有空白格子才能被建議
         if (!cell.classList.contains('empty')) {
-            if (logger) {
-                logger.warn(`Cannot suggest occupied cell: (${row}, ${col})`);
+            if (window.logger) {
+                window.logger.warn(`Cannot suggest occupied cell: (${row}, ${col})`);
             }
             return;
         }
@@ -439,8 +426,8 @@ class GameBoard {
         this.clearLineHighlights();
         
         if (!Array.isArray(lines)) {
-            if (logger) {
-                logger.warn('Lines parameter must be an array');
+            if (window.logger) {
+                window.logger.warn('Lines parameter must be an array');
             }
             return;
         }
@@ -451,14 +438,14 @@ class GameBoard {
         });
         
         if (validLines.length === 0) {
-            if (logger) {
-                logger.debug('No valid lines to highlight');
+            if (window.logger) {
+                window.logger.debug('No valid lines to highlight');
             }
             return;
         }
         
-        if (logger) {
-            logger.debug(`Highlighting ${validLines.length} lines:`, validLines);
+        if (window.logger) {
+            window.logger.debug(`Highlighting ${validLines.length} lines:`, validLines);
         }
         
         validLines.forEach(line => {
@@ -474,15 +461,15 @@ class GameBoard {
      */
     highlightSingleLine(line) {
         if (!line || !line.cells || !Array.isArray(line.cells)) {
-            if (logger) {
-                logger.warn('Invalid line object provided:', line);
+            if (window.logger) {
+                window.logger.warn('Invalid line object provided:', line);
             }
             return;
         }
         
         const lineClass = this.getLineClass(line.type);
-        if (logger) {
-            logger.debug(`Highlighting line type: ${line.type}, class: ${lineClass}, cells:`, line.cells);
+        if (window.logger) {
+            window.logger.debug(`Highlighting line type: ${line.type}, class: ${lineClass}, cells:`, line.cells);
         }
         
         line.cells.forEach(([row, col]) => {
@@ -491,8 +478,8 @@ class GameBoard {
                 
                 // 確保格子存在
                 if (!cell) {
-                    if (logger) {
-                        logger.warn(`Cell not found at position (${row}, ${col})`);
+                    if (window.logger) {
+                        window.logger.warn(`Cell not found at position (${row}, ${col})`);
                     }
                     return;
                 }
@@ -503,8 +490,8 @@ class GameBoard {
                 // 創建連線覆蓋層
                 this.createLineOverlay(cell, line.type);
                 
-                if (logger) {
-                    logger.debug(`Added classes to cell (${row}, ${col}):`, cell.className);
+                if (window.logger) {
+                    window.logger.debug(`Added classes to cell (${row}, ${col}):`, cell.className);
                 }
                 
                 // 更新無障礙標籤
@@ -513,8 +500,8 @@ class GameBoard {
                     cell.setAttribute('aria-label', `${currentLabel} - 完成連線`);
                 }
             } else {
-                if (logger) {
-                    logger.warn(`Invalid position for line highlight: (${row}, ${col})`);
+                if (window.logger) {
+                    window.logger.warn(`Invalid position for line highlight: (${row}, ${col})`);
                 }
             }
         });
@@ -571,8 +558,8 @@ class GameBoard {
         }
         
         this.highlightedLines = [];
-        if (logger) {
-            logger.debug('Cleared all line highlights');
+        if (window.logger) {
+            window.logger.debug('Cleared all line highlights');
         }
     }
 
@@ -597,8 +584,8 @@ class GameBoard {
             }
         }
         
-        if (logger) {
-            logger.info('GameBoard reset completed');
+        if (window.logger) {
+            window.logger.info('GameBoard reset completed');
         }
     }
 
@@ -821,8 +808,8 @@ class GameBoard {
      * @param {Array} lines - 要顯示的連線陣列
      */
     forceRefreshLines(lines) {
-        if (logger) {
-            logger.debug('Force refreshing line highlights');
+        if (window.logger) {
+            window.logger.debug('Force refreshing line highlights');
         }
         
         // 先清除所有連線高亮
