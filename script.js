@@ -30,7 +30,7 @@
     
     // 安全的依賴獲取
     const SafeDOM = getDependency('SafeDOM');
-    const logger = getDependency('logger') || global.logger;
+    const scriptLogger = getDependency('logger') || global.logger;
     const LineDetector = getDependency('LineDetector');
     const ProbabilityCalculator = getDependency('ProbabilityCalculator');
     const GameBoard = getDependency('GameBoard');
@@ -282,7 +282,7 @@ class GameState {
  * Initialize the game when DOM is loaded
  */
 document.addEventListener('DOMContentLoaded', function() {
-    logger.info('DOM loaded, initializing game...');
+    if (scriptLogger) scriptLogger.info('DOM loaded, initializing game...');
     
     // 檢查瀏覽器兼容性
     const compatibility = initializeCompatibilityCheck();

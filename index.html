@@ -488,11 +488,20 @@
             if (missingComponents.length > 0) {
                 console.warn('Missing components:', missingComponents);
                 // Try to load missing components on demand
+                const componentFileMap = {
+                    'LineDetector': 'lineDetector.js',
+                    'ProbabilityCalculator': 'probabilityCalculator.js',
+                    'GameBoard': 'gameBoard.js',
+                    'GameEngine': 'gameEngine.js'
+                };
+                
                 missingComponents.forEach(component => {
-                    const modulePath = component.toLowerCase().replace(/([A-Z])/g, '-$1').substring(1) + '.js';
-                    window.scriptLoader.loadOnDemand(modulePath).catch(error => {
-                        console.error(`Failed to load ${component}:`, error);
-                    });
+                    const modulePath = componentFileMap[component];
+                    if (modulePath) {
+                        window.scriptLoader.loadOnDemand(modulePath).catch(error => {
+                            console.error(`Failed to load ${component}:`, error);
+                        });
+                    }
                 });
             }
             
