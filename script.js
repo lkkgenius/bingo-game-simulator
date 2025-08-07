@@ -357,7 +357,7 @@ function loadEnhancedAlgorithmAsync() {
  * Initialize game with progressive loading
  */
 function initializeGameWithProgressiveLoading() {
-    logger.info('Starting progressive game initialization...');
+    if (scriptLogger) scriptLogger.info('Starting progressive game initialization...');
     
     // 使用 requestAnimationFrame 來優化性能
     requestAnimationFrame(() => {
@@ -549,7 +549,7 @@ function setupEnhancements() {
  */
 function initializeGame() {
     try {
-        logger.info('Starting game initialization...');
+        if (scriptLogger) scriptLogger.info('Starting game initialization...');
         
         // Initialize game components
         gameState = new GameState();
@@ -571,7 +571,7 @@ function initializeGame() {
         // Set up UI event listeners
         setupUIEventListeners();
         
-        logger.info('Game initialized successfully');
+        if (scriptLogger) scriptLogger.info('Game initialized successfully');
     } catch (error) {
         console.error('Failed to initialize game:', error);
         alert('遊戲初始化失敗：' + error.message);
@@ -1216,6 +1216,33 @@ function debounce(func, wait, immediate) {
         clearTimeout(timeout);
         timeout = setTimeout(later, wait);
         if (callNow) func.apply(this, args);
+    };
+}
+
+/**
+ * Simple throttle function for preventing rapid calls
+ */
+function throttle(func, wait) {
+    let timeout;
+    let previous = 0;
+    return function executedFunction(...args) {
+        const now = Date.now();
+        const remaining = wait - (now - previous);
+        
+        if (remaining <= 0 || remaining > wait) {
+            if (timeout) {
+                clearTimeout(timeout);
+                timeout = null;
+            }
+            previous = now;
+            func.apply(this, args);
+        } else if (!timeout) {
+            timeout = setTimeout(() => {
+                previous = Date.now();
+                timeout = null;
+                func.apply(this, args);
+            }, remaining);
+        }
     };
 }
 
