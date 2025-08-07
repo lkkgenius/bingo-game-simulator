@@ -676,13 +676,16 @@ class EnhancedScriptLoader {
   async loadModulesOptimized(modules) {
     // Separate critical and non-critical modules
     const criticalModules = [
-      'utils/common.js',
       'safe-dom.js',
       'production-logger.js',
+      'security-utils.js',
+      'error-boundary.js',
+      'utils/common.js',
       'lineDetector.js',
       'probabilityCalculator.js',
       'gameBoard.js',
-      'gameEngine.js'
+      'gameEngine.js',
+      'script.js'
     ];
 
     const nonCriticalModules = modules.filter(m => !criticalModules.includes(m));

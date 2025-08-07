@@ -1203,6 +1203,23 @@ function checkAutoRandomMove() {
 }
 
 /**
+ * Simple debounce function for cell clicks
+ */
+function debounce(func, wait, immediate) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            timeout = null;
+            if (!immediate) func.apply(this, args);
+        };
+        const callNow = immediate && !timeout;
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+        if (callNow) func.apply(this, args);
+    };
+}
+
+/**
  * Handle cell click events from the game board (optimized with debouncing)
  */
 const handleCellClick = debounce(function(row, col, cellElement) {

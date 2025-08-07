@@ -635,6 +635,10 @@ class ModuleLoader {
    */
   async loadCriticalModules() {
     const criticalModules = [
+      'safe-dom.js',
+      'production-logger.js',
+      'security-utils.js',
+      'error-boundary.js',
       'utils/common.js',
       'lineDetector.js',
       'probabilityCalculator.js',
