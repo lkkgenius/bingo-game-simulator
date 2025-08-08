@@ -12,14 +12,14 @@
  */
 
 // Import common utilities
-let CONSTANTS, Utils;
+let QualityConstants, QualityUtils;
 if (typeof require !== 'undefined') {
   const common = require('./utils/common.js');
-  CONSTANTS = common.CONSTANTS;
-  Utils = common.Utils;
+  QualityConstants = common.CONSTANTS;
+  QualityUtils = common.Utils;
 } else if (typeof window !== 'undefined' && window.CONSTANTS) {
-  CONSTANTS = window.CONSTANTS;
-  Utils = window.Utils;
+  QualityConstants = window.CONSTANTS;
+  QualityUtils = window.Utils;
 }
 
 /**
@@ -447,7 +447,7 @@ class CodeQualityManager {
        */
       monitorUserInteractions() {
         if (typeof document !== 'undefined') {
-          const interactionHandler = Utils.throttle((event) => {
+          const interactionHandler = QualityUtils.throttle((event) => {
             this.recordMetric('interaction', {
               type: event.type,
               target: event.target.tagName,

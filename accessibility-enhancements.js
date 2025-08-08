@@ -343,6 +343,36 @@ class AccessibilityEnhancer {
     }
 
     /**
+     * Setup menu keyboard navigation
+     */
+    setupMenuKeyboardNav() {
+        // Setup keyboard navigation for algorithm selector
+        const algorithmOptions = document.querySelectorAll('.algorithm-option');
+        algorithmOptions.forEach((option, index) => {
+            option.setAttribute('tabindex', '0');
+            option.setAttribute('role', 'button');
+            
+            option.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    option.click();
+                }
+            });
+        });
+
+        // Setup keyboard navigation for language selector
+        const languageOptions = document.querySelectorAll('.language-option');
+        languageOptions.forEach((option, index) => {
+            option.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                    event.preventDefault();
+                    option.click();
+                }
+            });
+        });
+    }
+
+    /**
      * Update keyboard focus visual indicator
      */
     updateKeyboardFocus(row, col) {
