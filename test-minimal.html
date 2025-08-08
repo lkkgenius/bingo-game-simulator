@@ -36,12 +36,50 @@
         console.log('Before loading probabilityCalculator.js:');
         console.log('  window.BaseProbabilityCalculator:', typeof window.BaseProbabilityCalculator);
         console.log('  window.CONSTANTS:', typeof window.CONSTANTS);
+        
+        // Add error handler
+        window.addEventListener('error', function(e) {
+            console.error('Script error:', e.error);
+            updateStatus('Script error: ' + e.error.message);
+        });
     </script>
     
-    <script src="./probabilityCalculator.js"></script>
+    <script src="./probabilityCalculator.js" onerror="updateStatus('Failed to load probabilityCalculator.js')"></script>
     <script>
         updateStatus('probabilityCalculator.js loaded. ProbabilityCalculator type: ' + typeof window.ProbabilityCalculator);
         console.log('ProbabilityCalculator:', window.ProbabilityCalculator);
+        
+        // Try to manually execute the class definition
+        try {
+            console.log('Attempting manual class definition...');
+            const BaseProbabilityCalculator = window.BaseProbabilityCalculator;
+            const ProbConstants = window.CONSTANTS;
+            
+            if (!BaseProbabilityCalculator) {
+                throw new Error('BaseProbabilityCalculator is not available');
+            }
+            if (!ProbConstants) {
+                throw new Error('ProbConstants is not available');
+            }
+            
+            class TestProbabilityCalculator extends BaseProbabilityCalculator {
+                constructor() {
+                    super(ProbConstants.ALGORITHM_WEIGHTS.STANDARD);
+                }
+                
+                calculateMoveValue(board, row, col) {
+                    return 0; // Simple implementation
+                }
+            }
+            
+            window.TestProbabilityCalculator = TestProbabilityCalculator;
+            updateStatus('Manual class definition successful!');
+            console.log('TestProbabilityCalculator:', TestProbabilityCalculator);
+            
+        } catch (error) {
+            updateStatus('Manual class definition failed: ' + error.message);
+            console.error('Manual definition error:', error);
+        }
         
         if (window.ProbabilityCalculator) {
             try {
