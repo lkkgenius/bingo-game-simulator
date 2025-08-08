@@ -1,9 +1,9 @@
 // Import base class and common utilities
-let BaseProbabilityCalculator, CONSTANTS;
+let BaseProbabilityCalculator, ProbConstants;
 if (typeof require !== 'undefined') {
   BaseProbabilityCalculator = require('./utils/baseProbabilityCalculator.js');
   const common = require('./utils/common.js');
-  CONSTANTS = common.CONSTANTS;
+  ProbConstants = common.CONSTANTS;
 } else if (typeof window !== 'undefined') {
   // Ensure dependencies are loaded
   if (!window.BaseProbabilityCalculator && window.CONSTANTS && window.Utils) {
@@ -212,7 +212,7 @@ if (typeof require !== 'undefined') {
   }
   
   BaseProbabilityCalculator = window.BaseProbabilityCalculator;
-  CONSTANTS = window.CONSTANTS;
+  ProbConstants = window.CONSTANTS;
 }
 
 /**
@@ -248,7 +248,7 @@ class ProbabilityCalculator extends BaseProbabilityCalculator {
    */
   constructor() {
     // Initialize with standard algorithm weights
-    super(CONSTANTS.ALGORITHM_WEIGHTS.STANDARD);
+    super(ProbConstants.ALGORITHM_WEIGHTS.STANDARD);
   }
 
   /**
