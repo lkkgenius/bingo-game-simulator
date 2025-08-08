@@ -22,6 +22,7 @@
     
     // 使用全局命名空間避免污染
     const BingoGame = global.BingoGame || (global.BingoGame = {});
+    BingoGame.modules = BingoGame.modules || {};
     
     // 依賴檢查和獲取
     const getDependency = (name, fallback = null) => {

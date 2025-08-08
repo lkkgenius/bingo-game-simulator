@@ -426,8 +426,16 @@
         <div class="loading-text" data-i18n="loading.components">正在載入遊戲組件...</div>
     </div>
 
-    <!-- Enhanced Script Loading Architecture -->
-    <script src="./script-loader.js"></script>
+    <!-- Direct Script Loading for Debugging -->
+    <script src="./safe-dom.js"></script>
+    <script src="./production-logger.js"></script>
+    <script src="./utils/common.js"></script>
+    <script src="./utils/baseProbabilityCalculator.js"></script>
+    <script src="./lineDetector.js"></script>
+    <script src="./probabilityCalculator.js"></script>
+    <script src="./gameBoard.js"></script>
+    <script src="./gameEngine.js"></script>
+    <script src="./script.js"></script>
     
     <script>
         // Game initialization using the new script loading architecture
