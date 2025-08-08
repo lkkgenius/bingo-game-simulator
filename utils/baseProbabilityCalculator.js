@@ -17,14 +17,14 @@
  */
 
 // Import common utilities
-let CONSTANTS, Utils;
+let BaseProbConstants, BaseProbUtils;
 if (typeof require !== 'undefined') {
   const common = require('./common.js');
-  CONSTANTS = common.CONSTANTS;
-  Utils = common.Utils;
+  BaseProbConstants = common.CONSTANTS;
+  BaseProbUtils = common.Utils;
 } else if (typeof window !== 'undefined' && window.CONSTANTS) {
-  CONSTANTS = window.CONSTANTS;
-  Utils = window.Utils;
+  BaseProbConstants = window.CONSTANTS;
+  BaseProbUtils = window.Utils;
 }
 
 class BaseProbabilityCalculator {
@@ -32,14 +32,84 @@ class BaseProbabilityCalculator {
    * Create base probability calculator instance
    * @param {Object} weights - Algorithm-specific weights
    */
-  constructor(weights = CONSTANTS.ALGORITHM_WEIGHTS.STANDARD) {
+  constructor(weights) {
+    // Use imported constants or fallback values
+    const constants = BaseProbConstants || {
+      BOARD_SIZE: 5,
+      CELL_STATES: { EMPTY: 0, PLAYER: 1, COMPUTER: 2 },
+      LINE_TYPES: { HORIZONTAL: 'horizontal', VERTICAL: 'vertical', DIAGONAL_MAIN: 'diagonal-main', DIAGONAL_ANTI: 'diagonal-anti' },
+      ALGORITHM_WEIGHTS: {
+        STANDARD: { COMPLETE_LINE: 100, COOPERATIVE_LINE: 50, POTENTIAL_LINE: 10, CENTER_BONUS: 5 }
+      },
+      PERFORMANCE: { CACHE_SIZE: { VALUE_CACHE: 200 } }
+    };
+    
+    const utils = BaseProbUtils || {
+      isValidPosition: (row, col, boardSize) => row >= 0 && row < boardSize && col >= 0 && col < boardSize,
+      isCellEmpty: (board, row, col) => board[row] && board[row][col] === 0,
+      copyBoard: (board) => board.map(row => [...row]),
+      getEmptyCells: (board) => {
+        const empty = [];
+        for (let r = 0; r < board.length; r++) {
+          for (let c = 0; c < board[r].length; c++) {
+            if (board[r][c] === 0) empty.push({ row: r, col: c });
+          }
+        }
+        return empty;
+      },
+      getBoardHash: (board) => board.flat().join(''),
+      isCenterPosition: (row, col, boardSize) => row === Math.floor(boardSize / 2) && col === Math.floor(boardSize / 2),
+      getLineCells: (row, col, lineType, boardSize) => {
+        const cells = [];
+        switch (lineType) {
+          case 'horizontal':
+            for (let c = 0; c < boardSize; c++) cells.push([row, c]);
+            break;
+          case 'vertical':
+            for (let r = 0; r < boardSize; r++) cells.push([r, col]);
+            break;
+          case 'diagonal-main':
+            for (let i = 0; i < boardSize; i++) cells.push([i, i]);
+            break;
+          case 'diagonal-anti':
+            for (let i = 0; i < boardSize; i++) cells.push([i, boardSize - 1 - i]);
+            break;
+        }
+        return cells;
+      },
+      getRelevantLineTypes: (row, col, boardSize) => {
+        const lines = ['horizontal', 'vertical'];
+        if (row === col) lines.push('diagonal-main');
+        if (row + col === boardSize - 1) lines.push('diagonal-anti');
+        return lines;
+      },
+      isLineComplete: (board, cells) => cells.every(([r, c]) => board[r][c] !== 0),
+      countFilledCells: (board, cells) => cells.filter(([r, c]) => board[r][c] !== 0).length,
+      countEmptyCells: (board, cells) => cells.filter(([r, c]) => board[r][c] === 0).length,
+      calculateConfidenceLevel: (moves, weights) => {
+        if (moves.length < 2) return 'high';
+        const diff = moves[0].value - moves[1].value;
+        if (diff >= weights.COMPLETE_LINE) return 'very-high';
+        if (diff >= weights.COOPERATIVE_LINE) return 'high';
+        if (diff >= weights.POTENTIAL_LINE) return 'medium';
+        return 'low';
+      },
+      isValidBoard: (board, expectedSize) => {
+        if (!Array.isArray(board) || board.length !== expectedSize) return false;
+        return board.every(row => Array.isArray(row) && row.length === expectedSize);
+      }
+    };
+    
+    // Store utils for use in methods
+    this.Utils = utils;
+    
     // Board configuration
-    this.BOARD_SIZE = CONSTANTS.BOARD_SIZE;
-    this.CELL_STATES = CONSTANTS.CELL_STATES;
-    this.LINE_TYPES = CONSTANTS.LINE_TYPES;
+    this.BOARD_SIZE = constants.BOARD_SIZE;
+    this.CELL_STATES = constants.CELL_STATES;
+    this.LINE_TYPES = constants.LINE_TYPES;
     
     // Algorithm weights
-    this.WEIGHTS = { ...weights };
+    this.WEIGHTS = { ...weights || constants.ALGORITHM_WEIGHTS.STANDARD };
     
     // Performance optimization
     this._initializeCache();
@@ -53,7 +123,7 @@ class BaseProbabilityCalculator {
   _initializeCache() {
     this._valueCache = new Map();
     this._lineCache = new Map();
-    this._maxCacheSize = CONSTANTS.PERFORMANCE.CACHE_SIZE.VALUE_CACHE;
+    this._maxCacheSize = (BaseProbConstants && BaseProbConstants.PERFORMANCE && BaseProbConstants.PERFORMANCE.CACHE_SIZE && BaseProbConstants.PERFORMANCE.CACHE_SIZE.VALUE_CACHE) || 200;
   }
 
   /**
@@ -88,8 +158,8 @@ class BaseProbabilityCalculator {
    * @returns {boolean} Whether move is valid
    */
   isValidMove(board, row, col) {
-    return Utils.isValidPosition(row, col, this.BOARD_SIZE) &&
-           Utils.isCellEmpty(board, row, col);
+    return this.Utils.isValidPosition(row, col, this.BOARD_SIZE) &&
+           this.Utils.isCellEmpty(board, row, col);
   }
 
   /**
@@ -99,7 +169,7 @@ class BaseProbabilityCalculator {
    * @returns {boolean} Whether position is center
    */
   isCenterPosition(row, col) {
-    return Utils.isCenterPosition(row, col, this.BOARD_SIZE);
+    return this.Utils.isCenterPosition(row, col, this.BOARD_SIZE);
   }
 
   /**
@@ -108,7 +178,7 @@ class BaseProbabilityCalculator {
    * @returns {number[][]} Copied board
    */
   copyBoard(board) {
-    return Utils.copyBoard(board);
+    return this.Utils.copyBoard(board);
   }
 
   /**
@@ -117,7 +187,7 @@ class BaseProbabilityCalculator {
    * @returns {Array} Array of empty cell positions
    */
   getEmptyCells(board) {
-    return Utils.getEmptyCells(board);
+    return this.Utils.getEmptyCells(board);
   }
 
   /**
@@ -126,7 +196,7 @@ class BaseProbabilityCalculator {
    * @returns {string} Board hash
    */
   getBoardHash(board) {
-    return Utils.getBoardHash(board);
+    return this.Utils.getBoardHash(board);
   }
 
   /**
@@ -137,7 +207,7 @@ class BaseProbabilityCalculator {
    * @returns {Array} Array of cell positions
    */
   getLineCells(row, col, lineType) {
-    return Utils.getLineCells(row, col, lineType, this.BOARD_SIZE);
+    return this.Utils.getLineCells(row, col, lineType, this.BOARD_SIZE);
   }
 
   /**
@@ -147,7 +217,7 @@ class BaseProbabilityCalculator {
    * @returns {Array} Array of relevant line types
    */
   getRelevantLines(row, col) {
-    return Utils.getRelevantLineTypes(row, col, this.BOARD_SIZE);
+    return this.Utils.getRelevantLineTypes(row, col, this.BOARD_SIZE);
   }
 
   /**
@@ -157,7 +227,7 @@ class BaseProbabilityCalculator {
    * @returns {boolean} Whether line is complete
    */
   isLineComplete(board, cells) {
-    return Utils.isLineComplete(board, cells);
+    return this.Utils.isLineComplete(board, cells);
   }
 
   /**
@@ -167,7 +237,7 @@ class BaseProbabilityCalculator {
    * @returns {number} Number of filled cells
    */
   countFilledCells(board, cells) {
-    return Utils.countFilledCells(board, cells);
+    return this.Utils.countFilledCells(board, cells);
   }
 
   /**
@@ -177,7 +247,7 @@ class BaseProbabilityCalculator {
    * @returns {number} Number of empty cells
    */
   countEmptyCells(board, cells) {
-    return Utils.countEmptyCells(board, cells);
+    return this.Utils.countEmptyCells(board, cells);
   }
 
   /**
@@ -248,7 +318,7 @@ class BaseProbabilityCalculator {
    * @returns {string} Confidence level
    */
   calculateConfidence(moves) {
-    return Utils.calculateConfidenceLevel(moves, this.WEIGHTS);
+    return this.Utils.calculateConfidenceLevel(moves, this.WEIGHTS);
   }
 
   /**
@@ -344,7 +414,7 @@ class BaseProbabilityCalculator {
    * @returns {boolean} Whether board is valid
    */
   isValidBoard(board) {
-    return Utils.isValidBoard(board, this.BOARD_SIZE);
+    return this.Utils.isValidBoard(board, this.BOARD_SIZE);
   }
 
   /**

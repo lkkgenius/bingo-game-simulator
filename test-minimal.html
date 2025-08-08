@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Minimal Test</title>
+</head>
+<body>
+    <h1>Minimal Test</h1>
+    <div id="status"></div>
+    
+    <script>
+        console.log('Starting minimal test...');
+        
+        function updateStatus(message) {
+            document.getElementById('status').innerHTML += '<p>' + message + '</p>';
+        }
+        
+        updateStatus('Loading scripts...');
+    </script>
+    
+    <!-- Load scripts one by one -->
+    <script src="./utils/common.js"></script>
+    <script>
+        updateStatus('utils/common.js loaded. CONSTANTS type: ' + typeof window.CONSTANTS);
+        console.log('CONSTANTS:', window.CONSTANTS);
+    </script>
+    
+    <script src="./utils/baseProbabilityCalculator.js"></script>
+    <script>
+        updateStatus('utils/baseProbabilityCalculator.js loaded. BaseProbabilityCalculator type: ' + typeof window.BaseProbabilityCalculator);
+        console.log('BaseProbabilityCalculator:', window.BaseProbabilityCalculator);
+    </script>
+    
+    <script>
+        console.log('Before loading probabilityCalculator.js:');
+        console.log('  window.BaseProbabilityCalculator:', typeof window.BaseProbabilityCalculator);
+        console.log('  window.CONSTANTS:', typeof window.CONSTANTS);
+    </script>
+    
+    <script src="./probabilityCalculator.js"></script>
+    <script>
+        updateStatus('probabilityCalculator.js loaded. ProbabilityCalculator type: ' + typeof window.ProbabilityCalculator);
+        console.log('ProbabilityCalculator:', window.ProbabilityCalculator);
+        
+        if (window.ProbabilityCalculator) {
+            try {
+                const calc = new window.ProbabilityCalculator();
+                updateStatus('ProbabilityCalculator instantiated successfully!');
+                console.log('Calculator instance:', calc);
+            } catch (error) {
+                updateStatus('Error instantiating ProbabilityCalculator: ' + error.message);
+                console.error('Error:', error);
+            }
+        } else {
+            updateStatus('ProbabilityCalculator is not available');
+        }
+    </script>
+</body>
+</html>
