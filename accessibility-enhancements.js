@@ -808,6 +808,68 @@ class AccessibilityEnhancer {
     }
 
     /**
+     * Enhance controls ARIA attributes
+     */
+    enhanceControlsARIA() {
+        // Enhance start game button
+        const startButton = document.getElementById('start-game');
+        if (startButton) {
+            startButton.setAttribute('aria-describedby', 'game-instructions');
+        }
+
+        // Enhance restart button
+        const restartButton = document.getElementById('restart-game');
+        if (restartButton) {
+            restartButton.setAttribute('aria-label', '重新開始遊戲');
+        }
+
+        // Enhance random move button
+        const randomButton = document.getElementById('random-computer-move');
+        if (randomButton) {
+            randomButton.setAttribute('aria-label', '讓電腦隨機選擇位置');
+        }
+
+        // Enhance auto random checkbox
+        const autoCheckbox = document.getElementById('auto-random-move');
+        if (autoCheckbox) {
+            autoCheckbox.setAttribute('aria-describedby', 'auto-random-description');
+        }
+    }
+
+    /**
+     * Enhance status ARIA attributes
+     */
+    enhanceStatusARIA() {
+        const gameStatus = document.querySelector('.game-status');
+        if (gameStatus) {
+            gameStatus.setAttribute('role', 'status');
+            gameStatus.setAttribute('aria-live', 'polite');
+        }
+    }
+
+    /**
+     * Setup ARIA updates
+     */
+    setupARIAUpdates() {
+        // Listen for game state changes and update ARIA attributes
+        document.addEventListener('gameStateChanged', () => {
+            this.updateGameBoardARIA();
+        });
+    }
+
+    /**
+     * Update game board ARIA attributes
+     */
+    updateGameBoardARIA() {
+        const cells = document.querySelectorAll('.game-cell');
+        cells.forEach((cell, index) => {
+            const row = Math.floor(index / 5);
+            const col = index % 5;
+            this.updateCellARIA(cell, row, col);
+        });
+    }
+
+    /**
      * Setup color contrast enhancements
      */
     setupColorContrastEnhancements() {
