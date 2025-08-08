@@ -151,10 +151,13 @@ class ProductionLogger {
 }
 
 // 創建全局實例
-const logger = new ProductionLogger();
+if (typeof window !== 'undefined' && !window.logger) {
+    window.logger = new ProductionLogger();
+}
 
 // 導出供其他模塊使用
 if (typeof module !== 'undefined' && module.exports) {
+    const logger = new ProductionLogger();
     module.exports = { ProductionLogger, logger };
 } else if (typeof window !== 'undefined') {
     window.ProductionLogger = ProductionLogger;

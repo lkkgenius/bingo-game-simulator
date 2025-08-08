@@ -502,7 +502,8 @@ class GameError extends Error {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = { CONSTANTS, Utils, GameError };
 } else if (typeof window !== 'undefined') {
-  window.CONSTANTS = CONSTANTS;
-  window.Utils = Utils;
-  window.GameError = GameError;
+  // Only assign if not already defined to prevent redeclaration
+  if (!window.CONSTANTS) window.CONSTANTS = CONSTANTS;
+  if (!window.Utils) window.Utils = Utils;
+  if (!window.GameError) window.GameError = GameError;
 }
