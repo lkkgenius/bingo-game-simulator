@@ -8,7 +8,7 @@ if (typeof require !== 'undefined') {
   // Ensure dependencies are loaded
   if (!window.BaseProbabilityCalculator && window.CONSTANTS && window.Utils) {
     // Define BaseProbabilityCalculator if not available
-    class BaseProbabilityCalculator {
+    window.BaseProbabilityCalculator = class BaseProbabilityCalculator {
       constructor(weights = window.CONSTANTS.ALGORITHM_WEIGHTS.STANDARD) {
         this.BOARD_SIZE = window.CONSTANTS.BOARD_SIZE;
         this.CELL_STATES = window.CONSTANTS.CELL_STATES;
