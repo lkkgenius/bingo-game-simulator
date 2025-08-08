@@ -1419,6 +1419,35 @@ function startNewGame() {
     try {
         console.log('Starting new game...');
         
+        // Initialize game components if not already done
+        if (!gameState) {
+            console.log('Initializing game state...');
+            gameState = new GameState();
+        }
+        
+        if (!gameBoard) {
+            console.log('Initializing game board...');
+            gameBoard = new GameBoard('game-board');
+            gameBoard.setClickHandler(handleCellClick);
+        }
+        
+        if (!lineDetector) {
+            console.log('Initializing line detector...');
+            lineDetector = new LineDetector();
+        }
+        
+        if (!probabilityCalculator) {
+            console.log('Initializing probability calculator...');
+            
+            // Check if ProbabilityCalculator is available
+            if (typeof ProbabilityCalculator === 'undefined') {
+                console.error('ProbabilityCalculator class not found');
+                throw new Error('ProbabilityCalculator class not available');
+            }
+            
+            probabilityCalculator = new ProbabilityCalculator();
+        }
+        
         if (!gameState) {
             console.error('Game state not initialized');
             return;
