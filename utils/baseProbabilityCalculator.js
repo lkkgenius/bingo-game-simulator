@@ -431,5 +431,8 @@ class BaseProbabilityCalculator {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = BaseProbabilityCalculator;
 } else if (typeof window !== 'undefined') {
-  window.BaseProbabilityCalculator = BaseProbabilityCalculator;
+  // Only assign if not already defined to prevent redeclaration
+  if (!window.BaseProbabilityCalculator) {
+    window.BaseProbabilityCalculator = BaseProbabilityCalculator;
+  }
 }
