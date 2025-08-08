@@ -93,6 +93,9 @@ class ErrorBoundary {
             id: this.generateErrorId()
         };
 
+        // 檢查是否為非致命錯誤（不需要顯示紅色對話框）
+        const isNonFatalError = this.isNonFatalError(errorEntry);
+
         // 記錄錯誤
         this.logError(errorEntry);
 
@@ -120,11 +123,31 @@ class ErrorBoundary {
             }
         });
 
-        // 顯示用戶友好的錯誤訊息
-        this.showUserError(errorEntry);
+        // 只對致命錯誤顯示用戶友好的錯誤訊息
+        if (!isNonFatalError) {
+            this.showUserError(errorEntry);
+        }
 
         // 嘗試恢復應用程式狀態
         this.attemptRecovery(errorEntry);
+    }
+
+    /**
+     * 檢查是否為非致命錯誤
+     */
+    isNonFatalError(errorEntry) {
+        const nonFatalPatterns = [
+            /Script error/i,
+            /Identifier.*has already been declared/i,
+            /favicon.*not found/i,
+            /Failed to load resource.*favicon/i,
+            /Script loader not available/i
+        ];
+
+        return nonFatalPatterns.some(pattern => 
+            pattern.test(errorEntry.message) || 
+            pattern.test(errorEntry.error?.message || '')
+        );
     }
 
     /**
