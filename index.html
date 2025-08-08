@@ -439,9 +439,17 @@
     <script src="./script.js"></script>
     
     <script>
-        // Game initialization using the new script loading architecture
+        // Simplified game initialization
         let currentAlgorithm = 'standard';
         let gameInitialized = false;
+        
+        // Hide loading indicator immediately
+        document.addEventListener('DOMContentLoaded', function() {
+            const loadingElement = document.getElementById('global-loading');
+            if (loadingElement) {
+                loadingElement.style.display = 'none';
+            }
+        });
         
         // Initialize the enhanced script loader and load all modules
         async function initializeGame() {

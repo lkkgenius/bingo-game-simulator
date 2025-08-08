@@ -276,8 +276,8 @@ class GameState {
     let probabilityCalculator = null;
 
     // 演算法實例管理
-// let StandardProbabilityCalculator = null;
-// let EnhancedProbabilityCalculator = null;
+    let StandardProbabilityCalculator = null;
+    let EnhancedProbabilityCalculator = null;
 
 /**
  * Initialize the game when DOM is loaded
