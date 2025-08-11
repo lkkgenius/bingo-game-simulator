@@ -539,12 +539,22 @@
         function setupBasicFallback() {
             console.log('Setting up basic fallback functionality');
             
-            // Provide minimal game functionality
+            // Check if game is already working
+            if (typeof startNewGame === 'function') {
+                console.log('Game already initialized, skipping fallback');
+                return;
+            }
+            
+            // Provide minimal game functionality only if needed
             const startButton = document.getElementById('start-game');
             if (startButton) {
-                startButton.addEventListener('click', function() {
-                    alert('遊戲載入失敗，請重新整理頁面後再試');
-                });
+                // Check if button already has event listeners
+                const existingListeners = startButton.onclick || startButton.addEventListener;
+                if (!existingListeners) {
+                    startButton.addEventListener('click', function() {
+                        alert('遊戲載入失敗，請重新整理頁面後再試');
+                    });
+                }
             }
         }
         
