@@ -1,12 +1,12 @@
 // Import base class and common utilities
-let BaseProbabilityCalculator, CONSTANTS;
+let EnhancedBaseProbabilityCalculator, EnhancedCONSTANTS;
 if (typeof require !== 'undefined') {
-  BaseProbabilityCalculator = require('./utils/baseProbabilityCalculator.js');
+  EnhancedBaseProbabilityCalculator = require('./utils/baseProbabilityCalculator.js');
   const common = require('./utils/common.js');
-  CONSTANTS = common.CONSTANTS;
+  EnhancedCONSTANTS = common.CONSTANTS;
 } else if (typeof window !== 'undefined') {
-  BaseProbabilityCalculator = window.BaseProbabilityCalculator;
-  CONSTANTS = window.CONSTANTS;
+  EnhancedBaseProbabilityCalculator = window.BaseProbabilityCalculator;
+  EnhancedCONSTANTS = window.CONSTANTS;
 }
 
 /**
@@ -71,15 +71,15 @@ class LRUCache {
  * @extends BaseProbabilityCalculator
  * @version 1.0.0
  */
-class EnhancedProbabilityCalculator extends BaseProbabilityCalculator {
+class EnhancedProbabilityCalculator extends EnhancedBaseProbabilityCalculator {
   constructor() {
     // Initialize with enhanced algorithm weights
-    super(CONSTANTS.ALGORITHM_WEIGHTS.ENHANCED);
+    super(EnhancedCONSTANTS.ALGORITHM_WEIGHTS.ENHANCED);
     
     // Enhanced-specific caching with LRU strategy
-    this._valueCache = new LRUCache(CONSTANTS.PERFORMANCE.CACHE_SIZE.VALUE_CACHE);
-    this._lineCache = new LRUCache(CONSTANTS.PERFORMANCE.CACHE_SIZE.LINE_CACHE);
-    this._boardAnalysisCache = new LRUCache(CONSTANTS.PERFORMANCE.CACHE_SIZE.BOARD_ANALYSIS_CACHE);
+    this._valueCache = new LRUCache(EnhancedCONSTANTS.PERFORMANCE.CACHE_SIZE.VALUE_CACHE);
+    this._lineCache = new LRUCache(EnhancedCONSTANTS.PERFORMANCE.CACHE_SIZE.LINE_CACHE);
+    this._boardAnalysisCache = new LRUCache(EnhancedCONSTANTS.PERFORMANCE.CACHE_SIZE.BOARD_ANALYSIS_CACHE);
     
     // Pre-compute optimization data
     this._allPossibleLines = this._precomputeAllLines();
@@ -88,7 +88,7 @@ class EnhancedProbabilityCalculator extends BaseProbabilityCalculator {
     // Batch processing configuration
     this._batchQueue = [];
     this._isBatchProcessing = false;
-    this._batchProcessDelay = CONSTANTS.PERFORMANCE.BATCH_DELAY;
+    this._batchProcessDelay = EnhancedCONSTANTS.PERFORMANCE.BATCH_DELAY;
   }
 
   /**
@@ -358,7 +358,7 @@ class EnhancedProbabilityCalculator extends BaseProbabilityCalculator {
     let processedMoves = 0;
     
     const processBatch = (startIndex) => {
-      const batchSize = CONSTANTS.PERFORMANCE.BATCH_SIZE;
+      const batchSize = EnhancedCONSTANTS.PERFORMANCE.BATCH_SIZE;
       const endIndex = Math.min(startIndex + batchSize, totalMoves);
       
       for (let i = startIndex; i < endIndex; i++) {
