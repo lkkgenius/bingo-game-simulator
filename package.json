@@ -18,14 +18,14 @@
     "test:security": "node security-scan.js",
     "test:all": "npm run test:unit && npm run test:integration && npm run test:edge-cases && npm run test:utils && npm run test:e2e && npm run test:performance && npm run test:security",
     "test:ci": "npm run test:unit && npm run test:integration && npm run test:edge-cases && npm run test:utils",
-    "lint": "eslint *.js utils/*.js --fix",
-    "lint:check": "eslint *.js utils/*.js --max-warnings 150",
-    "lint:security": "eslint *.js utils/*.js --config .eslintrc.security.js",
-    "format": "prettier --write *.js *.html *.css utils/*.js",
-    "format:check": "prettier --check *.js *.html *.css utils/*.js",
-    "lint:fix": "eslint *.js utils/*.js --fix && prettier --write *.js *.html *.css utils/*.js",
-    "quality": "jshint *.js utils/*.js",
-    "quality:report": "jshint *.js utils/*.js --reporter=json > jshint-report.json",
+    "lint": "npx eslint *.js utils/*.js --fix",
+    "lint:check": "npx eslint *.js utils/*.js --max-warnings 150",
+    "lint:security": "npx eslint *.js utils/*.js",
+    "format": "npx prettier --write .",
+    "format:check": "npx prettier --check .",
+    "lint:fix": "npx eslint *.js utils/*.js --fix && npx prettier --write .",
+    "quality": "npx jshint *.js utils/*.js",
+    "quality:report": "npx jshint *.js utils/*.js --reporter=json > jshint-report.json",
     "complexity": "node -e \"const fs=require('fs');['script.js','gameEngine.js','gameBoard.js','lineDetector.js','probabilityCalculator.js'].forEach(f=>{if(fs.existsSync(f)){const c=fs.readFileSync(f,'utf8');const l=c.split('\\n').length;const fn=(c.match(/function\\s+\\w+|=>\\s*{|\\w+\\s*:\\s*function/g)||[]).length;console.log(f+': '+l+' lines, '+fn+' functions');if(l>2000)console.log('⚠️  '+f+' is large ('+l+' lines)');}});\"",
     "build": "npm run lint:check && npm run test:ci",
     "build:production": "npm run build && npm run optimize",
@@ -74,13 +74,8 @@
   "author": "Your Name",
   "license": "MIT",
   "devDependencies": {
-    "eslint": "^8.0.0",
-    "eslint-config-prettier": "^9.0.0",
-    "jshint": "^2.13.0",
     "playwright": "^1.40.0",
-    "prettier": "^3.0.0",
-    "http-server": "^14.0.0",
-    "lighthouse": "^11.0.0"
+    "http-server": "^14.0.0"
   },
   "engines": {
     "node": ">=14.0.0"

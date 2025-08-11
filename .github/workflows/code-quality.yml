@@ -23,11 +23,10 @@ jobs:
         with:
           node-version: '18'
 
-      - name: Install linting tools
+      - name: Install dependencies (if any)
         run: |
-          npm install -g eslint
-          npm install -g jshint
-          npm install -g prettier
+          # No global installations needed - using npx for all tools
+          echo "Using npx for all linting and formatting tools"
 
       - name: Run ESLint
         run: |
@@ -45,7 +44,7 @@ jobs:
         run: |
           echo "Checking code formatting with Prettier..."
           echo "Checking formatting..."
-          
+
           # Use existing .prettierrc config and check all relevant files
           npx prettier --check . || {
             echo "⚠️  Some files need formatting"
