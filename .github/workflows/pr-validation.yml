@@ -2,205 +2,205 @@ name: Pull Request Validation
 
 on:
   pull_request:
-    branches: [ main, develop ]
+    branches: [main, develop]
     types: [opened, synchronize, reopened]
 
 jobs:
   validate-pr:
     name: Validate Pull Request
     runs-on: ubuntu-latest
-    
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0 # Fetch full history for better analysis
-        
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
-        
-    - name: Install dependencies
-      run: |
-        npm install -g eslint jshint playwright http-server
-        npx playwright install
-        
-    - name: Check code formatting
-      run: |
-        echo "Checking code formatting..."
-        eslint *.js --max-warnings 0 || echo "ESLint warnings found"
-        
-    - name: Run security scan
-      run: |
-        echo "Running security scan..."
-        node security-scan.js
-        
-    - name: Run unit tests
-      run: |
-        echo "Running unit tests..."
-        node testRunner.js
-        
-    - name: Check for breaking changes
-      run: |
-        echo "Checking for breaking changes..."
-        
-        # Check if any core API functions have been modified
-        git diff origin/main --name-only | grep -E "(gameEngine|gameBoard|lineDetector|probabilityCalculator)\.js" || echo "No core API changes detected"
-        
-        # Check for removed functions
-        git diff origin/main | grep "^-.*function\|^-.*=.*=>" || echo "No function removals detected"
-        
-    - name: Performance impact check
-      run: |
-        echo "Checking performance impact..."
-        
-        # Start server for testing
-        http-server . -p 8080 &
-        sleep 5
-        
-        # Run performance tests
-        node performance-regression.test.js || echo "Performance tests completed with warnings"
-        
-    - name: Test coverage check
-      run: |
-        echo "Checking test coverage..."
-        
-        # Count test files vs source files
-        SOURCE_FILES=$(find . -name "*.js" -not -path "./node_modules/*" -not -name "*.test.js" -not -name "testRunner.js" -not -name "security-scan.js" | wc -l)
-        TEST_FILES=$(find . -name "*.test.js" | wc -l)
-        
-        echo "Source files: $SOURCE_FILES"
-        echo "Test files: $TEST_FILES"
-        
-        if [ $TEST_FILES -lt $((SOURCE_FILES / 2)) ]; then
-          echo "Warning: Low test coverage ratio"
-        fi
-        
-    - name: Check documentation
-      run: |
-        echo "Checking documentation..."
-        
-        # Check if README exists and is not empty
-        if [ ! -f README.md ] || [ ! -s README.md ]; then
-          echo "Warning: README.md is missing or empty"
-        fi
-        
-        # Check for JSDoc comments in new/modified files
-        git diff origin/main --name-only | grep "\.js$" | while read file; do
-          if [ -f "$file" ]; then
-            if ! grep -q "/\*\*" "$file"; then
-              echo "Warning: $file may be missing JSDoc comments"
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Fetch full history for better analysis
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: |
+          npm install -g eslint jshint playwright http-server
+          npx playwright install
+
+      - name: Check code formatting
+        run: |
+          echo "Checking code formatting..."
+          eslint *.js --max-warnings 0 || echo "ESLint warnings found"
+
+      - name: Run security scan
+        run: |
+          echo "Running security scan..."
+          node security-scan.js
+
+      - name: Run unit tests
+        run: |
+          echo "Running unit tests..."
+          node testRunner.js
+
+      - name: Check for breaking changes
+        run: |
+          echo "Checking for breaking changes..."
+
+          # Check if any core API functions have been modified
+          git diff origin/main --name-only | grep -E "(gameEngine|gameBoard|lineDetector|probabilityCalculator)\.js" || echo "No core API changes detected"
+
+          # Check for removed functions
+          git diff origin/main | grep "^-.*function\|^-.*=.*=>" || echo "No function removals detected"
+
+      - name: Performance impact check
+        run: |
+          echo "Checking performance impact..."
+
+          # Start server for testing
+          http-server . -p 8080 &
+          sleep 5
+
+          # Run performance tests
+          node performance-regression.test.js || echo "Performance tests completed with warnings"
+
+      - name: Test coverage check
+        run: |
+          echo "Checking test coverage..."
+
+          # Count test files vs source files
+          SOURCE_FILES=$(find . -name "*.js" -not -path "./node_modules/*" -not -name "*.test.js" -not -name "testRunner.js" -not -name "security-scan.js" | wc -l)
+          TEST_FILES=$(find . -name "*.test.js" | wc -l)
+
+          echo "Source files: $SOURCE_FILES"
+          echo "Test files: $TEST_FILES"
+
+          if [ $TEST_FILES -lt $((SOURCE_FILES / 2)) ]; then
+            echo "Warning: Low test coverage ratio"
+          fi
+
+      - name: Check documentation
+        run: |
+          echo "Checking documentation..."
+
+          # Check if README exists and is not empty
+          if [ ! -f README.md ] || [ ! -s README.md ]; then
+            echo "Warning: README.md is missing or empty"
+          fi
+
+          # Check for JSDoc comments in new/modified files
+          git diff origin/main --name-only | grep "\.js$" | while read file; do
+            if [ -f "$file" ]; then
+              if ! grep -q "/\*\*" "$file"; then
+                echo "Warning: $file may be missing JSDoc comments"
+              fi
+            fi
+          done
+
+      - name: Accessibility check
+        run: |
+          echo "Running accessibility check..."
+
+          # Basic accessibility checks
+          if [ -f index.html ]; then
+            # Check for alt attributes on images
+            if grep -q "<img" index.html && ! grep -q "alt=" index.html; then
+              echo "Warning: Images without alt attributes found"
+            fi
+            
+            # Check for semantic HTML
+            if ! grep -q "<main\|<section\|<article\|<nav\|<header\|<footer" index.html; then
+              echo "Warning: Consider using semantic HTML elements"
+            fi
+            
+            # Check for ARIA labels
+            if grep -q "button\|input" index.html && ! grep -q "aria-label\|aria-labelledby" index.html; then
+              echo "Warning: Interactive elements may need ARIA labels"
             fi
           fi
-        done
-        
-    - name: Accessibility check
-      run: |
-        echo "Running accessibility check..."
-        
-        # Basic accessibility checks
-        if [ -f index.html ]; then
-          # Check for alt attributes on images
-          if grep -q "<img" index.html && ! grep -q "alt=" index.html; then
-            echo "Warning: Images without alt attributes found"
+
+      - name: Mobile compatibility check
+        run: |
+          echo "Checking mobile compatibility..."
+
+          if [ -f styles.css ]; then
+            # Check for viewport meta tag
+            if [ -f index.html ] && ! grep -q "viewport" index.html; then
+              echo "Warning: Viewport meta tag missing"
+            fi
+            
+            # Check for responsive design patterns
+            if ! grep -q "@media\|responsive\|mobile" styles.css; then
+              echo "Warning: No responsive design patterns found"
+            fi
+            
+            # Check for touch-friendly sizing
+            if ! grep -q "min-height.*44px\|min-width.*44px" styles.css; then
+              echo "Info: Consider touch-friendly minimum sizes (44px)"
+            fi
           fi
-          
-          # Check for semantic HTML
-          if ! grep -q "<main\|<section\|<article\|<nav\|<header\|<footer" index.html; then
-            echo "Warning: Consider using semantic HTML elements"
+
+      - name: Bundle size check
+        run: |
+          echo "Checking bundle size..."
+
+          # Calculate total size of main files
+          TOTAL_SIZE=0
+          for file in index.html styles.css script.js gameEngine.js gameBoard.js lineDetector.js probabilityCalculator.js; do
+            if [ -f "$file" ]; then
+              SIZE=$(wc -c < "$file")
+              TOTAL_SIZE=$((TOTAL_SIZE + SIZE))
+              echo "$file: ${SIZE} bytes"
+            fi
+          done
+
+          echo "Total bundle size: ${TOTAL_SIZE} bytes"
+
+          # Warn if bundle is too large (> 500KB)
+          if [ $TOTAL_SIZE -gt 512000 ]; then
+            echo "Warning: Bundle size is large (>500KB). Consider optimization."
           fi
-          
-          # Check for ARIA labels
-          if grep -q "button\|input" index.html && ! grep -q "aria-label\|aria-labelledby" index.html; then
-            echo "Warning: Interactive elements may need ARIA labels"
-          fi
-        fi
-        
-    - name: Mobile compatibility check
-      run: |
-        echo "Checking mobile compatibility..."
-        
-        if [ -f styles.css ]; then
-          # Check for viewport meta tag
-          if [ -f index.html ] && ! grep -q "viewport" index.html; then
-            echo "Warning: Viewport meta tag missing"
-          fi
-          
-          # Check for responsive design patterns
-          if ! grep -q "@media\|responsive\|mobile" styles.css; then
-            echo "Warning: No responsive design patterns found"
-          fi
-          
-          # Check for touch-friendly sizing
-          if ! grep -q "min-height.*44px\|min-width.*44px" styles.css; then
-            echo "Info: Consider touch-friendly minimum sizes (44px)"
-          fi
-        fi
-        
-    - name: Bundle size check
-      run: |
-        echo "Checking bundle size..."
-        
-        # Calculate total size of main files
-        TOTAL_SIZE=0
-        for file in index.html styles.css script.js gameEngine.js gameBoard.js lineDetector.js probabilityCalculator.js; do
-          if [ -f "$file" ]; then
-            SIZE=$(wc -c < "$file")
-            TOTAL_SIZE=$((TOTAL_SIZE + SIZE))
-            echo "$file: ${SIZE} bytes"
-          fi
-        done
-        
-        echo "Total bundle size: ${TOTAL_SIZE} bytes"
-        
-        # Warn if bundle is too large (> 500KB)
-        if [ $TOTAL_SIZE -gt 512000 ]; then
-          echo "Warning: Bundle size is large (>500KB). Consider optimization."
-        fi
-        
-    - name: Comment on PR
-      uses: actions/github-script@v7
-      if: always()
-      with:
-        script: |
-          const { data: comments } = await github.rest.issues.listComments({
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            issue_number: context.issue.number,
-          });
-          
-          const botComment = comments.find(comment => 
-            comment.user.type === 'Bot' && 
-            comment.body.includes('Pull Request Validation')
-          );
-          
-          const commentBody = `## Pull Request Validation Results
-          
-          ✅ **Code Quality**: ESLint and JSHint checks completed
-          🔒 **Security**: Security scan completed
-          🧪 **Tests**: Unit tests executed
-          📱 **Mobile**: Compatibility checks performed
-          📊 **Performance**: Performance impact assessed
-          📚 **Documentation**: Documentation checks completed
-          
-          Please review any warnings in the workflow logs and address them before merging.
-          
-          ---
-          *This comment was automatically generated by the PR validation workflow.*`;
-          
-          if (botComment) {
-            await github.rest.issues.updateComment({
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              comment_id: botComment.id,
-              body: commentBody
-            });
-          } else {
-            await github.rest.issues.createComment({
+
+      - name: Comment on PR
+        uses: actions/github-script@v7
+        if: always()
+        with:
+          script: |
+            const { data: comments } = await github.rest.issues.listComments({
               owner: context.repo.owner,
               repo: context.repo.repo,
               issue_number: context.issue.number,
-              body: commentBody
             });
-          }
+
+            const botComment = comments.find(comment => 
+              comment.user.type === 'Bot' && 
+              comment.body.includes('Pull Request Validation')
+            );
+
+            const commentBody = `## Pull Request Validation Results
+
+            ✅ **Code Quality**: ESLint and JSHint checks completed
+            🔒 **Security**: Security scan completed
+            🧪 **Tests**: Unit tests executed
+            📱 **Mobile**: Compatibility checks performed
+            📊 **Performance**: Performance impact assessed
+            📚 **Documentation**: Documentation checks completed
+
+            Please review any warnings in the workflow logs and address them before merging.
+
+            ---
+            *This comment was automatically generated by the PR validation workflow.*`;
+
+            if (botComment) {
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: commentBody
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: commentBody
+              });
+            }

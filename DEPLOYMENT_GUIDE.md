@@ -33,11 +33,13 @@ Bingo 遊戲模擬器是一個純前端應用程式，具有以下特性：
 ### 部署需求
 
 **最低需求**:
+
 - 靜態文件託管服務
 - HTTPS 支持（PWA 必需）
 - 支持自定義 404 頁面（可選）
 
 **推薦需求**:
+
 - CDN 支持
 - 自動部署 (CI/CD)
 - 性能監控
@@ -50,6 +52,7 @@ GitHub Pages 是最簡單的部署方式，特別適合開源專案。
 ### 1. 基本設置
 
 **步驟 1: 準備 Repository**
+
 ```bash
 # 確保代碼在 main 分支
 git checkout main
@@ -57,6 +60,7 @@ git push origin main
 ```
 
 **步驟 2: 啟用 GitHub Pages**
+
 1. 前往 GitHub repository 頁面
 2. 點擊 "Settings" 標籤
 3. 滾動到 "Pages" 部分
@@ -65,6 +69,7 @@ git push origin main
 6. 點擊 "Save"
 
 **步驟 3: 驗證部署**
+
 - 等待 2-5 分鐘
 - 訪問 `https://[username].github.io/[repository-name]`
 
@@ -77,63 +82,64 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   test:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    
-    - name: Setup Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '18'
-    
-    - name: Run tests
-      run: |
-        node testRunner.js
-        
-    - name: Run E2E tests
-      run: |
-        npx playwright install
-        npx playwright test playwright-e2e.test.js
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Run tests
+        run: |
+          node testRunner.js
+
+      - name: Run E2E tests
+        run: |
+          npx playwright install
+          npx playwright test playwright-e2e.test.js
 
   deploy:
     needs: test
     runs-on: ubuntu-latest
     if: github.ref == 'refs/heads/main'
-    
+
     permissions:
       contents: read
       pages: write
       id-token: write
-    
+
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
-    
+
     steps:
-    - uses: actions/checkout@v3
-    
-    - name: Setup Pages
-      uses: actions/configure-pages@v3
-      
-    - name: Upload artifact
-      uses: actions/upload-pages-artifact@v2
-      with:
-        path: '.'
-        
-    - name: Deploy to GitHub Pages
-      id: deployment
-      uses: actions/deploy-pages@v2
+      - uses: actions/checkout@v3
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v3
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v2
+        with:
+          path: '.'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v2
 ```
 
 ### 3. 自定義域名設置
 
 **步驟 1: 添加 CNAME 文件**
+
 ```bash
 echo "yourdomain.com" > CNAME
 git add CNAME
@@ -142,6 +148,7 @@ git push origin main
 ```
 
 **步驟 2: 配置 DNS**
+
 ```
 # 對於 apex 域名 (example.com)
 A 記錄:
@@ -155,6 +162,7 @@ CNAME 記錄: [username].github.io
 ```
 
 **步驟 3: 在 GitHub 設置中配置**
+
 1. 在 Pages 設置中輸入自定義域名
 2. 勾選 "Enforce HTTPS"
 3. 等待 DNS 驗證完成
@@ -166,12 +174,14 @@ Netlify 提供優秀的靜態網站託管服務，支持自動部署和豐富的
 ### 1. 通過 Git 部署
 
 **步驟 1: 連接 Repository**
+
 1. 登錄 [Netlify](https://netlify.com)
 2. 點擊 "New site from Git"
 3. 選擇 GitHub 並授權
 4. 選擇你的 repository
 
 **步驟 2: 配置構建設置**
+
 ```
 Build command: echo "No build required"
 Publish directory: .
@@ -238,6 +248,7 @@ Publish directory: .
 ### 3. 環境變量設置
 
 在 Netlify 控制台中設置環境變量：
+
 ```
 ENVIRONMENT=production
 ANALYTICS_ID=your-analytics-id
@@ -246,6 +257,7 @@ ANALYTICS_ID=your-analytics-id
 ### 4. 表單處理（可選）
 
 如果需要聯繫表單：
+
 ```html
 <form name="contact" method="POST" data-netlify="true">
   <input type="hidden" name="form-name" value="contact" />
@@ -263,11 +275,13 @@ Vercel 是另一個優秀的靜態網站託管平台，特別適合前端專案�
 ### 1. 通過 Git 部署
 
 **步驟 1: 連接 Repository**
+
 1. 登錄 [Vercel](https://vercel.com)
 2. 點擊 "New Project"
 3. 導入你的 GitHub repository
 
 **步驟 2: 配置設置**
+
 ```
 Framework Preset: Other
 Build Command: (留空)
@@ -331,6 +345,7 @@ Install Command: (留空)
 ### 3. 環境變量
 
 在 Vercel 控制台中設置：
+
 ```
 ENVIRONMENT=production
 NEXT_PUBLIC_ANALYTICS_ID=your-analytics-id
@@ -343,17 +358,20 @@ Firebase Hosting 提供快速、安全的網站託管服務。
 ### 1. 初始設置
 
 **步驟 1: 安裝 Firebase CLI**
+
 ```bash
 npm install -g firebase-tools
 ```
 
 **步驟 2: 登錄和初始化**
+
 ```bash
 firebase login
 firebase init hosting
 ```
 
 **步驟 3: 配置 firebase.json**
+
 ```json
 {
   "hosting": {
@@ -414,28 +432,28 @@ name: Deploy to Firebase Hosting
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-    
-    - name: Setup Node.js
-      uses: actions/setup-node@v3
-      with:
-        node-version: '18'
-    
-    - name: Run tests
-      run: node testRunner.js
-    
-    - name: Deploy to Firebase
-      uses: FirebaseExtended/action-hosting-deploy@v0
-      with:
-        repoToken: '${{ secrets.GITHUB_TOKEN }}'
-        firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}'
-        projectId: your-project-id
+      - uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+
+      - name: Run tests
+        run: node testRunner.js
+
+      - name: Deploy to Firebase
+        uses: FirebaseExtended/action-hosting-deploy@v0
+        with:
+          repoToken: '${{ secrets.GITHUB_TOKEN }}'
+          firebaseServiceAccount: '${{ secrets.FIREBASE_SERVICE_ACCOUNT }}'
+          projectId: your-project-id
 ```
 
 ## 自定義服務器部署
@@ -445,6 +463,7 @@ jobs:
 ### 1. Nginx 配置
 
 **步驟 1: 上傳文件**
+
 ```bash
 # 使用 rsync 同步文件
 rsync -avz --delete ./ user@server:/var/www/bingo-game/
@@ -454,12 +473,13 @@ scp -r ./* user@server:/var/www/bingo-game/
 ```
 
 **步驟 2: 配置 Nginx**
+
 ```nginx
 server {
     listen 80;
     listen [::]:80;
     server_name yourdomain.com www.yourdomain.com;
-    
+
     # 重定向到 HTTPS
     return 301 https://$server_name$request_uri;
 }
@@ -468,46 +488,46 @@ server {
     listen 443 ssl http2;
     listen [::]:443 ssl http2;
     server_name yourdomain.com www.yourdomain.com;
-    
+
     # SSL 配置
     ssl_certificate /path/to/certificate.crt;
     ssl_certificate_key /path/to/private.key;
     ssl_protocols TLSv1.2 TLSv1.3;
     ssl_ciphers ECDHE-RSA-AES256-GCM-SHA512:DHE-RSA-AES256-GCM-SHA512;
-    
+
     # 網站根目錄
     root /var/www/bingo-game;
     index index.html;
-    
+
     # Gzip 壓縮
     gzip on;
     gzip_vary on;
     gzip_min_length 1024;
     gzip_types text/plain text/css text/xml text/javascript application/javascript application/xml+rss application/json;
-    
+
     # 緩存設置
     location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg)$ {
         expires 1y;
         add_header Cache-Control "public, immutable";
     }
-    
+
     # Service Worker 不緩存
     location = /sw.js {
         add_header Cache-Control "no-cache";
         expires 0;
     }
-    
+
     # 安全標頭
     add_header X-Frame-Options "DENY" always;
     add_header X-XSS-Protection "1; mode=block" always;
     add_header X-Content-Type-Options "nosniff" always;
     add_header Referrer-Policy "strict-origin-when-cross-origin" always;
-    
+
     # PWA 支持
     location = /manifest.json {
         add_header Content-Type "application/manifest+json";
     }
-    
+
     # 單頁應用支持
     location / {
         try_files $uri $uri/ /index.html;
@@ -607,22 +627,22 @@ server {
     server_name localhost;
     root /usr/share/nginx/html;
     index index.html;
-    
+
     # Gzip 壓縮
     gzip on;
     gzip_types text/plain text/css application/json application/javascript text/xml application/xml application/xml+rss text/javascript;
-    
+
     # 緩存設置
     location ~* \.(js|css|png|jpg|jpeg|gif|ico|svg)$ {
         expires 1y;
         add_header Cache-Control "public";
     }
-    
+
     # Service Worker
     location = /sw.js {
         add_header Cache-Control "no-cache";
     }
-    
+
     # 單頁應用支持
     location / {
         try_files $uri $uri/ /index.html;
@@ -639,14 +659,14 @@ services:
   bingo-game:
     build: .
     ports:
-      - "80:80"
+      - '80:80'
     restart: unless-stopped
-    
+
   # 可選：添加 SSL 終止
   nginx-proxy:
     image: nginx:alpine
     ports:
-      - "443:443"
+      - '443:443'
     volumes:
       - ./ssl:/etc/nginx/ssl
       - ./proxy.conf:/etc/nginx/conf.d/default.conf
@@ -674,11 +694,13 @@ docker-compose up -d
 ### 1. Cloudflare 設置
 
 **步驟 1: 添加網站到 Cloudflare**
+
 1. 註冊 Cloudflare 帳戶
 2. 添加你的域名
 3. 更新 DNS 服務器
 
 **步驟 2: 配置緩存規則**
+
 ```
 Page Rules:
 - *.js, *.css: Cache Everything, Edge TTL 1 month
@@ -687,6 +709,7 @@ Page Rules:
 ```
 
 **步驟 3: 優化設置**
+
 - 啟用 Auto Minify (JavaScript, CSS, HTML)
 - 啟用 Brotli 壓縮
 - 啟用 HTTP/2
@@ -734,6 +757,7 @@ Page Rules:
 ### 1. DNS 設置
 
 **A 記錄設置**:
+
 ```
 Type: A
 Name: @
@@ -747,6 +771,7 @@ TTL: 300
 ```
 
 **CNAME 記錄設置**:
+
 ```
 Type: CNAME
 Name: www
@@ -818,6 +843,7 @@ openssl s_client -connect yourdomain.com:443
 ### 1. 資源優化
 
 **JavaScript 壓縮**:
+
 ```bash
 # 使用 Terser
 npx terser script.js -o script.min.js --compress --mangle
@@ -827,6 +853,7 @@ npx uglifyjs script.js -o script.min.js -c -m
 ```
 
 **CSS 優化**:
+
 ```bash
 # 使用 csso
 npx csso styles.css --output styles.min.css
@@ -836,6 +863,7 @@ npx cleancss -o styles.min.css styles.css
 ```
 
 **圖片優化**:
+
 ```bash
 # 使用 imagemin
 npx imagemin images/* --out-dir=images/optimized
@@ -847,6 +875,7 @@ cwebp image.jpg -q 80 -o image.webp
 ### 2. 緩存策略
 
 **HTTP 緩存標頭**:
+
 ```
 # 靜態資源
 Cache-Control: public, max-age=31536000, immutable
@@ -859,6 +888,7 @@ Cache-Control: no-cache
 ```
 
 **Service Worker 緩存**:
+
 ```javascript
 // 在 sw.js 中
 const CACHE_NAME = 'bingo-game-v1';
@@ -866,14 +896,13 @@ const urlsToCache = [
   '/',
   '/styles.css',
   '/script.js',
-  '/gameEngine.js',
+  '/gameEngine.js'
   // ... 其他資源
 ];
 
-self.addEventListener('install', (event) => {
+self.addEventListener('install', event => {
   event.waitUntil(
-    caches.open(CACHE_NAME)
-      .then((cache) => cache.addAll(urlsToCache))
+    caches.open(CACHE_NAME).then(cache => cache.addAll(urlsToCache))
   );
 });
 ```
@@ -881,13 +910,15 @@ self.addEventListener('install', (event) => {
 ### 3. 載入優化
 
 **資源預載**:
+
 ```html
-<link rel="preload" href="styles.css" as="style">
-<link rel="preload" href="script.js" as="script">
-<link rel="prefetch" href="gameEngine.js">
+<link rel="preload" href="styles.css" as="style" />
+<link rel="preload" href="script.js" as="script" />
+<link rel="prefetch" href="gameEngine.js" />
 ```
 
 **延遲載入**:
+
 ```javascript
 // 延遲載入非關鍵資源
 setTimeout(() => {
@@ -901,10 +932,15 @@ setTimeout(() => {
 
 ```html
 <!-- Google Analytics -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID"></script>
+<script
+  async
+  src="https://www.googletagmanager.com/gtag/js?id=GA_MEASUREMENT_ID"
+></script>
 <script>
   window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
+  function gtag() {
+    dataLayer.push(arguments);
+  }
   gtag('js', new Date());
   gtag('config', 'GA_MEASUREMENT_ID');
 </script>
@@ -914,25 +950,25 @@ setTimeout(() => {
 
 ```javascript
 // 使用 Performance API
-const observer = new PerformanceObserver((list) => {
+const observer = new PerformanceObserver(list => {
   for (const entry of list.getEntries()) {
     console.log('Performance:', entry);
   }
 });
 
-observer.observe({entryTypes: ['navigation', 'resource']});
+observer.observe({ entryTypes: ['navigation', 'resource'] });
 ```
 
 ### 3. 錯誤監控
 
 ```javascript
 // 全局錯誤處理
-window.addEventListener('error', (event) => {
+window.addEventListener('error', event => {
   console.error('Global error:', event.error);
   // 發送到監控服務
 });
 
-window.addEventListener('unhandledrejection', (event) => {
+window.addEventListener('unhandledrejection', event => {
   console.error('Unhandled promise rejection:', event.reason);
   // 發送到監控服務
 });
@@ -942,7 +978,7 @@ window.addEventListener('unhandledrejection', (event) => {
 
 ```javascript
 // Core Web Vitals
-import {getCLS, getFID, getFCP, getLCP, getTTFB} from 'web-vitals';
+import { getCLS, getFID, getFCP, getLCP, getTTFB } from 'web-vitals';
 
 getCLS(console.log);
 getFID(console.log);
@@ -956,6 +992,7 @@ getTTFB(console.log);
 ### 1. 常見部署問題
 
 **問題: 404 錯誤**
+
 ```
 解決方案:
 1. 檢查文件路徑是否正確
@@ -964,6 +1001,7 @@ getTTFB(console.log);
 ```
 
 **問題: HTTPS 混合內容錯誤**
+
 ```
 解決方案:
 1. 確保所有資源使用 HTTPS
@@ -972,6 +1010,7 @@ getTTFB(console.log);
 ```
 
 **問題: Service Worker 不工作**
+
 ```
 解決方案:
 1. 確保使用 HTTPS
@@ -982,6 +1021,7 @@ getTTFB(console.log);
 ### 2. 性能問題
 
 **問題: 載入速度慢**
+
 ```
 解決方案:
 1. 啟用 Gzip/Brotli 壓縮
@@ -991,6 +1031,7 @@ getTTFB(console.log);
 ```
 
 **問題: JavaScript 執行慢**
+
 ```
 解決方案:
 1. 使用 Performance Monitor 分析
@@ -1002,12 +1043,14 @@ getTTFB(console.log);
 ### 3. 調試工具
 
 **瀏覽器開發者工具**:
+
 - Network 面板：檢查資源載入
 - Performance 面板：分析性能
 - Application 面板：檢查 PWA 功能
 - Console 面板：查看錯誤日誌
 
 **在線工具**:
+
 - [PageSpeed Insights](https://pagespeed.web.dev/)
 - [GTmetrix](https://gtmetrix.com/)
 - [WebPageTest](https://www.webpagetest.org/)
@@ -1016,6 +1059,7 @@ getTTFB(console.log);
 ### 4. 部署檢查清單
 
 **部署前檢查**:
+
 - [ ] 所有測試通過
 - [ ] 資源路徑使用相對路徑
 - [ ] 移除調試代碼和 console.log
@@ -1025,6 +1069,7 @@ getTTFB(console.log);
 - [ ] 測試 PWA 功能
 
 **部署後檢查**:
+
 - [ ] 網站可以正常訪問
 - [ ] 所有功能正常工作
 - [ ] HTTPS 正常工作

@@ -26,18 +26,20 @@ node testRunner.js
 專案包含以下測試文件：
 
 ### 單元測試
+
 - `lineDetector.test.js` - 測試連線檢測功能
 - `probabilityCalculator.test.js` - 測試標準機率計算器功能
 - `probabilityCalculator.enhanced.test.js` - 測試增強版機率計算器功能
 - `gameEngine.test.js` - 測試遊戲引擎功能
 - `gameBoard.test.js` - 測試遊戲板UI組件功能
 
-
 ### 整合測試
+
 - `gameFlow.test.js` - 測試遊戲流程和組件間互動
 - `algorithmComparison.test.js` - 測試標準和增強版算法的比較
 
 ### 端到端測試
+
 - `e2e.test.js` - 模擬完整的用戶交互流程
 
 ## 測試運行器
@@ -90,20 +92,20 @@ const ComponentToTest = require('./componentToTest.js');
 
 describe('ComponentToTest', () => {
   let component;
-  
+
   // 在每個測試前初始化
   beforeEach = () => {
     component = new ComponentToTest();
   };
-  
+
   // 初始化
   beforeEach();
-  
+
   test('should do something', () => {
     const result = component.doSomething();
     expect(result).toBeTruthy();
   });
-  
+
   test('should handle edge case', () => {
     const result = component.handleEdgeCase();
     expect(result).toBe(expectedValue);

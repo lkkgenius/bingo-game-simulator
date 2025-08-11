@@ -5,9 +5,21 @@
 
 // Basic types
 export type CellState = 0 | 1 | 2; // EMPTY | PLAYER | COMPUTER
-export type GamePhase = 'waiting' | 'player-turn' | 'computer-turn' | 'game-over';
-export type LineType = 'horizontal' | 'vertical' | 'diagonal-main' | 'diagonal-anti';
-export type ErrorType = 'invalid-move' | 'cell-occupied' | 'game-over' | 'invalid-phase';
+export type GamePhase =
+  | 'waiting'
+  | 'player-turn'
+  | 'computer-turn'
+  | 'game-over';
+export type LineType =
+  | 'horizontal'
+  | 'vertical'
+  | 'diagonal-main'
+  | 'diagonal-anti';
+export type ErrorType =
+  | 'invalid-move'
+  | 'cell-occupied'
+  | 'game-over'
+  | 'invalid-phase';
 export type ConfidenceLevel = 'very-high' | 'high' | 'medium' | 'low';
 
 // Board and position types
@@ -146,7 +158,11 @@ export interface IGameEngine {
 export interface IGameBoard {
   updateCell(row: number, col: number, state: CellState): void;
   updateBoard(board: Board): void;
-  highlightSuggestion(row: number, col: number, options?: SuggestionOptions): void;
+  highlightSuggestion(
+    row: number,
+    col: number,
+    options?: SuggestionOptions
+  ): void;
   highlightLines(lines: Line[]): void;
   clearSuggestionHighlight(): void;
   clearLineHighlights(): void;
@@ -156,7 +172,11 @@ export interface IGameBoard {
 }
 
 // Event handler types
-export type CellClickHandler = (row: number, col: number, cellElement?: HTMLElement) => void;
+export type CellClickHandler = (
+  row: number,
+  col: number,
+  cellElement?: HTMLElement
+) => void;
 export type GameStateChangeHandler = (stats: GameStats) => void;
 export type RoundCompleteHandler = (round: number, stats: GameStats) => void;
 export type GameCompleteHandler = (stats: GameStats) => void;

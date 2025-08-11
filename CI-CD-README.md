@@ -11,6 +11,7 @@ This document describes the Continuous Integration and Continuous Deployment (CI
 This is the primary workflow that runs on every push to `main` and `develop` branches, as well as on pull requests.
 
 **Jobs:**
+
 - **Test**: Runs unit tests, E2E tests, and performance tests
 - **Security Scan**: Performs comprehensive security vulnerability scanning
 - **Code Quality**: Runs ESLint and JSHint for code quality checks
@@ -18,6 +19,7 @@ This is the primary workflow that runs on every push to `main` and `develop` bra
 - **Performance Regression**: Runs Lighthouse audits and performance tests
 
 **Triggers:**
+
 - Push to `main` or `develop` branches
 - Pull requests to `main` branch
 
@@ -26,11 +28,13 @@ This is the primary workflow that runs on every push to `main` and `develop` bra
 Comprehensive code quality analysis including linting, formatting, complexity analysis, and documentation coverage.
 
 **Jobs:**
+
 - **Lint and Format**: ESLint, JSHint, and Prettier checks
 - **Dependency Analysis**: Analyzes project dependencies and external resources
 - **Code Metrics**: Calculates code complexity and quality metrics
 
 **Triggers:**
+
 - Push to `main` or `develop` branches
 - Pull requests to `main` branch
 - Weekly scheduled runs
@@ -40,11 +44,13 @@ Comprehensive code quality analysis including linting, formatting, complexity an
 Advanced security scanning and monitoring for vulnerabilities and security best practices.
 
 **Jobs:**
+
 - **Security Audit**: Comprehensive security pattern scanning
 - **Dependency Check**: Security analysis of dependencies
 - **Code Quality Security**: Security-focused linting and complexity analysis
 
 **Triggers:**
+
 - Weekly scheduled runs
 - Push to `main` branch (for security-sensitive files)
 - Manual trigger
@@ -54,10 +60,12 @@ Advanced security scanning and monitoring for vulnerabilities and security best 
 Continuous performance monitoring and regression detection.
 
 **Jobs:**
+
 - **Performance Baseline**: Lighthouse audits, bundle size analysis, memory usage
 - **Performance Comparison**: Compares performance between commits
 
 **Triggers:**
+
 - Daily scheduled runs
 - Push to `main` branch (for performance-sensitive files)
 - Manual trigger
@@ -67,11 +75,13 @@ Continuous performance monitoring and regression detection.
 Runs comprehensive tests on a daily schedule to catch any issues that might develop over time.
 
 **Jobs:**
+
 - **Comprehensive Test Suite**: Cross-browser testing with Chromium, Firefox, and WebKit
 - **Accessibility Test**: Automated accessibility testing using axe-core
 - **Mobile Performance**: Mobile-specific performance testing
 
 **Triggers:**
+
 - Daily at 2 AM UTC
 - Manual trigger via workflow_dispatch
 
@@ -80,6 +90,7 @@ Runs comprehensive tests on a daily schedule to catch any issues that might deve
 Validates pull requests with comprehensive checks before they can be merged.
 
 **Jobs:**
+
 - Code formatting validation
 - Security scanning
 - Breaking change detection
@@ -95,12 +106,14 @@ Validates pull requests with comprehensive checks before they can be merged.
 Automated release creation and deployment with comprehensive validation.
 
 **Jobs:**
+
 - **Validate Release**: Comprehensive testing with strict thresholds
 - **Create Release**: GitHub release creation with changelog and assets
 - **Deploy Release**: Production deployment to GitHub Pages
 - **Notify Release**: Release status notifications
 
 **Triggers:**
+
 - Git tags matching `v*` pattern
 - Manual trigger with version input
 
@@ -109,12 +122,14 @@ Automated release creation and deployment with comprehensive validation.
 Regular maintenance tasks to keep the project healthy and up-to-date.
 
 **Jobs:**
+
 - **Dependency Update**: Check for outdated dependencies and security issues
 - **Code Maintenance**: Identify code maintenance issues and technical debt
 - **Security Maintenance**: Update security configurations and check compliance
 - **Repository Cleanup**: Clean up repository and suggest optimizations
 
 **Triggers:**
+
 - Monthly scheduled runs (1st of each month)
 - Manual trigger
 
@@ -146,6 +161,7 @@ Automated security vulnerability scanner that checks for:
 - **Information Disclosure**: Excessive console logging, security TODOs
 
 **Severity Levels:**
+
 - **High**: Critical security issues that must be fixed
 - **Medium**: Important issues that should be addressed
 - **Low**: Minor issues for consideration
@@ -176,6 +192,7 @@ Monitors performance to prevent degradation:
 ### GitHub Pages Deployment
 
 **Automatic Deployment:**
+
 1. Triggered on push to `main` branch
 2. Runs all tests and quality checks
 3. Optimizes files for production
@@ -183,12 +200,14 @@ Monitors performance to prevent degradation:
 5. Deploys to GitHub Pages
 
 **Optimization Steps:**
+
 - CSS minification
 - Test file removal
 - Cache header configuration
 - Security header setup
 
 **Manual Deployment:**
+
 ```bash
 # Build and test locally
 npm run build

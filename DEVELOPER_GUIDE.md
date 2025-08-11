@@ -40,6 +40,7 @@ npx http-server
 ### 3. 開發工具
 
 推薦使用以下開發工具：
+
 - **編輯器**: VS Code, WebStorm, 或任何支持 JavaScript 的編輯器
 - **瀏覽器**: Chrome DevTools 用於調試
 - **版本控制**: Git
@@ -87,13 +88,15 @@ Application (script.js)
 ```javascript
 // 遊戲狀態結構
 const gameState = {
-    board: Array(5).fill().map(() => Array(5).fill(0)), // 5x5 遊戲板
-    currentRound: 1,                                     // 當前回合
-    gamePhase: 'waiting-start',                          // 遊戲階段
-    playerMoves: [],                                     // 玩家移動記錄
-    computerMoves: [],                                   // 電腦移動記錄
-    completedLines: [],                                  // 完成的連線
-    isGameComplete: false                                // 遊戲是否結束
+  board: Array(5)
+    .fill()
+    .map(() => Array(5).fill(0)), // 5x5 遊戲板
+  currentRound: 1, // 當前回合
+  gamePhase: 'waiting-start', // 遊戲階段
+  playerMoves: [], // 玩家移動記錄
+  computerMoves: [], // 電腦移動記錄
+  completedLines: [], // 完成的連線
+  isGameComplete: false // 遊戲是否結束
 };
 ```
 
@@ -103,16 +106,16 @@ const gameState = {
 
 ```javascript
 // 註冊事件監聽器
-gameEngine.onBoardUpdate((board) => {
-    // 更新 UI
+gameEngine.onBoardUpdate(board => {
+  // 更新 UI
 });
 
-gameEngine.onGamePhaseChange((phase) => {
-    // 處理階段變更
+gameEngine.onGamePhaseChange(phase => {
+  // 處理階段變更
 });
 
 gameBoard.onCellClick((row, col) => {
-    // 處理用戶點擊
+  // 處理用戶點擊
 });
 ```
 
@@ -130,12 +133,12 @@ gameBoard.onCellClick((row, col) => {
 ```javascript
 // 模塊導出（Node.js 環境）
 if (typeof module !== 'undefined' && module.exports) {
-    module.exports = GameEngine;
+  module.exports = GameEngine;
 }
 
 // 瀏覽器環境
 if (typeof window !== 'undefined') {
-    window.GameEngine = GameEngine;
+  window.GameEngine = GameEngine;
 }
 ```
 
@@ -147,15 +150,16 @@ if (typeof window !== 'undefined') {
 
 ```json
 {
-    "editor.tabSize": 2,
-    "editor.insertSpaces": true,
-    "javascript.preferences.quoteStyle": "single",
-    "files.eol": "\n",
-    "editor.formatOnSave": true
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true,
+  "javascript.preferences.quoteStyle": "single",
+  "files.eol": "\n",
+  "editor.formatOnSave": true
 }
 ```
 
 **推薦擴展**:
+
 - JavaScript (ES6) code snippets
 - Live Server
 - Prettier - Code formatter
@@ -174,6 +178,7 @@ git config core.eol lf
 ### 3. 瀏覽器開發工具
 
 **Chrome DevTools 使用技巧**:
+
 - 使用 Console 面板調試 JavaScript
 - 使用 Network 面板監控資源載入
 - 使用 Performance 面板分析性能
@@ -205,11 +210,13 @@ git config core.eol lf
 ### 2. 命名規範
 
 **文件命名**:
+
 - 使用 kebab-case: `performance-monitor.js`
 - 測試文件: `component.test.js`
 - 工具文件: `utils/common.js`
 
 **變量和函數命名**:
+
 ```javascript
 // 使用 camelCase
 const gameEngine = new GameEngine();
@@ -225,62 +232,69 @@ class LineDetector {}
 ```
 
 **CSS 類命名**:
+
 ```css
 /* 使用 BEM 方法論 */
-.game-board {}
-.game-board__cell {}
-.game-board__cell--highlighted {}
-.game-board__cell--player {}
+.game-board {
+}
+.game-board__cell {
+}
+.game-board__cell--highlighted {
+}
+.game-board__cell--player {
+}
 ```
 
 ### 3. 代碼組織模式
 
 **模塊模式**:
+
 ```javascript
 // 立即執行函數表達式 (IIFE)
-(function() {
-    'use strict';
-    
-    // 私有變量和函數
-    let privateVar = 'private';
-    
-    function privateFunction() {
-        // 私有邏輯
+(function () {
+  'use strict';
+
+  // 私有變量和函數
+  let privateVar = 'private';
+
+  function privateFunction() {
+    // 私有邏輯
+  }
+
+  // 公開 API
+  window.MyModule = {
+    publicMethod: function () {
+      // 公開方法
     }
-    
-    // 公開 API
-    window.MyModule = {
-        publicMethod: function() {
-            // 公開方法
-        }
-    };
+  };
 })();
 ```
 
 **類模式**:
+
 ```javascript
 class GameComponent {
-    constructor(options = {}) {
-        // 初始化
-        this.options = { ...this.defaultOptions, ...options };
-        this.init();
-    }
-    
-    get defaultOptions() {
-        return {
-            // 默認選項
-        };
-    }
-    
-    init() {
-        // 初始化邏輯
-    }
-    
-    // 公開方法
-    publicMethod() {}
-    
-    // 私有方法（約定以 _ 開頭）
-    _privateMethod() {}
+  constructor(options = {}) {
+    // 初始化
+    this.options = { ...this.defaultOptions, ...options };
+    this.init();
+  }
+
+  get defaultOptions() {
+    return {
+      // 默認選項
+    };
+  }
+
+  init() {
+    // 初始化邏輯
+  }
+
+  // 公開方法
+  publicMethod() {}
+
+  // 私有方法（約定以 _ 開頭）
+  _privateMethod() {}
 }
 ```
 
@@ -311,21 +325,25 @@ git push origin feature/new-algorithm
 ### 2. 代碼審查清單
 
 **功能性**:
+
 - [ ] 功能是否按預期工作
 - [ ] 是否處理了邊界情況
 - [ ] 錯誤處理是否完善
 
 **代碼質量**:
+
 - [ ] 代碼是否易讀易懂
 - [ ] 是否遵循命名規範
 - [ ] 是否有適當的註釋
 
 **性能**:
+
 - [ ] 是否有性能問題
 - [ ] 是否有記憶體洩漏
 - [ ] 是否需要優化
 
 **測試**:
+
 - [ ] 是否有足夠的測試覆蓋
 - [ ] 測試是否通過
 - [ ] 是否測試了邊界情況
@@ -378,52 +396,55 @@ git commit -m "perf: optimize move calculation algorithm"
 ### 2. 編寫測試
 
 **單元測試範例**:
+
 ```javascript
 // lineDetector.test.js
 describe('LineDetector', () => {
-    let lineDetector;
-    
-    beforeEach(() => {
-        lineDetector = new LineDetector();
-    });
-    
-    test('should detect horizontal line', () => {
-        const board = [
-            [1, 1, 1, 1, 1],
-            [0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0],
-            [0, 0, 0, 0, 0]
-        ];
-        
-        const lines = lineDetector.checkHorizontalLines(board);
-        expect(lines).toHaveLength(1);
-        expect(lines[0].type).toBe('horizontal');
-    });
+  let lineDetector;
+
+  beforeEach(() => {
+    lineDetector = new LineDetector();
+  });
+
+  test('should detect horizontal line', () => {
+    const board = [
+      [1, 1, 1, 1, 1],
+      [0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0]
+    ];
+
+    const lines = lineDetector.checkHorizontalLines(board);
+    expect(lines).toHaveLength(1);
+    expect(lines[0].type).toBe('horizontal');
+  });
 });
 ```
 
 **整合測試範例**:
+
 ```javascript
 // gameFlow.test.js
 describe('Game Flow Integration', () => {
-    test('should complete full game cycle', () => {
-        const engine = new GameEngine();
-        engine.startGame();
-        
-        // 模擬 8 輪遊戲
-        for (let i = 0; i < 8; i++) {
-            const suggestion = engine.calculateBestMove();
-            engine.processPlayerTurn(suggestion.row, suggestion.col);
-            
-            // 模擬電腦移動
-            const emptyCells = getEmptyCells(engine.getBoard());
-            const randomCell = emptyCells[Math.floor(Math.random() * emptyCells.length)];
-            engine.processComputerTurn(randomCell[0], randomCell[1]);
-        }
-        
-        expect(engine.isGameComplete()).toBeTruthy();
-    });
+  test('should complete full game cycle', () => {
+    const engine = new GameEngine();
+    engine.startGame();
+
+    // 模擬 8 輪遊戲
+    for (let i = 0; i < 8; i++) {
+      const suggestion = engine.calculateBestMove();
+      engine.processPlayerTurn(suggestion.row, suggestion.col);
+
+      // 模擬電腦移動
+      const emptyCells = getEmptyCells(engine.getBoard());
+      const randomCell =
+        emptyCells[Math.floor(Math.random() * emptyCells.length)];
+      engine.processComputerTurn(randomCell[0], randomCell[1]);
+    }
+
+    expect(engine.isGameComplete()).toBeTruthy();
+  });
 });
 ```
 
@@ -446,6 +467,7 @@ node testRunner.js --report
 ### 4. 測試最佳實踐
 
 **測試命名**:
+
 ```javascript
 // 好的測試名稱
 test('should detect horizontal line when all cells in row are filled', () => {});
@@ -457,18 +479,19 @@ test('horizontal line test', () => {});
 ```
 
 **測試結構**:
+
 ```javascript
 test('should calculate correct move value', () => {
-    // Arrange - 準備測試數據
-    const board = createTestBoard();
-    const calculator = new ProbabilityCalculator();
-    
-    // Act - 執行被測試的操作
-    const value = calculator.calculateMoveValue(board, 2, 2);
-    
-    // Assert - 驗證結果
-    expect(value).toBeGreaterThan(0);
-    expect(value).toBeLessThan(100);
+  // Arrange - 準備測試數據
+  const board = createTestBoard();
+  const calculator = new ProbabilityCalculator();
+
+  // Act - 執行被測試的操作
+  const value = calculator.calculateMoveValue(board, 2, 2);
+
+  // Assert - 驗證結果
+  expect(value).toBeGreaterThan(0);
+  expect(value).toBeLessThan(100);
 });
 ```
 
@@ -477,34 +500,36 @@ test('should calculate correct move value', () => {
 ### 1. JavaScript 性能
 
 **避免重複計算**:
+
 ```javascript
 // 不好的做法
 function calculateMoveValue(board, row, col) {
-    // 每次都重新計算
-    const lines = getAllLines(board);
-    // ...
+  // 每次都重新計算
+  const lines = getAllLines(board);
+  // ...
 }
 
 // 好的做法
 class ProbabilityCalculator {
-    constructor() {
-        this._cache = new Map();
+  constructor() {
+    this._cache = new Map();
+  }
+
+  calculateMoveValue(board, row, col) {
+    const cacheKey = this.getBoardHash(board) + `-${row}-${col}`;
+    if (this._cache.has(cacheKey)) {
+      return this._cache.get(cacheKey);
     }
-    
-    calculateMoveValue(board, row, col) {
-        const cacheKey = this.getBoardHash(board) + `-${row}-${col}`;
-        if (this._cache.has(cacheKey)) {
-            return this._cache.get(cacheKey);
-        }
-        
-        const value = this._doCalculation(board, row, col);
-        this._cache.set(cacheKey, value);
-        return value;
-    }
+
+    const value = this._doCalculation(board, row, col);
+    this._cache.set(cacheKey, value);
+    return value;
+  }
 }
 ```
 
 **使用高效的數據結構**:
+
 ```javascript
 // 使用 Set 進行快速查找
 const occupiedCells = new Set();
@@ -518,22 +543,24 @@ cellValues.set(`${row}-${col}`, value);
 ### 2. DOM 性能
 
 **批量 DOM 操作**:
+
 ```javascript
 // 不好的做法
 for (let i = 0; i < cells.length; i++) {
-    cells[i].style.backgroundColor = 'red'; // 每次都觸發重繪
+  cells[i].style.backgroundColor = 'red'; // 每次都觸發重繪
 }
 
 // 好的做法
 const fragment = document.createDocumentFragment();
 cells.forEach(cell => {
-    cell.style.backgroundColor = 'red';
-    fragment.appendChild(cell);
+  cell.style.backgroundColor = 'red';
+  fragment.appendChild(cell);
 });
 container.appendChild(fragment); // 一次性更新
 ```
 
 **使用 CSS 類而不是內聯樣式**:
+
 ```javascript
 // 不好的做法
 element.style.backgroundColor = 'red';
@@ -546,42 +573,44 @@ element.className = 'highlighted-cell';
 ### 3. 記憶體管理
 
 **清理事件監聽器**:
+
 ```javascript
 class GameBoard {
-    constructor() {
-        this.clickHandler = this.handleClick.bind(this);
-    }
-    
-    render() {
-        this.cells.forEach(cell => {
-            cell.addEventListener('click', this.clickHandler);
-        });
-    }
-    
-    destroy() {
-        this.cells.forEach(cell => {
-            cell.removeEventListener('click', this.clickHandler);
-        });
-    }
+  constructor() {
+    this.clickHandler = this.handleClick.bind(this);
+  }
+
+  render() {
+    this.cells.forEach(cell => {
+      cell.addEventListener('click', this.clickHandler);
+    });
+  }
+
+  destroy() {
+    this.cells.forEach(cell => {
+      cell.removeEventListener('click', this.clickHandler);
+    });
+  }
 }
 ```
 
 **避免記憶體洩漏**:
+
 ```javascript
 // 清理定時器
 class PerformanceMonitor {
-    startMonitoring() {
-        this.intervalId = setInterval(() => {
-            this.collectMetrics();
-        }, 1000);
+  startMonitoring() {
+    this.intervalId = setInterval(() => {
+      this.collectMetrics();
+    }, 1000);
+  }
+
+  stopMonitoring() {
+    if (this.intervalId) {
+      clearInterval(this.intervalId);
+      this.intervalId = null;
     }
-    
-    stopMonitoring() {
-        if (this.intervalId) {
-            clearInterval(this.intervalId);
-            this.intervalId = null;
-        }
-    }
+  }
 }
 ```
 
@@ -590,36 +619,38 @@ class PerformanceMonitor {
 ### 1. GitHub Pages 部署
 
 **自動部署設置**:
+
 ```yaml
 # .github/workflows/deploy.yml
 name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v2
-    
-    - name: Setup Node.js
-      uses: actions/setup-node@v2
-      with:
-        node-version: '16'
-    
-    - name: Run tests
-      run: node testRunner.js
-    
-    - name: Deploy to GitHub Pages
-      uses: peaceiris/actions-gh-pages@v3
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: ./
+      - uses: actions/checkout@v2
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'
+
+      - name: Run tests
+        run: node testRunner.js
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./
 ```
 
 **部署前檢查清單**:
+
 - [ ] 所有測試通過
 - [ ] 資源路徑使用相對路徑
 - [ ] 壓縮 CSS 和 JavaScript（如需要）
@@ -629,6 +660,7 @@ jobs:
 ### 2. 其他部署選項
 
 **Netlify 部署**:
+
 ```toml
 # netlify.toml
 [build]
@@ -643,6 +675,7 @@ jobs:
 ```
 
 **Vercel 部署**:
+
 ```json
 {
   "version": 2,
@@ -658,6 +691,7 @@ jobs:
 ### 3. 性能優化部署
 
 **資源壓縮**:
+
 ```bash
 # 壓縮 JavaScript
 npx terser script.js -o script.min.js
@@ -670,10 +704,11 @@ npx imagemin images/* --out-dir=images/optimized
 ```
 
 **CDN 配置**:
+
 ```html
 <!-- 使用 CDN 加速字體載入 -->
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 ```
 
 ## 常見問題
@@ -711,6 +746,7 @@ A: 檢查 manifest.json 配置，確保 Service Worker 正確註冊，使用 HTT
 A: 檢查 JavaScript 特性兼容性，使用 Babel 轉譯代碼，添加 polyfills。
 
 **支持的瀏覽器**:
+
 - Chrome 60+
 - Firefox 55+
 - Safari 12+
@@ -719,6 +755,7 @@ A: 檢查 JavaScript 特性兼容性，使用 Babel 轉譯代碼，添加 polyfi
 ### 5. 調試技巧
 
 **使用 Console API**:
+
 ```javascript
 // 基本日誌
 console.log('Debug info:', variable);
@@ -739,13 +776,14 @@ console.assert(value > 0, 'Value should be positive');
 ```
 
 **使用斷點**:
+
 ```javascript
 // 代碼斷點
 debugger;
 
 // 條件斷點（在 DevTools 中設置）
 if (round === 5) {
-    debugger;
+  debugger;
 }
 ```
 
@@ -754,47 +792,60 @@ if (round === 5) {
 ### 1. 提交 Issue
 
 **Bug 報告模板**:
+
 ```markdown
 ## Bug 描述
+
 簡潔描述遇到的問題
 
 ## 重現步驟
+
 1. 打開遊戲
 2. 點擊...
 3. 看到錯誤...
 
 ## 預期行為
+
 描述應該發生什麼
 
 ## 實際行為
+
 描述實際發生了什麼
 
 ## 環境信息
+
 - 瀏覽器: Chrome 95
 - 操作系統: Windows 10
 - 版本: v1.0.0
 ```
 
 **功能請求模板**:
+
 ```markdown
 ## 功能描述
+
 描述想要的功能
 
 ## 使用場景
+
 說明為什麼需要這個功能
 
 ## 建議實現
+
 如果有想法，描述如何實現
 ```
 
 ### 2. 提交 Pull Request
 
 **PR 模板**:
+
 ```markdown
 ## 變更描述
+
 描述這個 PR 做了什麼
 
 ## 變更類型
+
 - [ ] Bug 修復
 - [ ] 新功能
 - [ ] 文檔更新
@@ -802,11 +853,13 @@ if (round === 5) {
 - [ ] 重構
 
 ## 測試
+
 - [ ] 添加了新測試
 - [ ] 所有測試通過
 - [ ] 手動測試通過
 
 ## 檢查清單
+
 - [ ] 代碼遵循項目規範
 - [ ] 添加了適當的註釋
 - [ ] 更新了相關文檔
@@ -819,6 +872,7 @@ if (round === 5) {
 這個開發者指南涵蓋了 Bingo 遊戲模擬器開發的主要方面。隨著專案的發展，請保持文檔的更新。
 
 如果有任何問題或建議，請：
+
 1. 查看現有的 Issues 和 Discussions
 2. 提交新的 Issue 或 Discussion
 3. 聯繫維護者

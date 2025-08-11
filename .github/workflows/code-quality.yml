@@ -2,9 +2,9 @@ name: Code Quality
 
 on:
   push:
-    branches: [ main, develop ]
+    branches: [main, develop]
   pull_request:
-    branches: [ main ]
+    branches: [main]
   schedule:
     # Run code quality checks weekly on Saturdays at 4 AM UTC
     - cron: '0 4 * * 6'
@@ -13,382 +13,382 @@ jobs:
   lint-and-format:
     name: Linting and Formatting
     runs-on: ubuntu-latest
-    
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
-        
-    - name: Install linting tools
-      run: |
-        npm install -g eslint
-        npm install -g jshint
-        npm install -g prettier
-        
-    - name: Run ESLint
-      run: |
-        echo "Running ESLint..."
-        npx eslint *.js --max-warnings 10 --format=json --output-file=eslint-report.json || true
-        npx eslint *.js --max-warnings 10 || echo "ESLint completed with warnings"
-        
-    - name: Run JSHint
-      run: |
-        echo "Running JSHint..."
-        npx jshint *.js --reporter=json > jshint-report.json || true
-        npx jshint *.js || echo "JSHint completed with warnings"
-        
-    - name: Check code formatting
-      run: |
-        echo "Checking code formatting with Prettier..."
-        
-        # Create Prettier config
-        cat > .prettierrc << 'EOF'
-        {
-          "semi": true,
-          "trailingComma": "none",
-          "singleQuote": true,
-          "printWidth": 80,
-          "tabWidth": 2,
-          "useTabs": false
-        }
-        EOF
-        
-        # Check if files need formatting
-        npx prettier --check *.js *.html *.css || {
-          echo "⚠️  Some files need formatting"
-          echo "Run 'npx prettier --write *.js *.html *.css' to fix formatting"
-        }
-        
-    - name: Analyze code complexity
-      run: |
-        echo "Analyzing code complexity..."
-        
-        # Simple complexity analysis
-        for file in *.js; do
-          if [ -f "$file" ] && [[ "$file" != *.test.js ]]; then
-            echo "Analyzing $file..."
-            
-            # Count functions
-            FUNC_COUNT=$(grep -c "function\|=>" "$file" || echo "0")
-            
-            # Count lines of code (excluding comments and empty lines)
-            LOC=$(grep -v "^\s*$\|^\s*//\|^\s*/\*\|^\s*\*" "$file" | wc -l)
-            
-            # Calculate average function length
-            if [ "$FUNC_COUNT" -gt 0 ]; then
-              AVG_FUNC_LENGTH=$((LOC / FUNC_COUNT))
-            else
-              AVG_FUNC_LENGTH=0
-            fi
-            
-            echo "  Functions: $FUNC_COUNT"
-            echo "  Lines of Code: $LOC"
-            echo "  Average Function Length: $AVG_FUNC_LENGTH lines"
-            
-            # Warn about complex files
-            if [ "$LOC" -gt 500 ]; then
-              echo "  ⚠️  Large file (>500 LOC)"
-            fi
-            
-            if [ "$AVG_FUNC_LENGTH" -gt 50 ]; then
-              echo "  ⚠️  Functions may be too long (avg >50 lines)"
-            fi
-            
-            echo ""
-          fi
-        done
-        
-    - name: Check documentation coverage
-      run: |
-        echo "Checking documentation coverage..."
-        
-        for file in *.js; do
-          if [ -f "$file" ] && [[ "$file" != *.test.js ]] && [[ "$file" != testRunner.js ]]; then
-            echo "Checking documentation in $file..."
-            
-            # Count functions
-            FUNC_COUNT=$(grep -c "function\|class.*{" "$file" || echo "0")
-            
-            # Count JSDoc comments
-            JSDOC_COUNT=$(grep -c "/\*\*" "$file" || echo "0")
-            
-            if [ "$FUNC_COUNT" -gt 0 ]; then
-              DOC_RATIO=$((JSDOC_COUNT * 100 / FUNC_COUNT))
-              echo "  Functions: $FUNC_COUNT"
-              echo "  JSDoc comments: $JSDOC_COUNT"
-              echo "  Documentation ratio: ${DOC_RATIO}%"
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install linting tools
+        run: |
+          npm install -g eslint
+          npm install -g jshint
+          npm install -g prettier
+
+      - name: Run ESLint
+        run: |
+          echo "Running ESLint..."
+          npx eslint *.js --max-warnings 10 --format=json --output-file=eslint-report.json || true
+          npx eslint *.js --max-warnings 10 || echo "ESLint completed with warnings"
+
+      - name: Run JSHint
+        run: |
+          echo "Running JSHint..."
+          npx jshint *.js --reporter=json > jshint-report.json || true
+          npx jshint *.js || echo "JSHint completed with warnings"
+
+      - name: Check code formatting
+        run: |
+          echo "Checking code formatting with Prettier..."
+
+          # Create Prettier config
+          cat > .prettierrc << 'EOF'
+          {
+            "semi": true,
+            "trailingComma": "none",
+            "singleQuote": true,
+            "printWidth": 80,
+            "tabWidth": 2,
+            "useTabs": false
+          }
+          EOF
+
+          # Check if files need formatting
+          npx prettier --check *.js *.html *.css || {
+            echo "⚠️  Some files need formatting"
+            echo "Run 'npx prettier --write *.js *.html *.css' to fix formatting"
+          }
+
+      - name: Analyze code complexity
+        run: |
+          echo "Analyzing code complexity..."
+
+          # Simple complexity analysis
+          for file in *.js; do
+            if [ -f "$file" ] && [[ "$file" != *.test.js ]]; then
+              echo "Analyzing $file..."
               
-              if [ "$DOC_RATIO" -lt 50 ]; then
-                echo "  ⚠️  Low documentation coverage (<50%)"
+              # Count functions
+              FUNC_COUNT=$(grep -c "function\|=>" "$file" || echo "0")
+              
+              # Count lines of code (excluding comments and empty lines)
+              LOC=$(grep -v "^\s*$\|^\s*//\|^\s*/\*\|^\s*\*" "$file" | wc -l)
+              
+              # Calculate average function length
+              if [ "$FUNC_COUNT" -gt 0 ]; then
+                AVG_FUNC_LENGTH=$((LOC / FUNC_COUNT))
+              else
+                AVG_FUNC_LENGTH=0
               fi
+              
+              echo "  Functions: $FUNC_COUNT"
+              echo "  Lines of Code: $LOC"
+              echo "  Average Function Length: $AVG_FUNC_LENGTH lines"
+              
+              # Warn about complex files
+              if [ "$LOC" -gt 500 ]; then
+                echo "  ⚠️  Large file (>500 LOC)"
+              fi
+              
+              if [ "$AVG_FUNC_LENGTH" -gt 50 ]; then
+                echo "  ⚠️  Functions may be too long (avg >50 lines)"
+              fi
+              
+              echo ""
             fi
-            
-            echo ""
-          fi
-        done
-        
-    - name: Generate code quality report
-      run: |
-        echo "Generating code quality report..."
-        
-        cat > code-quality-report.md << 'EOF'
-        # Code Quality Report
-        
-        **Date:** $(date)
-        **Commit:** $GITHUB_SHA
-        **Branch:** $GITHUB_REF_NAME
-        
-        ## Summary
-        
-        This report contains the results of automated code quality analysis.
-        
-        ## Linting Results
-        
-        ### ESLint
-        - Configuration: eslint.config.js
-        - Report: eslint-report.json
-        
-        ### JSHint
-        - Configuration: .jshintrc
-        - Report: jshint-report.json
-        
-        ## Code Formatting
-        
-        Code formatting is checked using Prettier with the following configuration:
-        - Semi-colons: Required
-        - Quotes: Single quotes preferred
-        - Print width: 80 characters
-        - Tab width: 2 spaces
-        
-        ## Code Complexity
-        
-        Files are analyzed for:
-        - Function count
-        - Lines of code
-        - Average function length
-        - File size warnings
-        
-        ## Documentation Coverage
-        
-        JSDoc comment coverage is analyzed for all non-test files.
-        
-        ## Recommendations
-        
-        1. Maintain ESLint and JSHint compliance
-        2. Keep functions under 50 lines when possible
-        3. Maintain >50% JSDoc documentation coverage
-        4. Use consistent code formatting
-        5. Break up large files (>500 LOC) when appropriate
-        
-        ## Quality Gates
-        
-        - ESLint: Maximum 10 warnings allowed
-        - JSHint: No errors allowed
-        - Function length: <50 lines recommended
-        - File size: <500 LOC recommended
-        - Documentation: >50% coverage recommended
-        EOF
-        
-    - name: Upload code quality artifacts
-      uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: code-quality-reports
-        path: |
-          eslint-report.json
-          jshint-report.json
-          code-quality-report.md
-          
+          done
+
+      - name: Check documentation coverage
+        run: |
+          echo "Checking documentation coverage..."
+
+          for file in *.js; do
+            if [ -f "$file" ] && [[ "$file" != *.test.js ]] && [[ "$file" != testRunner.js ]]; then
+              echo "Checking documentation in $file..."
+              
+              # Count functions
+              FUNC_COUNT=$(grep -c "function\|class.*{" "$file" || echo "0")
+              
+              # Count JSDoc comments
+              JSDOC_COUNT=$(grep -c "/\*\*" "$file" || echo "0")
+              
+              if [ "$FUNC_COUNT" -gt 0 ]; then
+                DOC_RATIO=$((JSDOC_COUNT * 100 / FUNC_COUNT))
+                echo "  Functions: $FUNC_COUNT"
+                echo "  JSDoc comments: $JSDOC_COUNT"
+                echo "  Documentation ratio: ${DOC_RATIO}%"
+                
+                if [ "$DOC_RATIO" -lt 50 ]; then
+                  echo "  ⚠️  Low documentation coverage (<50%)"
+                fi
+              fi
+              
+              echo ""
+            fi
+          done
+
+      - name: Generate code quality report
+        run: |
+          echo "Generating code quality report..."
+
+          cat > code-quality-report.md << 'EOF'
+          # Code Quality Report
+
+          **Date:** $(date)
+          **Commit:** $GITHUB_SHA
+          **Branch:** $GITHUB_REF_NAME
+
+          ## Summary
+
+          This report contains the results of automated code quality analysis.
+
+          ## Linting Results
+
+          ### ESLint
+          - Configuration: eslint.config.js
+          - Report: eslint-report.json
+
+          ### JSHint
+          - Configuration: .jshintrc
+          - Report: jshint-report.json
+
+          ## Code Formatting
+
+          Code formatting is checked using Prettier with the following configuration:
+          - Semi-colons: Required
+          - Quotes: Single quotes preferred
+          - Print width: 80 characters
+          - Tab width: 2 spaces
+
+          ## Code Complexity
+
+          Files are analyzed for:
+          - Function count
+          - Lines of code
+          - Average function length
+          - File size warnings
+
+          ## Documentation Coverage
+
+          JSDoc comment coverage is analyzed for all non-test files.
+
+          ## Recommendations
+
+          1. Maintain ESLint and JSHint compliance
+          2. Keep functions under 50 lines when possible
+          3. Maintain >50% JSDoc documentation coverage
+          4. Use consistent code formatting
+          5. Break up large files (>500 LOC) when appropriate
+
+          ## Quality Gates
+
+          - ESLint: Maximum 10 warnings allowed
+          - JSHint: No errors allowed
+          - Function length: <50 lines recommended
+          - File size: <500 LOC recommended
+          - Documentation: >50% coverage recommended
+          EOF
+
+      - name: Upload code quality artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: code-quality-reports
+          path: |
+            eslint-report.json
+            jshint-report.json
+            code-quality-report.md
+
   dependency-analysis:
     name: Dependency Analysis
     runs-on: ubuntu-latest
-    
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Analyze project dependencies
-      run: |
-        echo "Analyzing project dependencies..."
-        
-        # Check for package.json
-        if [ -f package.json ]; then
-          echo "=== PACKAGE.JSON ANALYSIS ==="
-          
-          # Validate JSON structure
-          node -e "
-            const pkg = JSON.parse(require('fs').readFileSync('package.json', 'utf8'));
-            console.log('Package name:', pkg.name);
-            console.log('Version:', pkg.version);
-            console.log('Dependencies:', Object.keys(pkg.dependencies || {}).length);
-            console.log('Dev dependencies:', Object.keys(pkg.devDependencies || {}).length);
-          "
-          
-          # Check for unused dependencies
-          echo "Checking for potentially unused dependencies..."
-          node -e "
-            const fs = require('fs');
-            const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
-            const deps = Object.keys(pkg.devDependencies || {});
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Analyze project dependencies
+        run: |
+          echo "Analyzing project dependencies..."
+
+          # Check for package.json
+          if [ -f package.json ]; then
+            echo "=== PACKAGE.JSON ANALYSIS ==="
             
-            // Read all JS files to check for imports
-            const jsFiles = fs.readdirSync('.').filter(f => f.endsWith('.js'));
-            const allCode = jsFiles.map(f => fs.readFileSync(f, 'utf8')).join('\\n');
+            # Validate JSON structure
+            node -e "
+              const pkg = JSON.parse(require('fs').readFileSync('package.json', 'utf8'));
+              console.log('Package name:', pkg.name);
+              console.log('Version:', pkg.version);
+              console.log('Dependencies:', Object.keys(pkg.dependencies || {}).length);
+              console.log('Dev dependencies:', Object.keys(pkg.devDependencies || {}).length);
+            "
             
-            deps.forEach(dep => {
-              if (!allCode.includes(dep) && !allCode.includes(dep.replace('-', ''))) {
-                console.log('⚠️  Potentially unused dependency:', dep);
-              }
-            });
-          " || echo "Dependency analysis completed"
-          
-        else
-          echo "No package.json found - pure vanilla JavaScript project"
-        fi
-        
-        # Analyze external dependencies in HTML
-        echo "=== EXTERNAL DEPENDENCIES ANALYSIS ==="
-        if [ -f index.html ]; then
-          echo "Checking for external scripts and stylesheets..."
-          
-          # External scripts
-          grep -o 'src="http[^"]*"' index.html | while read -r line; do
-            echo "External script: $line"
-          done || echo "No external scripts found"
-          
-          # External stylesheets
-          grep -o 'href="http[^"]*\.css"' index.html | while read -r line; do
-            echo "External stylesheet: $line"
-          done || echo "No external stylesheets found"
-          
-          # CDN dependencies
-          if grep -q "cdn\|unpkg\|jsdelivr" index.html; then
-            echo "⚠️  CDN dependencies detected - consider security implications"
-          fi
-        fi
-        
-    - name: Check for security vulnerabilities in dependencies
-      run: |
-        echo "Checking for security vulnerabilities..."
-        
-        # Since this is a vanilla JS project, check for common security issues
-        echo "=== SECURITY DEPENDENCY CHECK ==="
-        
-        # Check for potentially vulnerable external resources
-        if [ -f index.html ]; then
-          # Check for HTTP (non-HTTPS) resources
-          if grep -q 'src="http://' index.html || grep -q 'href="http://' index.html; then
-            echo "❌ HTTP resources found - should use HTTPS"
+            # Check for unused dependencies
+            echo "Checking for potentially unused dependencies..."
+            node -e "
+              const fs = require('fs');
+              const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8'));
+              const deps = Object.keys(pkg.devDependencies || {});
+              
+              // Read all JS files to check for imports
+              const jsFiles = fs.readdirSync('.').filter(f => f.endsWith('.js'));
+              const allCode = jsFiles.map(f => fs.readFileSync(f, 'utf8')).join('\\n');
+              
+              deps.forEach(dep => {
+                if (!allCode.includes(dep) && !allCode.includes(dep.replace('-', ''))) {
+                  console.log('⚠️  Potentially unused dependency:', dep);
+                }
+              });
+            " || echo "Dependency analysis completed"
+            
           else
-            echo "✅ All external resources use HTTPS"
+            echo "No package.json found - pure vanilla JavaScript project"
           fi
-          
-          # Check for integrity attributes on external resources
-          if grep -q 'src="https://' index.html; then
-            if ! grep -q 'integrity=' index.html; then
-              echo "⚠️  External resources without integrity checks"
-            else
-              echo "✅ External resources have integrity checks"
+
+          # Analyze external dependencies in HTML
+          echo "=== EXTERNAL DEPENDENCIES ANALYSIS ==="
+          if [ -f index.html ]; then
+            echo "Checking for external scripts and stylesheets..."
+            
+            # External scripts
+            grep -o 'src="http[^"]*"' index.html | while read -r line; do
+              echo "External script: $line"
+            done || echo "No external scripts found"
+            
+            # External stylesheets
+            grep -o 'href="http[^"]*\.css"' index.html | while read -r line; do
+              echo "External stylesheet: $line"
+            done || echo "No external stylesheets found"
+            
+            # CDN dependencies
+            if grep -q "cdn\|unpkg\|jsdelivr" index.html; then
+              echo "⚠️  CDN dependencies detected - consider security implications"
             fi
           fi
-        fi
-        
+
+      - name: Check for security vulnerabilities in dependencies
+        run: |
+          echo "Checking for security vulnerabilities..."
+
+          # Since this is a vanilla JS project, check for common security issues
+          echo "=== SECURITY DEPENDENCY CHECK ==="
+
+          # Check for potentially vulnerable external resources
+          if [ -f index.html ]; then
+            # Check for HTTP (non-HTTPS) resources
+            if grep -q 'src="http://' index.html || grep -q 'href="http://' index.html; then
+              echo "❌ HTTP resources found - should use HTTPS"
+            else
+              echo "✅ All external resources use HTTPS"
+            fi
+            
+            # Check for integrity attributes on external resources
+            if grep -q 'src="https://' index.html; then
+              if ! grep -q 'integrity=' index.html; then
+                echo "⚠️  External resources without integrity checks"
+              else
+                echo "✅ External resources have integrity checks"
+              fi
+            fi
+          fi
+
   code-metrics:
     name: Code Metrics
     runs-on: ubuntu-latest
-    
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Calculate code metrics
-      run: |
-        echo "Calculating code metrics..."
-        
-        # Initialize counters
-        TOTAL_FILES=0
-        TOTAL_LINES=0
-        TOTAL_FUNCTIONS=0
-        TOTAL_CLASSES=0
-        TOTAL_COMMENTS=0
-        
-        echo "=== CODE METRICS ==="
-        
-        for file in *.js *.html *.css; do
-          if [ -f "$file" ]; then
-            TOTAL_FILES=$((TOTAL_FILES + 1))
-            
-            # Count lines
-            LINES=$(wc -l < "$file")
-            TOTAL_LINES=$((TOTAL_LINES + LINES))
-            
-            if [[ "$file" == *.js ]]; then
-              # Count functions
-              FUNCTIONS=$(grep -c "function\|=>" "$file" || echo "0")
-              TOTAL_FUNCTIONS=$((TOTAL_FUNCTIONS + FUNCTIONS))
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Calculate code metrics
+        run: |
+          echo "Calculating code metrics..."
+
+          # Initialize counters
+          TOTAL_FILES=0
+          TOTAL_LINES=0
+          TOTAL_FUNCTIONS=0
+          TOTAL_CLASSES=0
+          TOTAL_COMMENTS=0
+
+          echo "=== CODE METRICS ==="
+
+          for file in *.js *.html *.css; do
+            if [ -f "$file" ]; then
+              TOTAL_FILES=$((TOTAL_FILES + 1))
               
-              # Count classes
-              CLASSES=$(grep -c "class " "$file" || echo "0")
-              TOTAL_CLASSES=$((TOTAL_CLASSES + CLASSES))
+              # Count lines
+              LINES=$(wc -l < "$file")
+              TOTAL_LINES=$((TOTAL_LINES + LINES))
               
-              # Count comments
-              COMMENTS=$(grep -c "//\|/\*\|\*/" "$file" || echo "0")
-              TOTAL_COMMENTS=$((TOTAL_COMMENTS + COMMENTS))
+              if [[ "$file" == *.js ]]; then
+                # Count functions
+                FUNCTIONS=$(grep -c "function\|=>" "$file" || echo "0")
+                TOTAL_FUNCTIONS=$((TOTAL_FUNCTIONS + FUNCTIONS))
+                
+                # Count classes
+                CLASSES=$(grep -c "class " "$file" || echo "0")
+                TOTAL_CLASSES=$((TOTAL_CLASSES + CLASSES))
+                
+                # Count comments
+                COMMENTS=$(grep -c "//\|/\*\|\*/" "$file" || echo "0")
+                TOTAL_COMMENTS=$((TOTAL_COMMENTS + COMMENTS))
+              fi
+              
+              echo "$file: $LINES lines"
             fi
-            
-            echo "$file: $LINES lines"
+          done
+
+          echo ""
+          echo "=== SUMMARY ==="
+          echo "Total files: $TOTAL_FILES"
+          echo "Total lines: $TOTAL_LINES"
+          echo "Total functions: $TOTAL_FUNCTIONS"
+          echo "Total classes: $TOTAL_CLASSES"
+          echo "Total comments: $TOTAL_COMMENTS"
+
+          # Calculate ratios
+          if [ "$TOTAL_LINES" -gt 0 ]; then
+            COMMENT_RATIO=$((TOTAL_COMMENTS * 100 / TOTAL_LINES))
+            echo "Comment ratio: ${COMMENT_RATIO}%"
           fi
-        done
-        
-        echo ""
-        echo "=== SUMMARY ==="
-        echo "Total files: $TOTAL_FILES"
-        echo "Total lines: $TOTAL_LINES"
-        echo "Total functions: $TOTAL_FUNCTIONS"
-        echo "Total classes: $TOTAL_CLASSES"
-        echo "Total comments: $TOTAL_COMMENTS"
-        
-        # Calculate ratios
-        if [ "$TOTAL_LINES" -gt 0 ]; then
-          COMMENT_RATIO=$((TOTAL_COMMENTS * 100 / TOTAL_LINES))
-          echo "Comment ratio: ${COMMENT_RATIO}%"
-        fi
-        
-        if [ "$TOTAL_FUNCTIONS" -gt 0 ]; then
-          AVG_FUNC_SIZE=$((TOTAL_LINES / TOTAL_FUNCTIONS))
-          echo "Average function size: $AVG_FUNC_SIZE lines"
-        fi
-        
-    - name: Generate metrics report
-      run: |
-        echo "Generating metrics report..."
-        
-        cat > metrics-report.json << 'EOF'
-        {
-          "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
-          "commit": "$GITHUB_SHA",
-          "branch": "$GITHUB_REF_NAME",
-          "metrics": {
-            "files": 0,
-            "lines": 0,
-            "functions": 0,
-            "classes": 0,
-            "comments": 0,
-            "commentRatio": 0,
-            "averageFunctionSize": 0
+
+          if [ "$TOTAL_FUNCTIONS" -gt 0 ]; then
+            AVG_FUNC_SIZE=$((TOTAL_LINES / TOTAL_FUNCTIONS))
+            echo "Average function size: $AVG_FUNC_SIZE lines"
+          fi
+
+      - name: Generate metrics report
+        run: |
+          echo "Generating metrics report..."
+
+          cat > metrics-report.json << 'EOF'
+          {
+            "timestamp": "$(date -u +%Y-%m-%dT%H:%M:%SZ)",
+            "commit": "$GITHUB_SHA",
+            "branch": "$GITHUB_REF_NAME",
+            "metrics": {
+              "files": 0,
+              "lines": 0,
+              "functions": 0,
+              "classes": 0,
+              "comments": 0,
+              "commentRatio": 0,
+              "averageFunctionSize": 0
+            }
           }
-        }
-        EOF
-        
-        echo "Metrics report generated"
-        
-    - name: Upload metrics
-      uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: code-metrics
-        path: metrics-report.json
+          EOF
+
+          echo "Metrics report generated"
+
+      - name: Upload metrics
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: code-metrics
+          path: metrics-report.json

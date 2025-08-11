@@ -6,7 +6,7 @@ on:
     - cron: '0 1 * * *'
   workflow_dispatch: # Allow manual trigger
   push:
-    branches: [ main ]
+    branches: [main]
     paths:
       - '*.js'
       - '*.css'
@@ -16,439 +16,439 @@ jobs:
   performance-baseline:
     name: Performance Baseline Testing
     runs-on: ubuntu-latest
-    
+
     steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
-        
-    - name: Install dependencies
-      run: |
-        npm install -g lighthouse
-        npm install -g http-server
-        npm install -g playwright
-        npx playwright install chromium
-        
-    - name: Start application server
-      run: |
-        echo "Starting application server..."
-        http-server . -p 8080 &
-        sleep 5
-        
-        # Verify server is running
-        curl -f http://localhost:8080 || {
-          echo "❌ Server failed to start"
-          exit 1
-        }
-        
-    - name: Run Lighthouse performance audit
-      run: |
-        echo "Running Lighthouse performance audit..."
-        
-        # Desktop audit
-        npx lighthouse http://localhost:8080 \
-          --output=json \
-          --output-path=lighthouse-desktop.json \
-          --form-factor=desktop \
-          --chrome-flags="--headless --no-sandbox" || true
-          
-        # Mobile audit
-        npx lighthouse http://localhost:8080 \
-          --output=json \
-          --output-path=lighthouse-mobile.json \
-          --form-factor=mobile \
-          --chrome-flags="--headless --no-sandbox" || true
-          
-    - name: Analyze performance results
-      run: |
-        echo "Analyzing performance results..."
-        
-        node -e "
-          const fs = require('fs');
-          
-          function analyzeReport(filename, formFactor) {
-            try {
-              if (!fs.existsSync(filename)) {
-                console.log('❌ Report file not found:', filename);
-                return;
-              }
-              
-              const report = JSON.parse(fs.readFileSync(filename, 'utf8'));
-              const categories = report.lhr.categories;
-              
-              console.log('\\n=== ' + formFactor.toUpperCase() + ' PERFORMANCE RESULTS ===');
-              console.log('Performance:', Math.round(categories.performance.score * 100));
-              console.log('Accessibility:', Math.round(categories.accessibility.score * 100));
-              console.log('Best Practices:', Math.round(categories['best-practices'].score * 100));
-              console.log('SEO:', Math.round(categories.seo.score * 100));
-              
-              // Key metrics
-              const audits = report.lhr.audits;
-              console.log('\\n=== KEY METRICS ===');
-              
-              if (audits['first-contentful-paint']) {
-                console.log('First Contentful Paint:', audits['first-contentful-paint'].displayValue);
-              }
-              if (audits['largest-contentful-paint']) {
-                console.log('Largest Contentful Paint:', audits['largest-contentful-paint'].displayValue);
-              }
-              if (audits['cumulative-layout-shift']) {
-                console.log('Cumulative Layout Shift:', audits['cumulative-layout-shift'].displayValue);
-              }
-              if (audits['total-blocking-time']) {
-                console.log('Total Blocking Time:', audits['total-blocking-time'].displayValue);
-              }
-              
-              // Performance budget checks
-              const performance = Math.round(categories.performance.score * 100);
-              if (performance < 80) {
-                console.log('❌ Performance score below 80 for', formFactor);
-                process.exitCode = 1;
-              } else if (performance < 90) {
-                console.log('⚠️  Performance score below 90 for', formFactor);
-              } else {
-                console.log('✅ Good performance score for', formFactor);
-              }
-              
-            } catch (error) {
-              console.log('Error analyzing report:', error.message);
-            }
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: |
+          npm install -g lighthouse
+          npm install -g http-server
+          npm install -g playwright
+          npx playwright install chromium
+
+      - name: Start application server
+        run: |
+          echo "Starting application server..."
+          http-server . -p 8080 &
+          sleep 5
+
+          # Verify server is running
+          curl -f http://localhost:8080 || {
+            echo "❌ Server failed to start"
+            exit 1
           }
-          
-          analyzeReport('lighthouse-desktop.json', 'desktop');
-          analyzeReport('lighthouse-mobile.json', 'mobile');
-        "
-        
-    - name: Run custom performance tests
-      run: |
-        echo "Running custom performance tests..."
-        node performance-regression.test.js || echo "Performance tests completed with warnings"
-        
-    - name: Bundle size analysis
-      run: |
-        echo "Analyzing bundle size..."
-        
-        # Calculate total size of main files
-        TOTAL_SIZE=0
-        echo "=== BUNDLE SIZE ANALYSIS ==="
-        
-        for file in index.html styles.css script.js gameEngine.js gameBoard.js lineDetector.js probabilityCalculator.js probabilityCalculator.enhanced.js; do
-          if [ -f "$file" ]; then
-            SIZE=$(wc -c < "$file")
-            SIZE_KB=$((SIZE / 1024))
-            TOTAL_SIZE=$((TOTAL_SIZE + SIZE))
-            echo "$file: ${SIZE_KB}KB (${SIZE} bytes)"
-          fi
-        done
-        
-        TOTAL_KB=$((TOTAL_SIZE / 1024))
-        echo "Total bundle size: ${TOTAL_KB}KB (${TOTAL_SIZE} bytes)"
-        
-        # Check bundle size thresholds
-        if [ $TOTAL_SIZE -gt 1048576 ]; then # 1MB
-          echo "❌ Bundle size exceeds 1MB limit"
-          exit 1
-        elif [ $TOTAL_SIZE -gt 512000 ]; then # 500KB
-          echo "⚠️  Bundle size exceeds 500KB recommendation"
-        else
-          echo "✅ Bundle size is within acceptable limits"
-        fi
-        
-    - name: Memory usage analysis
-      run: |
-        echo "Analyzing memory usage with Playwright..."
-        
-        node -e "
-          const { chromium } = require('playwright');
-          
-          (async () => {
-            const browser = await chromium.launch();
-            const page = await browser.newPage();
+
+      - name: Run Lighthouse performance audit
+        run: |
+          echo "Running Lighthouse performance audit..."
+
+          # Desktop audit
+          npx lighthouse http://localhost:8080 \
+            --output=json \
+            --output-path=lighthouse-desktop.json \
+            --form-factor=desktop \
+            --chrome-flags="--headless --no-sandbox" || true
             
-            // Navigate to the application
-            await page.goto('http://localhost:8080');
+          # Mobile audit
+          npx lighthouse http://localhost:8080 \
+            --output=json \
+            --output-path=lighthouse-mobile.json \
+            --form-factor=mobile \
+            --chrome-flags="--headless --no-sandbox" || true
+
+      - name: Analyze performance results
+        run: |
+          echo "Analyzing performance results..."
+
+          node -e "
+            const fs = require('fs');
             
-            // Wait for the application to load
-            await page.waitForTimeout(2000);
-            
-            // Get initial memory usage
-            const initialMemory = await page.evaluate(() => {
-              return performance.memory ? {
-                usedJSHeapSize: performance.memory.usedJSHeapSize,
-                totalJSHeapSize: performance.memory.totalJSHeapSize,
-                jsHeapSizeLimit: performance.memory.jsHeapSizeLimit
-              } : null;
-            });
-            
-            if (initialMemory) {
-              console.log('=== MEMORY USAGE ANALYSIS ===');
-              console.log('Used JS Heap:', Math.round(initialMemory.usedJSHeapSize / 1024 / 1024) + 'MB');
-              console.log('Total JS Heap:', Math.round(initialMemory.totalJSHeapSize / 1024 / 1024) + 'MB');
-              console.log('JS Heap Limit:', Math.round(initialMemory.jsHeapSizeLimit / 1024 / 1024) + 'MB');
-              
-              // Memory usage threshold check
-              const usedMB = initialMemory.usedJSHeapSize / 1024 / 1024;
-              if (usedMB > 50) {
-                console.log('❌ Memory usage exceeds 50MB');
-                process.exit(1);
-              } else if (usedMB > 25) {
-                console.log('⚠️  Memory usage exceeds 25MB');
-              } else {
-                console.log('✅ Memory usage is within acceptable limits');
+            function analyzeReport(filename, formFactor) {
+              try {
+                if (!fs.existsSync(filename)) {
+                  console.log('❌ Report file not found:', filename);
+                  return;
+                }
+                
+                const report = JSON.parse(fs.readFileSync(filename, 'utf8'));
+                const categories = report.lhr.categories;
+                
+                console.log('\\n=== ' + formFactor.toUpperCase() + ' PERFORMANCE RESULTS ===');
+                console.log('Performance:', Math.round(categories.performance.score * 100));
+                console.log('Accessibility:', Math.round(categories.accessibility.score * 100));
+                console.log('Best Practices:', Math.round(categories['best-practices'].score * 100));
+                console.log('SEO:', Math.round(categories.seo.score * 100));
+                
+                // Key metrics
+                const audits = report.lhr.audits;
+                console.log('\\n=== KEY METRICS ===');
+                
+                if (audits['first-contentful-paint']) {
+                  console.log('First Contentful Paint:', audits['first-contentful-paint'].displayValue);
+                }
+                if (audits['largest-contentful-paint']) {
+                  console.log('Largest Contentful Paint:', audits['largest-contentful-paint'].displayValue);
+                }
+                if (audits['cumulative-layout-shift']) {
+                  console.log('Cumulative Layout Shift:', audits['cumulative-layout-shift'].displayValue);
+                }
+                if (audits['total-blocking-time']) {
+                  console.log('Total Blocking Time:', audits['total-blocking-time'].displayValue);
+                }
+                
+                // Performance budget checks
+                const performance = Math.round(categories.performance.score * 100);
+                if (performance < 80) {
+                  console.log('❌ Performance score below 80 for', formFactor);
+                  process.exitCode = 1;
+                } else if (performance < 90) {
+                  console.log('⚠️  Performance score below 90 for', formFactor);
+                } else {
+                  console.log('✅ Good performance score for', formFactor);
+                }
+                
+              } catch (error) {
+                console.log('Error analyzing report:', error.message);
               }
-            } else {
-              console.log('Memory API not available in this browser');
             }
             
-            await browser.close();
-          })();
-        " || echo "Memory analysis completed with warnings"
-        
-    - name: Generate performance report
-      run: |
-        echo "Generating performance report..."
-        
-        cat > performance-report.md << 'EOF'
-        # Performance Monitoring Report
-        
-        **Date:** $(date)
-        **Commit:** $GITHUB_SHA
-        **Branch:** $GITHUB_REF_NAME
-        
-        ## Summary
-        
-        This report contains the results of automated performance monitoring.
-        
-        ## Lighthouse Scores
-        
-        ### Desktop
-        - Performance: See lighthouse-desktop.json
-        - Accessibility: See lighthouse-desktop.json
-        - Best Practices: See lighthouse-desktop.json
-        - SEO: See lighthouse-desktop.json
-        
-        ### Mobile
-        - Performance: See lighthouse-mobile.json
-        - Accessibility: See lighthouse-mobile.json
-        - Best Practices: See lighthouse-mobile.json
-        - SEO: See lighthouse-mobile.json
-        
-        ## Bundle Size Analysis
-        
-        Total bundle size and individual file sizes are analyzed to ensure optimal loading performance.
-        
-        ## Memory Usage
-        
-        JavaScript heap memory usage is monitored to prevent memory leaks and ensure efficient resource utilization.
-        
-        ## Recommendations
-        
-        1. Monitor performance scores regularly
-        2. Optimize images and assets
-        3. Minimize JavaScript bundle size
-        4. Implement lazy loading where appropriate
-        5. Use efficient algorithms and data structures
-        
-        ## Thresholds
-        
-        - Performance Score: ≥80 (target: ≥90)
-        - Bundle Size: ≤500KB (limit: ≤1MB)
-        - Memory Usage: ≤25MB (limit: ≤50MB)
-        EOF
-        
-    - name: Upload performance artifacts
-      uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: performance-reports
-        path: |
-          lighthouse-desktop.json
-          lighthouse-mobile.json
-          performance-report.md
-          
+            analyzeReport('lighthouse-desktop.json', 'desktop');
+            analyzeReport('lighthouse-mobile.json', 'mobile');
+          "
+
+      - name: Run custom performance tests
+        run: |
+          echo "Running custom performance tests..."
+          node performance-regression.test.js || echo "Performance tests completed with warnings"
+
+      - name: Bundle size analysis
+        run: |
+          echo "Analyzing bundle size..."
+
+          # Calculate total size of main files
+          TOTAL_SIZE=0
+          echo "=== BUNDLE SIZE ANALYSIS ==="
+
+          for file in index.html styles.css script.js gameEngine.js gameBoard.js lineDetector.js probabilityCalculator.js probabilityCalculator.enhanced.js; do
+            if [ -f "$file" ]; then
+              SIZE=$(wc -c < "$file")
+              SIZE_KB=$((SIZE / 1024))
+              TOTAL_SIZE=$((TOTAL_SIZE + SIZE))
+              echo "$file: ${SIZE_KB}KB (${SIZE} bytes)"
+            fi
+          done
+
+          TOTAL_KB=$((TOTAL_SIZE / 1024))
+          echo "Total bundle size: ${TOTAL_KB}KB (${TOTAL_SIZE} bytes)"
+
+          # Check bundle size thresholds
+          if [ $TOTAL_SIZE -gt 1048576 ]; then # 1MB
+            echo "❌ Bundle size exceeds 1MB limit"
+            exit 1
+          elif [ $TOTAL_SIZE -gt 512000 ]; then # 500KB
+            echo "⚠️  Bundle size exceeds 500KB recommendation"
+          else
+            echo "✅ Bundle size is within acceptable limits"
+          fi
+
+      - name: Memory usage analysis
+        run: |
+          echo "Analyzing memory usage with Playwright..."
+
+          node -e "
+            const { chromium } = require('playwright');
+            
+            (async () => {
+              const browser = await chromium.launch();
+              const page = await browser.newPage();
+              
+              // Navigate to the application
+              await page.goto('http://localhost:8080');
+              
+              // Wait for the application to load
+              await page.waitForTimeout(2000);
+              
+              // Get initial memory usage
+              const initialMemory = await page.evaluate(() => {
+                return performance.memory ? {
+                  usedJSHeapSize: performance.memory.usedJSHeapSize,
+                  totalJSHeapSize: performance.memory.totalJSHeapSize,
+                  jsHeapSizeLimit: performance.memory.jsHeapSizeLimit
+                } : null;
+              });
+              
+              if (initialMemory) {
+                console.log('=== MEMORY USAGE ANALYSIS ===');
+                console.log('Used JS Heap:', Math.round(initialMemory.usedJSHeapSize / 1024 / 1024) + 'MB');
+                console.log('Total JS Heap:', Math.round(initialMemory.totalJSHeapSize / 1024 / 1024) + 'MB');
+                console.log('JS Heap Limit:', Math.round(initialMemory.jsHeapSizeLimit / 1024 / 1024) + 'MB');
+                
+                // Memory usage threshold check
+                const usedMB = initialMemory.usedJSHeapSize / 1024 / 1024;
+                if (usedMB > 50) {
+                  console.log('❌ Memory usage exceeds 50MB');
+                  process.exit(1);
+                } else if (usedMB > 25) {
+                  console.log('⚠️  Memory usage exceeds 25MB');
+                } else {
+                  console.log('✅ Memory usage is within acceptable limits');
+                }
+              } else {
+                console.log('Memory API not available in this browser');
+              }
+              
+              await browser.close();
+            })();
+          " || echo "Memory analysis completed with warnings"
+
+      - name: Generate performance report
+        run: |
+          echo "Generating performance report..."
+
+          cat > performance-report.md << 'EOF'
+          # Performance Monitoring Report
+
+          **Date:** $(date)
+          **Commit:** $GITHUB_SHA
+          **Branch:** $GITHUB_REF_NAME
+
+          ## Summary
+
+          This report contains the results of automated performance monitoring.
+
+          ## Lighthouse Scores
+
+          ### Desktop
+          - Performance: See lighthouse-desktop.json
+          - Accessibility: See lighthouse-desktop.json
+          - Best Practices: See lighthouse-desktop.json
+          - SEO: See lighthouse-desktop.json
+
+          ### Mobile
+          - Performance: See lighthouse-mobile.json
+          - Accessibility: See lighthouse-mobile.json
+          - Best Practices: See lighthouse-mobile.json
+          - SEO: See lighthouse-mobile.json
+
+          ## Bundle Size Analysis
+
+          Total bundle size and individual file sizes are analyzed to ensure optimal loading performance.
+
+          ## Memory Usage
+
+          JavaScript heap memory usage is monitored to prevent memory leaks and ensure efficient resource utilization.
+
+          ## Recommendations
+
+          1. Monitor performance scores regularly
+          2. Optimize images and assets
+          3. Minimize JavaScript bundle size
+          4. Implement lazy loading where appropriate
+          5. Use efficient algorithms and data structures
+
+          ## Thresholds
+
+          - Performance Score: ≥80 (target: ≥90)
+          - Bundle Size: ≤500KB (limit: ≤1MB)
+          - Memory Usage: ≤25MB (limit: ≤50MB)
+          EOF
+
+      - name: Upload performance artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: performance-reports
+          path: |
+            lighthouse-desktop.json
+            lighthouse-mobile.json
+            performance-report.md
+
   performance-comparison:
     name: Performance Comparison
     runs-on: ubuntu-latest
     # Only run on main branch pushes to avoid issues with shallow git history
     if: github.event_name == 'push' && github.ref == 'refs/heads/main'
-    
+
     steps:
-    - name: Checkout current code
-      uses: actions/checkout@v4
-      with:
-        path: current
-        fetch-depth: 0  # Fetch full history to ensure we have previous commits
-        
-    - name: Check if previous commit exists
-      id: check_previous
-      run: |
-        cd current
-        # Get the previous commit hash
-        PREV_COMMIT=$(git rev-parse HEAD~1 2>/dev/null || echo "")
-        if [ -n "$PREV_COMMIT" ]; then
-          echo "has_previous=true" >> $GITHUB_OUTPUT
-          echo "previous_commit=$PREV_COMMIT" >> $GITHUB_OUTPUT
-          echo "Previous commit exists: $PREV_COMMIT"
-        else
-          echo "has_previous=false" >> $GITHUB_OUTPUT
-          echo "No previous commit found"
-        fi
-        
-    - name: Checkout previous commit
-      if: steps.check_previous.outputs.has_previous == 'true'
-      uses: actions/checkout@v4
-      with:
-        path: previous
-        ref: ${{ steps.check_previous.outputs.previous_commit }}
-        
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '18'
-        
-    - name: Install dependencies
-      run: |
-        npm install -g lighthouse
-        npm install -g http-server
-        
-    - name: Test current version
-      run: |
-        echo "Testing current version..."
-        cd current
-        
-        # Start server and verify it's running
-        http-server . -p 8080 &
-        SERVER_PID=$!
-        sleep 5
-        
-        # Verify server is accessible
-        if ! curl -f http://localhost:8080 >/dev/null 2>&1; then
-          echo "❌ Current version server failed to start"
-          kill $SERVER_PID 2>/dev/null || true
-          exit 1
-        fi
-        
-        # Run Lighthouse
-        npx lighthouse http://localhost:8080 \
-          --output=json \
-          --output-path=../current-performance.json \
-          --chrome-flags="--headless --no-sandbox" || {
-          echo "⚠️ Lighthouse failed for current version"
-          echo '{"lhr":{"categories":{"performance":{"score":0}}}}' > ../current-performance.json
-        }
-          
-        # Clean up
-        kill $SERVER_PID 2>/dev/null || true
-        pkill -f "http-server.*8080" || true
-        cd ..
-        
-    - name: Test previous version
-      if: steps.check_previous.outputs.has_previous == 'true'
-      run: |
-        echo "Testing previous version..."
-        cd previous
-        
-        # Start server and verify it's running
-        http-server . -p 8081 &
-        SERVER_PID=$!
-        sleep 5
-        
-        # Verify server is accessible
-        if ! curl -f http://localhost:8081 >/dev/null 2>&1; then
-          echo "❌ Previous version server failed to start"
-          kill $SERVER_PID 2>/dev/null || true
-          echo '{"lhr":{"categories":{"performance":{"score":0}}}}' > ../previous-performance.json
-          cd ..
-          exit 0
-        fi
-        
-        # Run Lighthouse
-        npx lighthouse http://localhost:8081 \
-          --output=json \
-          --output-path=../previous-performance.json \
-          --chrome-flags="--headless --no-sandbox" || {
-          echo "⚠️ Lighthouse failed for previous version"
-          echo '{"lhr":{"categories":{"performance":{"score":0}}}}' > ../previous-performance.json
-        }
-          
-        # Clean up
-        kill $SERVER_PID 2>/dev/null || true
-        pkill -f "http-server.*8081" || true
-        cd ..
-        
-    - name: Create placeholder for missing previous version
-      if: steps.check_previous.outputs.has_previous == 'false'
-      run: |
-        echo "Previous version not available, creating placeholder"
-        echo '{"lhr":{"categories":{"performance":{"score":0}}}}' > previous-performance.json
-        
-    - name: Compare performance
-      run: |
-        echo "Comparing performance between versions..."
-        
-        node -e "
-          const fs = require('fs');
-          
-          try {
-            if (!fs.existsSync('current-performance.json')) {
-              console.log('❌ Current performance data not available');
-              process.exit(1);
-            }
-            
-            const current = JSON.parse(fs.readFileSync('current-performance.json', 'utf8'));
-            const currentScore = Math.round(current.lhr.categories.performance.score * 100);
-            
-            if (!fs.existsSync('previous-performance.json')) {
-              console.log('=== PERFORMANCE BASELINE ===');
-              console.log('Current Score:', currentScore);
-              console.log('✅ Baseline performance recorded');
-              process.exit(0);
-            }
-            
-            const previous = JSON.parse(fs.readFileSync('previous-performance.json', 'utf8'));
-            const previousScore = Math.round(previous.lhr.categories.performance.score * 100);
-            
-            // Skip comparison if previous score is 0 (placeholder)
-            if (previousScore === 0) {
-              console.log('=== PERFORMANCE BASELINE ===');
-              console.log('Current Score:', currentScore);
-              console.log('✅ Baseline performance recorded (no previous data)');
-              process.exit(0);
-            }
-            
-            const difference = currentScore - previousScore;
-            
-            console.log('=== PERFORMANCE COMPARISON ===');
-            console.log('Previous Score:', previousScore);
-            console.log('Current Score:', currentScore);
-            console.log('Difference:', difference > 0 ? '+' + difference : difference);
-            
-            if (difference < -5) {
-              console.log('❌ Performance regression detected (>5 point decrease)');
-              process.exit(1);
-            } else if (difference < 0) {
-              console.log('⚠️  Minor performance decrease detected');
-            } else if (difference > 0) {
-              console.log('✅ Performance improvement detected');
-            } else {
-              console.log('✅ Performance maintained');
-            }
-            
-          } catch (error) {
-            console.log('Could not compare performance:', error.message);
-            console.log('✅ Performance comparison completed with warnings');
+      - name: Checkout current code
+        uses: actions/checkout@v4
+        with:
+          path: current
+          fetch-depth: 0 # Fetch full history to ensure we have previous commits
+
+      - name: Check if previous commit exists
+        id: check_previous
+        run: |
+          cd current
+          # Get the previous commit hash
+          PREV_COMMIT=$(git rev-parse HEAD~1 2>/dev/null || echo "")
+          if [ -n "$PREV_COMMIT" ]; then
+            echo "has_previous=true" >> $GITHUB_OUTPUT
+            echo "previous_commit=$PREV_COMMIT" >> $GITHUB_OUTPUT
+            echo "Previous commit exists: $PREV_COMMIT"
+          else
+            echo "has_previous=false" >> $GITHUB_OUTPUT
+            echo "No previous commit found"
+          fi
+
+      - name: Checkout previous commit
+        if: steps.check_previous.outputs.has_previous == 'true'
+        uses: actions/checkout@v4
+        with:
+          path: previous
+          ref: ${{ steps.check_previous.outputs.previous_commit }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install dependencies
+        run: |
+          npm install -g lighthouse
+          npm install -g http-server
+
+      - name: Test current version
+        run: |
+          echo "Testing current version..."
+          cd current
+
+          # Start server and verify it's running
+          http-server . -p 8080 &
+          SERVER_PID=$!
+          sleep 5
+
+          # Verify server is accessible
+          if ! curl -f http://localhost:8080 >/dev/null 2>&1; then
+            echo "❌ Current version server failed to start"
+            kill $SERVER_PID 2>/dev/null || true
+            exit 1
+          fi
+
+          # Run Lighthouse
+          npx lighthouse http://localhost:8080 \
+            --output=json \
+            --output-path=../current-performance.json \
+            --chrome-flags="--headless --no-sandbox" || {
+            echo "⚠️ Lighthouse failed for current version"
+            echo '{"lhr":{"categories":{"performance":{"score":0}}}}' > ../current-performance.json
           }
-        " || echo "Performance comparison completed with warnings"
-        
-    - name: Upload comparison results
-      uses: actions/upload-artifact@v4
-      if: always()
-      with:
-        name: performance-comparison
-        path: |
-          current-performance.json
-          previous-performance.json
+            
+          # Clean up
+          kill $SERVER_PID 2>/dev/null || true
+          pkill -f "http-server.*8080" || true
+          cd ..
+
+      - name: Test previous version
+        if: steps.check_previous.outputs.has_previous == 'true'
+        run: |
+          echo "Testing previous version..."
+          cd previous
+
+          # Start server and verify it's running
+          http-server . -p 8081 &
+          SERVER_PID=$!
+          sleep 5
+
+          # Verify server is accessible
+          if ! curl -f http://localhost:8081 >/dev/null 2>&1; then
+            echo "❌ Previous version server failed to start"
+            kill $SERVER_PID 2>/dev/null || true
+            echo '{"lhr":{"categories":{"performance":{"score":0}}}}' > ../previous-performance.json
+            cd ..
+            exit 0
+          fi
+
+          # Run Lighthouse
+          npx lighthouse http://localhost:8081 \
+            --output=json \
+            --output-path=../previous-performance.json \
+            --chrome-flags="--headless --no-sandbox" || {
+            echo "⚠️ Lighthouse failed for previous version"
+            echo '{"lhr":{"categories":{"performance":{"score":0}}}}' > ../previous-performance.json
+          }
+            
+          # Clean up
+          kill $SERVER_PID 2>/dev/null || true
+          pkill -f "http-server.*8081" || true
+          cd ..
+
+      - name: Create placeholder for missing previous version
+        if: steps.check_previous.outputs.has_previous == 'false'
+        run: |
+          echo "Previous version not available, creating placeholder"
+          echo '{"lhr":{"categories":{"performance":{"score":0}}}}' > previous-performance.json
+
+      - name: Compare performance
+        run: |
+          echo "Comparing performance between versions..."
+
+          node -e "
+            const fs = require('fs');
+            
+            try {
+              if (!fs.existsSync('current-performance.json')) {
+                console.log('❌ Current performance data not available');
+                process.exit(1);
+              }
+              
+              const current = JSON.parse(fs.readFileSync('current-performance.json', 'utf8'));
+              const currentScore = Math.round(current.lhr.categories.performance.score * 100);
+              
+              if (!fs.existsSync('previous-performance.json')) {
+                console.log('=== PERFORMANCE BASELINE ===');
+                console.log('Current Score:', currentScore);
+                console.log('✅ Baseline performance recorded');
+                process.exit(0);
+              }
+              
+              const previous = JSON.parse(fs.readFileSync('previous-performance.json', 'utf8'));
+              const previousScore = Math.round(previous.lhr.categories.performance.score * 100);
+              
+              // Skip comparison if previous score is 0 (placeholder)
+              if (previousScore === 0) {
+                console.log('=== PERFORMANCE BASELINE ===');
+                console.log('Current Score:', currentScore);
+                console.log('✅ Baseline performance recorded (no previous data)');
+                process.exit(0);
+              }
+              
+              const difference = currentScore - previousScore;
+              
+              console.log('=== PERFORMANCE COMPARISON ===');
+              console.log('Previous Score:', previousScore);
+              console.log('Current Score:', currentScore);
+              console.log('Difference:', difference > 0 ? '+' + difference : difference);
+              
+              if (difference < -5) {
+                console.log('❌ Performance regression detected (>5 point decrease)');
+                process.exit(1);
+              } else if (difference < 0) {
+                console.log('⚠️  Minor performance decrease detected');
+              } else if (difference > 0) {
+                console.log('✅ Performance improvement detected');
+              } else {
+                console.log('✅ Performance maintained');
+              }
+              
+            } catch (error) {
+              console.log('Could not compare performance:', error.message);
+              console.log('✅ Performance comparison completed with warnings');
+            }
+          " || echo "Performance comparison completed with warnings"
+
+      - name: Upload comparison results
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: performance-comparison
+          path: |
+            current-performance.json
+            previous-performance.json

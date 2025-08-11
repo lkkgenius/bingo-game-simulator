@@ -25,7 +25,7 @@
     "beforeEach",
     "afterEach",
     "GameEngine",
-    "GameBoard", 
+    "GameBoard",
     "LineDetector",
     "ProbabilityCalculator",
     "EnhancedProbabilityCalculator",
