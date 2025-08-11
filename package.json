@@ -75,8 +75,10 @@
   "license": "MIT",
   "devDependencies": {
     "eslint": "^8.0.0",
+    "eslint-config-prettier": "^9.0.0",
     "jshint": "^2.13.0",
     "playwright": "^1.40.0",
+    "prettier": "^3.0.0",
     "http-server": "^14.0.0",
     "lighthouse": "^11.0.0"
   },

@@ -44,23 +44,13 @@ jobs:
       - name: Check code formatting
         run: |
           echo "Checking code formatting with Prettier..."
-
-          # Create Prettier config
-          cat > .prettierrc << 'EOF'
-          {
-            "semi": true,
-            "trailingComma": "none",
-            "singleQuote": true,
-            "printWidth": 80,
-            "tabWidth": 2,
-            "useTabs": false
-          }
-          EOF
-
-          # Check if files need formatting
-          npx prettier --check *.js *.html *.css || {
+          echo "Checking formatting..."
+          
+          # Use existing .prettierrc config and check all relevant files
+          npx prettier --check . || {
             echo "⚠️  Some files need formatting"
-            echo "Run 'npx prettier --write *.js *.html *.css' to fix formatting"
+            echo "Run 'npx prettier --write .' to fix formatting"
+            exit 1
           }
 
       - name: Analyze code complexity
