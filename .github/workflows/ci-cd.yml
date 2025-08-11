@@ -69,17 +69,18 @@ jobs:
         node -e "
           const fs = require('fs');
           const files = ['script.js', 'gameEngine.js', 'gameBoard.js', 'lineDetector.js', 'probabilityCalculator.js'];
+          const maxLines = 2000;
           
           files.forEach(file => {
             if (fs.existsSync(file)) {
               const content = fs.readFileSync(file, 'utf8');
-              const lines = content.split('\n');
-              const functions = content.match(/function\s+\w+|=>\s*{|\w+\s*:\s*function/g) || [];
+              const lines = content.split('\\n');
+              const functions = content.match(/function\\s+\\w+|=>\\s*{|\\w+\\s*:\\s*function/g) || [];
               
-              console.log(\`\${file}: \${lines.length} lines, \${functions.length} functions\`);
+              console.log(file + ': ' + lines.length + ' lines, ' + functions.length + ' functions');
               
-              if (lines.length > 2000) {
-                console.log(\`⚠️  \${file} is quite large (\${lines.length} lines)\`);
+              if (lines.length > maxLines) {
+                console.log('⚠️  ' + file + ' is quite large (' + lines.length + ' lines)');
               }
             }
           });
@@ -240,7 +241,7 @@ jobs:
     - name: Check file permissions
       run: |
         echo "Checking file permissions..."
-        find . -type f -name "*.js" -perm /111 | head -10 | while read file; do
+        find . -type f -name "*.js" -executable | head -10 | while read file; do
           echo "⚠️  Executable JavaScript file: $file"
         done || echo "✅ No executable JavaScript files found"
         
@@ -305,54 +306,50 @@ jobs:
               const seo = Math.round(categories.seo.score * 100);
               
               console.log('=== Lighthouse Performance Report ===');
-              console.log('Performance:', performance + '%');
-              console.log('Accessibility:', accessibility + '%');
-              console.log('Best Practices:', bestPractices + '%');
-              console.log('SEO:', seo + '%');
+              console.log('Performance: ' + performance + '%');
+              console.log('Accessibility: ' + accessibility + '%');
+              console.log('Best Practices: ' + bestPractices + '%');
+              console.log('SEO: ' + seo + '%');
               
-              // Set thresholds
-              const thresholds = {
-                performance: 85,
-                accessibility: 90,
-                bestPractices: 85,
-                seo: 80
-              };
+              const perfThreshold = 85;
+              const accessThreshold = 90;
+              const practicesThreshold = 85;
+              const seoThreshold = 80;
               
               let failed = false;
               
-              if (performance < thresholds.performance) {
-                console.log('❌ Performance score below threshold (' + thresholds.performance + '%)');
+              if (performance < perfThreshold) {
+                console.log('❌ Performance score below threshold (' + perfThreshold + '%)');
                 failed = true;
               }
-              if (accessibility < thresholds.accessibility) {
-                console.log('❌ Accessibility score below threshold (' + thresholds.accessibility + '%)');
+              if (accessibility < accessThreshold) {
+                console.log('❌ Accessibility score below threshold (' + accessThreshold + '%)');
                 failed = true;
               }
-              if (bestPractices < thresholds.bestPractices) {
-                console.log('⚠️  Best Practices score below threshold (' + thresholds.bestPractices + '%)');
+              if (bestPractices < practicesThreshold) {
+                console.log('⚠️  Best Practices score below threshold (' + practicesThreshold + '%)');
               }
-              if (seo < thresholds.seo) {
-                console.log('⚠️  SEO score below threshold (' + thresholds.seo + '%)');
+              if (seo < seoThreshold) {
+                console.log('⚠️  SEO score below threshold (' + seoThreshold + '%)');
               }
               
               if (!failed) {
                 console.log('✅ All critical performance thresholds met');
               }
               
-              // Extract key metrics
               const metrics = report.lhr.audits;
               if (metrics['first-contentful-paint']) {
-                console.log('First Contentful Paint:', metrics['first-contentful-paint'].displayValue);
+                console.log('First Contentful Paint: ' + metrics['first-contentful-paint'].displayValue);
               }
               if (metrics['largest-contentful-paint']) {
-                console.log('Largest Contentful Paint:', metrics['largest-contentful-paint'].displayValue);
+                console.log('Largest Contentful Paint: ' + metrics['largest-contentful-paint'].displayValue);
               }
               if (metrics['cumulative-layout-shift']) {
-                console.log('Cumulative Layout Shift:', metrics['cumulative-layout-shift'].displayValue);
+                console.log('Cumulative Layout Shift: ' + metrics['cumulative-layout-shift'].displayValue);
               }
               
             } catch (error) {
-              console.log('Error parsing Lighthouse report:', error.message);
+              console.log('Error parsing Lighthouse report: ' + error.message);
             }
           " || echo "Performance analysis completed with warnings"
         fi
