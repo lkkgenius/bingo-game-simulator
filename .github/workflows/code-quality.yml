@@ -28,18 +28,6 @@ jobs:
           # No global installations needed - using npx for all tools
           echo "Using npx for all linting and formatting tools"
 
-      - name: Run ESLint
-        run: |
-          echo "Running ESLint..."
-          npx eslint *.js --max-warnings 10 --format=json --output-file=eslint-report.json || true
-          npx eslint *.js --max-warnings 10 || echo "ESLint completed with warnings"
-
-      - name: Run JSHint
-        run: |
-          echo "Running JSHint..."
-          npx jshint *.js --reporter=json > jshint-report.json || true
-          npx jshint *.js || echo "JSHint completed with warnings"
-
       - name: Check code formatting
         run: |
           echo "Checking code formatting with Prettier..."
@@ -51,6 +39,26 @@ jobs:
             echo "Run 'npx prettier --write .' to fix formatting"
             exit 1
           }
+
+      - name: Run basic syntax check
+        run: |
+          echo "Running basic syntax check..."
+          for file in *.js utils/*.js; do
+            if [ -f "$file" ]; then
+              echo "Checking syntax: $file"
+              node -c "$file" || {
+                echo "❌ Syntax error in $file"
+                exit 1
+              }
+            fi
+          done
+          echo "✅ All JavaScript files have valid syntax"
+
+      - name: Run JSHint
+        run: |
+          echo "Running JSHint..."
+          npx jshint *.js utils/*.js --reporter=json > jshint-report.json || true
+          npx jshint *.js utils/*.js || echo "JSHint completed with warnings"
 
       - name: Analyze code complexity
         run: |

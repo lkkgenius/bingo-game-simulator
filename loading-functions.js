@@ -317,7 +317,12 @@ function updateLoadingProgress(progress, message) {
   }
 
   if (loadingText && message) {
-    loadingText.textContent = message;
+    // Handle both message formats
+    if (typeof message === 'string' && !message.includes('載入')) {
+      loadingText.textContent = `正在載入 ${message}... (${Math.round(progress)}%)`;
+    } else {
+      loadingText.textContent = message;
+    }
   }
 }
 
@@ -584,15 +589,7 @@ class ProgressiveLoader {
 // 創建全局漸進式載入管理器
 const progressiveLoader = new ProgressiveLoader();
 
-/**
- * 更新載入進度
- */
-function updateLoadingProgress(progress, componentName) {
-  const loadingText = document.querySelector('#global-loading .loading-text');
-  if (loadingText) {
-    loadingText.textContent = `正在載入 ${componentName}... (${Math.round(progress)}%)`;
-  }
-}
+// updateLoadingProgress function is already defined above
 
 /**
  * 初始化漸進式載入
