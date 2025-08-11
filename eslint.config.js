@@ -33,13 +33,17 @@ module.exports = [
         ResizeObserver: 'readonly',
         IntersectionObserver: 'readonly',
         PerformanceObserver: 'readonly',
+        MutationObserver: 'readonly',
+        Node: 'readonly',
+        Element: 'readonly',
+        SpeechSynthesisUtterance: 'readonly',
         CSS: 'readonly',
-        
+
         // Service Worker globals
         self: 'readonly',
         caches: 'readonly',
         clients: 'readonly',
-        
+
         // Node.js globals (for test files)
         require: 'readonly',
         module: 'readonly',
@@ -49,14 +53,14 @@ module.exports = [
         __filename: 'readonly',
         Buffer: 'readonly',
         global: 'writable',
-        
+
         // Test framework globals
         describe: 'writable',
         test: 'writable',
         expect: 'writable',
         beforeEach: 'writable',
         afterEach: 'writable',
-        
+
         // Game-specific globals
         GameEngine: 'writable',
         GameBoard: 'writable',
@@ -68,7 +72,7 @@ module.exports = [
         AILearningSystem: 'writable',
         SafeDOM: 'writable',
         SecurityUtils: 'writable',
-        
+
         // Application globals
         gameEngine: 'writable',
         gameBoard: 'writable',
@@ -78,7 +82,10 @@ module.exports = [
         logger: 'writable',
         gameState: 'writable',
         handleCellClick: 'writable',
-        
+        CONSTANTS: 'writable',
+        standardIsIntersection: 'writable',
+        enhancedIsIntersection: 'writable',
+
         // Loading and UI globals
         showGlobalLoading: 'writable',
         hideGlobalLoading: 'writable',
@@ -90,20 +97,20 @@ module.exports = [
         progressiveLoader: 'writable',
         initializeProgressiveLoading: 'writable',
         initializeCompatibilityCheck: 'writable',
-        
+
         // Message and modal globals
         showSuccessMessage: 'writable',
         showErrorMessage: 'writable',
         showWarningMessage: 'writable',
         showErrorModal: 'writable',
         globalErrorBoundary: 'writable',
-        
+
         // Browser automation globals (for E2E tests)
         browser_click: 'readonly',
         browser_evaluate: 'readonly',
         browser_navigate: 'readonly',
         browser_take_screenshot: 'readonly',
-        
+
         // Analytics
         gtag: 'readonly'
       }
@@ -115,7 +122,7 @@ module.exports = [
       'no-redeclare': 'off', // Allow redeclaring globals for test setup
       'no-dupe-keys': 'error',
       'no-duplicate-case': 'error',
-      
+
       // Code style
       'semi': ['error', 'always'],
       'quotes': ['error', 'single'],
@@ -123,7 +130,7 @@ module.exports = [
       'comma-dangle': ['error', 'never'],
       'no-trailing-spaces': 'error',
       'eol-last': 'error',
-      
+
       // Best practices
       'no-console': 'off', // Allow console for debugging
       'no-alert': 'warn',
@@ -131,19 +138,34 @@ module.exports = [
       'no-implied-eval': 'error',
       'no-new-func': 'error',
       'no-script-url': 'error',
-      
+
       // Security
       'no-unsafe-finally': 'error',
-      
+
       // Performance
       'no-loop-func': 'warn',
       'no-inner-declarations': 'error'
     }
   },
   {
-    files: ['*.test.js'],
+    files: ['*.test.js', 'testRunner.js', 'e2e.test.js', 'playwright-e2e.test.js'],
     rules: {
-      'no-unused-vars': 'off' // Allow unused vars in tests
+      'no-unused-vars': 'off', // Allow unused vars in tests
+      'no-alert': 'off', // Allow alerts in tests
+      'no-redeclare': 'off' // Allow redeclaring test globals
+    }
+  },
+  {
+    files: ['sw.js'],
+    languageOptions: {
+      globals: {
+        self: 'readonly',
+        caches: 'readonly',
+        clients: 'readonly',
+        fetch: 'readonly',
+        Response: 'readonly',
+        URL: 'readonly'
+      }
     }
   }
 ];
