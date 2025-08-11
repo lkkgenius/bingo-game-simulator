@@ -36,7 +36,9 @@ function testRefactoredCalculators() {
     }
   });
 
-  console.log(`\nRefactored Calculator Tests: ${passed} passed, ${failed} failed`);
+  console.log(
+    `\nRefactored Calculator Tests: ${passed} passed, ${failed} failed`
+  );
   return { passed, failed };
 }
 
@@ -97,7 +99,11 @@ function testEnhancedCalculator() {
   }
 
   // Test multi-line potential
-  const multiValue = calculator.calculateMultiLinePotentialValue(testBoard, 2, 2);
+  const multiValue = calculator.calculateMultiLinePotentialValue(
+    testBoard,
+    2,
+    2
+  );
   if (typeof multiValue !== 'number') {
     throw new Error('Multi-line potential should be a number');
   }
@@ -222,9 +228,15 @@ function benchmarkCalculators() {
   }
   const enhancedTime = Date.now() - enhancedStart;
 
-  console.log(`Standard Calculator: ${standardTime}ms for ${iterations} iterations`);
-  console.log(`Enhanced Calculator: ${enhancedTime}ms for ${iterations} iterations`);
-  console.log(`Performance Ratio: ${(enhancedTime / standardTime).toFixed(2)}x`);
+  console.log(
+    `Standard Calculator: ${standardTime}ms for ${iterations} iterations`
+  );
+  console.log(
+    `Enhanced Calculator: ${enhancedTime}ms for ${iterations} iterations`
+  );
+  console.log(
+    `Performance Ratio: ${(enhancedTime / standardTime).toFixed(2)}x`
+  );
 
   // Get detailed metrics
   const standardMetrics = standard.getPerformanceMetrics();

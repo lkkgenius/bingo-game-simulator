@@ -6,13 +6,15 @@
  * @class ProbabilityCalculator
  * @version 1.0.0
  */
-(function() {
+(function () {
   'use strict';
 
   // Check if dependencies are available
-  if (typeof window === 'undefined' ||
-      typeof window.BaseProbabilityCalculator !== 'function' ||
-      typeof window.CONSTANTS !== 'object') {
+  if (
+    typeof window === 'undefined' ||
+    typeof window.BaseProbabilityCalculator !== 'function' ||
+    typeof window.CONSTANTS !== 'object'
+  ) {
     console.error('ProbabilityCalculator: Dependencies not available');
     return;
   }

@@ -22,7 +22,10 @@ global.window = {
 };
 
 // 載入依賴驗證器
-const { DependencyValidator, dependencyValidator } = require('./dependencyValidator.js');
+const {
+  DependencyValidator,
+  dependencyValidator
+} = require('./dependencyValidator.js');
 
 describe('DependencyValidator', () => {
   let validator;
@@ -64,7 +67,10 @@ describe('DependencyValidator', () => {
   describe('單個依賴驗證', () => {
     test('應該檢測缺失的依賴', async () => {
       const constantsInfo = validator.dependencyGraph.get('CONSTANTS');
-      const result = await validator._validateSingleDependency('CONSTANTS', constantsInfo);
+      const result = await validator._validateSingleDependency(
+        'CONSTANTS',
+        constantsInfo
+      );
 
       expect(result.available).toBe(false);
       expect(result.error).toContain('未找到');
@@ -79,7 +85,10 @@ describe('DependencyValidator', () => {
       };
 
       const constantsInfo = validator.dependencyGraph.get('CONSTANTS');
-      const result = await validator._validateSingleDependency('CONSTANTS', constantsInfo);
+      const result = await validator._validateSingleDependency(
+        'CONSTANTS',
+        constantsInfo
+      );
 
       expect(result.available).toBe(true);
       expect(result.error).toBeNull();
@@ -93,7 +102,10 @@ describe('DependencyValidator', () => {
       };
 
       const constantsInfo = validator.dependencyGraph.get('CONSTANTS');
-      const result = await validator._validateSingleDependency('CONSTANTS', constantsInfo);
+      const result = await validator._validateSingleDependency(
+        'CONSTANTS',
+        constantsInfo
+      );
 
       expect(result.available).toBe(true);
       expect(result.warnings.length).toBeGreaterThan(0);
@@ -109,7 +121,10 @@ describe('DependencyValidator', () => {
       };
 
       const lineDetectorInfo = validator.dependencyGraph.get('LineDetector');
-      const result = await validator._validateSingleDependency('LineDetector', lineDetectorInfo);
+      const result = await validator._validateSingleDependency(
+        'LineDetector',
+        lineDetectorInfo
+      );
 
       expect(result.available).toBe(true);
       expect(result.methods.checkHorizontalLines.available).toBe(true);
@@ -120,7 +135,10 @@ describe('DependencyValidator', () => {
   describe('自動修復功能', () => {
     test('應該能夠修復缺失的 CONSTANTS', async () => {
       const constantsInfo = validator.dependencyGraph.get('CONSTANTS');
-      const repairResult = await validator._attemptAutoRepair('CONSTANTS', constantsInfo);
+      const repairResult = await validator._attemptAutoRepair(
+        'CONSTANTS',
+        constantsInfo
+      );
 
       expect(repairResult.success).toBe(true);
       expect(repairResult.method).toBe('fallback_injection');
@@ -130,7 +148,10 @@ describe('DependencyValidator', () => {
 
     test('應該能夠修復缺失的 Utils', async () => {
       const utilsInfo = validator.dependencyGraph.get('Utils');
-      const repairResult = await validator._attemptAutoRepair('Utils', utilsInfo);
+      const repairResult = await validator._attemptAutoRepair(
+        'Utils',
+        utilsInfo
+      );
 
       expect(repairResult.success).toBe(true);
       expect(global.window.Utils).toBeDefined();
@@ -139,7 +160,10 @@ describe('DependencyValidator', () => {
 
     test('應該能夠修復缺失的 LineDetector', async () => {
       const lineDetectorInfo = validator.dependencyGraph.get('LineDetector');
-      const repairResult = await validator._attemptAutoRepair('LineDetector', lineDetectorInfo);
+      const repairResult = await validator._attemptAutoRepair(
+        'LineDetector',
+        lineDetectorInfo
+      );
 
       expect(repairResult.success).toBe(true);
       expect(global.window.LineDetector).toBeDefined();
@@ -152,15 +176,29 @@ describe('DependencyValidator', () => {
 
     test('回退的 ProbabilityCalculator 應該能正常工作', async () => {
       // 先修復依賴
-      await validator._attemptAutoRepair('CONSTANTS', validator.dependencyGraph.get('CONSTANTS'));
-      await validator._attemptAutoRepair('Utils', validator.dependencyGraph.get('Utils'));
-      await validator._attemptAutoRepair('BaseProbabilityCalculator', validator.dependencyGraph.get('BaseProbabilityCalculator'));
-      await validator._attemptAutoRepair('ProbabilityCalculator', validator.dependencyGraph.get('ProbabilityCalculator'));
+      await validator._attemptAutoRepair(
+        'CONSTANTS',
+        validator.dependencyGraph.get('CONSTANTS')
+      );
+      await validator._attemptAutoRepair(
+        'Utils',
+        validator.dependencyGraph.get('Utils')
+      );
+      await validator._attemptAutoRepair(
+        'BaseProbabilityCalculator',
+        validator.dependencyGraph.get('BaseProbabilityCalculator')
+      );
+      await validator._attemptAutoRepair(
+        'ProbabilityCalculator',
+        validator.dependencyGraph.get('ProbabilityCalculator')
+      );
 
       expect(global.window.ProbabilityCalculator).toBeDefined();
 
       const calculator = new global.window.ProbabilityCalculator();
-      const emptyBoard = Array(5).fill().map(() => Array(5).fill(0));
+      const emptyBoard = Array(5)
+        .fill()
+        .map(() => Array(5).fill(0));
 
       // 測試基本功能
       const value = calculator.calculateMoveValue(emptyBoard, 2, 2);
@@ -203,9 +241,13 @@ describe('DependencyValidator', () => {
       expect(Array.isArray(results.recommendations)).toBe(true);
 
       // 如果有關鍵依賴問題，應該有相應建議
-      const criticalIssues = results.issues.filter(issue => issue.severity === 'critical');
+      const criticalIssues = results.issues.filter(
+        issue => issue.severity === 'critical'
+      );
       if (criticalIssues.length > 0) {
-        const criticalRecommendations = results.recommendations.filter(rec => rec.type === 'critical');
+        const criticalRecommendations = results.recommendations.filter(
+          rec => rec.type === 'critical'
+        );
         expect(criticalRecommendations.length).toBeGreaterThan(0);
       }
     });
@@ -228,10 +270,13 @@ describe('DependencyValidator', () => {
 
     test('健康分數應該反映依賴狀況', async () => {
       // 模擬所有關鍵依賴都可用
-      global.window.CONSTANTS = validator.fallbackImplementations.get('CONSTANTS')();
+      global.window.CONSTANTS =
+        validator.fallbackImplementations.get('CONSTANTS')();
       global.window.Utils = validator.fallbackImplementations.get('Utils')();
-      global.window.LineDetector = validator.fallbackImplementations.get('LineDetector')();
-      global.window.ProbabilityCalculator = validator.fallbackImplementations.get('ProbabilityCalculator')();
+      global.window.LineDetector =
+        validator.fallbackImplementations.get('LineDetector')();
+      global.window.ProbabilityCalculator =
+        validator.fallbackImplementations.get('ProbabilityCalculator')();
 
       await validator.validateAllDependencies();
       const report = validator.generateHealthReport();
@@ -271,7 +316,9 @@ describe('DependencyValidator', () => {
     test('應該正確解析依賴位置', () => {
       global.window.testObject = { nested: { value: 42 } };
 
-      const result = validator._resolveDependency('window.testObject.nested.value');
+      const result = validator._resolveDependency(
+        'window.testObject.nested.value'
+      );
       expect(result).toBe(42);
 
       const nullResult = validator._resolveDependency('window.nonexistent');
@@ -305,7 +352,10 @@ describe('DependencyValidator', () => {
 
   describe('回退實現功能測試', () => {
     test('回退的 LineDetector 應該能檢測連線', async () => {
-      await validator._attemptAutoRepair('LineDetector', validator.dependencyGraph.get('LineDetector'));
+      await validator._attemptAutoRepair(
+        'LineDetector',
+        validator.dependencyGraph.get('LineDetector')
+      );
 
       const LineDetector = global.window.LineDetector;
       const detector = new LineDetector();
@@ -319,14 +369,19 @@ describe('DependencyValidator', () => {
         [0, 0, 0, 0, 0]
       ];
 
-      const horizontalLines = detector.checkHorizontalLines(boardWithHorizontalLine);
+      const horizontalLines = detector.checkHorizontalLines(
+        boardWithHorizontalLine
+      );
       expect(horizontalLines.length).toBe(1);
       expect(horizontalLines[0].type).toBe('horizontal');
       expect(horizontalLines[0].row).toBe(0);
     });
 
     test('回退的 Utils 函數應該正常工作', async () => {
-      await validator._attemptAutoRepair('Utils', validator.dependencyGraph.get('Utils'));
+      await validator._attemptAutoRepair(
+        'Utils',
+        validator.dependencyGraph.get('Utils')
+      );
 
       const Utils = global.window.Utils;
 
@@ -336,7 +391,10 @@ describe('DependencyValidator', () => {
       expect(Utils.isValidPosition(5, 2, 5)).toBe(false);
 
       // 測試格子檢查
-      const board = [[0, 1], [2, 0]];
+      const board = [
+        [0, 1],
+        [2, 0]
+      ];
       expect(Utils.isCellEmpty(board, 0, 0)).toBe(true);
       expect(Utils.isCellEmpty(board, 0, 1)).toBe(false);
 
@@ -384,12 +442,12 @@ function test(name, fn) {
 
 function expect(actual) {
   return {
-    toBe: (expected) => {
+    toBe: expected => {
       if (actual !== expected) {
         throw new Error(`Expected ${expected}, but got ${actual}`);
       }
     },
-    toEqual: (expected) => {
+    toEqual: expected => {
       const actualStr = JSON.stringify(actual);
       const expectedStr = JSON.stringify(expected);
       if (actualStr !== expectedStr) {
@@ -406,27 +464,31 @@ function expect(actual) {
         throw new Error(`Expected null, but got ${actual}`);
       }
     },
-    toBeGreaterThan: (expected) => {
+    toBeGreaterThan: expected => {
       if (actual <= expected) {
         throw new Error(`Expected ${actual} to be greater than ${expected}`);
       }
     },
-    toBeLessThan: (expected) => {
+    toBeLessThan: expected => {
       if (actual >= expected) {
         throw new Error(`Expected ${actual} to be less than ${expected}`);
       }
     },
-    toBeGreaterThanOrEqual: (expected) => {
+    toBeGreaterThanOrEqual: expected => {
       if (actual < expected) {
-        throw new Error(`Expected ${actual} to be greater than or equal to ${expected}`);
+        throw new Error(
+          `Expected ${actual} to be greater than or equal to ${expected}`
+        );
       }
     },
-    toBeLessThanOrEqual: (expected) => {
+    toBeLessThanOrEqual: expected => {
       if (actual > expected) {
-        throw new Error(`Expected ${actual} to be less than or equal to ${expected}`);
+        throw new Error(
+          `Expected ${actual} to be less than or equal to ${expected}`
+        );
       }
     },
-    toContain: (expected) => {
+    toContain: expected => {
       if (typeof actual === 'string' && !actual.includes(expected)) {
         throw new Error(`Expected "${actual}" to contain "${expected}"`);
       }

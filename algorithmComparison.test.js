@@ -19,7 +19,9 @@ describe('Algorithm Comparison Integration', () => {
   beforeEach();
 
   test('should compare suggestions on empty board', () => {
-    const emptyBoard = Array(5).fill().map(() => Array(5).fill(0));
+    const emptyBoard = Array(5)
+      .fill()
+      .map(() => Array(5).fill(0));
 
     const standardSuggestion = standardCalculator.getBestSuggestion(emptyBoard);
     const enhancedSuggestion = enhancedCalculator.getBestSuggestion(emptyBoard);
@@ -48,10 +50,18 @@ describe('Algorithm Comparison Integration', () => {
     expect(enhancedSuggestion).toBeTruthy();
 
     // 檢查建議格式
-    expect(standardSuggestion.row >= 0 && standardSuggestion.row < 5).toBeTruthy();
-    expect(standardSuggestion.col >= 0 && standardSuggestion.col < 5).toBeTruthy();
-    expect(enhancedSuggestion.row >= 0 && enhancedSuggestion.row < 5).toBeTruthy();
-    expect(enhancedSuggestion.col >= 0 && enhancedSuggestion.col < 5).toBeTruthy();
+    expect(
+      standardSuggestion.row >= 0 && standardSuggestion.row < 5
+    ).toBeTruthy();
+    expect(
+      standardSuggestion.col >= 0 && standardSuggestion.col < 5
+    ).toBeTruthy();
+    expect(
+      enhancedSuggestion.row >= 0 && enhancedSuggestion.row < 5
+    ).toBeTruthy();
+    expect(
+      enhancedSuggestion.col >= 0 && enhancedSuggestion.col < 5
+    ).toBeTruthy();
   });
 
   test('should compare suggestions on complex board', () => {
@@ -71,10 +81,18 @@ describe('Algorithm Comparison Integration', () => {
     expect(enhancedSuggestion).toBeTruthy();
 
     // 檢查建議格式
-    expect(standardSuggestion.row >= 0 && standardSuggestion.row < 5).toBeTruthy();
-    expect(standardSuggestion.col >= 0 && standardSuggestion.col < 5).toBeTruthy();
-    expect(enhancedSuggestion.row >= 0 && enhancedSuggestion.row < 5).toBeTruthy();
-    expect(enhancedSuggestion.col >= 0 && enhancedSuggestion.col < 5).toBeTruthy();
+    expect(
+      standardSuggestion.row >= 0 && standardSuggestion.row < 5
+    ).toBeTruthy();
+    expect(
+      standardSuggestion.col >= 0 && standardSuggestion.col < 5
+    ).toBeTruthy();
+    expect(
+      enhancedSuggestion.row >= 0 && enhancedSuggestion.row < 5
+    ).toBeTruthy();
+    expect(
+      enhancedSuggestion.col >= 0 && enhancedSuggestion.col < 5
+    ).toBeTruthy();
   });
 
   test('should compare confidence levels', () => {
@@ -99,7 +117,9 @@ describe('Algorithm Comparison Integration', () => {
   });
 
   test('should compare alternative suggestions', () => {
-    const emptyBoard = Array(5).fill().map(() => Array(5).fill(0));
+    const emptyBoard = Array(5)
+      .fill()
+      .map(() => Array(5).fill(0));
 
     const standardSuggestion = standardCalculator.getBestSuggestion(emptyBoard);
     const enhancedSuggestion = enhancedCalculator.getBestSuggestion(emptyBoard);
@@ -129,15 +149,33 @@ describe('Algorithm Comparison Integration', () => {
   });
 
   test('should compare intersection point handling', () => {
-    const board = Array(5).fill().map(() => Array(5).fill(0));
+    const board = Array(5)
+      .fill()
+      .map(() => Array(5).fill(0));
 
     // 中心點是交叉點
-    const standardCenterValue = standardCalculator.calculateMoveValue(board, 2, 2);
-    const enhancedCenterValue = enhancedCalculator.calculateMoveValue(board, 2, 2);
+    const standardCenterValue = standardCalculator.calculateMoveValue(
+      board,
+      2,
+      2
+    );
+    const enhancedCenterValue = enhancedCalculator.calculateMoveValue(
+      board,
+      2,
+      2
+    );
 
     // 非交叉點
-    const standardCornerValue = standardCalculator.calculateMoveValue(board, 0, 0);
-    const enhancedCornerValue = enhancedCalculator.calculateMoveValue(board, 0, 0);
+    const standardCornerValue = standardCalculator.calculateMoveValue(
+      board,
+      0,
+      0
+    );
+    const enhancedCornerValue = enhancedCalculator.calculateMoveValue(
+      board,
+      0,
+      0
+    );
 
     // 增強版算法應該對交叉點給予更高的獎勵
     const standardDifference = standardCenterValue - standardCornerValue;

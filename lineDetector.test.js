@@ -96,15 +96,21 @@ describe('LineDetector', () => {
 
   test('should validate board format', () => {
     // 有效的遊戲板
-    const validBoard = Array(5).fill().map(() => Array(5).fill(0));
+    const validBoard = Array(5)
+      .fill()
+      .map(() => Array(5).fill(0));
     expect(lineDetector.isValidBoard(validBoard)).toBeTruthy();
 
     // 無效的遊戲板 - 錯誤的尺寸
-    const invalidSizeBoard = Array(4).fill().map(() => Array(5).fill(0));
+    const invalidSizeBoard = Array(4)
+      .fill()
+      .map(() => Array(5).fill(0));
     expect(lineDetector.isValidBoard(invalidSizeBoard)).toBeFalsy();
 
     // 無效的遊戲板 - 錯誤的值
-    const invalidValueBoard = Array(5).fill().map(() => Array(5).fill(0));
+    const invalidValueBoard = Array(5)
+      .fill()
+      .map(() => Array(5).fill(0));
     invalidValueBoard[0][0] = 3; // 無效的值
     expect(lineDetector.isValidBoard(invalidValueBoard)).toBeFalsy();
   });

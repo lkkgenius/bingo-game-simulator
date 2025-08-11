@@ -33,10 +33,7 @@ const STATIC_ASSETS = [
 ];
 
 // 離線頁面和資源
-const OFFLINE_ASSETS = [
-  './offline.html',
-  './offline-game.js'
-];
+const OFFLINE_ASSETS = ['./offline.html', './offline-game.js'];
 
 // 動態緩存的資源模式
 const DYNAMIC_CACHE_PATTERNS = [
@@ -46,36 +43,35 @@ const DYNAMIC_CACHE_PATTERNS = [
 ];
 
 // 網絡優先的資源模式
-const NETWORK_FIRST_PATTERNS = [
-  /\/api\/stats/,
-  /\/api\/leaderboard/
-];
+const NETWORK_FIRST_PATTERNS = [/\/api\/stats/, /\/api\/leaderboard/];
 
 /**
  * Service Worker 安裝事件
  */
-self.addEventListener('install', (event) => {
+self.addEventListener('install', event => {
   console.log('Service Worker installing...');
 
   event.waitUntil(
     Promise.all([
       // 緩存靜態資源
-      caches.open(STATIC_CACHE_NAME)
-        .then((cache) => {
-          console.log('Caching static assets...');
-          return cache.addAll(STATIC_ASSETS);
-        }),
+      caches.open(STATIC_CACHE_NAME).then(cache => {
+        console.log('Caching static assets...');
+        return cache.addAll(STATIC_ASSETS);
+      }),
 
       // 緩存離線資源
-      caches.open(OFFLINE_CACHE_NAME)
-        .then((cache) => {
+      caches
+        .open(OFFLINE_CACHE_NAME)
+        .then(cache => {
           console.log('Caching offline assets...');
-          return cache.addAll(OFFLINE_ASSETS.filter(asset => {
-            // 只緩存存在的離線資源
-            return true; // 暫時返回 true，實際應該檢查文件是否存在
-          }));
+          return cache.addAll(
+            OFFLINE_ASSETS.filter(asset => {
+              // 只緩存存在的離線資源
+              return true; // 暫時返回 true，實際應該檢查文件是否存在
+            })
+          );
         })
-        .catch((error) => {
+        .catch(error => {
           console.warn('Some offline assets not found, continuing...', error);
           return Promise.resolve();
         })
@@ -84,7 +80,7 @@ self.addEventListener('install', (event) => {
         console.log('All assets cached successfully');
         return self.skipWaiting();
       })
-      .catch((error) => {
+      .catch(error => {
         console.error('Failed to cache assets:', error);
       })
   );
@@ -93,26 +89,27 @@ self.addEventListener('install', (event) => {
 /**
  * Service Worker 激活事件
  */
-self.addEventListener('activate', (event) => {
+self.addEventListener('activate', event => {
   console.log('Service Worker activating...');
 
   event.waitUntil(
     Promise.all([
       // 清理舊緩存
-      caches.keys()
-        .then((cacheNames) => {
-          return Promise.all(
-            cacheNames.map((cacheName) => {
-              if (cacheName !== STATIC_CACHE_NAME &&
-                                cacheName !== DYNAMIC_CACHE_NAME &&
-                                cacheName !== OFFLINE_CACHE_NAME &&
-                                cacheName.startsWith('bingo-')) {
-                console.log('Deleting old cache:', cacheName);
-                return caches.delete(cacheName);
-              }
-            })
-          );
-        }),
+      caches.keys().then(cacheNames => {
+        return Promise.all(
+          cacheNames.map(cacheName => {
+            if (
+              cacheName !== STATIC_CACHE_NAME &&
+              cacheName !== DYNAMIC_CACHE_NAME &&
+              cacheName !== OFFLINE_CACHE_NAME &&
+              cacheName.startsWith('bingo-')
+            ) {
+              console.log('Deleting old cache:', cacheName);
+              return caches.delete(cacheName);
+            }
+          })
+        );
+      }),
 
       // 初始化離線數據庫
       initializeOfflineDatabase()
@@ -121,7 +118,7 @@ self.addEventListener('activate', (event) => {
         console.log('Service Worker activated');
         return self.clients.claim();
       })
-      .catch((error) => {
+      .catch(error => {
         console.error('Service Worker activation failed:', error);
       })
   );
@@ -130,13 +127,15 @@ self.addEventListener('activate', (event) => {
 /**
  * 網絡請求攔截
  */
-self.addEventListener('fetch', (event) => {
+self.addEventListener('fetch', event => {
   const { request } = event;
 
   // 安全性檢查
   if (!isSecureRequest(request)) {
     console.warn('Blocked insecure request:', request.url);
-    event.respondWith(new Response('Request blocked for security reasons', { status: 403 }));
+    event.respondWith(
+      new Response('Request blocked for security reasons', { status: 403 })
+    );
     return;
   }
 
@@ -174,10 +173,12 @@ self.addEventListener('fetch', (event) => {
  */
 function isStaticAsset(request) {
   const url = new URL(request.url);
-  return STATIC_ASSETS.some(asset => url.pathname === asset) ||
-           url.pathname.endsWith('.js') ||
-           url.pathname.endsWith('.css') ||
-           url.pathname.endsWith('.html');
+  return (
+    STATIC_ASSETS.some(asset => url.pathname === asset) ||
+    url.pathname.endsWith('.js') ||
+    url.pathname.endsWith('.css') ||
+    url.pathname.endsWith('.html')
+  );
 }
 
 /**
@@ -211,7 +212,7 @@ async function enhancedCacheFirst(request) {
     });
 
     if (networkResponse.ok) {
-      await safeCacheOperation(STATIC_CACHE_NAME, async (cache) => {
+      await safeCacheOperation(STATIC_CACHE_NAME, async cache => {
         await cache.put(request, networkResponse.clone());
       });
     }
@@ -248,7 +249,7 @@ async function enhancedNetworkFirst(request) {
     });
 
     if (networkResponse.ok) {
-      await safeCacheOperation(DYNAMIC_CACHE_NAME, async (cache) => {
+      await safeCacheOperation(DYNAMIC_CACHE_NAME, async cache => {
         await cache.put(request, networkResponse.clone());
       });
     }
@@ -284,17 +285,19 @@ async function enhancedStaleWhileRevalidate(request) {
   // 後台更新
   const fetchPromise = fetch(request, {
     timeout: 10000 // 10秒超時
-  }).then(async (networkResponse) => {
-    if (networkResponse.ok) {
-      await safeCacheOperation(DYNAMIC_CACHE_NAME, async (cache) => {
-        await cache.put(request, networkResponse.clone());
-      });
-    }
-    return networkResponse;
-  }).catch((error) => {
-    console.warn('Background fetch failed:', error);
-    return cachedResponse;
-  });
+  })
+    .then(async networkResponse => {
+      if (networkResponse.ok) {
+        await safeCacheOperation(DYNAMIC_CACHE_NAME, async cache => {
+          await cache.put(request, networkResponse.clone());
+        });
+      }
+      return networkResponse;
+    })
+    .catch(error => {
+      console.warn('Background fetch failed:', error);
+      return cachedResponse;
+    });
 
   // 如果有緩存且未過期，立即返回
   if (cachedResponse && !isResponseExpired(cachedResponse)) {
@@ -316,13 +319,13 @@ function isResponseExpired(response) {
   const now = Date.now();
   const maxAge = 24 * 60 * 60 * 1000; // 24小時
 
-  return (now - responseDate) > maxAge;
+  return now - responseDate > maxAge;
 }
 
 /**
  * 後台同步事件
  */
-self.addEventListener('sync', (event) => {
+self.addEventListener('sync', event => {
   if (event.tag === 'background-sync') {
     event.waitUntil(doBackgroundSync());
   }
@@ -470,7 +473,8 @@ async function getOfflineResponse(request) {
   }
 
   // 創建基本的離線響應
-  return new Response(`
+  return new Response(
+    `
         <!DOCTYPE html>
         <html>
         <head>
@@ -521,19 +525,21 @@ async function getOfflineResponse(request) {
             </div>
         </body>
         </html>
-    `, {
-    status: 200,
-    headers: {
-      'Content-Type': 'text/html; charset=utf-8',
-      'Cache-Control': 'no-cache'
+    `,
+    {
+      status: 200,
+      headers: {
+        'Content-Type': 'text/html; charset=utf-8',
+        'Cache-Control': 'no-cache'
+      }
     }
-  });
+  );
 }
 
 /**
  * 推送通知事件
  */
-self.addEventListener('push', (event) => {
+self.addEventListener('push', event => {
   if (!event.data) return;
 
   const data = event.data.json();
@@ -557,28 +563,24 @@ self.addEventListener('push', (event) => {
     ]
   };
 
-  event.waitUntil(
-    self.registration.showNotification(data.title, options)
-  );
+  event.waitUntil(self.registration.showNotification(data.title, options));
 });
 
 /**
  * 通知點擊事件
  */
-self.addEventListener('notificationclick', (event) => {
+self.addEventListener('notificationclick', event => {
   event.notification.close();
 
   if (event.action === 'open') {
-    event.waitUntil(
-      clients.openWindow('/')
-    );
+    event.waitUntil(clients.openWindow('/'));
   }
 });
 
 /**
  * 消息事件處理
  */
-self.addEventListener('message', (event) => {
+self.addEventListener('message', event => {
   if (event.data && event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
   }
@@ -591,10 +593,10 @@ self.addEventListener('message', (event) => {
 /**
  * 錯誤處理
  */
-self.addEventListener('error', (event) => {
+self.addEventListener('error', event => {
   console.error('Service Worker error:', event.error);
 });
 
-self.addEventListener('unhandledrejection', (event) => {
+self.addEventListener('unhandledrejection', event => {
   console.error('Service Worker unhandled rejection:', event.reason);
 });

@@ -13,7 +13,7 @@ try {
   // Fallback for test environment
   SafeDOM = {
     createStructure: () => ({ appendChild: () => {} }),
-    sanitizeHTML: (html) => html,
+    sanitizeHTML: html => html,
     createElement: (tag, attrs, text) => ({
       appendChild: () => {},
       classList: { add: () => {}, remove: () => {} },
@@ -48,7 +48,7 @@ global.document = {
       appendChild: () => {},
       animate: () => ({ onfinish: null }),
       querySelector: () => null,
-      closest: function(selector) {
+      closest: function (selector) {
         if (selector === '.game-cell') {
           return this;
         }
@@ -58,17 +58,17 @@ global.document = {
 
     // Bind classList methods to the element
     element.classList = {
-      add: function(cls) {
+      add: function (cls) {
         if (!element._classes.includes(cls)) {
           element._classes.push(cls);
         }
       },
-      remove: function(...classes) {
+      remove: function (...classes) {
         classes.forEach(cls => {
           element._classes = element._classes.filter(c => c !== cls);
         });
       },
-      toggle: function(cls, force) {
+      toggle: function (cls, force) {
         if (force === undefined) {
           force = !element.classList.contains(cls);
         }
@@ -78,14 +78,14 @@ global.document = {
           element.classList.remove(cls);
         }
       },
-      contains: function(cls) {
+      contains: function (cls) {
         return element._classes.includes(cls);
       }
     };
 
     return element;
   },
-  getElementById: (id) => ({
+  getElementById: id => ({
     innerHTML: '',
     appendChild: () => {},
     classList: {
@@ -106,7 +106,7 @@ describe('GameBoard', () => {
     // 創建模擬容器
     mockContainer = {
       innerHTML: '',
-      appendChild: function(child) {
+      appendChild: function (child) {
         if (!this.children) this.children = [];
         this.children.push(child);
       },
@@ -117,7 +117,7 @@ describe('GameBoard', () => {
     };
 
     // 覆蓋 getElementById 以返回我們的模擬容器
-    global.document.getElementById = (id) => {
+    global.document.getElementById = id => {
       if (id === 'game-board') {
         return mockContainer;
       }
@@ -184,7 +184,13 @@ describe('GameBoard', () => {
       {
         type: 'horizontal',
         row: 0,
-        cells: [[0,0], [0,1], [0,2], [0,3], [0,4]]
+        cells: [
+          [0, 0],
+          [0, 1],
+          [0, 2],
+          [0, 3],
+          [0, 4]
+        ]
       }
     ];
 
@@ -202,7 +208,13 @@ describe('GameBoard', () => {
       {
         type: 'horizontal',
         row: 0,
-        cells: [[0,0], [0,1], [0,2], [0,3], [0,4]]
+        cells: [
+          [0, 0],
+          [0, 1],
+          [0, 2],
+          [0, 3],
+          [0, 4]
+        ]
       }
     ];
 
@@ -262,15 +274,21 @@ describe('GameBoard', () => {
 
   test('should validate board format', () => {
     // 有效的遊戲板
-    const validBoard = Array(5).fill().map(() => Array(5).fill(0));
+    const validBoard = Array(5)
+      .fill()
+      .map(() => Array(5).fill(0));
     expect(gameBoard.isValidBoard(validBoard)).toBeTruthy();
 
     // 無效的遊戲板 - 錯誤的尺寸
-    const invalidSizeBoard = Array(4).fill().map(() => Array(5).fill(0));
+    const invalidSizeBoard = Array(4)
+      .fill()
+      .map(() => Array(5).fill(0));
     expect(gameBoard.isValidBoard(invalidSizeBoard)).toBeFalsy();
 
     // 無效的遊戲板 - 錯誤的值
-    const invalidValueBoard = Array(5).fill().map(() => Array(5).fill(0));
+    const invalidValueBoard = Array(5)
+      .fill()
+      .map(() => Array(5).fill(0));
     invalidValueBoard[0][0] = 3; // 無效的值
     expect(gameBoard.isValidBoard(invalidValueBoard)).toBeFalsy();
   });

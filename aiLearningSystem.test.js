@@ -56,10 +56,7 @@ function testGameDataRecording() {
       { row: 4, col: 1, round: 4 }
     ],
     finalScore: 2,
-    completedLines: [
-      { type: 'horizontal', row: 0 },
-      { type: 'diagonal-main' }
-    ],
+    completedLines: [{ type: 'horizontal', row: 0 }, { type: 'diagonal-main' }],
     gameOutcome: 'good'
   };
 
@@ -104,7 +101,10 @@ function testMovePrediction() {
     const prediction = aiSystem.predictBestMove(testBoard, gameContext);
 
     console.log('✓ 移動預測成功');
-    console.log('預測移動:', `(${prediction.move.row}, ${prediction.move.col})`);
+    console.log(
+      '預測移動:',
+      `(${prediction.move.row}, ${prediction.move.col})`
+    );
     console.log('預測信心度:', prediction.confidence);
     console.log('推理說明:', prediction.reasoning);
     console.log('替代選項數量:', prediction.alternatives.length);
@@ -127,9 +127,15 @@ function testDifficultyAdjustment() {
   // 模擬多場高表現遊戲
   for (let i = 0; i < 6; i++) {
     const highPerformanceGame = {
-      board: Array(5).fill().map(() => Array(5).fill(0)),
-      playerMoves: Array(4).fill().map((_, idx) => ({ row: idx, col: idx, round: idx + 1 })),
-      computerMoves: Array(4).fill().map((_, idx) => ({ row: idx, col: idx + 1, round: idx + 1 })),
+      board: Array(5)
+        .fill()
+        .map(() => Array(5).fill(0)),
+      playerMoves: Array(4)
+        .fill()
+        .map((_, idx) => ({ row: idx, col: idx, round: idx + 1 })),
+      computerMoves: Array(4)
+        .fill()
+        .map((_, idx) => ({ row: idx, col: idx + 1, round: idx + 1 })),
       finalScore: 8, // 高分
       completedLines: [],
       gameOutcome: 'excellent'
@@ -155,12 +161,14 @@ function testPersonalization() {
 
   // 模擬具有特定偏好的遊戲數據
   const personalizedGame = {
-    board: Array(5).fill().map(() => Array(5).fill(0)),
+    board: Array(5)
+      .fill()
+      .map(() => Array(5).fill(0)),
     playerMoves: [
       { row: 2, col: 2, round: 1 }, // 中心偏好
       { row: 1, col: 1, round: 2 }, // 對角線偏好
       { row: 3, col: 3, round: 3 }, // 對角線偏好
-      { row: 0, col: 4, round: 4 }  // 角落偏好
+      { row: 0, col: 4, round: 4 } // 角落偏好
     ],
     computerMoves: [
       { row: 0, col: 0, round: 1 },
@@ -176,13 +184,21 @@ function testPersonalization() {
   aiSystem.recordGameData(personalizedGame);
 
   // 測試個性化建議
-  const testBoard = Array(5).fill().map(() => Array(5).fill(0));
+  const testBoard = Array(5)
+    .fill()
+    .map(() => Array(5).fill(0));
   const personalizedSuggestion = aiSystem.getPersonalizedSuggestion(testBoard);
 
   console.log('✓ 個性化功能測試完成');
   console.log('個性化建議:', personalizedSuggestion);
-  console.log('用戶偏好數量:', aiSystem.personalizationSystem.userPreferences.size);
-  console.log('自定義策略數量:', aiSystem.personalizationSystem.customStrategies.length);
+  console.log(
+    '用戶偏好數量:',
+    aiSystem.personalizationSystem.userPreferences.size
+  );
+  console.log(
+    '自定義策略數量:',
+    aiSystem.personalizationSystem.customStrategies.length
+  );
 
   return aiSystem;
 }
@@ -216,20 +232,28 @@ function testPerformanceMetrics() {
 
   for (let i = 0; i < 100; i++) {
     const mockGame = {
-      board: Array(5).fill().map(() => Array(5).fill(Math.floor(Math.random() * 3))),
-      playerMoves: Array(4).fill().map((_, idx) => ({
-        row: Math.floor(Math.random() * 5),
-        col: Math.floor(Math.random() * 5),
-        round: idx + 1
-      })),
-      computerMoves: Array(4).fill().map((_, idx) => ({
-        row: Math.floor(Math.random() * 5),
-        col: Math.floor(Math.random() * 5),
-        round: idx + 1
-      })),
+      board: Array(5)
+        .fill()
+        .map(() => Array(5).fill(Math.floor(Math.random() * 3))),
+      playerMoves: Array(4)
+        .fill()
+        .map((_, idx) => ({
+          row: Math.floor(Math.random() * 5),
+          col: Math.floor(Math.random() * 5),
+          round: idx + 1
+        })),
+      computerMoves: Array(4)
+        .fill()
+        .map((_, idx) => ({
+          row: Math.floor(Math.random() * 5),
+          col: Math.floor(Math.random() * 5),
+          round: idx + 1
+        })),
       finalScore: Math.floor(Math.random() * 10),
       completedLines: [],
-      gameOutcome: ['poor', 'average', 'good', 'excellent'][Math.floor(Math.random() * 4)]
+      gameOutcome: ['poor', 'average', 'good', 'excellent'][
+        Math.floor(Math.random() * 4)
+      ]
     };
 
     aiSystem.recordGameData(mockGame);
@@ -240,7 +264,10 @@ function testPerformanceMetrics() {
 
   console.log('✓ 性能測試完成');
   console.log(`處理 100 場遊戲耗時: ${processingTime.toFixed(2)}ms`);
-  console.log('平均每場遊戲處理時間:', `${(processingTime / 100).toFixed(2)}ms`);
+  console.log(
+    '平均每場遊戲處理時間:',
+    `${(processingTime / 100).toFixed(2)}ms`
+  );
   console.log('最終遊戲歷史數量:', aiSystem.gameHistory.length);
 
   return processingTime;
@@ -276,7 +303,10 @@ function testDataExportImport() {
   console.log('✓ 數據導出導入測試完成');
   console.log('原系統遊戲數量:', aiSystem1.gameHistory.length);
   console.log('新系統遊戲數量:', aiSystem2.gameHistory.length);
-  console.log('技能等級匹配:', aiSystem1.playerModel.skillLevel === aiSystem2.playerModel.skillLevel);
+  console.log(
+    '技能等級匹配:',
+    aiSystem1.playerModel.skillLevel === aiSystem2.playerModel.skillLevel
+  );
 
   return true;
 }
@@ -329,7 +359,6 @@ function runAllTests() {
 
     // 導出導入測試
     results.exportImport = testDataExportImport();
-
   } catch (error) {
     console.error('測試過程中發生錯誤:', error);
   }
@@ -339,7 +368,9 @@ function runAllTests() {
   console.log('🏁 測試結果總結');
   console.log('=====================================');
 
-  const passedTests = Object.values(results).filter(result => result === true).length;
+  const passedTests = Object.values(results).filter(
+    result => result === true
+  ).length;
   const totalTests = Object.keys(results).length;
 
   Object.entries(results).forEach(([testName, passed]) => {

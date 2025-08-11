@@ -15,7 +15,9 @@ describe('ProbabilityCalculator', () => {
   beforeEach();
 
   test('should calculate move value for empty board', () => {
-    const emptyBoard = Array(5).fill().map(() => Array(5).fill(0));
+    const emptyBoard = Array(5)
+      .fill()
+      .map(() => Array(5).fill(0));
     // 中心位置應該有最高價值
     const centerValue = calculator.calculateMoveValue(emptyBoard, 2, 2);
     const cornerValue = calculator.calculateMoveValue(emptyBoard, 0, 0);
@@ -52,7 +54,9 @@ describe('ProbabilityCalculator', () => {
   });
 
   test('should handle invalid positions', () => {
-    const board = Array(5).fill().map(() => Array(5).fill(0));
+    const board = Array(5)
+      .fill()
+      .map(() => Array(5).fill(0));
     // 無效位置應該返回負值
     expect(calculator.calculateMoveValue(board, -1, 0)).toBeLessThan(0);
     expect(calculator.calculateMoveValue(board, 0, -1)).toBeLessThan(0);
@@ -73,13 +77,17 @@ describe('ProbabilityCalculator', () => {
   });
 
   test('should provide confidence level with suggestion', () => {
-    const board = Array(5).fill().map(() => Array(5).fill(0));
+    const board = Array(5)
+      .fill()
+      .map(() => Array(5).fill(0));
     const suggestion = calculator.getBestSuggestion(board);
     expect(suggestion.confidence).toBeTruthy();
   });
 
   test('should provide alternative suggestions', () => {
-    const board = Array(5).fill().map(() => Array(5).fill(0));
+    const board = Array(5)
+      .fill()
+      .map(() => Array(5).fill(0));
     const suggestion = calculator.getBestSuggestion(board);
     expect(suggestion.alternatives).toBeTruthy();
     expect(suggestion.alternatives.length).toBeGreaterThan(0);

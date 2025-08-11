@@ -2,10 +2,16 @@
 console.log('Loading probabilityCalculator-simple.js...');
 
 // Check dependencies
-console.log('window.BaseProbabilityCalculator:', typeof window.BaseProbabilityCalculator);
+console.log(
+  'window.BaseProbabilityCalculator:',
+  typeof window.BaseProbabilityCalculator
+);
 console.log('window.CONSTANTS:', typeof window.CONSTANTS);
 
-if (typeof window.BaseProbabilityCalculator === 'function' && typeof window.CONSTANTS === 'object') {
+if (
+  typeof window.BaseProbabilityCalculator === 'function' &&
+  typeof window.CONSTANTS === 'object'
+) {
   console.log('Dependencies available, defining ProbabilityCalculator...');
 
   class ProbabilityCalculator extends window.BaseProbabilityCalculator {

@@ -25,7 +25,9 @@ class AlgorithmComparison {
     // 性能監控集成
     if (typeof performanceMonitor !== 'undefined') {
       this.performanceMonitor = performanceMonitor;
-      this.enhancedCalculator.registerWithPerformanceMonitor(performanceMonitor);
+      this.enhancedCalculator.registerWithPerformanceMonitor(
+        performanceMonitor
+      );
     }
 
     // 初始化測試案例
@@ -53,7 +55,9 @@ class AlgorithmComparison {
     // 空白棋盤
     this.testCases.push({
       name: '空白棋盤',
-      board: Array(5).fill().map(() => Array(5).fill(0))
+      board: Array(5)
+        .fill()
+        .map(() => Array(5).fill(0))
     });
 
     // 中期遊戲（約8個格子已填滿）
@@ -69,7 +73,9 @@ class AlgorithmComparison {
     });
 
     // 特殊案例：接近完成的線
-    const nearCompleteBoard = Array(5).fill().map(() => Array(5).fill(0));
+    const nearCompleteBoard = Array(5)
+      .fill()
+      .map(() => Array(5).fill(0));
     for (let i = 0; i < 4; i++) {
       nearCompleteBoard[0][i] = 1; // 水平線差一格完成
     }
@@ -82,7 +88,9 @@ class AlgorithmComparison {
     });
 
     // 特殊案例：多交叉點
-    const intersectionBoard = Array(5).fill().map(() => Array(5).fill(0));
+    const intersectionBoard = Array(5)
+      .fill()
+      .map(() => Array(5).fill(0));
     intersectionBoard[2][2] = 1; // 中心點
     intersectionBoard[0][0] = 2;
     intersectionBoard[0][4] = 2;
@@ -176,11 +184,18 @@ class AlgorithmComparison {
 
     // 計算記憶體使用量差異
     let memoryUsage = null;
-    if (memoryUsageBeforeStandard && memoryUsageAfterStandard &&
-        memoryUsageBeforeEnhanced && memoryUsageAfterEnhanced) {
-
-      const standardMemoryDelta = memoryUsageAfterStandard.usedJSHeapSize - memoryUsageBeforeStandard.usedJSHeapSize;
-      const enhancedMemoryDelta = memoryUsageAfterEnhanced.usedJSHeapSize - memoryUsageBeforeEnhanced.usedJSHeapSize;
+    if (
+      memoryUsageBeforeStandard &&
+      memoryUsageAfterStandard &&
+      memoryUsageBeforeEnhanced &&
+      memoryUsageAfterEnhanced
+    ) {
+      const standardMemoryDelta =
+        memoryUsageAfterStandard.usedJSHeapSize -
+        memoryUsageBeforeStandard.usedJSHeapSize;
+      const enhancedMemoryDelta =
+        memoryUsageAfterEnhanced.usedJSHeapSize -
+        memoryUsageBeforeEnhanced.usedJSHeapSize;
 
       memoryUsage = {
         standard: {
@@ -196,8 +211,14 @@ class AlgorithmComparison {
           formatted: this.formatMemorySize(enhancedMemoryDelta)
         },
         difference: standardMemoryDelta - enhancedMemoryDelta,
-        percentImprovement: standardMemoryDelta > 0 ?
-          ((standardMemoryDelta - enhancedMemoryDelta) / standardMemoryDelta * 100).toFixed(2) + '%' : 'N/A'
+        percentImprovement:
+          standardMemoryDelta > 0
+            ? (
+                ((standardMemoryDelta - enhancedMemoryDelta) /
+                  standardMemoryDelta) *
+                100
+              ).toFixed(2) + '%'
+            : 'N/A'
       };
 
       // 保存到性能指標
@@ -222,7 +243,11 @@ class AlgorithmComparison {
     }
 
     // 比較建議質量
-    const qualityComparison = this.compareSuggestionQuality(standardSuggestion, enhancedSuggestion, board);
+    const qualityComparison = this.compareSuggestionQuality(
+      standardSuggestion,
+      enhancedSuggestion,
+      board
+    );
 
     // 保存建議質量到性能指標
     this.performanceMetrics.suggestionQuality.push(qualityComparison);
@@ -241,7 +266,10 @@ class AlgorithmComparison {
         enhancedTime: enhancedTime.toFixed(2),
         rawStandardTime: standardTime,
         rawEnhancedTime: enhancedTime,
-        improvement: ((standardTime - enhancedTime) / standardTime * 100).toFixed(2),
+        improvement: (
+          ((standardTime - enhancedTime) / standardTime) *
+          100
+        ).toFixed(2),
         memoryUsage
       },
       suggestions: {
@@ -250,8 +278,9 @@ class AlgorithmComparison {
         qualityComparison
       },
       metrics: {
-        standard: this.standardCalculator.getPerformanceMetrics ?
-          this.standardCalculator.getPerformanceMetrics() : null,
+        standard: this.standardCalculator.getPerformanceMetrics
+          ? this.standardCalculator.getPerformanceMetrics()
+          : null,
         enhanced: this.enhancedCalculator.getPerformanceMetrics()
       }
     };
@@ -307,7 +336,8 @@ class AlgorithmComparison {
       computerCells,
       emptyCells,
       totalFilled: playerCells + computerCells,
-      fillPercentage: ((playerCells + computerCells) / 25 * 100).toFixed(0) + '%'
+      fillPercentage:
+        (((playerCells + computerCells) / 25) * 100).toFixed(0) + '%'
     };
   }
 
@@ -320,16 +350,23 @@ class AlgorithmComparison {
    */
   compareSuggestionQuality(standardSuggestion, enhancedSuggestion, board) {
     if (!standardSuggestion || !enhancedSuggestion) {
-      return { status: 'incomplete', reason: 'One or both suggestions are null' };
+      return {
+        status: 'incomplete',
+        reason: 'One or both suggestions are null'
+      };
     }
 
     // 檢查是否建議相同的移動
-    const sameMove = standardSuggestion.row === enhancedSuggestion.row &&
-                     standardSuggestion.col === enhancedSuggestion.col;
+    const sameMove =
+      standardSuggestion.row === enhancedSuggestion.row &&
+      standardSuggestion.col === enhancedSuggestion.col;
 
     // 計算價值差異
     const valueDifference = enhancedSuggestion.value - standardSuggestion.value;
-    const percentImprovement = (valueDifference / Math.max(1, standardSuggestion.value) * 100).toFixed(2);
+    const percentImprovement = (
+      (valueDifference / Math.max(1, standardSuggestion.value)) *
+      100
+    ).toFixed(2);
 
     // 檢查增強版的建議是否在標準版的替代選項中
     let enhancedInStandardAlternatives = false;
@@ -337,7 +374,10 @@ class AlgorithmComparison {
     if (standardSuggestion.alternatives) {
       for (let i = 0; i < standardSuggestion.alternatives.length; i++) {
         const alt = standardSuggestion.alternatives[i];
-        if (alt.row === enhancedSuggestion.row && alt.col === enhancedSuggestion.col) {
+        if (
+          alt.row === enhancedSuggestion.row &&
+          alt.col === enhancedSuggestion.col
+        ) {
           enhancedInStandardAlternatives = true;
           enhancedRankInStandard = i + 1; // +1 因為alternatives不包含最佳選擇
           break;
@@ -351,7 +391,10 @@ class AlgorithmComparison {
     if (enhancedSuggestion.alternatives) {
       for (let i = 0; i < enhancedSuggestion.alternatives.length; i++) {
         const alt = enhancedSuggestion.alternatives[i];
-        if (alt.row === standardSuggestion.row && alt.col === standardSuggestion.col) {
+        if (
+          alt.row === standardSuggestion.row &&
+          alt.col === standardSuggestion.col
+        ) {
           standardInEnhancedAlternatives = true;
           standardRankInEnhanced = i + 1; // +1 因為alternatives不包含最佳選擇
           break;
@@ -360,8 +403,16 @@ class AlgorithmComparison {
     }
 
     // 模擬兩種建議的結果
-    const standardQuality = this.simulateMoveQuality(board, standardSuggestion.row, standardSuggestion.col);
-    const enhancedQuality = this.simulateMoveQuality(board, enhancedSuggestion.row, enhancedSuggestion.col);
+    const standardQuality = this.simulateMoveQuality(
+      board,
+      standardSuggestion.row,
+      standardSuggestion.col
+    );
+    const enhancedQuality = this.simulateMoveQuality(
+      board,
+      enhancedSuggestion.row,
+      enhancedSuggestion.col
+    );
 
     // 評估建議質量
     let qualityAssessment = 'unknown';
@@ -384,7 +435,9 @@ class AlgorithmComparison {
           description: '增強版算法建議更優',
           reason: `增強版可完成 ${enhancedQuality.completedLines} 條線，而標準版只能完成 ${standardQuality.completedLines} 條線`
         };
-      } else if (standardQuality.completedLines > enhancedQuality.completedLines) {
+      } else if (
+        standardQuality.completedLines > enhancedQuality.completedLines
+      ) {
         qualityAssessment = 'standard_better';
         qualityScore = 2;
         qualityDetails = {
@@ -393,14 +446,18 @@ class AlgorithmComparison {
         };
       }
       // 如果完成線數量相同，比較潛在線數量
-      else if (enhancedQuality.potentialLines > standardQuality.potentialLines) {
+      else if (
+        enhancedQuality.potentialLines > standardQuality.potentialLines
+      ) {
         qualityAssessment = 'enhanced_slightly_better';
         qualityScore = 3;
         qualityDetails = {
           description: '增強版算法建議略優',
           reason: `增強版可創建 ${enhancedQuality.potentialLines} 條潛在線，而標準版只能創建 ${standardQuality.potentialLines} 條潛在線`
         };
-      } else if (standardQuality.potentialLines > enhancedQuality.potentialLines) {
+      } else if (
+        standardQuality.potentialLines > enhancedQuality.potentialLines
+      ) {
         qualityAssessment = 'standard_slightly_better';
         qualityScore = 2;
         qualityDetails = {
@@ -417,25 +474,35 @@ class AlgorithmComparison {
       }
 
       // 檢查交叉點策略
-      const enhancedIsIntersection = this.isIntersectionPoint(enhancedSuggestion.row, enhancedSuggestion.col);
-      const standardIsIntersection = this.isIntersectionPoint(standardSuggestion.row, standardSuggestion.col);
+      const enhancedIsIntersection = this.isIntersectionPoint(
+        enhancedSuggestion.row,
+        enhancedSuggestion.col
+      );
+      const standardIsIntersection = this.isIntersectionPoint(
+        standardSuggestion.row,
+        standardSuggestion.col
+      );
 
       if (enhancedIsIntersection && !standardIsIntersection) {
-        qualityDetails.intersectionStrategy = '增強版算法選擇了交叉點，這可能有助於完成多條線';
+        qualityDetails.intersectionStrategy =
+          '增強版算法選擇了交叉點，這可能有助於完成多條線';
       }
     }
 
     // 計算信心度差異
     const confidenceRanking = {
       'very-high': 4,
-      'high': 3,
-      'medium': 2,
-      'low': 1
+      high: 3,
+      medium: 2,
+      low: 1
     };
 
-    const standardConfidenceRank = confidenceRanking[standardSuggestion.confidence] || 0;
-    const enhancedConfidenceRank = confidenceRanking[enhancedSuggestion.confidence] || 0;
-    const confidenceDifference = enhancedConfidenceRank - standardConfidenceRank;
+    const standardConfidenceRank =
+      confidenceRanking[standardSuggestion.confidence] || 0;
+    const enhancedConfidenceRank =
+      confidenceRanking[enhancedSuggestion.confidence] || 0;
+    const confidenceDifference =
+      enhancedConfidenceRank - standardConfidenceRank;
 
     // 詳細的模擬結果
     const simulationDetails = {
@@ -485,14 +552,17 @@ class AlgorithmComparison {
    */
   isIntersectionPoint(row, col) {
     // 檢查是否為主對角線上的點
-    const isOnMainDiagonal = (row === col);
+    const isOnMainDiagonal = row === col;
 
     // 檢查是否為反對角線上的點
-    const isOnAntiDiagonal = (row + col === 4); // 5x5 棋盤，索引為 0-4
+    const isOnAntiDiagonal = row + col === 4; // 5x5 棋盤，索引為 0-4
 
     // 如果同時在兩條對角線上，或在任一對角線上，則為交叉點
-    return (isOnMainDiagonal && isOnAntiDiagonal) || // 中心點
-           (isOnMainDiagonal || isOnAntiDiagonal);   // 對角線上的點
+    return (
+      (isOnMainDiagonal && isOnAntiDiagonal) || // 中心點
+      isOnMainDiagonal ||
+      isOnAntiDiagonal
+    ); // 對角線上的點
   }
 
   /**
@@ -661,7 +731,11 @@ class AlgorithmComparison {
       // 生成隨機遊戲板
       for (let i = 0; i < iterations; i++) {
         const filledCells = Math.floor(Math.random() * 20) + 1; // 1-20個已填充的格子
-        testBoards.push(boardGenerator ? boardGenerator() : this.generateRandomBoard(filledCells));
+        testBoards.push(
+          boardGenerator
+            ? boardGenerator()
+            : this.generateRandomBoard(filledCells)
+        );
       }
     }
 
@@ -699,11 +773,13 @@ class AlgorithmComparison {
         document.getElementById('benchmark-progress-text').remove();
       }
 
-      document.getElementById('benchmarkResults').appendChild(progressContainer);
+      document
+        .getElementById('benchmarkResults')
+        .appendChild(progressContainer);
       document.getElementById('benchmarkResults').appendChild(progressText);
     }
 
-    const updateProgress = (progress) => {
+    const updateProgress = progress => {
       if (options.showProgress && typeof document !== 'undefined') {
         const progressBar = document.querySelector('#benchmark-progress div');
         const progressText = document.getElementById('benchmark-progress-text');
@@ -716,7 +792,7 @@ class AlgorithmComparison {
       }
     };
 
-    const processBatch = (startIndex) => {
+    const processBatch = startIndex => {
       const batchSize = options.batchSize || 2;
       const endIndex = Math.min(startIndex + batchSize, actualIterations);
 
@@ -734,7 +810,7 @@ class AlgorithmComparison {
       }
 
       // 更新進度
-      const progress = (completed / actualIterations * 100).toFixed(0);
+      const progress = ((completed / actualIterations) * 100).toFixed(0);
       console.log(`Benchmark progress: ${progress}%`);
       updateProgress(parseInt(progress));
 
@@ -748,7 +824,9 @@ class AlgorithmComparison {
         // 移除進度指示器
         if (options.showProgress && typeof document !== 'undefined') {
           const progressBar = document.getElementById('benchmark-progress');
-          const progressText = document.getElementById('benchmark-progress-text');
+          const progressText = document.getElementById(
+            'benchmark-progress-text'
+          );
           if (progressBar) progressBar.remove();
           if (progressText) progressText.remove();
         }
@@ -794,17 +872,26 @@ class AlgorithmComparison {
         sameMovesCount++;
       }
 
-      if (result.suggestions.qualityComparison.qualityAssessment === 'enhanced_better' ||
-          result.suggestions.qualityComparison.qualityAssessment === 'enhanced_slightly_better') {
+      if (
+        result.suggestions.qualityComparison.qualityAssessment ===
+          'enhanced_better' ||
+        result.suggestions.qualityComparison.qualityAssessment ===
+          'enhanced_slightly_better'
+      ) {
         enhancedBetterCount++;
       }
 
-      if (result.suggestions.qualityComparison.qualityAssessment === 'standard_better' ||
-          result.suggestions.qualityComparison.qualityAssessment === 'standard_slightly_better') {
+      if (
+        result.suggestions.qualityComparison.qualityAssessment ===
+          'standard_better' ||
+        result.suggestions.qualityComparison.qualityAssessment ===
+          'standard_slightly_better'
+      ) {
         standardBetterCount++;
       }
 
-      totalQualityScore += result.suggestions.qualityComparison.qualityScore || 0;
+      totalQualityScore +=
+        result.suggestions.qualityComparison.qualityScore || 0;
 
       // 記憶體使用
       if (result.performance.memoryUsage) {
@@ -822,14 +909,20 @@ class AlgorithmComparison {
 
     const avgStandardTime = totalStandardTime / results.length;
     const avgEnhancedTime = totalEnhancedTime / results.length;
-    const avgImprovement = ((avgStandardTime - avgEnhancedTime) / avgStandardTime * 100).toFixed(2);
+    const avgImprovement = (
+      ((avgStandardTime - avgEnhancedTime) / avgStandardTime) *
+      100
+    ).toFixed(2);
 
     // 記憶體使用平均值
     let memoryStats = null;
     if (memoryResultsCount > 0) {
       const avgStandardMemory = totalStandardMemory / memoryResultsCount;
       const avgEnhancedMemory = totalEnhancedMemory / memoryResultsCount;
-      const memoryImprovement = ((avgStandardMemory - avgEnhancedMemory) / avgStandardMemory * 100).toFixed(2);
+      const memoryImprovement = (
+        ((avgStandardMemory - avgEnhancedMemory) / avgStandardMemory) *
+        100
+      ).toFixed(2);
 
       memoryStats = {
         avgStandardMemory: (avgStandardMemory / 1024 / 1024).toFixed(2) + 'MB',
@@ -842,7 +935,8 @@ class AlgorithmComparison {
     let cacheStats = null;
     if (cacheResultsCount > 0) {
       cacheStats = {
-        avgCacheHitRate: (totalCacheHitRate / cacheResultsCount).toFixed(2) + '%'
+        avgCacheHitRate:
+          (totalCacheHitRate / cacheResultsCount).toFixed(2) + '%'
       };
     }
 
@@ -855,10 +949,21 @@ class AlgorithmComparison {
         memory: memoryStats
       },
       quality: {
-        sameMovesPercent: (sameMovesCount / results.length * 100).toFixed(2) + '%',
-        enhancedBetterPercent: (enhancedBetterCount / results.length * 100).toFixed(2) + '%',
-        standardBetterPercent: (standardBetterCount / results.length * 100).toFixed(2) + '%',
-        equivalentPercent: ((results.length - enhancedBetterCount - standardBetterCount - sameMovesCount) / results.length * 100).toFixed(2) + '%',
+        sameMovesPercent:
+          ((sameMovesCount / results.length) * 100).toFixed(2) + '%',
+        enhancedBetterPercent:
+          ((enhancedBetterCount / results.length) * 100).toFixed(2) + '%',
+        standardBetterPercent:
+          ((standardBetterCount / results.length) * 100).toFixed(2) + '%',
+        equivalentPercent:
+          (
+            ((results.length -
+              enhancedBetterCount -
+              standardBetterCount -
+              sameMovesCount) /
+              results.length) *
+            100
+          ).toFixed(2) + '%',
         avgQualityScore: (totalQualityScore / results.length).toFixed(2)
       },
       cache: cacheStats
@@ -883,7 +988,9 @@ class AlgorithmComparison {
    * @returns {number[][]} 隨機遊戲板
    */
   generateRandomBoard(filledCells = 8) {
-    const board = Array(5).fill().map(() => Array(5).fill(0));
+    const board = Array(5)
+      .fill()
+      .map(() => Array(5).fill(0));
     let filled = 0;
 
     while (filled < filledCells) {
@@ -954,7 +1061,7 @@ class AlgorithmComparison {
                   tag: 'div',
                   attributes: {
                     class: 'bar enhanced',
-                    style: `width: ${(parseFloat(result.performance.enhancedTime) / parseFloat(result.performance.standardTime) * 100).toFixed(0)}%;`
+                    style: `width: ${((parseFloat(result.performance.enhancedTime) / parseFloat(result.performance.standardTime)) * 100).toFixed(0)}%;`
                   },
                   textContent: result.performance.enhancedTime
                 }
@@ -974,10 +1081,18 @@ class AlgorithmComparison {
     const suggestionSection = document.createElement('div');
     suggestionSection.className = 'comparison-section suggestions';
 
-    const standardPos = result.suggestions.standard ? result.suggestions.standard.position : 'N/A';
-    const enhancedPos = result.suggestions.enhanced ? result.suggestions.enhanced.position : 'N/A';
-    const sameMove = result.suggestions.qualityComparison.sameMove ? '相同' : '不同';
-    const moveClass = result.suggestions.qualityComparison.sameMove ? 'same' : 'different';
+    const standardPos = result.suggestions.standard
+      ? result.suggestions.standard.position
+      : 'N/A';
+    const enhancedPos = result.suggestions.enhanced
+      ? result.suggestions.enhanced.position
+      : 'N/A';
+    const sameMove = result.suggestions.qualityComparison.sameMove
+      ? '相同'
+      : '不同';
+    const moveClass = result.suggestions.qualityComparison.sameMove
+      ? 'same'
+      : 'different';
 
     SafeDOM.replaceContent(suggestionSection, [
       {

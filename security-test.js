@@ -29,9 +29,12 @@ try {
 
 try {
   // 測試字符串清理
-  const cleanString = SecurityUtils.sanitizeString('<script>alert("xss")</script>Hello', {
-    maxLength: 50
-  });
+  const cleanString = SecurityUtils.sanitizeString(
+    '<script>alert("xss")</script>Hello',
+    {
+      maxLength: 50
+    }
+  );
   console.log('✓ String sanitized:', cleanString);
 } catch (error) {
   console.log('✗ String sanitization failed:', error.message);
@@ -39,7 +42,11 @@ try {
 
 try {
   // 測試數字驗證
-  const validNumber = SecurityUtils.sanitizeNumber('42', { min: 0, max: 100, integer: true });
+  const validNumber = SecurityUtils.sanitizeNumber('42', {
+    min: 0,
+    max: 100,
+    integer: true
+  });
   console.log('✓ Number validated:', validNumber);
 } catch (error) {
   console.log('✗ Number validation failed:', error.message);
@@ -57,7 +64,9 @@ console.log('\n2. Testing JSON Security:');
 
 try {
   // 測試安全的 JSON
-  const safeData = SecurityUtils.safeJSONParse('{"name": "test", "value": 123}');
+  const safeData = SecurityUtils.safeJSONParse(
+    '{"name": "test", "value": 123}'
+  );
   console.log('✓ Safe JSON parsed:', safeData);
 } catch (error) {
   console.log('✗ Safe JSON parsing failed:', error.message);
@@ -82,7 +91,9 @@ const testUrls = [
 
 testUrls.forEach(url => {
   const isSecure = SecurityUtils.isSecureURL(url);
-  console.log(`${isSecure ? '✓' : '✗'} URL "${url}": ${isSecure ? 'SAFE' : 'BLOCKED'}`);
+  console.log(
+    `${isSecure ? '✓' : '✗'} URL "${url}": ${isSecure ? 'SAFE' : 'BLOCKED'}`
+  );
 });
 
 console.log('\n4. Testing Rate Limiting:');
@@ -108,7 +119,9 @@ console.log('\n5. Testing Game State Validation:');
 try {
   // 測試有效遊戲狀態
   const validGameState = {
-    board: Array(5).fill().map(() => Array(5).fill(0)),
+    board: Array(5)
+      .fill()
+      .map(() => Array(5).fill(0)),
     currentRound: 3,
     gamePhase: 'player-turn'
   };
@@ -122,7 +135,9 @@ try {
 try {
   // 測試無效遊戲狀態
   const invalidGameState = {
-    board: Array(3).fill().map(() => Array(3).fill(0)), // Wrong size
+    board: Array(3)
+      .fill()
+      .map(() => Array(3).fill(0)), // Wrong size
     currentRound: 3,
     gamePhase: 'player-turn'
   };
@@ -184,4 +199,6 @@ console.log('   - Security request validation');
 console.log('   - Cache cleanup and management');
 console.log('   - Background sync capabilities');
 
-console.log('\n✅ Security and stability improvements implemented successfully!');
+console.log(
+  '\n✅ Security and stability improvements implemented successfully!'
+);

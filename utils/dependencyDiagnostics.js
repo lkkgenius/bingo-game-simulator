@@ -19,7 +19,9 @@ if (typeof window !== 'undefined') {
 } else if (typeof require !== 'undefined') {
   try {
     const { logger: prodLogger } = require('../production-logger.js');
-    const { dependencyValidator: depValidator } = require('./dependencyValidator.js');
+    const {
+      dependencyValidator: depValidator
+    } = require('./dependencyValidator.js');
     logger = prodLogger;
     dependencyValidator = depValidator;
   } catch (e) {
@@ -46,8 +48,8 @@ class DependencyDiagnostics {
   }
 
   /**
-     * 設置診斷類別
-     */
+   * 設置診斷類別
+   */
   setupDiagnosticCategories() {
     this.diagnosticCategories = {
       availability: {
@@ -104,9 +106,9 @@ class DependencyDiagnostics {
   }
 
   /**
-     * 執行完整的依賴診斷
-     * @returns {Promise<Object>} 診斷結果
-     */
+   * 執行完整的依賴診斷
+   * @returns {Promise<Object>} 診斷結果
+   */
   async runCompleteDiagnostics() {
     logger.info('開始執行完整依賴診斷...');
 
@@ -127,10 +129,15 @@ class DependencyDiagnostics {
 
     try {
       // 執行各類別的診斷
-      for (const [categoryName, category] of Object.entries(this.diagnosticCategories)) {
+      for (const [categoryName, category] of Object.entries(
+        this.diagnosticCategories
+      )) {
         logger.debug(`執行 ${category.name} 診斷...`);
 
-        const categoryResult = await this._runCategoryDiagnostics(categoryName, category);
+        const categoryResult = await this._runCategoryDiagnostics(
+          categoryName,
+          category
+        );
         results.categories[categoryName] = categoryResult;
 
         // 累計問題統計
@@ -140,17 +147,24 @@ class DependencyDiagnostics {
 
       // 計算整體分數
       results.overall.score = this._calculateOverallScore(results.categories);
-      results.overall.status = this._determineOverallStatus(results.overall.score, results.overall.issues);
+      results.overall.status = this._determineOverallStatus(
+        results.overall.score,
+        results.overall.issues
+      );
 
       // 生成建議
-      results.recommendations = this._generateDiagnosticRecommendations(results);
+      results.recommendations =
+        this._generateDiagnosticRecommendations(results);
 
       // 性能統計
       const diagnosticEnd = Date.now();
       results.performance = {
         totalTime: diagnosticEnd - diagnosticStart,
         categoriesChecked: Object.keys(results.categories).length,
-        testsExecuted: Object.values(results.categories).reduce((sum, cat) => sum + cat.testsExecuted, 0)
+        testsExecuted: Object.values(results.categories).reduce(
+          (sum, cat) => sum + cat.testsExecuted,
+          0
+        )
       };
 
       // 記錄診斷歷史
@@ -161,11 +175,12 @@ class DependencyDiagnostics {
         this.diagnosticHistory = this.diagnosticHistory.slice(-50);
       }
 
-      logger.info(`依賴診斷完成: ${results.overall.status} (分數: ${results.overall.score})`);
+      logger.info(
+        `依賴診斷完成: ${results.overall.status} (分數: ${results.overall.score})`
+      );
 
       // 觸發診斷完成回調
       this._triggerDiagnosticCallbacks('complete', results);
-
     } catch (error) {
       logger.error('依賴診斷過程中發生錯誤:', error);
       results.overall.status = 'error';
@@ -176,9 +191,9 @@ class DependencyDiagnostics {
   }
 
   /**
-     * 執行特定類別的診斷
-     * @private
-     */
+   * 執行特定類別的診斷
+   * @private
+   */
   async _runCategoryDiagnostics(categoryName, category) {
     const categoryResult = {
       name: category.name,
@@ -220,8 +235,8 @@ class DependencyDiagnostics {
 
       // 計算類別分數
       categoryResult.score = this._calculateCategoryScore(categoryResult);
-      categoryResult.status = categoryResult.issues.length === 0 ? 'healthy' : 'issues';
-
+      categoryResult.status =
+        categoryResult.issues.length === 0 ? 'healthy' : 'issues';
     } catch (error) {
       categoryResult.status = 'error';
       categoryResult.issues.push({
@@ -235,8 +250,8 @@ class DependencyDiagnostics {
   }
 
   /**
-     * 檢查關鍵依賴項目
-     */
+   * 檢查關鍵依賴項目
+   */
   async checkCriticalDependencies() {
     const result = { issues: [], warnings: [] };
 
@@ -250,17 +265,22 @@ class DependencyDiagnostics {
     }
 
     try {
-      const validationResults = await dependencyValidator.validateAllDependencies();
+      const validationResults =
+        await dependencyValidator.validateAllDependencies();
 
       // 檢查關鍵依賴
-      const criticalIssues = validationResults.issues.filter(issue => issue.severity === 'critical');
+      const criticalIssues = validationResults.issues.filter(
+        issue => issue.severity === 'critical'
+      );
 
       for (const issue of criticalIssues) {
         result.issues.push({
           dependency: issue.dependency,
           message: `關鍵依賴項目不可用: ${issue.message}`,
           severity: 'critical',
-          recommendation: issue.autoRepairAvailable ? '啟用自動修復' : '手動修復依賴項目'
+          recommendation: issue.autoRepairAvailable
+            ? '啟用自動修復'
+            : '手動修復依賴項目'
         });
       }
 
@@ -272,7 +292,6 @@ class DependencyDiagnostics {
           details: validationResults.repairs.map(repair => repair.dependency)
         });
       }
-
     } catch (error) {
       result.issues.push({
         message: `關鍵依賴檢查失敗: ${error.message}`,
@@ -284,8 +303,8 @@ class DependencyDiagnostics {
   }
 
   /**
-     * 檢查可選依賴項目
-     */
+   * 檢查可選依賴項目
+   */
   async checkOptionalDependencies() {
     const result = { issues: [], warnings: [] };
 
@@ -319,14 +338,18 @@ class DependencyDiagnostics {
   }
 
   /**
-     * 檢查全局變量
-     */
+   * 檢查全局變量
+   */
   async checkGlobalVariables() {
     const result = { issues: [], warnings: [] };
 
     const expectedGlobals = [
-      'CONSTANTS', 'Utils', 'LineDetector', 'ProbabilityCalculator',
-      'GameBoard', 'GameEngine'
+      'CONSTANTS',
+      'Utils',
+      'LineDetector',
+      'ProbabilityCalculator',
+      'GameBoard',
+      'GameEngine'
     ];
 
     const globalScope = typeof window !== 'undefined' ? window : global;
@@ -339,7 +362,10 @@ class DependencyDiagnostics {
           severity: 'high',
           recommendation: '確保相應的腳本文件已正確載入'
         });
-      } else if (globalScope[globalVar] === null || globalScope[globalVar] === undefined) {
+      } else if (
+        globalScope[globalVar] === null ||
+        globalScope[globalVar] === undefined
+      ) {
         result.warnings.push({
           variable: globalVar,
           message: `全局變量 ${globalVar} 為 null 或 undefined`,
@@ -352,8 +378,8 @@ class DependencyDiagnostics {
   }
 
   /**
-     * 檢查方法可用性
-     */
+   * 檢查方法可用性
+   */
   async checkMethodAvailability() {
     const result = { issues: [], warnings: [] };
 
@@ -413,8 +439,8 @@ class DependencyDiagnostics {
   }
 
   /**
-     * 檢查屬性完整性
-     */
+   * 檢查屬性完整性
+   */
   async checkPropertyIntegrity() {
     const result = { issues: [], warnings: [] };
 
@@ -423,7 +449,10 @@ class DependencyDiagnostics {
     // 檢查 CONSTANTS
     if (globalScope.CONSTANTS) {
       const requiredConstants = [
-        'BOARD_SIZE', 'MAX_ROUNDS', 'CELL_STATES', 'GAME_PHASES'
+        'BOARD_SIZE',
+        'MAX_ROUNDS',
+        'CELL_STATES',
+        'GAME_PHASES'
       ];
 
       for (const constant of requiredConstants) {
@@ -440,9 +469,7 @@ class DependencyDiagnostics {
 
     // 檢查 Utils
     if (globalScope.Utils) {
-      const requiredUtils = [
-        'isValidPosition', 'isCellEmpty', 'copyBoard'
-      ];
+      const requiredUtils = ['isValidPosition', 'isCellEmpty', 'copyBoard'];
 
       for (const util of requiredUtils) {
         if (typeof globalScope.Utils[util] !== 'function') {
@@ -460,8 +487,8 @@ class DependencyDiagnostics {
   }
 
   /**
-     * 檢查接口兼容性
-     */
+   * 檢查接口兼容性
+   */
   async checkInterfaceCompatibility() {
     const result = { issues: [], warnings: [] };
 
@@ -472,7 +499,9 @@ class DependencyDiagnostics {
       if (globalScope.LineDetector) {
         try {
           const detector = new globalScope.LineDetector();
-          const testBoard = Array(5).fill().map(() => Array(5).fill(0));
+          const testBoard = Array(5)
+            .fill()
+            .map(() => Array(5).fill(0));
 
           // 測試基本方法調用
           const lines = detector.getAllLines(testBoard);
@@ -496,7 +525,9 @@ class DependencyDiagnostics {
       if (globalScope.ProbabilityCalculator) {
         try {
           const calculator = new globalScope.ProbabilityCalculator();
-          const testBoard = Array(5).fill().map(() => Array(5).fill(0));
+          const testBoard = Array(5)
+            .fill()
+            .map(() => Array(5).fill(0));
 
           const value = calculator.calculateMoveValue(testBoard, 2, 2);
           if (typeof value !== 'number') {
@@ -514,7 +545,6 @@ class DependencyDiagnostics {
           });
         }
       }
-
     } catch (error) {
       result.issues.push({
         message: `接口兼容性檢查失敗: ${error.message}`,
@@ -526,16 +556,20 @@ class DependencyDiagnostics {
   }
 
   /**
-     * 檢查載入性能
-     */
+   * 檢查載入性能
+   */
   async checkLoadingPerformance() {
     const result = { issues: [], warnings: [] };
 
     try {
       if (dependencyValidator) {
-        const validationResults = await dependencyValidator.validateAllDependencies();
+        const validationResults =
+          await dependencyValidator.validateAllDependencies();
 
-        if (validationResults.performance.totalTime > this.alertThresholds.responseTime) {
+        if (
+          validationResults.performance.totalTime >
+          this.alertThresholds.responseTime
+        ) {
           result.warnings.push({
             metric: 'loadingTime',
             value: validationResults.performance.totalTime,
@@ -557,8 +591,8 @@ class DependencyDiagnostics {
   }
 
   /**
-     * 檢查執行性能
-     */
+   * 檢查執行性能
+   */
   async checkExecutionPerformance() {
     const result = { issues: [], warnings: [] };
 
@@ -568,16 +602,23 @@ class DependencyDiagnostics {
       // 測試 ProbabilityCalculator 性能
       if (globalScope.ProbabilityCalculator) {
         const calculator = new globalScope.ProbabilityCalculator();
-        const testBoard = Array(5).fill().map(() => Array(5).fill(0));
+        const testBoard = Array(5)
+          .fill()
+          .map(() => Array(5).fill(0));
 
         const startTime = performance.now();
         for (let i = 0; i < 100; i++) {
-          calculator.calculateMoveValue(testBoard, Math.floor(Math.random() * 5), Math.floor(Math.random() * 5));
+          calculator.calculateMoveValue(
+            testBoard,
+            Math.floor(Math.random() * 5),
+            Math.floor(Math.random() * 5)
+          );
         }
         const endTime = performance.now();
 
         const avgTime = (endTime - startTime) / 100;
-        if (avgTime > 10) { // 10ms per calculation
+        if (avgTime > 10) {
+          // 10ms per calculation
           result.warnings.push({
             component: 'ProbabilityCalculator',
             metric: 'calculationTime',
@@ -599,8 +640,8 @@ class DependencyDiagnostics {
   }
 
   /**
-     * 檢查記憶體使用
-     */
+   * 檢查記憶體使用
+   */
   async checkMemoryUsage() {
     const result = { issues: [], warnings: [] };
 
@@ -633,8 +674,8 @@ class DependencyDiagnostics {
   }
 
   /**
-     * 檢查瀏覽器兼容性
-     */
+   * 檢查瀏覽器兼容性
+   */
   async checkBrowserCompatibility() {
     const result = { issues: [], warnings: [] };
 
@@ -644,7 +685,10 @@ class DependencyDiagnostics {
         { name: 'Map', test: () => typeof Map !== 'undefined' },
         { name: 'Set', test: () => typeof Set !== 'undefined' },
         { name: 'Array.from', test: () => typeof Array.from === 'function' },
-        { name: 'Object.assign', test: () => typeof Object.assign === 'function' }
+        {
+          name: 'Object.assign',
+          test: () => typeof Object.assign === 'function'
+        }
       ];
 
       for (const feature of requiredFeatures) {
@@ -670,7 +714,6 @@ class DependencyDiagnostics {
           });
         }
       }
-
     } catch (error) {
       result.warnings.push({
         message: `瀏覽器兼容性檢查失敗: ${error.message}`,
@@ -682,15 +725,18 @@ class DependencyDiagnostics {
   }
 
   /**
-     * 檢查功能支持
-     */
+   * 檢查功能支持
+   */
   async checkFeatureSupport() {
     const result = { issues: [], warnings: [] };
 
     try {
       const features = [
         { name: 'localStorage', test: () => typeof Storage !== 'undefined' },
-        { name: 'sessionStorage', test: () => typeof sessionStorage !== 'undefined' },
+        {
+          name: 'sessionStorage',
+          test: () => typeof sessionStorage !== 'undefined'
+        },
         { name: 'console', test: () => typeof console !== 'undefined' },
         { name: 'JSON', test: () => typeof JSON !== 'undefined' }
       ];
@@ -705,7 +751,6 @@ class DependencyDiagnostics {
           });
         }
       }
-
     } catch (error) {
       result.warnings.push({
         message: `功能支持檢查失敗: ${error.message}`,
@@ -717,8 +762,8 @@ class DependencyDiagnostics {
   }
 
   /**
-     * 檢查版本兼容性
-     */
+   * 檢查版本兼容性
+   */
   async checkVersionCompatibility() {
     const result = { issues: [], warnings: [] };
 
@@ -728,26 +773,35 @@ class DependencyDiagnostics {
   }
 
   /**
-     * 檢查全局污染
-     */
+   * 檢查全局污染
+   */
   async checkGlobalPollution() {
     const result = { issues: [], warnings: [] };
 
     try {
       const globalScope = typeof window !== 'undefined' ? window : global;
       const expectedGlobals = new Set([
-        'CONSTANTS', 'Utils', 'LineDetector', 'ProbabilityCalculator',
-        'GameBoard', 'GameEngine', 'dependencyValidator', 'logger'
+        'CONSTANTS',
+        'Utils',
+        'LineDetector',
+        'ProbabilityCalculator',
+        'GameBoard',
+        'GameEngine',
+        'dependencyValidator',
+        'logger'
       ]);
 
-      const gameRelatedGlobals = Object.keys(globalScope).filter(key =>
-        key.toLowerCase().includes('game') ||
-                key.toLowerCase().includes('bingo') ||
-                key.toLowerCase().includes('probability') ||
-                key.toLowerCase().includes('line')
+      const gameRelatedGlobals = Object.keys(globalScope).filter(
+        key =>
+          key.toLowerCase().includes('game') ||
+          key.toLowerCase().includes('bingo') ||
+          key.toLowerCase().includes('probability') ||
+          key.toLowerCase().includes('line')
       );
 
-      const unexpectedGlobals = gameRelatedGlobals.filter(key => !expectedGlobals.has(key));
+      const unexpectedGlobals = gameRelatedGlobals.filter(
+        key => !expectedGlobals.has(key)
+      );
 
       if (unexpectedGlobals.length > 5) {
         result.warnings.push({
@@ -758,7 +812,6 @@ class DependencyDiagnostics {
           details: unexpectedGlobals.slice(0, 10) // 只顯示前10個
         });
       }
-
     } catch (error) {
       result.warnings.push({
         message: `全局污染檢查失敗: ${error.message}`,
@@ -770,8 +823,8 @@ class DependencyDiagnostics {
   }
 
   /**
-     * 檢查不安全操作
-     */
+   * 檢查不安全操作
+   */
   async checkUnsafeOperations() {
     const result = { issues: [], warnings: [] };
 
@@ -787,7 +840,6 @@ class DependencyDiagnostics {
           recommendation: '避免使用 eval 或確保輸入已正確驗證'
         });
       }
-
     } catch (error) {
       result.warnings.push({
         message: `不安全操作檢查失敗: ${error.message}`,
@@ -799,8 +851,8 @@ class DependencyDiagnostics {
   }
 
   /**
-     * 檢查數據驗證
-     */
+   * 檢查數據驗證
+   */
   async checkDataValidation() {
     const result = { issues: [], warnings: [] };
 
@@ -810,8 +862,8 @@ class DependencyDiagnostics {
       // 檢查 Utils 是否有適當的驗證函數
       if (globalScope.Utils) {
         const validationFunctions = ['isValidPosition', 'isCellEmpty'];
-        const missingValidations = validationFunctions.filter(fn =>
-          typeof globalScope.Utils[fn] !== 'function'
+        const missingValidations = validationFunctions.filter(
+          fn => typeof globalScope.Utils[fn] !== 'function'
         );
 
         if (missingValidations.length > 0) {
@@ -823,7 +875,6 @@ class DependencyDiagnostics {
           });
         }
       }
-
     } catch (error) {
       result.warnings.push({
         message: `數據驗證檢查失敗: ${error.message}`,
@@ -835,18 +886,18 @@ class DependencyDiagnostics {
   }
 
   /**
-     * 輔助方法：檢查依賴可用性
-     * @private
-     */
+   * 輔助方法：檢查依賴可用性
+   * @private
+   */
   _checkDependencyAvailability(dependencyName) {
     const globalScope = typeof window !== 'undefined' ? window : global;
     return dependencyName in globalScope && globalScope[dependencyName] != null;
   }
 
   /**
-     * 計算類別分數
-     * @private
-     */
+   * 計算類別分數
+   * @private
+   */
   _calculateCategoryScore(categoryResult) {
     const totalTests = categoryResult.testsExecuted;
     const issues = categoryResult.issues.length;
@@ -858,25 +909,27 @@ class DependencyDiagnostics {
     const warningWeight = 3;
     const maxScore = 100;
 
-    const deduction = (issues * issueWeight) + (warnings * warningWeight);
+    const deduction = issues * issueWeight + warnings * warningWeight;
     return Math.max(0, maxScore - deduction);
   }
 
   /**
-     * 計算整體分數
-     * @private
-     */
+   * 計算整體分數
+   * @private
+   */
   _calculateOverallScore(categories) {
     const scores = Object.values(categories).map(cat => cat.score);
     if (scores.length === 0) return 0;
 
-    return Math.round(scores.reduce((sum, score) => sum + score, 0) / scores.length);
+    return Math.round(
+      scores.reduce((sum, score) => sum + score, 0) / scores.length
+    );
   }
 
   /**
-     * 確定整體狀態
-     * @private
-     */
+   * 確定整體狀態
+   * @private
+   */
   _determineOverallStatus(score, issues) {
     if (issues > 0 && score < 50) return 'critical';
     if (issues > 0 && score < 70) return 'warning';
@@ -886,9 +939,9 @@ class DependencyDiagnostics {
   }
 
   /**
-     * 生成診斷建議
-     * @private
-     */
+   * 生成診斷建議
+   * @private
+   */
   _generateDiagnosticRecommendations(results) {
     const recommendations = [];
 
@@ -926,15 +979,18 @@ class DependencyDiagnostics {
   }
 
   /**
-     * 獲取環境信息
-     * @private
-     */
+   * 獲取環境信息
+   * @private
+   */
   _getEnvironmentInfo() {
     const info = {
       timestamp: new Date().toISOString(),
-      userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : 'Unknown',
-      platform: typeof navigator !== 'undefined' ? navigator.platform : 'Unknown',
-      language: typeof navigator !== 'undefined' ? navigator.language : 'Unknown'
+      userAgent:
+        typeof navigator !== 'undefined' ? navigator.userAgent : 'Unknown',
+      platform:
+        typeof navigator !== 'undefined' ? navigator.platform : 'Unknown',
+      language:
+        typeof navigator !== 'undefined' ? navigator.language : 'Unknown'
     };
 
     if (typeof window !== 'undefined') {
@@ -956,9 +1012,9 @@ class DependencyDiagnostics {
   }
 
   /**
-     * 觸發診斷回調
-     * @private
-     */
+   * 觸發診斷回調
+   * @private
+   */
   _triggerDiagnosticCallbacks(event, data) {
     const callbacks = this.diagnosticCallbacks.get(event) || [];
     callbacks.forEach(callback => {
@@ -971,10 +1027,10 @@ class DependencyDiagnostics {
   }
 
   /**
-     * 註冊診斷事件回調
-     * @param {string} event - 事件名稱
-     * @param {Function} callback - 回調函數
-     */
+   * 註冊診斷事件回調
+   * @param {string} event - 事件名稱
+   * @param {Function} callback - 回調函數
+   */
   onDiagnosticEvent(event, callback) {
     if (!this.diagnosticCallbacks.has(event)) {
       this.diagnosticCallbacks.set(event, []);
@@ -983,10 +1039,11 @@ class DependencyDiagnostics {
   }
 
   /**
-     * 開始監控模式
-     * @param {number} interval - 監控間隔（毫秒）
-     */
-  startMonitoring(interval = 60000) { // 默認1分鐘
+   * 開始監控模式
+   * @param {number} interval - 監控間隔（毫秒）
+   */
+  startMonitoring(interval = 60000) {
+    // 默認1分鐘
     if (this.isMonitoring) {
       logger.warn('依賴監控已在運行中');
       return;
@@ -1016,8 +1073,8 @@ class DependencyDiagnostics {
   }
 
   /**
-     * 停止監控模式
-     */
+   * 停止監控模式
+   */
   stopMonitoring() {
     if (this.monitoringInterval) {
       clearInterval(this.monitoringInterval);
@@ -1028,36 +1085,36 @@ class DependencyDiagnostics {
   }
 
   /**
-     * 獲取診斷歷史
-     * @param {number} limit - 返回記錄數量限制
-     * @returns {Array} 診斷歷史記錄
-     */
+   * 獲取診斷歷史
+   * @param {number} limit - 返回記錄數量限制
+   * @returns {Array} 診斷歷史記錄
+   */
   getDiagnosticHistory(limit = 10) {
     return this.diagnosticHistory.slice(-limit);
   }
 
   /**
-     * 清除診斷歷史
-     */
+   * 清除診斷歷史
+   */
   clearDiagnosticHistory() {
     this.diagnosticHistory = [];
     logger.info('診斷歷史已清除');
   }
 
   /**
-     * 設置警報閾值
-     * @param {Object} thresholds - 閾值配置
-     */
+   * 設置警報閾值
+   * @param {Object} thresholds - 閾值配置
+   */
   setAlertThresholds(thresholds) {
     this.alertThresholds = { ...this.alertThresholds, ...thresholds };
     logger.info('警報閾值已更新:', this.alertThresholds);
   }
 
   /**
-     * 生成診斷報告
-     * @param {Object} results - 診斷結果
-     * @returns {string} 格式化的報告
-     */
+   * 生成診斷報告
+   * @param {Object} results - 診斷結果
+   * @returns {string} 格式化的報告
+   */
   generateDiagnosticReport(results) {
     if (!results) {
       return '無診斷結果可用';

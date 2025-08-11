@@ -8,12 +8,12 @@
  */
 class SecurityUtils {
   /**
-     * 清理和驗證用戶輸入
-     * @param {any} input - 用戶輸入
-     * @param {string} type - 輸入類型 ('number', 'string', 'coordinate', 'boolean')
-     * @param {Object} options - 驗證選項
-     * @returns {any} 清理後的輸入
-     */
+   * 清理和驗證用戶輸入
+   * @param {any} input - 用戶輸入
+   * @param {string} type - 輸入類型 ('number', 'string', 'coordinate', 'boolean')
+   * @param {Object} options - 驗證選項
+   * @returns {any} 清理後的輸入
+   */
   static sanitizeInput(input, type, options = {}) {
     if (input === null || input === undefined) {
       if (options.required) {
@@ -23,26 +23,26 @@ class SecurityUtils {
     }
 
     switch (type) {
-    case 'number':
-      return this.sanitizeNumber(input, options);
-    case 'string':
-      return this.sanitizeString(input, options);
-    case 'coordinate':
-      return this.sanitizeCoordinate(input, options);
-    case 'boolean':
-      return this.sanitizeBoolean(input);
-    case 'array':
-      return this.sanitizeArray(input, options);
-    case 'object':
-      return this.sanitizeObject(input, options);
-    default:
-      throw new SecurityError(`Unknown input type: ${type}`, 'INVALID_TYPE');
+      case 'number':
+        return this.sanitizeNumber(input, options);
+      case 'string':
+        return this.sanitizeString(input, options);
+      case 'coordinate':
+        return this.sanitizeCoordinate(input, options);
+      case 'boolean':
+        return this.sanitizeBoolean(input);
+      case 'array':
+        return this.sanitizeArray(input, options);
+      case 'object':
+        return this.sanitizeObject(input, options);
+      default:
+        throw new SecurityError(`Unknown input type: ${type}`, 'INVALID_TYPE');
     }
   }
 
   /**
-     * 清理數字輸入
-     */
+   * 清理數字輸入
+   */
   static sanitizeNumber(input, options = {}) {
     const num = Number(input);
 
@@ -51,11 +51,17 @@ class SecurityUtils {
     }
 
     if (options.min !== undefined && num < options.min) {
-      throw new SecurityError(`Number ${num} is below minimum ${options.min}`, 'NUMBER_TOO_SMALL');
+      throw new SecurityError(
+        `Number ${num} is below minimum ${options.min}`,
+        'NUMBER_TOO_SMALL'
+      );
     }
 
     if (options.max !== undefined && num > options.max) {
-      throw new SecurityError(`Number ${num} is above maximum ${options.max}`, 'NUMBER_TOO_LARGE');
+      throw new SecurityError(
+        `Number ${num} is above maximum ${options.max}`,
+        'NUMBER_TOO_LARGE'
+      );
     }
 
     if (options.integer && !Number.isInteger(num)) {
@@ -66,8 +72,8 @@ class SecurityUtils {
   }
 
   /**
-     * 清理字符串輸入
-     */
+   * 清理字符串輸入
+   */
   static sanitizeString(input, options = {}) {
     let str = String(input);
 
@@ -78,35 +84,44 @@ class SecurityUtils {
     str = this.removeUnsafeProtocols(str);
 
     // 轉義特殊字符
-    str = str.replace(/[<>&"']/g, (match) => {
+    str = str.replace(/[<>&"']/g, match => {
       const escapeMap = {
         '<': '&lt;',
         '>': '&gt;',
         '&': '&amp;',
         '"': '&quot;',
-        '\'': '&#x27;'
+        "'": '&#x27;'
       };
       return escapeMap[match];
     });
 
     if (options.maxLength && str.length > options.maxLength) {
-      throw new SecurityError(`String length ${str.length} exceeds maximum ${options.maxLength}`, 'STRING_TOO_LONG');
+      throw new SecurityError(
+        `String length ${str.length} exceeds maximum ${options.maxLength}`,
+        'STRING_TOO_LONG'
+      );
     }
 
     if (options.minLength && str.length < options.minLength) {
-      throw new SecurityError(`String length ${str.length} is below minimum ${options.minLength}`, 'STRING_TOO_SHORT');
+      throw new SecurityError(
+        `String length ${str.length} is below minimum ${options.minLength}`,
+        'STRING_TOO_SHORT'
+      );
     }
 
     if (options.pattern && !options.pattern.test(str)) {
-      throw new SecurityError('String does not match required pattern', 'PATTERN_MISMATCH');
+      throw new SecurityError(
+        'String does not match required pattern',
+        'PATTERN_MISMATCH'
+      );
     }
 
     return str;
   }
 
   /**
-     * 清理座標輸入
-     */
+   * 清理座標輸入
+   */
   static sanitizeCoordinate(input, options = {}) {
     const coord = this.sanitizeNumber(input, {
       integer: true,
@@ -118,8 +133,8 @@ class SecurityUtils {
   }
 
   /**
-     * 清理布爾值輸入
-     */
+   * 清理布爾值輸入
+   */
   static sanitizeBoolean(input) {
     if (typeof input === 'boolean') {
       return input;
@@ -143,27 +158,32 @@ class SecurityUtils {
   }
 
   /**
-     * 清理陣列輸入
-     */
+   * 清理陣列輸入
+   */
   static sanitizeArray(input, options = {}) {
     if (!Array.isArray(input)) {
       throw new SecurityError('Input is not an array', 'NOT_ARRAY');
     }
 
     if (options.maxLength && input.length > options.maxLength) {
-      throw new SecurityError(`Array length ${input.length} exceeds maximum ${options.maxLength}`, 'ARRAY_TOO_LONG');
+      throw new SecurityError(
+        `Array length ${input.length} exceeds maximum ${options.maxLength}`,
+        'ARRAY_TOO_LONG'
+      );
     }
 
     if (options.itemType) {
-      return input.map(item => this.sanitizeInput(item, options.itemType, options.itemOptions || {}));
+      return input.map(item =>
+        this.sanitizeInput(item, options.itemType, options.itemOptions || {})
+      );
     }
 
     return input;
   }
 
   /**
-     * 清理物件輸入
-     */
+   * 清理物件輸入
+   */
   static sanitizeObject(input, options = {}) {
     if (typeof input !== 'object' || input === null || Array.isArray(input)) {
       throw new SecurityError('Input is not a valid object', 'NOT_OBJECT');
@@ -176,7 +196,11 @@ class SecurityUtils {
       if (input.hasOwnProperty(key)) {
         const keyOptions = options.keyOptions && options.keyOptions[key];
         if (keyOptions) {
-          sanitized[key] = this.sanitizeInput(input[key], keyOptions.type, keyOptions);
+          sanitized[key] = this.sanitizeInput(
+            input[key],
+            keyOptions.type,
+            keyOptions
+          );
         } else {
           sanitized[key] = input[key];
         }
@@ -187,21 +211,24 @@ class SecurityUtils {
   }
 
   /**
-     * 驗證遊戲座標
-     */
+   * 驗證遊戲座標
+   */
   static validateGameCoordinate(row, col) {
     try {
       const sanitizedRow = this.sanitizeCoordinate(row, { min: 0, max: 4 });
       const sanitizedCol = this.sanitizeCoordinate(col, { min: 0, max: 4 });
       return { row: sanitizedRow, col: sanitizedCol };
     } catch (error) {
-      throw new SecurityError(`Invalid game coordinate (${row}, ${col}): ${error.message}`, 'INVALID_COORDINATE');
+      throw new SecurityError(
+        `Invalid game coordinate (${row}, ${col}): ${error.message}`,
+        'INVALID_COORDINATE'
+      );
     }
   }
 
   /**
-     * 驗證遊戲狀態
-     */
+   * 驗證遊戲狀態
+   */
   static validateGameState(gameState) {
     if (!gameState || typeof gameState !== 'object') {
       throw new SecurityError('Invalid game state', 'INVALID_GAME_STATE');
@@ -210,7 +237,10 @@ class SecurityUtils {
     const requiredFields = ['board', 'currentRound', 'gamePhase'];
     for (const field of requiredFields) {
       if (!(field in gameState)) {
-        throw new SecurityError(`Missing required field: ${field}`, 'MISSING_FIELD');
+        throw new SecurityError(
+          `Missing required field: ${field}`,
+          'MISSING_FIELD'
+        );
       }
     }
 
@@ -220,33 +250,51 @@ class SecurityUtils {
     }
 
     for (let i = 0; i < 5; i++) {
-      if (!Array.isArray(gameState.board[i]) || gameState.board[i].length !== 5) {
+      if (
+        !Array.isArray(gameState.board[i]) ||
+        gameState.board[i].length !== 5
+      ) {
         throw new SecurityError(`Invalid board row ${i}`, 'INVALID_BOARD_ROW');
       }
 
       for (let j = 0; j < 5; j++) {
         const cell = gameState.board[i][j];
         if (![0, 1, 2].includes(cell)) {
-          throw new SecurityError(`Invalid cell value at (${i}, ${j}): ${cell}`, 'INVALID_CELL_VALUE');
+          throw new SecurityError(
+            `Invalid cell value at (${i}, ${j}): ${cell}`,
+            'INVALID_CELL_VALUE'
+          );
         }
       }
     }
 
     // 驗證回合數
-    this.sanitizeNumber(gameState.currentRound, { min: 1, max: 8, integer: true });
+    this.sanitizeNumber(gameState.currentRound, {
+      min: 1,
+      max: 8,
+      integer: true
+    });
 
     // 驗證遊戲階段
-    const validPhases = ['waiting-start', 'player-turn', 'computer-input', 'game-over'];
+    const validPhases = [
+      'waiting-start',
+      'player-turn',
+      'computer-input',
+      'game-over'
+    ];
     if (!validPhases.includes(gameState.gamePhase)) {
-      throw new SecurityError(`Invalid game phase: ${gameState.gamePhase}`, 'INVALID_GAME_PHASE');
+      throw new SecurityError(
+        `Invalid game phase: ${gameState.gamePhase}`,
+        'INVALID_GAME_PHASE'
+      );
     }
 
     return true;
   }
 
   /**
-     * 防止 XSS 攻擊的 HTML 清理
-     */
+   * 防止 XSS 攻擊的 HTML 清理
+   */
   static sanitizeHTML(html) {
     if (typeof html !== 'string') {
       return '';
@@ -257,8 +305,8 @@ class SecurityUtils {
   }
 
   /**
-     * 移除不安全的協議
-     */
+   * 移除不安全的協議
+   */
   static removeUnsafeProtocols(str) {
     if (typeof str !== 'string') {
       return '';
@@ -282,8 +330,8 @@ class SecurityUtils {
   }
 
   /**
-     * 安全的 JSON 解析
-     */
+   * 安全的 JSON 解析
+   */
   static safeJSONParse(jsonString, defaultValue = null) {
     try {
       if (typeof jsonString !== 'string') {
@@ -291,10 +339,15 @@ class SecurityUtils {
       }
 
       // 檢查是否包含潛在的危險內容
-      if (jsonString.includes('__proto__') ||
-                jsonString.includes('constructor') ||
-                jsonString.includes('prototype')) {
-        throw new SecurityError('Potentially dangerous JSON content', 'DANGEROUS_JSON');
+      if (
+        jsonString.includes('__proto__') ||
+        jsonString.includes('constructor') ||
+        jsonString.includes('prototype')
+      ) {
+        throw new SecurityError(
+          'Potentially dangerous JSON content',
+          'DANGEROUS_JSON'
+        );
       }
 
       const parsed = JSON.parse(jsonString);
@@ -314,10 +367,11 @@ class SecurityUtils {
   }
 
   /**
-     * 生成安全的隨機 ID
-     */
+   * 生成安全的隨機 ID
+   */
   static generateSecureId(length = 16) {
-    const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    const chars =
+      'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
     let result = '';
 
     for (let i = 0; i < length; i++) {
@@ -328,8 +382,8 @@ class SecurityUtils {
   }
 
   /**
-     * 檢查 URL 是否安全
-     */
+   * 檢查 URL 是否安全
+   */
   static isSecureURL(url) {
     try {
       const urlObj = new URL(url);
@@ -341,7 +395,11 @@ class SecurityUtils {
 
       // 檢查是否為本地主機（在生產環境中可能不安全）
       const hostname = urlObj.hostname.toLowerCase();
-      if (hostname === 'localhost' || hostname === '127.0.0.1' || hostname === '::1') {
+      if (
+        hostname === 'localhost' ||
+        hostname === '127.0.0.1' ||
+        hostname === '::1'
+      ) {
         return process.env.NODE_ENV === 'development';
       }
 
@@ -352,8 +410,8 @@ class SecurityUtils {
   }
 
   /**
-     * 速率限制檢查
-     */
+   * 速率限制檢查
+   */
   static createRateLimiter(maxRequests = 100, windowMs = 60000) {
     const requests = new Map();
 

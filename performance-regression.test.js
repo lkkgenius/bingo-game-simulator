@@ -134,15 +134,19 @@ test('Board rendering should be fast', () => {
 });
 
 test('Algorithm switching should be responsive', () => {
-  if (typeof ProbabilityCalculator === 'undefined' ||
-        typeof EnhancedProbabilityCalculator === 'undefined') {
+  if (
+    typeof ProbabilityCalculator === 'undefined' ||
+    typeof EnhancedProbabilityCalculator === 'undefined'
+  ) {
     console.log('Probability calculators not available, skipping test');
     return;
   }
 
   const standardCalc = new ProbabilityCalculator();
   const enhancedCalc = new EnhancedProbabilityCalculator();
-  const emptyBoard = Array(5).fill().map(() => Array(5).fill(0));
+  const emptyBoard = Array(5)
+    .fill()
+    .map(() => Array(5).fill(0));
 
   const startTime = performance.now();
 
@@ -216,9 +220,13 @@ test('Large board operations should scale well', () => {
   // Test with multiple board configurations
   const testBoards = [];
   for (let i = 0; i < 100; i++) {
-    const board = Array(5).fill().map(() =>
-      Array(5).fill().map(() => Math.floor(Math.random() * 3))
-    );
+    const board = Array(5)
+      .fill()
+      .map(() =>
+        Array(5)
+          .fill()
+          .map(() => Math.floor(Math.random() * 3))
+      );
     testBoards.push(board);
   }
 

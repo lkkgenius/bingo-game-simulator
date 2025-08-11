@@ -54,20 +54,39 @@ class ModuleLoader {
 
     // Game core modules
     this.dependencies.set('lineDetector.js', ['utils/common.js']);
-    this.dependencies.set('probabilityCalculator.js', ['utils/common.js', 'lineDetector.js']);
-    this.dependencies.set('probabilityCalculator.enhanced.js', ['utils/common.js', 'lineDetector.js']);
+    this.dependencies.set('probabilityCalculator.js', [
+      'utils/common.js',
+      'lineDetector.js'
+    ]);
+    this.dependencies.set('probabilityCalculator.enhanced.js', [
+      'utils/common.js',
+      'lineDetector.js'
+    ]);
     this.dependencies.set('gameBoard.js', ['utils/common.js']);
-    this.dependencies.set('gameEngine.js', ['utils/common.js', 'lineDetector.js', 'probabilityCalculator.js']);
+    this.dependencies.set('gameEngine.js', [
+      'utils/common.js',
+      'lineDetector.js',
+      'probabilityCalculator.js'
+    ]);
 
     // Enhanced features
-    this.dependencies.set('algorithmComparison.js', ['probabilityCalculator.js', 'probabilityCalculator.enhanced.js']);
-    this.dependencies.set('aiLearningSystem.js', ['utils/common.js', 'gameEngine.js']);
+    this.dependencies.set('algorithmComparison.js', [
+      'probabilityCalculator.js',
+      'probabilityCalculator.enhanced.js'
+    ]);
+    this.dependencies.set('aiLearningSystem.js', [
+      'utils/common.js',
+      'gameEngine.js'
+    ]);
 
     // UI and enhancements
     this.dependencies.set('i18n.js', ['safe-dom.js']);
     this.dependencies.set('accessibility-enhancements.js', ['safe-dom.js']);
     this.dependencies.set('suggestion-enhancements.js', ['safe-dom.js']);
-    this.dependencies.set('bug-fixes-and-edge-cases.js', ['safe-dom.js', 'production-logger.js']);
+    this.dependencies.set('bug-fixes-and-edge-cases.js', [
+      'safe-dom.js',
+      'production-logger.js'
+    ]);
 
     // Performance and monitoring
     this.dependencies.set('performance-monitor.js', ['utils/common.js']);
@@ -79,7 +98,13 @@ class ModuleLoader {
     this.dependencies.set('pwa-manager.js', ['utils/common.js']);
 
     // Main script (depends on core modules)
-    this.dependencies.set('script.js', ['utils/common.js', 'lineDetector.js', 'probabilityCalculator.js', 'gameBoard.js', 'gameEngine.js']);
+    this.dependencies.set('script.js', [
+      'utils/common.js',
+      'lineDetector.js',
+      'probabilityCalculator.js',
+      'gameBoard.js',
+      'gameEngine.js'
+    ]);
 
     // Update total count for progress tracking
     this.loadingStats.total = this.dependencies.size;
@@ -115,7 +140,7 @@ class ModuleLoader {
     const visiting = new Set();
     const order = [];
 
-    const visit = (module) => {
+    const visit = module => {
       if (visiting.has(module)) {
         throw new Error(`Circular dependency detected involving ${module}`);
       }
@@ -275,7 +300,9 @@ class ModuleLoader {
         this.setLoadingState(modulePath, 'loading');
 
         if (logger && attempt > 1) {
-          logger.info(`Retrying module load: ${modulePath} (attempt ${attempt}/${maxAttempts})`);
+          logger.info(
+            `Retrying module load: ${modulePath} (attempt ${attempt}/${maxAttempts})`
+          );
         }
 
         const module = await this._loadModuleWithDependencies(modulePath);
@@ -283,12 +310,14 @@ class ModuleLoader {
         // Clear retry count on success
         this.retryAttempts.delete(modulePath);
         return module;
-
       } catch (error) {
         lastError = error;
 
         if (logger) {
-          logger.warn(`Module load attempt ${attempt} failed for ${modulePath}:`, error.message);
+          logger.warn(
+            `Module load attempt ${attempt} failed for ${modulePath}:`,
+            error.message
+          );
         }
 
         // Don't retry on the last attempt
@@ -300,10 +329,15 @@ class ModuleLoader {
 
     // All attempts failed
     if (logger) {
-      logger.error(`Failed to load module ${modulePath} after ${maxAttempts} attempts:`, lastError);
+      logger.error(
+        `Failed to load module ${modulePath} after ${maxAttempts} attempts:`,
+        lastError
+      );
     }
 
-    throw new Error(`Failed to load module ${modulePath} after ${maxAttempts} attempts: ${lastError.message}`);
+    throw new Error(
+      `Failed to load module ${modulePath} after ${maxAttempts} attempts: ${lastError.message}`
+    );
   }
 
   /**
@@ -440,7 +474,7 @@ class ModuleLoader {
     // Filter to only include requested modules and their dependencies
     const requiredModules = new Set();
 
-    const addModuleAndDeps = (modulePath) => {
+    const addModuleAndDeps = modulePath => {
       if (requiredModules.has(modulePath)) return;
 
       requiredModules.add(modulePath);
@@ -470,8 +504,8 @@ class ModuleLoader {
 
         // Check if all dependencies are loaded
         const deps = this.dependencies.get(module) || [];
-        const allDepsLoaded = deps.every(dep =>
-          this.loadedModules.has(dep) || loadedInThisBatch.has(dep)
+        const allDepsLoaded = deps.every(
+          dep => this.loadedModules.has(dep) || loadedInThisBatch.has(dep)
         );
 
         if (allDepsLoaded) {
@@ -482,7 +516,9 @@ class ModuleLoader {
       if (batch.length === 0) {
         // No progress possible - check for circular dependencies or missing modules
         const remaining = loadOrder.filter(m => !loadedInThisBatch.has(m));
-        throw new Error(`Cannot resolve dependencies for modules: ${remaining.join(', ')}`);
+        throw new Error(
+          `Cannot resolve dependencies for modules: ${remaining.join(', ')}`
+        );
       }
 
       // Load current batch in parallel
@@ -651,7 +687,8 @@ class ModuleLoader {
 
       // 載入完成後執行依賴驗證
       if (typeof window !== 'undefined' && window.dependencyValidator) {
-        const validationResults = await window.dependencyValidator.performRuntimeCheck();
+        const validationResults =
+          await window.dependencyValidator.performRuntimeCheck();
         if (!validationResults) {
           if (logger) {
             logger.warn('關鍵模組載入後依賴驗證失敗，但繼續執行');
@@ -690,18 +727,13 @@ class ModuleLoader {
 class ProgressiveLoader {
   constructor() {
     this.moduleLoader = new ModuleLoader();
-    this.loadingStages = [
-      'critical',
-      'core',
-      'enhanced',
-      'optional'
-    ];
+    this.loadingStages = ['critical', 'core', 'enhanced', 'optional'];
     this.currentStage = 0;
     this.stageCallbacks = new Map();
     this.stageProgress = new Map();
 
     // Setup progress tracking
-    this.moduleLoader.onProgress((progress) => {
+    this.moduleLoader.onProgress(progress => {
       this.updateStageProgress(progress);
     });
   }
@@ -728,7 +760,9 @@ class ProgressiveLoader {
         if (logger) {
           logger.error('Dependency validation failed:', validation.issues);
         }
-        throw new Error(`Dependency validation failed: ${JSON.stringify(validation.issues)}`);
+        throw new Error(
+          `Dependency validation failed: ${JSON.stringify(validation.issues)}`
+        );
       }
 
       // Stage 1: Critical modules (security and utilities)
@@ -749,10 +783,7 @@ class ProgressiveLoader {
       ]);
 
       // Stage 3: Main application script
-      await this.loadStage('enhanced', [
-        'script.js',
-        'i18n.js'
-      ]);
+      await this.loadStage('enhanced', ['script.js', 'i18n.js']);
 
       // Stage 4: Optional features (background loading)
       this.loadStage('optional', [
@@ -772,7 +803,6 @@ class ProgressiveLoader {
           logger.warn('Optional features failed to load:', error);
         }
       });
-
     } catch (error) {
       if (logger) {
         logger.error('Progressive loading failed:', error);
@@ -829,13 +859,16 @@ class ProgressiveLoader {
    */
   getProgress() {
     const status = this.moduleLoader.getLoadingStatus();
-    const currentStageName = this.loadingStages[this.currentStage] || 'complete';
+    const currentStageName =
+      this.loadingStages[this.currentStage] || 'complete';
 
     return {
       ...status,
       currentStage: currentStageName,
       stageProgress: Object.fromEntries(this.stageProgress),
-      overallProgress: Math.round((status.loadedCount / status.totalModules) * 100),
+      overallProgress: Math.round(
+        (status.loadedCount / status.totalModules) * 100
+      ),
       readyToLoad: this.moduleLoader.getReadyToLoadModules(),
       validation: this.moduleLoader.validateDependencies()
     };
@@ -867,16 +900,17 @@ const LazyLoader = {
   createLazyComponent(modulePath, componentName) {
     let componentPromise = null;
 
-    return function(...args) {
+    return function (...args) {
       if (!componentPromise) {
-        componentPromise = moduleLoader.loadModule(modulePath)
-          .then(() => {
-            const Component = window[componentName];
-            if (!Component) {
-              throw new Error(`Component ${componentName} not found in ${modulePath}`);
-            }
-            return Component;
-          });
+        componentPromise = moduleLoader.loadModule(modulePath).then(() => {
+          const Component = window[componentName];
+          if (!Component) {
+            throw new Error(
+              `Component ${componentName} not found in ${modulePath}`
+            );
+          }
+          return Component;
+        });
       }
 
       return componentPromise.then(Component => new Component(...args));
@@ -889,7 +923,8 @@ const LazyLoader = {
    * @param {Function} callback - Callback when loaded
    */
   loadOnDemand(modulePath, callback) {
-    moduleLoader.loadModule(modulePath)
+    moduleLoader
+      .loadModule(modulePath)
       .then(() => callback())
       .catch(error => {
         if (logger) {
@@ -911,7 +946,7 @@ const LazyLoader = {
       return;
     }
 
-    const observer = new IntersectionObserver((entries) => {
+    const observer = new IntersectionObserver(entries => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
           observer.unobserve(element);
@@ -930,7 +965,13 @@ const progressiveLoader = new ProgressiveLoader();
 
 // Export for both Node.js and browser environments
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { ModuleLoader, ProgressiveLoader, LazyLoader, moduleLoader, progressiveLoader };
+  module.exports = {
+    ModuleLoader,
+    ProgressiveLoader,
+    LazyLoader,
+    moduleLoader,
+    progressiveLoader
+  };
 } else if (typeof window !== 'undefined') {
   window.ModuleLoader = ModuleLoader;
   window.ProgressiveLoader = ProgressiveLoader;

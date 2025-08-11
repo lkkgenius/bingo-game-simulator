@@ -88,7 +88,9 @@ class AILearningSystem {
   initializeBiases() {
     return {
       hidden: new Array(64).fill(0).map(() => Math.random() * 0.1 - 0.05),
-      output: new Array(this.BOARD_SIZE * this.BOARD_SIZE).fill(0).map(() => Math.random() * 0.1 - 0.05)
+      output: new Array(this.BOARD_SIZE * this.BOARD_SIZE)
+        .fill(0)
+        .map(() => Math.random() * 0.1 - 0.05)
     };
   }
 
@@ -99,9 +101,9 @@ class AILearningSystem {
    * @returns {Array} 隨機矩陣
    */
   createRandomMatrix(rows, cols) {
-    return new Array(rows).fill(0).map(() =>
-      new Array(cols).fill(0).map(() => Math.random() * 0.2 - 0.1)
-    );
+    return new Array(rows)
+      .fill(0)
+      .map(() => new Array(cols).fill(0).map(() => Math.random() * 0.2 - 0.1));
   }
 
   /**
@@ -162,7 +164,9 @@ class AILearningSystem {
    */
   countEffectiveMoves(gameData) {
     let effectiveCount = 0;
-    const board = Array(this.BOARD_SIZE).fill().map(() => Array(this.BOARD_SIZE).fill(0));
+    const board = Array(this.BOARD_SIZE)
+      .fill()
+      .map(() => Array(this.BOARD_SIZE).fill(0));
 
     for (let i = 0; i < gameData.playerMoves.length; i++) {
       const move = gameData.playerMoves[i];
@@ -223,7 +227,9 @@ class AILearningSystem {
    */
   forwardPass(input) {
     // 隱藏層計算
-    const hiddenLayer = new Array(this.predictionModel.weights.inputToHidden[0].length);
+    const hiddenLayer = new Array(
+      this.predictionModel.weights.inputToHidden[0].length
+    );
     for (let i = 0; i < hiddenLayer.length; i++) {
       let sum = this.predictionModel.biases.hidden[i];
       for (let j = 0; j < input.length; j++) {
@@ -233,11 +239,14 @@ class AILearningSystem {
     }
 
     // 輸出層計算
-    const outputLayer = new Array(this.predictionModel.weights.hiddenToOutput[0].length);
+    const outputLayer = new Array(
+      this.predictionModel.weights.hiddenToOutput[0].length
+    );
     for (let i = 0; i < outputLayer.length; i++) {
       let sum = this.predictionModel.biases.output[i];
       for (let j = 0; j < hiddenLayer.length; j++) {
-        sum += hiddenLayer[j] * this.predictionModel.weights.hiddenToOutput[j][i];
+        sum +=
+          hiddenLayer[j] * this.predictionModel.weights.hiddenToOutput[j][i];
       }
       outputLayer[i] = this.sigmoid(sum);
     }
@@ -264,7 +273,11 @@ class AILearningSystem {
     const baseSuggestion = this.predictBestMove(board, context);
 
     // 應用個性化調整
-    const personalizedMove = this.applyPersonalization(baseSuggestion, board, context);
+    const personalizedMove = this.applyPersonalization(
+      baseSuggestion,
+      board,
+      context
+    );
 
     return {
       ...personalizedMove,
@@ -365,24 +378,34 @@ class AILearningSystem {
 
   updateSkillLevel(gameData) {
     const performance = this.calculatePlayerPerformance(gameData);
-    const overallScore = (performance.efficiency + performance.strategicThinking +
-                         performance.adaptability + performance.consistency) / 4;
+    const overallScore =
+      (performance.efficiency +
+        performance.strategicThinking +
+        performance.adaptability +
+        performance.consistency) /
+      4;
 
     // 使用指數移動平均更新技能等級
     const alpha = this.config.learningRate;
-    this.playerModel.skillLevel = alpha * overallScore + (1 - alpha) * this.playerModel.skillLevel;
+    this.playerModel.skillLevel =
+      alpha * overallScore + (1 - alpha) * this.playerModel.skillLevel;
   }
 
   updatePlayStyle(gameData) {
     // 簡化的風格更新
     const styles = ['aggressive', 'defensive', 'balanced', 'strategic'];
-    this.playerModel.playStyle = styles[Math.floor(Math.random() * styles.length)];
+    this.playerModel.playStyle =
+      styles[Math.floor(Math.random() * styles.length)];
   }
 
   adjustDifficulty(gameRecord) {
     const performance = gameRecord.playerPerformance;
-    const overallScore = (performance.efficiency + performance.strategicThinking +
-                         performance.adaptability + performance.consistency) / 4;
+    const overallScore =
+      (performance.efficiency +
+        performance.strategicThinking +
+        performance.adaptability +
+        performance.consistency) /
+      4;
 
     this.difficultySystem.performanceMetrics.push(overallScore);
 
@@ -392,13 +415,22 @@ class AILearningSystem {
     }
 
     // 計算平均表現
-    const avgPerformance = this.difficultySystem.performanceMetrics.reduce((sum, score) => sum + score, 0) /
-                          this.difficultySystem.performanceMetrics.length;
+    const avgPerformance =
+      this.difficultySystem.performanceMetrics.reduce(
+        (sum, score) => sum + score,
+        0
+      ) / this.difficultySystem.performanceMetrics.length;
 
     // 調整難度
-    if (avgPerformance > this.config.adaptationThreshold && this.difficultySystem.performanceMetrics.length >= 5) {
+    if (
+      avgPerformance > this.config.adaptationThreshold &&
+      this.difficultySystem.performanceMetrics.length >= 5
+    ) {
       this.increaseDifficulty();
-    } else if (avgPerformance < 0.4 && this.difficultySystem.performanceMetrics.length >= 5) {
+    } else if (
+      avgPerformance < 0.4 &&
+      this.difficultySystem.performanceMetrics.length >= 5
+    ) {
       this.decreaseDifficulty();
     }
 
@@ -406,16 +438,22 @@ class AILearningSystem {
   }
 
   increaseDifficulty() {
-    const currentIndex = this.config.difficultyLevels.indexOf(this.difficultySystem.currentLevel);
+    const currentIndex = this.config.difficultyLevels.indexOf(
+      this.difficultySystem.currentLevel
+    );
     if (currentIndex < this.config.difficultyLevels.length - 1) {
-      this.difficultySystem.currentLevel = this.config.difficultyLevels[currentIndex + 1];
+      this.difficultySystem.currentLevel =
+        this.config.difficultyLevels[currentIndex + 1];
     }
   }
 
   decreaseDifficulty() {
-    const currentIndex = this.config.difficultyLevels.indexOf(this.difficultySystem.currentLevel);
+    const currentIndex = this.config.difficultyLevels.indexOf(
+      this.difficultySystem.currentLevel
+    );
     if (currentIndex > 0) {
-      this.difficultySystem.currentLevel = this.config.difficultyLevels[currentIndex - 1];
+      this.difficultySystem.currentLevel =
+        this.config.difficultyLevels[currentIndex - 1];
     }
   }
 
@@ -514,8 +552,12 @@ class AILearningSystem {
   calculateAveragePerformance() {
     if (this.difficultySystem.performanceMetrics.length === 0) return 0;
 
-    return this.difficultySystem.performanceMetrics.reduce((sum, score) => sum + score, 0) /
-           this.difficultySystem.performanceMetrics.length;
+    return (
+      this.difficultySystem.performanceMetrics.reduce(
+        (sum, score) => sum + score,
+        0
+      ) / this.difficultySystem.performanceMetrics.length
+    );
   }
 
   calculateLearningProgress() {
@@ -526,14 +568,33 @@ class AILearningSystem {
       return { improvement: 0, trend: 'stable' };
     }
 
-    const recentAvg = recentGames.reduce((sum, game) =>
-      sum + (game.playerPerformance.efficiency + game.playerPerformance.strategicThinking) / 2, 0) / recentGames.length;
+    const recentAvg =
+      recentGames.reduce(
+        (sum, game) =>
+          sum +
+          (game.playerPerformance.efficiency +
+            game.playerPerformance.strategicThinking) /
+            2,
+        0
+      ) / recentGames.length;
 
-    const earlyAvg = earlyGames.reduce((sum, game) =>
-      sum + (game.playerPerformance.efficiency + game.playerPerformance.strategicThinking) / 2, 0) / earlyGames.length;
+    const earlyAvg =
+      earlyGames.reduce(
+        (sum, game) =>
+          sum +
+          (game.playerPerformance.efficiency +
+            game.playerPerformance.strategicThinking) /
+            2,
+        0
+      ) / earlyGames.length;
 
     const improvement = recentAvg - earlyAvg;
-    const trend = improvement > 0.1 ? 'improving' : improvement < -0.1 ? 'declining' : 'stable';
+    const trend =
+      improvement > 0.1
+        ? 'improving'
+        : improvement < -0.1
+          ? 'declining'
+          : 'stable';
 
     return { improvement, trend };
   }

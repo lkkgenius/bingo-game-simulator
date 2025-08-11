@@ -25,31 +25,35 @@ class PerformanceMonitor {
     this.networkAPI = null;
 
     // 根據設備類型調整閾值
-    this.warningThresholds = this.isMobile ? {
-      lowFrameRate: 25, // 移動設備較低的幀率要求
-      highMemoryUsage: 30 * 1024 * 1024, // 30MB for mobile
-      slowRenderTime: 20, // 移動設備允許較慢的渲染
-      slowAlgorithmTime: 150, // 移動設備允許較慢的算法執行
-      highTouchLatency: 100 // 觸控延遲閾值
-    } : {
-      lowFrameRate: 30,
-      highMemoryUsage: 50 * 1024 * 1024, // 50MB
-      slowRenderTime: 16.67, // 60fps = 16.67ms per frame
-      slowAlgorithmTime: 100, // 100ms
-      highTouchLatency: 50
-    };
+    this.warningThresholds = this.isMobile
+      ? {
+          lowFrameRate: 25, // 移動設備較低的幀率要求
+          highMemoryUsage: 30 * 1024 * 1024, // 30MB for mobile
+          slowRenderTime: 20, // 移動設備允許較慢的渲染
+          slowAlgorithmTime: 150, // 移動設備允許較慢的算法執行
+          highTouchLatency: 100 // 觸控延遲閾值
+        }
+      : {
+          lowFrameRate: 30,
+          highMemoryUsage: 50 * 1024 * 1024, // 50MB
+          slowRenderTime: 16.67, // 60fps = 16.67ms per frame
+          slowAlgorithmTime: 100, // 100ms
+          highTouchLatency: 50
+        };
 
     this.initMobileAPIs();
   }
 
   /**
-     * 開始性能監控
-     */
+   * 開始性能監控
+   */
   startMonitoring() {
     if (this.isMonitoring) return;
 
     this.isMonitoring = true;
-    console.log(`Performance monitoring started (${this.isMobile ? 'Mobile' : 'Desktop'} mode)`);
+    console.log(
+      `Performance monitoring started (${this.isMobile ? 'Mobile' : 'Desktop'} mode)`
+    );
 
     try {
       // 監控幀率
@@ -70,7 +74,11 @@ class PerformanceMonitor {
       }
 
       // 設置定期報告 - 移動設備減少頻率以節省電池
-      const reportInterval = this.isMobile ? 90000 : (this.isProduction() ? 60000 : 30000);
+      const reportInterval = this.isMobile
+        ? 90000
+        : this.isProduction()
+          ? 60000
+          : 30000;
       this.reportInterval = setInterval(() => {
         try {
           this.generatePerformanceReport();
@@ -86,7 +94,6 @@ class PerformanceMonitor {
       if (this.isMobile) {
         this.setupBatteryOptimization();
       }
-
     } catch (error) {
       console.error('Error starting performance monitoring:', error);
       this.isMonitoring = false;
@@ -94,8 +101,8 @@ class PerformanceMonitor {
   }
 
   /**
-     * 停止性能監控
-     */
+   * 停止性能監控
+   */
   stopMonitoring() {
     if (!this.isMonitoring) return;
 
@@ -114,10 +121,10 @@ class PerformanceMonitor {
   }
 
   /**
-     * 開始幀率監控
-     */
+   * 開始幀率監控
+   */
   startFrameRateMonitoring() {
-    const measureFrameRate = (currentTime) => {
+    const measureFrameRate = currentTime => {
       if (!this.isMonitoring) return;
 
       const deltaTime = currentTime - this.lastFrameTime;
@@ -144,8 +151,8 @@ class PerformanceMonitor {
   }
 
   /**
-     * 開始記憶體監控
-     */
+   * 開始記憶體監控
+   */
   startMemoryMonitoring() {
     if (!performance.memory) {
       console.warn('Memory monitoring not supported in this browser');
@@ -181,8 +188,8 @@ class PerformanceMonitor {
   }
 
   /**
-     * 開始渲染監控
-     */
+   * 開始渲染監控
+   */
   startRenderMonitoring() {
     if (!window.PerformanceObserver) {
       console.warn('PerformanceObserver not supported');
@@ -190,7 +197,7 @@ class PerformanceMonitor {
     }
 
     try {
-      this.performanceObserver = new PerformanceObserver((list) => {
+      this.performanceObserver = new PerformanceObserver(list => {
         const entries = list.getEntries();
 
         entries.forEach(entry => {
@@ -225,8 +232,8 @@ class PerformanceMonitor {
   }
 
   /**
-     * 測量算法性能
-     */
+   * 測量算法性能
+   */
   measureAlgorithmPerformance(algorithmName, algorithmFunction) {
     const startMark = `${algorithmName}-start`;
     const endMark = `${algorithmName}-end`;
@@ -243,10 +250,10 @@ class PerformanceMonitor {
   }
 
   /**
-     * 註冊算法測試
-     * @param {string} testName - 測試名稱
-     * @param {Function} testFunction - 測試函數
-     */
+   * 註冊算法測試
+   * @param {string} testName - 測試名稱
+   * @param {Function} testFunction - 測試函數
+   */
   registerAlgorithmTest(testName, testFunction) {
     if (!this.algorithmTests) {
       this.algorithmTests = {};
@@ -257,11 +264,11 @@ class PerformanceMonitor {
   }
 
   /**
-     * 運行註冊的算法測試
-     * @param {string} testName - 測試名稱
-     * @param {...any} args - 傳遞給測試函數的參數
-     * @returns {Object} 測試結果
-     */
+   * 運行註冊的算法測試
+   * @param {string} testName - 測試名稱
+   * @param {...any} args - 傳遞給測試函數的參數
+   * @returns {Object} 測試結果
+   */
   runAlgorithmTest(testName, ...args) {
     if (!this.algorithmTests || !this.algorithmTests[testName]) {
       console.error(`Algorithm test "${testName}" not found`);
@@ -274,7 +281,9 @@ class PerformanceMonitor {
     const result = this.algorithmTests[testName](...args);
     const endTime = performance.now();
 
-    console.log(`Algorithm test "${testName}" completed in ${(endTime - startTime).toFixed(2)}ms`);
+    console.log(
+      `Algorithm test "${testName}" completed in ${(endTime - startTime).toFixed(2)}ms`
+    );
 
     // 記錄測試結果
     if (!this.testResults) {
@@ -300,8 +309,8 @@ class PerformanceMonitor {
   }
 
   /**
-     * 測量渲染性能
-     */
+   * 測量渲染性能
+   */
   measureRenderPerformance(renderName, renderFunction) {
     const startMark = `${renderName}-start`;
     const endMark = `${renderName}-end`;
@@ -318,8 +327,8 @@ class PerformanceMonitor {
   }
 
   /**
-     * 處理性能警告
-     */
+   * 處理性能警告
+   */
   handlePerformanceWarning(type, value) {
     const warnings = {
       'low-framerate': `幀率過低: ${value.toFixed(1)} FPS`,
@@ -347,8 +356,8 @@ class PerformanceMonitor {
   }
 
   /**
-     * 記錄性能警告
-     */
+   * 記錄性能警告
+   */
   recordPerformanceWarning(type, value) {
     if (!this.performanceWarnings) {
       this.performanceWarnings = {};
@@ -375,8 +384,8 @@ class PerformanceMonitor {
   }
 
   /**
-     * 判斷是否為嚴重性能問題
-     */
+   * 判斷是否為嚴重性能問題
+   */
   isSeverePerformanceIssue(type, value) {
     const severeThresholds = {
       'low-framerate': this.isMobile ? 15 : 20,
@@ -390,8 +399,8 @@ class PerformanceMonitor {
   }
 
   /**
-     * 顯示性能通知
-     */
+   * 顯示性能通知
+   */
   showPerformanceNotification(type, value) {
     // 避免重複通知
     if (this.lastPerformanceNotification === type) {
@@ -424,31 +433,31 @@ class PerformanceMonitor {
   }
 
   /**
-     * 應用自動優化
-     */
+   * 應用自動優化
+   */
   applyAutoOptimizations(type, value) {
     switch (type) {
-    case 'low-framerate':
-      this.optimizeForLowFramerate();
-      break;
-    case 'high-memory':
-      this.optimizeMemoryUsage();
-      break;
-    case 'slow-render':
-      this.optimizeRendering();
-      break;
-    case 'slow-algorithm':
-      this.optimizeAlgorithms();
-      break;
-    case 'high-touch-latency':
-      this.optimizeTouchResponse();
-      break;
+      case 'low-framerate':
+        this.optimizeForLowFramerate();
+        break;
+      case 'high-memory':
+        this.optimizeMemoryUsage();
+        break;
+      case 'slow-render':
+        this.optimizeRendering();
+        break;
+      case 'slow-algorithm':
+        this.optimizeAlgorithms();
+        break;
+      case 'high-touch-latency':
+        this.optimizeTouchResponse();
+        break;
     }
   }
 
   /**
-     * 優化低幀率
-     */
+   * 優化低幀率
+   */
   optimizeForLowFramerate() {
     if (typeof document === 'undefined') return;
 
@@ -486,11 +495,14 @@ class PerformanceMonitor {
   }
 
   /**
-     * 優化記憶體使用
-     */
+   * 優化記憶體使用
+   */
   optimizeMemoryUsage() {
     // 清理緩存
-    if (window.probabilityCalculator && window.probabilityCalculator.clearCache) {
+    if (
+      window.probabilityCalculator &&
+      window.probabilityCalculator.clearCache
+    ) {
       window.probabilityCalculator.clearCache();
     }
 
@@ -506,8 +518,8 @@ class PerformanceMonitor {
   }
 
   /**
-     * 優化渲染
-     */
+   * 優化渲染
+   */
   optimizeRendering() {
     if (typeof document === 'undefined') return;
 
@@ -546,16 +558,22 @@ class PerformanceMonitor {
   }
 
   /**
-     * 優化算法
-     */
+   * 優化算法
+   */
   optimizeAlgorithms() {
     // 啟用算法緩存
-    if (window.probabilityCalculator && window.probabilityCalculator.enableCaching) {
+    if (
+      window.probabilityCalculator &&
+      window.probabilityCalculator.enableCaching
+    ) {
       window.probabilityCalculator.enableCaching(true);
     }
 
     // 減少計算精度
-    if (window.probabilityCalculator && window.probabilityCalculator.setPerformanceMode) {
+    if (
+      window.probabilityCalculator &&
+      window.probabilityCalculator.setPerformanceMode
+    ) {
       window.probabilityCalculator.setPerformanceMode(true);
     }
 
@@ -563,8 +581,8 @@ class PerformanceMonitor {
   }
 
   /**
-     * 優化觸控響應
-     */
+   * 優化觸控響應
+   */
   optimizeTouchResponse() {
     if (typeof document === 'undefined') return;
 
@@ -597,8 +615,8 @@ class PerformanceMonitor {
   }
 
   /**
-     * 清理舊的性能數據
-     */
+   * 清理舊的性能數據
+   */
   clearOldMetrics() {
     const maxAge = 60000; // 1 minute
     const now = performance.now();
@@ -625,8 +643,8 @@ class PerformanceMonitor {
   }
 
   /**
-     * 建議優化措施
-     */
+   * 建議優化措施
+   */
   suggestOptimizations(type, value) {
     const optimizations = {
       'low-framerate': [
@@ -655,8 +673,8 @@ class PerformanceMonitor {
   }
 
   /**
-     * 生成性能報告
-     */
+   * 生成性能報告
+   */
   generatePerformanceReport() {
     const report = {
       timestamp: new Date().toISOString(),
@@ -672,8 +690,8 @@ class PerformanceMonitor {
   }
 
   /**
-     * 計算平均幀率
-     */
+   * 計算平均幀率
+   */
   calculateAverageFrameRate() {
     if (this.metrics.frameRate.length === 0) return 0;
 
@@ -682,8 +700,8 @@ class PerformanceMonitor {
   }
 
   /**
-     * 獲取最新記憶體使用情況
-     */
+   * 獲取最新記憶體使用情況
+   */
   getLatestMemoryUsage() {
     if (this.metrics.memoryUsage.length === 0) return null;
 
@@ -691,8 +709,8 @@ class PerformanceMonitor {
   }
 
   /**
-     * 計算平均渲染時間
-     */
+   * 計算平均渲染時間
+   */
   calculateAverageRenderTime() {
     if (this.metrics.renderTime.length === 0) return 0;
 
@@ -701,8 +719,8 @@ class PerformanceMonitor {
   }
 
   /**
-     * 計算平均算法執行時間
-     */
+   * 計算平均算法執行時間
+   */
   calculateAverageAlgorithmTime() {
     if (this.metrics.algorithmTime.length === 0) return 0;
 
@@ -711,8 +729,8 @@ class PerformanceMonitor {
   }
 
   /**
-     * 生成優化建議
-     */
+   * 生成優化建議
+   */
   generateRecommendations() {
     const recommendations = [];
 
@@ -740,8 +758,8 @@ class PerformanceMonitor {
   }
 
   /**
-     * 清理性能數據
-     */
+   * 清理性能數據
+   */
   clearMetrics() {
     this.metrics = {
       frameRate: [],
@@ -753,21 +771,23 @@ class PerformanceMonitor {
   }
 
   /**
-     * 檢查是否為生產環境
-     */
+   * 檢查是否為生產環境
+   */
   isProduction() {
     // 在 Node.js 環境中，window 可能不存在
     if (typeof window === 'undefined' || !window.location) {
       return false; // 在測試環境中視為開發環境
     }
 
-    return window.location.hostname !== 'localhost' &&
-               window.location.hostname !== '127.0.0.1';
+    return (
+      window.location.hostname !== 'localhost' &&
+      window.location.hostname !== '127.0.0.1'
+    );
   }
 
   /**
-     * 設置頁面可見性變化處理器
-     */
+   * 設置頁面可見性變化處理器
+   */
   setupVisibilityChangeHandler() {
     if (typeof document.visibilityState !== 'undefined') {
       document.addEventListener('visibilitychange', () => {
@@ -783,8 +803,8 @@ class PerformanceMonitor {
   }
 
   /**
-     * 暫停監控
-     */
+   * 暫停監控
+   */
   pauseMonitoring() {
     if (this.frameRateRAF) {
       cancelAnimationFrame(this.frameRateRAF);
@@ -794,8 +814,8 @@ class PerformanceMonitor {
   }
 
   /**
-     * 恢復監控
-     */
+   * 恢復監控
+   */
   resumeMonitoring() {
     if (this.isMonitoring && this.isPaused) {
       this.startFrameRateMonitoring();
@@ -805,11 +825,12 @@ class PerformanceMonitor {
   }
 
   /**
-     * 獲取性能統計
-     */
+   * 獲取性能統計
+   */
   getPerformanceStats() {
     try {
-      const frameRateData = this.metrics.frameRate.length > 0 ? this.metrics.frameRate : [0];
+      const frameRateData =
+        this.metrics.frameRate.length > 0 ? this.metrics.frameRate : [0];
 
       return {
         frameRate: {
@@ -845,18 +866,22 @@ class PerformanceMonitor {
   }
 
   /**
-     * 檢測移動設備
-     */
+   * 檢測移動設備
+   */
   detectMobileDevice() {
     const userAgent = navigator.userAgent || navigator.vendor || window.opera;
-    return /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(userAgent) ||
-               (navigator.maxTouchPoints && navigator.maxTouchPoints > 2) ||
-               window.innerWidth <= 768;
+    return (
+      /android|webos|iphone|ipad|ipod|blackberry|iemobile|opera mini/i.test(
+        userAgent
+      ) ||
+      (navigator.maxTouchPoints && navigator.maxTouchPoints > 2) ||
+      window.innerWidth <= 768
+    );
   }
 
   /**
-     * 檢測設備性能等級
-     */
+   * 檢測設備性能等級
+   */
   detectPerformanceLevel() {
     const hardwareConcurrency = navigator.hardwareConcurrency || 2;
     const memory = navigator.deviceMemory || 2;
@@ -871,16 +896,19 @@ class PerformanceMonitor {
   }
 
   /**
-     * 初始化移動設備 API
-     */
+   * 初始化移動設備 API
+   */
   initMobileAPIs() {
     // 電池 API
     if (typeof navigator !== 'undefined' && 'getBattery' in navigator) {
-      navigator.getBattery().then(battery => {
-        this.batteryAPI = battery;
-      }).catch(error => {
-        console.warn('Battery API not available:', error);
-      });
+      navigator
+        .getBattery()
+        .then(battery => {
+          this.batteryAPI = battery;
+        })
+        .catch(error => {
+          console.warn('Battery API not available:', error);
+        });
     }
 
     // 網絡 API
@@ -896,42 +924,50 @@ class PerformanceMonitor {
   }
 
   /**
-     * 開始觸控延遲監控
-     */
+   * 開始觸控延遲監控
+   */
   startTouchLatencyMonitoring() {
     if (typeof document === 'undefined') return;
 
     let touchStartTime = 0;
 
-    document.addEventListener('touchstart', (e) => {
-      touchStartTime = performance.now();
-    }, { passive: true });
+    document.addEventListener(
+      'touchstart',
+      e => {
+        touchStartTime = performance.now();
+      },
+      { passive: true }
+    );
 
-    document.addEventListener('touchend', (e) => {
-      if (touchStartTime > 0) {
-        const latency = performance.now() - touchStartTime;
-        this.metrics.touchLatency.push({
-          latency,
-          timestamp: performance.now()
-        });
+    document.addEventListener(
+      'touchend',
+      e => {
+        if (touchStartTime > 0) {
+          const latency = performance.now() - touchStartTime;
+          this.metrics.touchLatency.push({
+            latency,
+            timestamp: performance.now()
+          });
 
-        // 保持最近50個記錄
-        if (this.metrics.touchLatency.length > 50) {
-          this.metrics.touchLatency.shift();
+          // 保持最近50個記錄
+          if (this.metrics.touchLatency.length > 50) {
+            this.metrics.touchLatency.shift();
+          }
+
+          if (latency > this.warningThresholds.highTouchLatency) {
+            this.handlePerformanceWarning('high-touch-latency', latency);
+          }
+
+          touchStartTime = 0;
         }
-
-        if (latency > this.warningThresholds.highTouchLatency) {
-          this.handlePerformanceWarning('high-touch-latency', latency);
-        }
-
-        touchStartTime = 0;
-      }
-    }, { passive: true });
+      },
+      { passive: true }
+    );
   }
 
   /**
-     * 開始電池監控
-     */
+   * 開始電池監控
+   */
   startBatteryMonitoring() {
     if (!this.batteryAPI) return;
 
@@ -963,8 +999,8 @@ class PerformanceMonitor {
   }
 
   /**
-     * 開始網絡監控
-     */
+   * 開始網絡監控
+   */
   startNetworkMonitoring() {
     if (!this.networkAPI) return;
 
@@ -993,14 +1029,17 @@ class PerformanceMonitor {
   }
 
   /**
-     * 移動設備優化
-     */
+   * 移動設備優化
+   */
   optimizeForMobile() {
     if (typeof document === 'undefined') return;
 
     // 減少動畫幀率
     if (this.performanceLevel === 'low') {
-      document.documentElement.style.setProperty('--animation-duration', '0.5s');
+      document.documentElement.style.setProperty(
+        '--animation-duration',
+        '0.5s'
+      );
     }
 
     // 啟用硬件加速
@@ -1020,8 +1059,8 @@ class PerformanceMonitor {
   }
 
   /**
-     * 設置電池優化
-     */
+   * 設置電池優化
+   */
   setupBatteryOptimization() {
     if (typeof document === 'undefined') return;
 
@@ -1046,8 +1085,8 @@ class PerformanceMonitor {
   }
 
   /**
-     * 減少電力消耗
-     */
+   * 減少電力消耗
+   */
   reducePowerConsumption() {
     if (typeof document === 'undefined') return;
 
@@ -1059,8 +1098,8 @@ class PerformanceMonitor {
   }
 
   /**
-     * 恢復電力消耗
-     */
+   * 恢復電力消耗
+   */
   restorePowerConsumption() {
     if (typeof document === 'undefined') return;
 
@@ -1069,8 +1108,8 @@ class PerformanceMonitor {
   }
 
   /**
-     * 處理設備方向變化
-     */
+   * 處理設備方向變化
+   */
   handleOrientationChange() {
     if (typeof document === 'undefined') return;
 
@@ -1089,8 +1128,12 @@ class PerformanceMonitor {
 const performanceMonitor = new PerformanceMonitor();
 
 // 自動啟動性能監控（在開發模式下）
-if (typeof window !== 'undefined' && window.location &&
-    (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+if (
+  typeof window !== 'undefined' &&
+  window.location &&
+  (window.location.hostname === 'localhost' ||
+    window.location.hostname === '127.0.0.1')
+) {
   performanceMonitor.startMonitoring();
 }
 

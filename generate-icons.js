@@ -163,5 +163,7 @@ if (typeof window !== 'undefined') {
     createIconDirectoryStructure
   };
 
-  console.log('Icon Generator loaded. Use IconGenerator.createIconDirectoryStructure() for instructions.');
+  console.log(
+    'Icon Generator loaded. Use IconGenerator.createIconDirectoryStructure() for instructions.'
+  );
 }

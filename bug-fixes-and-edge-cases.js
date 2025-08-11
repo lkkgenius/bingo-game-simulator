@@ -14,8 +14,8 @@ class BugFixHandler {
   }
 
   /**
-     * Initialize bug fix handler
-     */
+   * Initialize bug fix handler
+   */
   init() {
     if (this.isInitialized) return;
 
@@ -33,12 +33,12 @@ class BugFixHandler {
   }
 
   /**
-     * Setup validation rules
-     */
+   * Setup validation rules
+   */
   setupValidationRules() {
     // Game state validation
     this.validationRules.set('gameState', {
-      validate: (state) => {
+      validate: state => {
         if (!state) return { valid: false, error: 'Game state is null' };
         if (!state.board || !Array.isArray(state.board)) {
           return { valid: false, error: 'Invalid board structure' };
@@ -58,16 +58,20 @@ class BugFixHandler {
         }
         return { valid: true };
       },
-      fix: (state) => {
+      fix: state => {
         if (!state) {
           return this.createDefaultGameState();
         }
         if (!state.board || !Array.isArray(state.board)) {
-          state.board = Array(5).fill().map(() => Array(5).fill(0));
+          state.board = Array(5)
+            .fill()
+            .map(() => Array(5).fill(0));
         }
         // Fix board dimensions
         if (state.board.length !== 5) {
-          state.board = Array(5).fill().map(() => Array(5).fill(0));
+          state.board = Array(5)
+            .fill()
+            .map(() => Array(5).fill(0));
         }
         // Fix row dimensions and cell values
         for (let i = 0; i < 5; i++) {
@@ -117,14 +121,22 @@ class BugFixHandler {
 
     // Suggestion validation
     this.validationRules.set('suggestion', {
-      validate: (suggestion) => {
+      validate: suggestion => {
         if (!suggestion || typeof suggestion !== 'object') {
           return { valid: false, error: 'Invalid suggestion object' };
         }
-        if (typeof suggestion.row !== 'number' || typeof suggestion.col !== 'number') {
+        if (
+          typeof suggestion.row !== 'number' ||
+          typeof suggestion.col !== 'number'
+        ) {
           return { valid: false, error: 'Invalid suggestion coordinates' };
         }
-        if (suggestion.row < 0 || suggestion.row >= 5 || suggestion.col < 0 || suggestion.col >= 5) {
+        if (
+          suggestion.row < 0 ||
+          suggestion.row >= 5 ||
+          suggestion.col < 0 ||
+          suggestion.col >= 5
+        ) {
           return { valid: false, error: 'Suggestion out of bounds' };
         }
         if (typeof suggestion.value !== 'number' || isNaN(suggestion.value)) {
@@ -132,7 +144,7 @@ class BugFixHandler {
         }
         return { valid: true };
       },
-      fix: (suggestion) => {
+      fix: suggestion => {
         if (!suggestion || typeof suggestion !== 'object') {
           return { row: 2, col: 2, value: 0, confidence: 0.5 };
         }
@@ -149,18 +161,20 @@ class BugFixHandler {
   }
 
   /**
-     * Setup edge case handlers
-     */
+   * Setup edge case handlers
+   */
   setupEdgeCaseHandlers() {
     // Handle rapid clicking
     this.edgeCaseHandlers.set('rapidClicking', {
       lastClickTime: 0,
       clickCount: 0,
-      handle: (event) => {
+      handle: event => {
         const now = Date.now();
-        const timeDiff = now - this.edgeCaseHandlers.get('rapidClicking').lastClickTime;
+        const timeDiff =
+          now - this.edgeCaseHandlers.get('rapidClicking').lastClickTime;
 
-        if (timeDiff < 100) { // Less than 100ms between clicks
+        if (timeDiff < 100) {
+          // Less than 100ms between clicks
           this.edgeCaseHandlers.get('rapidClicking').clickCount++;
           if (this.edgeCaseHandlers.get('rapidClicking').clickCount > 3) {
             console.warn('Rapid clicking detected, throttling...');
@@ -196,11 +210,13 @@ class BugFixHandler {
         this.edgeCaseHandlers.get('memoryLeak').timeoutIds.clear();
 
         // Clean up event listeners
-        this.edgeCaseHandlers.get('memoryLeak').eventListeners.forEach((listener, element) => {
-          if (element && element.removeEventListener) {
-            element.removeEventListener(listener.event, listener.handler);
-          }
-        });
+        this.edgeCaseHandlers
+          .get('memoryLeak')
+          .eventListeners.forEach((listener, element) => {
+            if (element && element.removeEventListener) {
+              element.removeEventListener(listener.event, listener.handler);
+            }
+          });
         this.edgeCaseHandlers.get('memoryLeak').eventListeners.clear();
       }
     });
@@ -262,10 +278,17 @@ class BugFixHandler {
           handler.retryCount++;
 
           if (handler.retryCount <= handler.maxRetries) {
-            console.warn(`Network error, retrying (${handler.retryCount}/${handler.maxRetries}):`, error);
+            console.warn(
+              `Network error, retrying (${handler.retryCount}/${handler.maxRetries}):`,
+              error
+            );
             // Exponential backoff
-            await new Promise(resolve => setTimeout(resolve, Math.pow(2, handler.retryCount) * 1000));
-            return this.edgeCaseHandlers.get('networkError').handle(networkFn, ...args);
+            await new Promise(resolve =>
+              setTimeout(resolve, Math.pow(2, handler.retryCount) * 1000)
+            );
+            return this.edgeCaseHandlers
+              .get('networkError')
+              .handle(networkFn, ...args);
           } else {
             console.error('Network error after max retries:', error);
             handler.retryCount = 0;
@@ -277,8 +300,8 @@ class BugFixHandler {
   }
 
   /**
-     * Apply preventive fixes
-     */
+   * Apply preventive fixes
+   */
   applyPreventiveFixes() {
     // Fix 1: Prevent multiple game initialization
     this.preventMultipleInitialization();
@@ -303,8 +326,8 @@ class BugFixHandler {
   }
 
   /**
-     * Prevent multiple game initialization
-     */
+   * Prevent multiple game initialization
+   */
   preventMultipleInitialization() {
     if (this.fixedIssues.has('multipleInit')) return;
 
@@ -314,7 +337,7 @@ class BugFixHandler {
       let isInitializing = false;
       let isInitialized = false;
 
-      window.initializeGame = function(...args) {
+      window.initializeGame = function (...args) {
         if (isInitializing || isInitialized) {
           console.warn('Game initialization already in progress or completed');
           return;
@@ -335,40 +358,46 @@ class BugFixHandler {
   }
 
   /**
-     * Handle missing dependencies
-     */
+   * Handle missing dependencies
+   */
   handleMissingDependencies() {
     if (this.fixedIssues.has('missingDeps')) return;
 
     // Check for required globals
-    const requiredGlobals = ['SafeDOM', 'logger', 'gameState', 'LineDetector', 'ProbabilityCalculator'];
+    const requiredGlobals = [
+      'SafeDOM',
+      'logger',
+      'gameState',
+      'LineDetector',
+      'ProbabilityCalculator'
+    ];
 
     requiredGlobals.forEach(globalName => {
       if (typeof window[globalName] === 'undefined') {
         console.warn(`Missing global: ${globalName}, creating placeholder`);
 
         switch (globalName) {
-        case 'SafeDOM':
-          window.SafeDOM = {
-            createElement: (tag, attrs, text) => {
-              const el = document.createElement(tag);
-              if (attrs) Object.assign(el, attrs);
-              if (text) el.textContent = text;
-              return el;
-            },
-            createStructure: (struct) => {
-              return document.createElement(struct.tag || 'div');
-            }
-          };
-          break;
-        case 'logger':
-          window.logger = {
-            info: console.log.bind(console),
-            warn: console.warn.bind(console),
-            error: console.error.bind(console),
-            debug: console.debug.bind(console)
-          };
-          break;
+          case 'SafeDOM':
+            window.SafeDOM = {
+              createElement: (tag, attrs, text) => {
+                const el = document.createElement(tag);
+                if (attrs) Object.assign(el, attrs);
+                if (text) el.textContent = text;
+                return el;
+              },
+              createStructure: struct => {
+                return document.createElement(struct.tag || 'div');
+              }
+            };
+            break;
+          case 'logger':
+            window.logger = {
+              info: console.log.bind(console),
+              warn: console.warn.bind(console),
+              error: console.error.bind(console),
+              debug: console.debug.bind(console)
+            };
+            break;
         }
       }
     });
@@ -377,14 +406,14 @@ class BugFixHandler {
   }
 
   /**
-     * Fix timing issues
-     */
+   * Fix timing issues
+   */
   fixTimingIssues() {
     if (this.fixedIssues.has('timing')) return;
 
     // Ensure DOM is ready before operations
     const originalAddEventListener = Element.prototype.addEventListener;
-    Element.prototype.addEventListener = function(event, handler, options) {
+    Element.prototype.addEventListener = function (event, handler, options) {
       if (document.readyState === 'loading' && event === 'click') {
         document.addEventListener('DOMContentLoaded', () => {
           originalAddEventListener.call(this, event, handler, options);
@@ -398,14 +427,14 @@ class BugFixHandler {
   }
 
   /**
-     * Handle browser compatibility
-     */
+   * Handle browser compatibility
+   */
   handleBrowserCompatibility() {
     if (this.fixedIssues.has('compatibility')) return;
 
     // Polyfill for requestAnimationFrame
     if (!window.requestAnimationFrame) {
-      window.requestAnimationFrame = function(callback) {
+      window.requestAnimationFrame = function (callback) {
         return setTimeout(callback, 16);
       };
     }
@@ -413,7 +442,7 @@ class BugFixHandler {
     // Polyfill for performance.now
     if (!window.performance || !window.performance.now) {
       window.performance = window.performance || {};
-      window.performance.now = function() {
+      window.performance.now = function () {
         return Date.now();
       };
     }
@@ -421,7 +450,7 @@ class BugFixHandler {
     // Fix for older browsers without CSS.supports
     if (!window.CSS || !window.CSS.supports) {
       window.CSS = window.CSS || {};
-      window.CSS.supports = function() {
+      window.CSS.supports = function () {
         return true; // Assume support for simplicity
       };
     }
@@ -430,8 +459,8 @@ class BugFixHandler {
   }
 
   /**
-     * Prevent memory leaks
-     */
+   * Prevent memory leaks
+   */
   preventMemoryLeaks() {
     if (this.fixedIssues.has('memoryLeaks')) return;
 
@@ -444,27 +473,32 @@ class BugFixHandler {
     const activeTimeouts = new Set();
     const activeIntervals = new Set();
 
-    window.setTimeout = function(callback, delay, ...args) {
-      const id = originalSetTimeout.call(this, (...callbackArgs) => {
-        activeTimeouts.delete(id);
-        callback(...callbackArgs);
-      }, delay, ...args);
+    window.setTimeout = function (callback, delay, ...args) {
+      const id = originalSetTimeout.call(
+        this,
+        (...callbackArgs) => {
+          activeTimeouts.delete(id);
+          callback(...callbackArgs);
+        },
+        delay,
+        ...args
+      );
       activeTimeouts.add(id);
       return id;
     };
 
-    window.setInterval = function(callback, delay, ...args) {
+    window.setInterval = function (callback, delay, ...args) {
       const id = originalSetInterval.call(this, callback, delay, ...args);
       activeIntervals.add(id);
       return id;
     };
 
-    window.clearTimeout = function(id) {
+    window.clearTimeout = function (id) {
       activeTimeouts.delete(id);
       return originalClearTimeout.call(this, id);
     };
 
-    window.clearInterval = function(id) {
+    window.clearInterval = function (id) {
       activeIntervals.delete(id);
       return originalClearInterval.call(this, id);
     };
@@ -479,21 +513,25 @@ class BugFixHandler {
   }
 
   /**
-     * Fix touch events
-     */
+   * Fix touch events
+   */
   fixTouchEvents() {
     if (this.fixedIssues.has('touchEvents')) return;
 
     // Prevent double-tap zoom on game cells
-    document.addEventListener('touchstart', (event) => {
-      if (event.target.classList.contains('game-cell')) {
-        event.preventDefault();
-      }
-    }, { passive: false });
+    document.addEventListener(
+      'touchstart',
+      event => {
+        if (event.target.classList.contains('game-cell')) {
+          event.preventDefault();
+        }
+      },
+      { passive: false }
+    );
 
     // Handle touch events properly
     let lastTouchTime = 0;
-    document.addEventListener('touchend', (event) => {
+    document.addEventListener('touchend', event => {
       const now = Date.now();
       if (now - lastTouchTime < 300) {
         // Prevent rapid touches
@@ -507,13 +545,13 @@ class BugFixHandler {
   }
 
   /**
-     * Fix focus management
-     */
+   * Fix focus management
+   */
   fixFocusManagement() {
     if (this.fixedIssues.has('focusManagement')) return;
 
     // Ensure focus is visible
-    document.addEventListener('focusin', (event) => {
+    document.addEventListener('focusin', event => {
       if (event.target) {
         event.target.scrollIntoView({
           block: 'nearest',
@@ -523,7 +561,7 @@ class BugFixHandler {
     });
 
     // Handle focus trapping in modals
-    document.addEventListener('keydown', (event) => {
+    document.addEventListener('keydown', event => {
       if (event.key === 'Tab') {
         const modal = document.querySelector('.modal:not(.hidden)');
         if (modal) {
@@ -538,7 +576,10 @@ class BugFixHandler {
             if (event.shiftKey && document.activeElement === firstElement) {
               event.preventDefault();
               lastElement.focus();
-            } else if (!event.shiftKey && document.activeElement === lastElement) {
+            } else if (
+              !event.shiftKey &&
+              document.activeElement === lastElement
+            ) {
               event.preventDefault();
               firstElement.focus();
             }
@@ -551,11 +592,11 @@ class BugFixHandler {
   }
 
   /**
-     * Setup global error handling
-     */
+   * Setup global error handling
+   */
   setupGlobalErrorHandling() {
     // Handle unhandled promise rejections
-    window.addEventListener('unhandledrejection', (event) => {
+    window.addEventListener('unhandledrejection', event => {
       console.error('Unhandled promise rejection:', event.reason);
 
       // Try to recover gracefully
@@ -572,7 +613,7 @@ class BugFixHandler {
     });
 
     // Handle script errors
-    window.addEventListener('error', (event) => {
+    window.addEventListener('error', event => {
       console.error('Script error:', event.error);
 
       // Try to recover based on error type
@@ -583,8 +624,8 @@ class BugFixHandler {
   }
 
   /**
-     * Validate and fix data
-     */
+   * Validate and fix data
+   */
   validateAndFix(type, data, ...args) {
     const rule = this.validationRules.get(type);
     if (!rule) {
@@ -602,8 +643,8 @@ class BugFixHandler {
   }
 
   /**
-     * Handle edge case
-     */
+   * Handle edge case
+   */
   handleEdgeCase(type, ...args) {
     const handler = this.edgeCaseHandlers.get(type);
     if (!handler) {
@@ -615,8 +656,8 @@ class BugFixHandler {
   }
 
   /**
-     * Find nearest empty cell
-     */
+   * Find nearest empty cell
+   */
   findNearestEmptyCell(row, col, board) {
     const visited = new Set();
     const queue = [[row, col, 0]]; // [row, col, distance]
@@ -634,7 +675,10 @@ class BugFixHandler {
 
       // Add neighbors
       const neighbors = [
-        [r-1, c], [r+1, c], [r, c-1], [r, c+1]
+        [r - 1, c],
+        [r + 1, c],
+        [r, c - 1],
+        [r, c + 1]
       ];
 
       for (const [nr, nc] of neighbors) {
@@ -648,11 +692,13 @@ class BugFixHandler {
   }
 
   /**
-     * Create default game state
-     */
+   * Create default game state
+   */
   createDefaultGameState() {
     return {
-      board: Array(5).fill().map(() => Array(5).fill(0)),
+      board: Array(5)
+        .fill()
+        .map(() => Array(5).fill(0)),
       currentRound: 1,
       maxRounds: 8,
       gamePhase: 'waiting',
@@ -665,8 +711,8 @@ class BugFixHandler {
   }
 
   /**
-     * Recover game state
-     */
+   * Recover game state
+   */
   recoverGameState() {
     console.log('Attempting to recover game state...');
 
@@ -689,8 +735,8 @@ class BugFixHandler {
   }
 
   /**
-     * Handle network error
-     */
+   * Handle network error
+   */
   handleNetworkError(error) {
     console.log('Handling network error:', error);
 
@@ -706,8 +752,8 @@ class BugFixHandler {
   }
 
   /**
-     * Get fix status
-     */
+   * Get fix status
+   */
   getFixStatus() {
     return {
       isInitialized: this.isInitialized,

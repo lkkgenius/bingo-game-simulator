@@ -22,8 +22,8 @@ class PWAManager {
   }
 
   /**
-     * 初始化 PWA 管理器
-     */
+   * 初始化 PWA 管理器
+   */
   init() {
     this.checkInstallStatus();
     this.registerServiceWorker();
@@ -34,12 +34,13 @@ class PWAManager {
   }
 
   /**
-     * 檢查安裝狀態
-     */
+   * 檢查安裝狀態
+   */
   checkInstallStatus() {
     // 檢查是否在獨立模式下運行（已安裝）
-    this.isInstalled = window.matchMedia('(display-mode: standalone)').matches ||
-                          window.navigator.standalone === true;
+    this.isInstalled =
+      window.matchMedia('(display-mode: standalone)').matches ||
+      window.navigator.standalone === true;
 
     if (this.isInstalled) {
       if (window.logger) {
@@ -50,8 +51,8 @@ class PWAManager {
   }
 
   /**
-     * 註冊 Service Worker
-     */
+   * 註冊 Service Worker
+   */
   async registerServiceWorker() {
     if ('serviceWorker' in navigator) {
       try {
@@ -69,7 +70,6 @@ class PWAManager {
         if (this.registration.waiting) {
           this.showUpdatePrompt();
         }
-
       } catch (error) {
         if (window.logger) {
           window.logger.error('Service Worker registration failed:', error);
@@ -79,13 +79,16 @@ class PWAManager {
   }
 
   /**
-     * 處理 Service Worker 更新
-     */
+   * 處理 Service Worker 更新
+   */
   handleServiceWorkerUpdate() {
     const newWorker = this.registration.installing;
 
     newWorker.addEventListener('statechange', () => {
-      if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+      if (
+        newWorker.state === 'installed' &&
+        navigator.serviceWorker.controller
+      ) {
         this.isUpdateAvailable = true;
         this.showUpdatePrompt();
       }
@@ -93,10 +96,10 @@ class PWAManager {
   }
 
   /**
-     * 設置安裝提示
-     */
+   * 設置安裝提示
+   */
   setupInstallPrompt() {
-    window.addEventListener('beforeinstallprompt', (e) => {
+    window.addEventListener('beforeinstallprompt', e => {
       e.preventDefault();
       this.deferredPrompt = e;
       this.showInstallPrompt();
@@ -114,8 +117,8 @@ class PWAManager {
   }
 
   /**
-     * 顯示安裝提示
-     */
+   * 顯示安裝提示
+   */
   showInstallPrompt() {
     if (this.isInstalled) return;
 
@@ -129,59 +132,61 @@ class PWAManager {
   }
 
   /**
-     * 創建安裝橫幅
-     */
+   * 創建安裝橫幅
+   */
   createInstallBanner() {
     const banner = SafeDOM.createStructure({
       tag: 'div',
       attributes: { class: 'pwa-install-banner' },
-      children: [{
-        tag: 'div',
-        attributes: { class: 'install-content' },
-        children: [
-          {
-            tag: 'div',
-            attributes: { class: 'install-icon' },
-            textContent: '📱'
-          },
-          {
-            tag: 'div',
-            attributes: { class: 'install-text' },
-            children: [
-              {
-                tag: 'h3',
-                textContent: '安裝 Bingo 遊戲'
-              },
-              {
-                tag: 'p',
-                textContent: '安裝到主屏幕，隨時隨地暢玩'
-              }
-            ]
-          },
-          {
-            tag: 'div',
-            attributes: { class: 'install-actions' },
-            children: [
-              {
-                tag: 'button',
-                attributes: {
-                  class: 'install-btn',
-                  id: 'pwa-install-btn'
+      children: [
+        {
+          tag: 'div',
+          attributes: { class: 'install-content' },
+          children: [
+            {
+              tag: 'div',
+              attributes: { class: 'install-icon' },
+              textContent: '📱'
+            },
+            {
+              tag: 'div',
+              attributes: { class: 'install-text' },
+              children: [
+                {
+                  tag: 'h3',
+                  textContent: '安裝 Bingo 遊戲'
                 },
-                textContent: '安裝'
-              },
-              {
-                tag: 'button',
-                attributes: {
-                  class: 'dismiss-btn',
-                  id: 'pwa-dismiss-btn'
+                {
+                  tag: 'p',
+                  textContent: '安裝到主屏幕，隨時隨地暢玩'
+                }
+              ]
+            },
+            {
+              tag: 'div',
+              attributes: { class: 'install-actions' },
+              children: [
+                {
+                  tag: 'button',
+                  attributes: {
+                    class: 'install-btn',
+                    id: 'pwa-install-btn'
+                  },
+                  textContent: '安裝'
                 },
-                textContent: '×'
-              }
-            ]
-          }
-        ]
-      }]
+                {
+                  tag: 'button',
+                  attributes: {
+                    class: 'dismiss-btn',
+                    id: 'pwa-dismiss-btn'
+                  },
+                  textContent: '×'
+                }
+              ]
+            }
+          ]
+        }
+      ]
     });
 
     // 綁定事件
@@ -197,8 +202,8 @@ class PWAManager {
   }
 
   /**
-     * 安裝 PWA
-     */
+   * 安裝 PWA
+   */
   async installPWA() {
     if (!this.deferredPrompt) return;
 
@@ -218,7 +223,6 @@ class PWAManager {
 
       this.deferredPrompt = null;
       this.hideInstallPrompt();
-
     } catch (error) {
       if (window.logger) {
         window.logger.error('Failed to install PWA:', error);
@@ -227,8 +231,8 @@ class PWAManager {
   }
 
   /**
-     * 隱藏安裝提示
-     */
+   * 隱藏安裝提示
+   */
   hideInstallPrompt() {
     const banner = document.querySelector('.pwa-install-banner');
     if (banner) {
@@ -242,37 +246,39 @@ class PWAManager {
   }
 
   /**
-     * 顯示安裝成功消息
-     */
+   * 顯示安裝成功消息
+   */
   showInstallSuccessMessage() {
     const message = SafeDOM.createStructure({
       tag: 'div',
       attributes: { class: 'pwa-success-message' },
-      children: [{
-        tag: 'div',
-        attributes: { class: 'success-content' },
-        children: [
-          {
-            tag: 'div',
-            attributes: { class: 'success-icon' },
-            textContent: '✅'
-          },
-          {
-            tag: 'div',
-            attributes: { class: 'success-text' },
-            children: [
-              {
-                tag: 'h3',
-                textContent: '安裝成功！'
-              },
-              {
-                tag: 'p',
-                textContent: 'Bingo 遊戲已添加到主屏幕'
-              }
-            ]
-          }
-        ]
-      }]
+      children: [
+        {
+          tag: 'div',
+          attributes: { class: 'success-content' },
+          children: [
+            {
+              tag: 'div',
+              attributes: { class: 'success-icon' },
+              textContent: '✅'
+            },
+            {
+              tag: 'div',
+              attributes: { class: 'success-text' },
+              children: [
+                {
+                  tag: 'h3',
+                  textContent: '安裝成功！'
+                },
+                {
+                  tag: 'p',
+                  textContent: 'Bingo 遊戲已添加到主屏幕'
+                }
+              ]
+            }
+          ]
+        }
+      ]
     });
 
     document.body.appendChild(message);
@@ -292,13 +298,16 @@ class PWAManager {
   }
 
   /**
-     * 設置更新檢查
-     */
+   * 設置更新檢查
+   */
   setupUpdateCheck() {
     // 每30分鐘檢查一次更新
-    setInterval(() => {
-      this.checkForUpdates();
-    }, 30 * 60 * 1000);
+    setInterval(
+      () => {
+        this.checkForUpdates();
+      },
+      30 * 60 * 1000
+    );
 
     // 頁面可見時檢查更新
     document.addEventListener('visibilitychange', () => {
@@ -309,8 +318,8 @@ class PWAManager {
   }
 
   /**
-     * 檢查更新
-     */
+   * 檢查更新
+   */
   async checkForUpdates() {
     if (!this.registration) return;
 
@@ -324,59 +333,61 @@ class PWAManager {
   }
 
   /**
-     * 顯示更新提示
-     */
+   * 顯示更新提示
+   */
   showUpdatePrompt() {
     const updateBanner = SafeDOM.createStructure({
       tag: 'div',
       attributes: { class: 'pwa-update-banner' },
-      children: [{
-        tag: 'div',
-        attributes: { class: 'update-content' },
-        children: [
-          {
-            tag: 'div',
-            attributes: { class: 'update-icon' },
-            textContent: '🔄'
-          },
-          {
-            tag: 'div',
-            attributes: { class: 'update-text' },
-            children: [
-              {
-                tag: 'h3',
-                textContent: '新版本可用'
-              },
-              {
-                tag: 'p',
-                textContent: '點擊更新以獲得最新功能'
-              }
-            ]
-          },
-          {
-            tag: 'div',
-            attributes: { class: 'update-actions' },
-            children: [
-              {
-                tag: 'button',
-                attributes: {
-                  class: 'update-btn',
-                  id: 'pwa-update-btn'
+      children: [
+        {
+          tag: 'div',
+          attributes: { class: 'update-content' },
+          children: [
+            {
+              tag: 'div',
+              attributes: { class: 'update-icon' },
+              textContent: '🔄'
+            },
+            {
+              tag: 'div',
+              attributes: { class: 'update-text' },
+              children: [
+                {
+                  tag: 'h3',
+                  textContent: '新版本可用'
                 },
-                textContent: '更新'
-              },
-              {
-                tag: 'button',
-                attributes: {
-                  class: 'dismiss-btn',
-                  id: 'pwa-update-dismiss-btn'
+                {
+                  tag: 'p',
+                  textContent: '點擊更新以獲得最新功能'
+                }
+              ]
+            },
+            {
+              tag: 'div',
+              attributes: { class: 'update-actions' },
+              children: [
+                {
+                  tag: 'button',
+                  attributes: {
+                    class: 'update-btn',
+                    id: 'pwa-update-btn'
+                  },
+                  textContent: '更新'
                 },
-                textContent: '稍後'
-              }
-            ]
-          }
-        ]
-      }]
+                {
+                  tag: 'button',
+                  attributes: {
+                    class: 'dismiss-btn',
+                    id: 'pwa-update-dismiss-btn'
+                  },
+                  textContent: '稍後'
+                }
+              ]
+            }
+          ]
+        }
+      ]
     });
 
     document.body.appendChild(updateBanner);
@@ -386,23 +397,27 @@ class PWAManager {
     }, 100);
 
     // 綁定事件
-    updateBanner.querySelector('#pwa-update-btn').addEventListener('click', () => {
-      this.applyUpdate();
-    });
+    updateBanner
+      .querySelector('#pwa-update-btn')
+      .addEventListener('click', () => {
+        this.applyUpdate();
+      });
 
-    updateBanner.querySelector('#pwa-update-dismiss-btn').addEventListener('click', () => {
-      updateBanner.classList.remove('show');
-      setTimeout(() => {
-        if (updateBanner.parentNode) {
-          updateBanner.parentNode.removeChild(updateBanner);
-        }
-      }, 300);
-    });
+    updateBanner
+      .querySelector('#pwa-update-dismiss-btn')
+      .addEventListener('click', () => {
+        updateBanner.classList.remove('show');
+        setTimeout(() => {
+          if (updateBanner.parentNode) {
+            updateBanner.parentNode.removeChild(updateBanner);
+          }
+        }, 300);
+      });
   }
 
   /**
-     * 應用更新
-     */
+   * 應用更新
+   */
   applyUpdate() {
     if (!this.registration || !this.registration.waiting) return;
 
@@ -415,8 +430,8 @@ class PWAManager {
   }
 
   /**
-     * 設置離線檢測
-     */
+   * 設置離線檢測
+   */
   setupOfflineDetection() {
     window.addEventListener('online', () => {
       this.showConnectionStatus('online');
@@ -433,8 +448,8 @@ class PWAManager {
   }
 
   /**
-     * 顯示連接狀態
-     */
+   * 顯示連接狀態
+   */
   showConnectionStatus(status) {
     const statusBanner = document.createElement('div');
     statusBanner.className = `connection-status ${status}`;
@@ -495,8 +510,8 @@ class PWAManager {
   }
 
   /**
-     * 創建安裝按鈕
-     */
+   * 創建安裝按鈕
+   */
   createInstallButton() {
     if (this.isInstalled) return;
 
@@ -520,8 +535,8 @@ class PWAManager {
   }
 
   /**
-     * 獲取安裝狀態
-     */
+   * 獲取安裝狀態
+   */
   getInstallStatus() {
     return {
       isInstalled: this.isInstalled,

@@ -123,7 +123,10 @@ async function testGameInitialization() {
     });
 
     TestUtils.assert(loadingState.exists, '載入畫面元素應該存在');
-    TestUtils.assert(loadingState.isHidden || loadingState.opacity === '0', '載入畫面應該已隱藏');
+    TestUtils.assert(
+      loadingState.isHidden || loadingState.opacity === '0',
+      '載入畫面應該已隱藏'
+    );
     TestUtils.recordTest('載入畫面隱藏測試', true);
   } catch (error) {
     TestUtils.recordTest('載入畫面隱藏測試', false, error);
@@ -152,9 +155,18 @@ async function testGameInitialization() {
             }`
     });
 
-    TestUtils.assert(componentState.loadedCount >= 4, `至少應該載入 4 個核心組件，實際載入: ${componentState.loadedCount}`);
-    TestUtils.assert(componentState.components.gameState, 'GameState 應該已載入');
-    TestUtils.assert(componentState.components.gameBoard, 'GameBoard 應該已載入');
+    TestUtils.assert(
+      componentState.loadedCount >= 4,
+      `至少應該載入 4 個核心組件，實際載入: ${componentState.loadedCount}`
+    );
+    TestUtils.assert(
+      componentState.components.gameState,
+      'GameState 應該已載入'
+    );
+    TestUtils.assert(
+      componentState.components.gameBoard,
+      'GameBoard 應該已載入'
+    );
     TestUtils.recordTest('漸進式載入組件檢查', true);
   } catch (error) {
     TestUtils.recordTest('漸進式載入組件檢查', false, error);
@@ -224,9 +236,15 @@ async function testGameInitialization() {
             }`
     });
 
-    TestUtils.assert(algorithmState.optionCount >= 2, '應該有至少2個演算法選項');
+    TestUtils.assert(
+      algorithmState.optionCount >= 2,
+      '應該有至少2個演算法選項'
+    );
     TestUtils.assert(algorithmState.hasSelected, '應該有一個預選的演算法');
-    TestUtils.assert(algorithmState.selectedAlgorithm === 'standard', '預設應該選擇標準演算法');
+    TestUtils.assert(
+      algorithmState.selectedAlgorithm === 'standard',
+      '預設應該選擇標準演算法'
+    );
     TestUtils.recordTest('演算法選擇器初始化測試', true);
   } catch (error) {
     TestUtils.recordTest('演算法選擇器初始化測試', false, error);
@@ -306,7 +324,10 @@ async function testGameInteraction() {
       });
 
       TestUtils.assert(moveResult.hasPlayerClass, '格子應該標記為玩家選擇');
-      TestUtils.assert(moveResult.gamePhase === '電腦回合', '應該轉換到電腦回合');
+      TestUtils.assert(
+        moveResult.gamePhase === '電腦回合',
+        '應該轉換到電腦回合'
+      );
       TestUtils.recordTest('玩家移動測試', true);
     } else {
       throw new Error('找不到建議的移動');
@@ -339,9 +360,15 @@ async function testGameInteraction() {
             }`
     });
 
-    TestUtils.assert(computerMoveResult.computerMoveCount === 1, '應該有一個電腦移動');
+    TestUtils.assert(
+      computerMoveResult.computerMoveCount === 1,
+      '應該有一個電腦移動'
+    );
     TestUtils.assert(computerMoveResult.currentRound === 2, '應該進入第2輪');
-    TestUtils.assert(computerMoveResult.gamePhase === '玩家回合', '應該回到玩家回合');
+    TestUtils.assert(
+      computerMoveResult.gamePhase === '玩家回合',
+      '應該回到玩家回合'
+    );
     TestUtils.recordTest('電腦回合測試', true);
   } catch (error) {
     TestUtils.recordTest('電腦回合測試', false, error);
@@ -429,8 +456,14 @@ async function testAlgorithmSwitching() {
             }`
     });
 
-    TestUtils.assert(algorithmState.selectedAlgorithm === 'enhanced', '應該選擇增強演算法');
-    TestUtils.assert(algorithmState.displayedName === '增強演算法', '應該顯示增強演算法名稱');
+    TestUtils.assert(
+      algorithmState.selectedAlgorithm === 'enhanced',
+      '應該選擇增強演算法'
+    );
+    TestUtils.assert(
+      algorithmState.displayedName === '增強演算法',
+      '應該顯示增強演算法名稱'
+    );
     TestUtils.recordTest('演算法切換測試', true);
   } catch (error) {
     TestUtils.recordTest('演算法切換測試', false, error);
@@ -470,7 +503,11 @@ async function testAlgorithmSwitching() {
     });
 
     TestUtils.assert(suggestionState.hasSuggestion, '應該有建議的移動');
-    TestUtils.assert(suggestionState.suggestionText && suggestionState.suggestionText !== '點擊開始遊戲獲得建議', '應該顯示具體的建議');
+    TestUtils.assert(
+      suggestionState.suggestionText &&
+        suggestionState.suggestionText !== '點擊開始遊戲獲得建議',
+      '應該顯示具體的建議'
+    );
     TestUtils.recordTest('建議系統測試', true);
   } catch (error) {
     TestUtils.recordTest('建議系統測試', false, error);
@@ -641,7 +678,10 @@ async function testGameCompletion() {
 
     TestUtils.assert(restartState.resultPanelHidden, '結果面板應該隱藏');
     TestUtils.assert(restartState.currentRound === 1, '應該重置到第1輪');
-    TestUtils.assert(restartState.completedLines === 0, '完成連線數應該重置為0');
+    TestUtils.assert(
+      restartState.completedLines === 0,
+      '完成連線數應該重置為0'
+    );
     TestUtils.assert(restartState.playerCellCount === 0, '玩家格子應該清空');
     TestUtils.assert(restartState.computerCellCount === 0, '電腦格子應該清空');
     TestUtils.recordTest('重新開始功能測試', true);
@@ -751,12 +791,23 @@ async function testPerformance() {
             }`
     });
 
-    TestUtils.assert(performanceMetrics.loadTime < 5000, '頁面載入時間應該少於5秒');
-    TestUtils.assert(performanceMetrics.domContentLoaded < 3000, 'DOM載入時間應該少於3秒');
-    TestUtils.assert(performanceMetrics.slowResources === 0, '不應該有載入時間超過1秒的資源');
+    TestUtils.assert(
+      performanceMetrics.loadTime < 5000,
+      '頁面載入時間應該少於5秒'
+    );
+    TestUtils.assert(
+      performanceMetrics.domContentLoaded < 3000,
+      'DOM載入時間應該少於3秒'
+    );
+    TestUtils.assert(
+      performanceMetrics.slowResources === 0,
+      '不應該有載入時間超過1秒的資源'
+    );
 
     console.log(`  頁面載入時間: ${performanceMetrics.loadTime.toFixed(2)}ms`);
-    console.log(`  DOM載入時間: ${performanceMetrics.domContentLoaded.toFixed(2)}ms`);
+    console.log(
+      `  DOM載入時間: ${performanceMetrics.domContentLoaded.toFixed(2)}ms`
+    );
     console.log(`  資源數量: ${performanceMetrics.resourceCount}`);
 
     TestUtils.recordTest('頁面載入性能測試', true);
@@ -783,7 +834,8 @@ async function testPerformance() {
       interactionTimes.push(endTime - startTime);
     }
 
-    const avgResponseTime = interactionTimes.reduce((a, b) => a + b, 0) / interactionTimes.length;
+    const avgResponseTime =
+      interactionTimes.reduce((a, b) => a + b, 0) / interactionTimes.length;
     const maxResponseTime = Math.max(...interactionTimes);
 
     TestUtils.assert(avgResponseTime < 500, '平均響應時間應該少於500ms');
@@ -816,7 +868,9 @@ async function testPerformance() {
       const usagePercentage = (memoryUsage.used / memoryUsage.limit) * 100;
       TestUtils.assert(usagePercentage < 50, '記憶體使用率應該少於50%');
 
-      console.log(`  記憶體使用: ${(memoryUsage.used / 1024 / 1024).toFixed(2)}MB`);
+      console.log(
+        `  記憶體使用: ${(memoryUsage.used / 1024 / 1024).toFixed(2)}MB`
+      );
       console.log(`  記憶體使用率: ${usagePercentage.toFixed(2)}%`);
     }
 
@@ -912,10 +966,19 @@ async function testLoadingFlow() {
             }`
     });
 
-    TestUtils.assert(finalState.loadingHidden || finalState.loadingOpacity === '0', '載入畫面應該已隱藏');
+    TestUtils.assert(
+      finalState.loadingHidden || finalState.loadingOpacity === '0',
+      '載入畫面應該已隱藏'
+    );
     TestUtils.assert(finalState.startButtonEnabled, '開始遊戲按鈕應該已啟用');
-    TestUtils.assert(finalState.gameComponentsLoaded.gameState, 'GameState 應該已載入');
-    TestUtils.assert(finalState.gameComponentsLoaded.gameBoard, 'GameBoard 應該已載入');
+    TestUtils.assert(
+      finalState.gameComponentsLoaded.gameState,
+      'GameState 應該已載入'
+    );
+    TestUtils.assert(
+      finalState.gameComponentsLoaded.gameBoard,
+      'GameBoard 應該已載入'
+    );
 
     TestUtils.recordTest('載入完成驗證測試', true);
   } catch (error) {
@@ -973,7 +1036,9 @@ async function runPlaywrightE2ETests() {
     console.log(`❌ 失敗: ${testResults.failed}`);
     console.log(`⏭️  跳過: ${testResults.skipped}`);
     console.log(`⏱️  執行時間: ${(duration / 1000).toFixed(2)}秒`);
-    console.log(`📈 通過率: ${((testResults.passed / testResults.total) * 100).toFixed(1)}%`);
+    console.log(
+      `📈 通過率: ${((testResults.passed / testResults.total) * 100).toFixed(1)}%`
+    );
 
     if (testResults.failed === 0) {
       console.log('\n🎉 所有測試通過！');
@@ -982,7 +1047,6 @@ async function runPlaywrightE2ETests() {
       console.log(`\n⚠️  有 ${testResults.failed} 個測試失敗`);
       return false;
     }
-
   } catch (error) {
     console.error('❌ 測試執行過程中發生錯誤:', error);
     return false;

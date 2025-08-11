@@ -84,7 +84,10 @@ describe('CI/CD Integration Tests', () => {
   });
 
   test('should have performance regression test with thresholds', () => {
-    const perfTestContent = fs.readFileSync('performance-regression.test.js', 'utf8');
+    const perfTestContent = fs.readFileSync(
+      'performance-regression.test.js',
+      'utf8'
+    );
 
     // Check for performance thresholds
     expect(perfTestContent.includes('PERFORMANCE_THRESHOLDS')).toBeTruthy();
@@ -160,7 +163,10 @@ describe('CI/CD Integration Tests', () => {
   });
 
   test('should have cross-browser testing configuration', () => {
-    const scheduledTests = fs.readFileSync('.github/workflows/scheduled-tests.yml', 'utf8');
+    const scheduledTests = fs.readFileSync(
+      '.github/workflows/scheduled-tests.yml',
+      'utf8'
+    );
 
     // Check for browser matrix
     expect(scheduledTests.includes('matrix:')).toBeTruthy();

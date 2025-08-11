@@ -68,53 +68,59 @@ function createEnhancedLoadingOverlay() {
       role: 'status',
       'aria-label': '載入中'
     },
-    children: [{
-      tag: 'div',
-      attributes: { class: 'loading-container' },
-      children: [
-        {
-          tag: 'div',
-          attributes: { class: 'loading-spinner-container' },
-          children: [{
+    children: [
+      {
+        tag: 'div',
+        attributes: { class: 'loading-container' },
+        children: [
+          {
             tag: 'div',
-            attributes: {
-              class: 'loading-spinner',
-              'aria-hidden': 'true'
-            }
-          }]
-        },
-        {
-          tag: 'div',
-          attributes: { class: 'loading-content' },
-          children: [
-            {
-              tag: 'div',
-              attributes: { class: 'loading-text' },
-              textContent: '正在載入遊戲組件...'
-            },
-            {
-              tag: 'div',
-              attributes: { class: 'loading-progress' },
-              children: [{
+            attributes: { class: 'loading-spinner-container' },
+            children: [
+              {
                 tag: 'div',
                 attributes: {
-                  class: 'loading-progress-bar',
-                  role: 'progressbar',
-                  'aria-valuemin': '0',
-                  'aria-valuemax': '100',
-                  'aria-valuenow': '0'
+                  class: 'loading-spinner',
+                  'aria-hidden': 'true'
                 }
-              }]
-            },
-            {
-              tag: 'div',
-              attributes: { class: 'loading-tips' },
-              textContent: '提示：您可以使用鍵盤方向鍵來導航遊戲板'
-            }
-          ]
-        }
-      ]
-    }]
+              }
+            ]
+          },
+          {
+            tag: 'div',
+            attributes: { class: 'loading-content' },
+            children: [
+              {
+                tag: 'div',
+                attributes: { class: 'loading-text' },
+                textContent: '正在載入遊戲組件...'
+              },
+              {
+                tag: 'div',
+                attributes: { class: 'loading-progress' },
+                children: [
+                  {
+                    tag: 'div',
+                    attributes: {
+                      class: 'loading-progress-bar',
+                      role: 'progressbar',
+                      'aria-valuemin': '0',
+                      'aria-valuemax': '100',
+                      'aria-valuenow': '0'
+                    }
+                  }
+                ]
+              },
+              {
+                tag: 'div',
+                attributes: { class: 'loading-tips' },
+                textContent: '提示：您可以使用鍵盤方向鍵來導航遊戲板'
+              }
+            ]
+          }
+        ]
+      }
+    ]
   });
 
   // 添加增強樣式
@@ -452,11 +458,7 @@ function hideButtonLoading(buttonId) {
  * 創建骨架屏載入效果
  */
 function createSkeletonLoader(container, config = {}) {
-  const {
-    lines = 3,
-    height = '1rem',
-    spacing = '8px'
-  } = config;
+  const { lines = 3, height = '1rem', spacing = '8px' } = config;
 
   const skeletonContainer = document.createElement('div');
   skeletonContainer.className = 'skeleton-container';
@@ -505,7 +507,11 @@ class ProgressiveLoader {
     this.onComplete = null;
     this.loadStartTime = performance.now();
     this.componentLoadTimes = new Map();
-    this.criticalComponents = new Set(['GameState', 'LineDetector', 'ProbabilityCalculator']); // 關鍵組件優先載入
+    this.criticalComponents = new Set([
+      'GameState',
+      'LineDetector',
+      'ProbabilityCalculator'
+    ]); // 關鍵組件優先載入
   }
 
   setTotalComponents(total) {
@@ -519,7 +525,9 @@ class ProgressiveLoader {
 
     const progress = (this.loadedComponents.size / this.totalComponents) * 100;
 
-    console.log(`Component loaded: ${componentName} (${loadTime.toFixed(2)}ms)`);
+    console.log(
+      `Component loaded: ${componentName} (${loadTime.toFixed(2)}ms)`
+    );
 
     if (this.onProgress) {
       this.onProgress(progress, componentName);
@@ -530,12 +538,18 @@ class ProgressiveLoader {
       this.loadedComponents.has(comp)
     );
 
-    if (criticalLoaded && this.loadedComponents.size >= this.criticalComponents.size) {
+    if (
+      criticalLoaded &&
+      this.loadedComponents.size >= this.criticalComponents.size
+    ) {
       // 關鍵組件載入完成，可以開始基本功能
       this.onCriticalComponentsLoaded?.();
     }
 
-    if (this.loadedComponents.size === this.totalComponents && this.onComplete) {
+    if (
+      this.loadedComponents.size === this.totalComponents &&
+      this.onComplete
+    ) {
       const totalLoadTime = performance.now() - this.loadStartTime;
       console.log(`All components loaded in ${totalLoadTime.toFixed(2)}ms`);
       this.logLoadingPerformance();
@@ -679,7 +693,8 @@ function showErrorModal(title, message, options = {}) {
     const detailsText = document.createElement('pre');
     detailsText.style.whiteSpace = 'pre-wrap';
     detailsText.style.margin = '0';
-    detailsText.textContent = typeof details === 'string' ? details : JSON.stringify(details, null, 2);
+    detailsText.textContent =
+      typeof details === 'string' ? details : JSON.stringify(details, null, 2);
     detailsContainer.appendChild(detailsText);
   }
 
@@ -693,7 +708,7 @@ function showErrorModal(title, message, options = {}) {
   closeButton.className = 'error-close-btn';
   closeButton.textContent = '關閉';
 
-  closeButton.addEventListener('click', function() {
+  closeButton.addEventListener('click', function () {
     errorModal.remove();
   });
 
@@ -706,7 +721,7 @@ function showErrorModal(title, message, options = {}) {
     retryButton.textContent = '重試';
     retryButton.style.backgroundColor = '#3498db';
 
-    retryButton.addEventListener('click', function() {
+    retryButton.addEventListener('click', function () {
       errorModal.remove();
       onRetry();
     });
@@ -732,7 +747,7 @@ function showErrorModal(title, message, options = {}) {
   }
 
   // 點擊背景關閉
-  errorModal.addEventListener('click', function(e) {
+  errorModal.addEventListener('click', function (e) {
     if (e.target === errorModal) {
       errorModal.remove();
     }
@@ -834,11 +849,11 @@ function debounce(func, wait, immediate) {
  */
 function throttle(func, limit) {
   let inThrottle;
-  return function(...args) {
+  return function (...args) {
     if (!inThrottle) {
       func.apply(this, args);
       inThrottle = true;
-      setTimeout(() => inThrottle = false, limit);
+      setTimeout(() => (inThrottle = false), limit);
     }
   };
 }

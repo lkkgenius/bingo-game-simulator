@@ -77,9 +77,15 @@ class EnhancedProbabilityCalculator extends EnhancedBaseProbabilityCalculator {
     super(EnhancedCONSTANTS.ALGORITHM_WEIGHTS.ENHANCED);
 
     // Enhanced-specific caching with LRU strategy
-    this._valueCache = new LRUCache(EnhancedCONSTANTS.PERFORMANCE.CACHE_SIZE.VALUE_CACHE);
-    this._lineCache = new LRUCache(EnhancedCONSTANTS.PERFORMANCE.CACHE_SIZE.LINE_CACHE);
-    this._boardAnalysisCache = new LRUCache(EnhancedCONSTANTS.PERFORMANCE.CACHE_SIZE.BOARD_ANALYSIS_CACHE);
+    this._valueCache = new LRUCache(
+      EnhancedCONSTANTS.PERFORMANCE.CACHE_SIZE.VALUE_CACHE
+    );
+    this._lineCache = new LRUCache(
+      EnhancedCONSTANTS.PERFORMANCE.CACHE_SIZE.LINE_CACHE
+    );
+    this._boardAnalysisCache = new LRUCache(
+      EnhancedCONSTANTS.PERFORMANCE.CACHE_SIZE.BOARD_ANALYSIS_CACHE
+    );
 
     // Pre-compute optimization data
     this._allPossibleLines = this._precomputeAllLines();
@@ -230,10 +236,10 @@ class EnhancedProbabilityCalculator extends EnhancedBaseProbabilityCalculator {
    */
   calculateIntersectionValue(row, col) {
     // Check if on main diagonal
-    const isOnMainDiagonal = (row === col);
+    const isOnMainDiagonal = row === col;
 
     // Check if on anti-diagonal
-    const isOnAntiDiagonal = (row + col === this.BOARD_SIZE - 1);
+    const isOnAntiDiagonal = row + col === this.BOARD_SIZE - 1;
 
     // Calculate intersection bonus
     if (isOnMainDiagonal && isOnAntiDiagonal) {
@@ -323,20 +329,20 @@ class EnhancedProbabilityCalculator extends EnhancedBaseProbabilityCalculator {
   getLineCells(row, col, lineType) {
     // Use pre-computed line data for better performance
     switch (lineType) {
-    case 'horizontal':
-      return this._allPossibleLines.horizontal[row];
+      case 'horizontal':
+        return this._allPossibleLines.horizontal[row];
 
-    case 'vertical':
-      return this._allPossibleLines.vertical[col];
+      case 'vertical':
+        return this._allPossibleLines.vertical[col];
 
-    case 'diagonal-main':
-      return this._allPossibleLines['diagonal-main'][0];
+      case 'diagonal-main':
+        return this._allPossibleLines['diagonal-main'][0];
 
-    case 'diagonal-anti':
-      return this._allPossibleLines['diagonal-anti'][0];
+      case 'diagonal-anti':
+        return this._allPossibleLines['diagonal-anti'][0];
 
-    default:
-      return [];
+      default:
+        return [];
     }
   }
 
@@ -357,7 +363,7 @@ class EnhancedProbabilityCalculator extends EnhancedBaseProbabilityCalculator {
     const totalMoves = moves.length;
     let processedMoves = 0;
 
-    const processBatch = (startIndex) => {
+    const processBatch = startIndex => {
       const batchSize = EnhancedCONSTANTS.PERFORMANCE.BATCH_SIZE;
       const endIndex = Math.min(startIndex + batchSize, totalMoves);
 
@@ -377,7 +383,11 @@ class EnhancedProbabilityCalculator extends EnhancedBaseProbabilityCalculator {
         // Process next batch in queue
         if (this._batchQueue.length > 0) {
           const nextBatch = this._batchQueue.shift();
-          this.batchCalculateMoveValues(nextBatch.board, nextBatch.moves, nextBatch.callback);
+          this.batchCalculateMoveValues(
+            nextBatch.board,
+            nextBatch.moves,
+            nextBatch.callback
+          );
         }
       }
     };

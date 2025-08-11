@@ -112,16 +112,31 @@ describe('Game Flow Integration', () => {
     // 完成所有回合後應該是遊戲結束階段
     // 使用不同的位置來避免衝突
     const positions = [
-      [2, 2], [2, 3], [2, 4], [3, 0], [3, 1], [3, 2], [3, 3]
+      [2, 2],
+      [2, 3],
+      [2, 4],
+      [3, 0],
+      [3, 1],
+      [3, 2],
+      [3, 3]
     ];
 
     const computerPositions = [
-      [4, 1], [4, 2], [4, 3], [4, 4], [1, 2], [1, 3], [1, 4]
+      [4, 1],
+      [4, 2],
+      [4, 3],
+      [4, 4],
+      [1, 2],
+      [1, 3],
+      [1, 4]
     ];
 
     for (let i = 0; i < 7; i++) {
       engine.processPlayerTurn(positions[i][0], positions[i][1]);
-      engine.processComputerTurn(computerPositions[i][0], computerPositions[i][1]);
+      engine.processComputerTurn(
+        computerPositions[i][0],
+        computerPositions[i][1]
+      );
     }
 
     expect(engine.getCurrentPhase()).toBe('game-over');

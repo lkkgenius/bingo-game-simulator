@@ -1,98 +1,116 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-TW">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Minimal Test</title>
-</head>
-<body>
+  </head>
+  <body>
     <h1>Minimal Test</h1>
     <div id="status"></div>
-    
+
     <script>
-        console.log('Starting minimal test...');
-        
-        function updateStatus(message) {
-            document.getElementById('status').innerHTML += '<p>' + message + '</p>';
-        }
-        
-        updateStatus('Loading scripts...');
+      console.log('Starting minimal test...');
+
+      function updateStatus(message) {
+        document.getElementById('status').innerHTML += '<p>' + message + '</p>';
+      }
+
+      updateStatus('Loading scripts...');
     </script>
-    
+
     <!-- Load scripts one by one -->
     <script src="./utils/common.js"></script>
     <script>
-        updateStatus('utils/common.js loaded. CONSTANTS type: ' + typeof window.CONSTANTS);
-        console.log('CONSTANTS:', window.CONSTANTS);
+      updateStatus(
+        'utils/common.js loaded. CONSTANTS type: ' + typeof window.CONSTANTS
+      );
+      console.log('CONSTANTS:', window.CONSTANTS);
     </script>
-    
+
     <script src="./utils/baseProbabilityCalculator.js"></script>
     <script>
-        updateStatus('utils/baseProbabilityCalculator.js loaded. BaseProbabilityCalculator type: ' + typeof window.BaseProbabilityCalculator);
-        console.log('BaseProbabilityCalculator:', window.BaseProbabilityCalculator);
+      updateStatus(
+        'utils/baseProbabilityCalculator.js loaded. BaseProbabilityCalculator type: ' +
+          typeof window.BaseProbabilityCalculator
+      );
+      console.log(
+        'BaseProbabilityCalculator:',
+        window.BaseProbabilityCalculator
+      );
     </script>
-    
+
     <script>
-        console.log('Before loading probabilityCalculator.js:');
-        console.log('  window.BaseProbabilityCalculator:', typeof window.BaseProbabilityCalculator);
-        console.log('  window.CONSTANTS:', typeof window.CONSTANTS);
-        
-        // Add error handler
-        window.addEventListener('error', function(e) {
-            console.error('Script error:', e.error);
-            updateStatus('Script error: ' + e.error.message);
-        });
+      console.log('Before loading probabilityCalculator.js:');
+      console.log(
+        '  window.BaseProbabilityCalculator:',
+        typeof window.BaseProbabilityCalculator
+      );
+      console.log('  window.CONSTANTS:', typeof window.CONSTANTS);
+
+      // Add error handler
+      window.addEventListener('error', function (e) {
+        console.error('Script error:', e.error);
+        updateStatus('Script error: ' + e.error.message);
+      });
     </script>
-    
-    <script src="./probabilityCalculator.js" onerror="updateStatus('Failed to load probabilityCalculator.js')"></script>
+
+    <script
+      src="./probabilityCalculator.js"
+      onerror="updateStatus('Failed to load probabilityCalculator.js')"
+    ></script>
     <script>
-        updateStatus('probabilityCalculator.js loaded. ProbabilityCalculator type: ' + typeof window.ProbabilityCalculator);
-        console.log('ProbabilityCalculator:', window.ProbabilityCalculator);
-        
-        // Try to manually execute the class definition
+      updateStatus(
+        'probabilityCalculator.js loaded. ProbabilityCalculator type: ' +
+          typeof window.ProbabilityCalculator
+      );
+      console.log('ProbabilityCalculator:', window.ProbabilityCalculator);
+
+      // Try to manually execute the class definition
+      try {
+        console.log('Attempting manual class definition...');
+        const BaseProbabilityCalculator = window.BaseProbabilityCalculator;
+        const ProbConstants = window.CONSTANTS;
+
+        if (!BaseProbabilityCalculator) {
+          throw new Error('BaseProbabilityCalculator is not available');
+        }
+        if (!ProbConstants) {
+          throw new Error('ProbConstants is not available');
+        }
+
+        class TestProbabilityCalculator extends BaseProbabilityCalculator {
+          constructor() {
+            super(ProbConstants.ALGORITHM_WEIGHTS.STANDARD);
+          }
+
+          calculateMoveValue(board, row, col) {
+            return 0; // Simple implementation
+          }
+        }
+
+        window.TestProbabilityCalculator = TestProbabilityCalculator;
+        updateStatus('Manual class definition successful!');
+        console.log('TestProbabilityCalculator:', TestProbabilityCalculator);
+      } catch (error) {
+        updateStatus('Manual class definition failed: ' + error.message);
+        console.error('Manual definition error:', error);
+      }
+
+      if (window.ProbabilityCalculator) {
         try {
-            console.log('Attempting manual class definition...');
-            const BaseProbabilityCalculator = window.BaseProbabilityCalculator;
-            const ProbConstants = window.CONSTANTS;
-            
-            if (!BaseProbabilityCalculator) {
-                throw new Error('BaseProbabilityCalculator is not available');
-            }
-            if (!ProbConstants) {
-                throw new Error('ProbConstants is not available');
-            }
-            
-            class TestProbabilityCalculator extends BaseProbabilityCalculator {
-                constructor() {
-                    super(ProbConstants.ALGORITHM_WEIGHTS.STANDARD);
-                }
-                
-                calculateMoveValue(board, row, col) {
-                    return 0; // Simple implementation
-                }
-            }
-            
-            window.TestProbabilityCalculator = TestProbabilityCalculator;
-            updateStatus('Manual class definition successful!');
-            console.log('TestProbabilityCalculator:', TestProbabilityCalculator);
-            
+          const calc = new window.ProbabilityCalculator();
+          updateStatus('ProbabilityCalculator instantiated successfully!');
+          console.log('Calculator instance:', calc);
         } catch (error) {
-            updateStatus('Manual class definition failed: ' + error.message);
-            console.error('Manual definition error:', error);
+          updateStatus(
+            'Error instantiating ProbabilityCalculator: ' + error.message
+          );
+          console.error('Error:', error);
         }
-        
-        if (window.ProbabilityCalculator) {
-            try {
-                const calc = new window.ProbabilityCalculator();
-                updateStatus('ProbabilityCalculator instantiated successfully!');
-                console.log('Calculator instance:', calc);
-            } catch (error) {
-                updateStatus('Error instantiating ProbabilityCalculator: ' + error.message);
-                console.error('Error:', error);
-            }
-        } else {
-            updateStatus('ProbabilityCalculator is not available');
-        }
+      } else {
+        updateStatus('ProbabilityCalculator is not available');
+      }
     </script>
-</body>
+  </body>
 </html>

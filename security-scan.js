@@ -85,7 +85,7 @@ class SecurityScanner {
   getFilesToScan(dir) {
     const files = [];
 
-    const scanDir = (currentDir) => {
+    const scanDir = currentDir => {
       const entries = fs.readdirSync(currentDir);
 
       entries.forEach(entry => {
@@ -100,8 +100,10 @@ class SecurityScanner {
         } else if (stat.isFile()) {
           // Include files with target extensions
           const ext = path.extname(entry);
-          if (SCAN_EXTENSIONS.includes(ext) &&
-              !EXCLUDE_PATTERNS.some(pattern => pattern.test(fullPath))) {
+          if (
+            SCAN_EXTENSIONS.includes(ext) &&
+            !EXCLUDE_PATTERNS.some(pattern => pattern.test(fullPath))
+          ) {
             files.push(fullPath);
           }
         }
@@ -118,9 +120,18 @@ class SecurityScanner {
       this.scannedFiles++;
 
       // Skip protocol checks in security tool files and test files
-      const securityFiles = ['safe-dom.js', 'security-utils.js', 'security-scan.js', 'sw.js', 'security-test.js'];
-      const isSecurityFile = securityFiles.some(file => filePath.includes(file));
-      const isTestFile = filePath.includes('.test.') || filePath.includes('test-');
+      const securityFiles = [
+        'safe-dom.js',
+        'security-utils.js',
+        'security-scan.js',
+        'sw.js',
+        'security-test.js'
+      ];
+      const isSecurityFile = securityFiles.some(file =>
+        filePath.includes(file)
+      );
+      const isTestFile =
+        filePath.includes('.test.') || filePath.includes('test-');
 
       // Check each security pattern category
       Object.entries(SECURITY_PATTERNS).forEach(([category, patterns]) => {
@@ -148,7 +159,6 @@ class SecurityScanner {
 
       // Additional custom checks
       this.checkCustomSecurity(filePath, content);
-
     } catch (error) {
       console.error(`Error scanning file ${filePath}:`, error.message);
     }
@@ -156,15 +166,22 @@ class SecurityScanner {
 
   checkCustomSecurity(filePath, content) {
     // Skip protocol checks in security tool files entirely
-    const securityFiles = ['safe-dom.js', 'security-utils.js', 'security-scan.js', 'security-test.js'];
+    const securityFiles = [
+      'safe-dom.js',
+      'security-utils.js',
+      'security-scan.js',
+      'security-test.js'
+    ];
     const isSecurityFile = securityFiles.some(file => filePath.includes(file));
 
     // Skip test files for protocol checks as they may contain test patterns
-    const isTestFile = filePath.includes('.test.') || filePath.includes('test-');
+    const isTestFile =
+      filePath.includes('.test.') || filePath.includes('test-');
 
     if (!isSecurityFile && !isTestFile) {
       // Only check for actual unsafe protocol usage in non-security files
-      const actualUsagePattern = /(?:window\.location\s*=|document\.location\s*=|href\s*=)\s*['"`](?:javascript|vbscript|data):/gi;
+      const actualUsagePattern =
+        /(?:window\.location\s*=|document\.location\s*=|href\s*=)\s*['"`](?:javascript|vbscript|data):/gi;
       const actualUsage = content.match(actualUsagePattern);
 
       if (actualUsage) {
@@ -203,12 +220,15 @@ class SecurityScanner {
 
     // Check for console.log in production files
     const fileName = path.basename(filePath);
-    const isWhitelisted = CONSOLE_WHITELIST.some(whitelistFile => fileName.includes(whitelistFile));
+    const isWhitelisted = CONSOLE_WHITELIST.some(whitelistFile =>
+      fileName.includes(whitelistFile)
+    );
 
-    if (!filePath.includes('.test.') &&
-        !filePath.includes('testRunner') &&
-        !isWhitelisted) {
-
+    if (
+      !filePath.includes('.test.') &&
+      !filePath.includes('testRunner') &&
+      !isWhitelisted
+    ) {
       const consolePattern = /console\.(log|debug|info|warn|error)/g;
       const consoleCalls = content.match(consolePattern);
 
@@ -216,7 +236,10 @@ class SecurityScanner {
       let threshold = 5; // Default threshold
       if (filePath.includes('demo') || filePath.includes('example')) {
         threshold = 15;
-      } else if (filePath.includes('error-boundary') || filePath.includes('loading-functions')) {
+      } else if (
+        filePath.includes('error-boundary') ||
+        filePath.includes('loading-functions')
+      ) {
         threshold = 10;
       }
 
@@ -228,7 +251,8 @@ class SecurityScanner {
           match: `${consoleCalls.length} console calls (threshold: ${threshold})`,
           line: 'multiple',
           severity: 'low',
-          recommendation: 'Consider using ProductionLogger from production-logger.js for conditional logging'
+          recommendation:
+            'Consider using ProductionLogger from production-logger.js for conditional logging'
         });
       }
     }

@@ -17,7 +17,7 @@
 // 模塊化遊戲應用程式
 // ============================================================================
 
-(function(global) {
+(function (global) {
   'use strict';
 
   // 使用全局命名空間避免污染
@@ -42,35 +42,35 @@
   // ============================================================================
 
   /**
-     * 遊戲格子狀態常數
-     * 定義遊戲板上每個格子可能的狀態
-     */
+   * 遊戲格子狀態常數
+   * 定義遊戲板上每個格子可能的狀態
+   */
   const CELL_STATES = {
-    EMPTY: 0,      // 空格子，尚未被選擇
-    PLAYER: 1,     // 玩家選擇的格子
-    COMPUTER: 2    // 電腦選擇的格子
+    EMPTY: 0, // 空格子，尚未被選擇
+    PLAYER: 1, // 玩家選擇的格子
+    COMPUTER: 2 // 電腦選擇的格子
   };
 
   /**
-     * 遊戲階段常數
-     * 定義遊戲進行過程中的不同階段
-     */
+   * 遊戲階段常數
+   * 定義遊戲進行過程中的不同階段
+   */
   const GAME_PHASES = {
-    WAITING: 'waiting',           // 等待遊戲開始
-    PLAYER_TURN: 'player-turn',   // 玩家回合
+    WAITING: 'waiting', // 等待遊戲開始
+    PLAYER_TURN: 'player-turn', // 玩家回合
     COMPUTER_TURN: 'computer-turn', // 電腦回合（等待輸入）
-    GAME_OVER: 'game-over'        // 遊戲結束
+    GAME_OVER: 'game-over' // 遊戲結束
   };
 
   /**
-     * 連線類型常數
-     * 定義 Bingo 遊戲中可能的連線類型
-     */
+   * 連線類型常數
+   * 定義 Bingo 遊戲中可能的連線類型
+   */
   const LINE_TYPES = {
-    HORIZONTAL: 'horizontal',         // 水平連線
-    VERTICAL: 'vertical',             // 垂直連線
-    DIAGONAL_MAIN: 'diagonal-main',   // 主對角線連線（左上到右下）
-    DIAGONAL_ANTI: 'diagonal-anti'    // 反對角線連線（右上到左下）
+    HORIZONTAL: 'horizontal', // 水平連線
+    VERTICAL: 'vertical', // 垂直連線
+    DIAGONAL_MAIN: 'diagonal-main', // 主對角線連線（左上到右下）
+    DIAGONAL_ANTI: 'diagonal-anti' // 反對角線連線（右上到左下）
   };
 
   // ============================================================================
@@ -78,15 +78,15 @@
   // ============================================================================
 
   /**
-     * 遊戲相關錯誤的自定義錯誤類別
-     * 提供更詳細的錯誤信息和類型分類
-     */
+   * 遊戲相關錯誤的自定義錯誤類別
+   * 提供更詳細的錯誤信息和類型分類
+   */
   class GameError extends Error {
     /**
-         * 創建遊戲錯誤實例
-         * @param {string} message - 錯誤訊息
-         * @param {string} type - 錯誤類型
-         */
+     * 創建遊戲錯誤實例
+     * @param {string} message - 錯誤訊息
+     * @param {string} type - 錯誤類型
+     */
     constructor(message, type) {
       super(message);
       this.name = 'GameError';
@@ -95,14 +95,14 @@
   }
 
   /**
-     * 錯誤類型常數
-     * 定義可能發生的錯誤類型，便於錯誤處理和調試
-     */
+   * 錯誤類型常數
+   * 定義可能發生的錯誤類型，便於錯誤處理和調試
+   */
   const ERROR_TYPES = {
-    INVALID_MOVE: 'invalid-move',     // 無效移動
-    CELL_OCCUPIED: 'cell-occupied',   // 格子已被佔用
-    GAME_OVER: 'game-over',           // 遊戲已結束
-    INVALID_PHASE: 'invalid-phase'    // 無效的遊戲階段
+    INVALID_MOVE: 'invalid-move', // 無效移動
+    CELL_OCCUPIED: 'cell-occupied', // 格子已被佔用
+    GAME_OVER: 'game-over', // 遊戲已結束
+    INVALID_PHASE: 'invalid-phase' // 無效的遊戲階段
   };
 
   // ============================================================================
@@ -110,15 +110,15 @@
   // ============================================================================
 
   /**
- * GameState 類別 - 管理 Bingo 遊戲的完整狀態
- *
- * 這個類別負責：
- * - 維護遊戲板狀態
- * - 追蹤玩家和電腦的移動
- * - 管理遊戲回合和階段
- * - 驗證移動的有效性
- * - 處理遊戲進度
- */
+   * GameState 類別 - 管理 Bingo 遊戲的完整狀態
+   *
+   * 這個類別負責：
+   * - 維護遊戲板狀態
+   * - 追蹤玩家和電腦的移動
+   * - 管理遊戲回合和階段
+   * - 驗證移動的有效性
+   * - 處理遊戲進度
+   */
   class GameState {
     /**
      * 創建遊戲狀態實例
@@ -137,18 +137,18 @@
      */
     reset() {
       // 創建空的遊戲板（5x5 二維陣列，所有格子初始為空）
-      this.board = Array(this.boardSize).fill().map(() =>
-        Array(this.boardSize).fill(CELL_STATES.EMPTY)
-      );
+      this.board = Array(this.boardSize)
+        .fill()
+        .map(() => Array(this.boardSize).fill(CELL_STATES.EMPTY));
 
       // 重置遊戲進度
       this.currentRound = 1;
       this.gamePhase = GAME_PHASES.WAITING;
 
       // 清空移動記錄
-      this.playerMoves = [];      // 玩家移動歷史
-      this.computerMoves = [];    // 電腦移動歷史
-      this.completedLines = [];   // 完成的連線記錄
+      this.playerMoves = []; // 玩家移動歷史
+      this.computerMoves = []; // 電腦移動歷史
+      this.completedLines = []; // 完成的連線記錄
 
       // 重置遊戲狀態標誌
       this.gameStarted = false;
@@ -177,8 +177,9 @@
     }
 
     isValidPosition(row, col) {
-      return row >= 0 && row < this.boardSize &&
-               col >= 0 && col < this.boardSize;
+      return (
+        row >= 0 && row < this.boardSize && col >= 0 && col < this.boardSize
+      );
     }
 
     isCellEmpty(row, col) {
@@ -218,15 +219,24 @@
       }
 
       if (this.gamePhase !== expectedPhase) {
-        throw new GameError(`Invalid game phase. Expected: ${expectedPhase}, Current: ${this.gamePhase}`, ERROR_TYPES.INVALID_PHASE);
+        throw new GameError(
+          `Invalid game phase. Expected: ${expectedPhase}, Current: ${this.gamePhase}`,
+          ERROR_TYPES.INVALID_PHASE
+        );
       }
 
       if (!this.isValidPosition(row, col)) {
-        throw new GameError(`Invalid position: (${row}, ${col})`, ERROR_TYPES.INVALID_MOVE);
+        throw new GameError(
+          `Invalid position: (${row}, ${col})`,
+          ERROR_TYPES.INVALID_MOVE
+        );
       }
 
       if (!this.isCellEmpty(row, col)) {
-        throw new GameError(`Cell (${row}, ${col}) is already occupied`, ERROR_TYPES.CELL_OCCUPIED);
+        throw new GameError(
+          `Cell (${row}, ${col}) is already occupied`,
+          ERROR_TYPES.CELL_OCCUPIED
+        );
       }
     }
 
@@ -280,9 +290,9 @@
   let EnhancedProbabilityCalculator = null;
 
   /**
- * Initialize the game when DOM is loaded
- */
-  document.addEventListener('DOMContentLoaded', function() {
+   * Initialize the game when DOM is loaded
+   */
+  document.addEventListener('DOMContentLoaded', function () {
     if (scriptLogger) scriptLogger.info('DOM loaded, initializing game...');
 
     // 檢查瀏覽器兼容性
@@ -323,12 +333,15 @@
   });
 
   /**
- * Load enhanced algorithm asynchronously
- */
+   * Load enhanced algorithm asynchronously
+   */
   function loadEnhancedAlgorithmAsync() {
     return new Promise((resolve, reject) => {
       // Check if enhanced algorithm is already loaded
-      if (typeof EnhancedProbabilityCalculator !== 'undefined' && EnhancedProbabilityCalculator) {
+      if (
+        typeof EnhancedProbabilityCalculator !== 'undefined' &&
+        EnhancedProbabilityCalculator
+      ) {
         resolve();
         return;
       }
@@ -336,7 +349,7 @@
       const script = document.createElement('script');
       script.src = './probabilityCalculator.enhanced.js';
 
-      script.onload = function() {
+      script.onload = function () {
         try {
           // EnhancedProbabilityCalculator class is now available
           // No need to manipulate ProbabilityCalculator variable
@@ -346,7 +359,7 @@
         }
       };
 
-      script.onerror = function() {
+      script.onerror = function () {
         reject(new Error('Failed to load enhanced algorithm'));
       };
 
@@ -355,10 +368,11 @@
   }
 
   /**
- * Initialize game with progressive loading
- */
+   * Initialize game with progressive loading
+   */
   function initializeGameWithProgressiveLoading() {
-    if (scriptLogger) scriptLogger.info('Starting progressive game initialization...');
+    if (scriptLogger)
+      scriptLogger.info('Starting progressive game initialization...');
 
     // 使用 requestAnimationFrame 來優化性能
     requestAnimationFrame(() => {
@@ -370,7 +384,10 @@
         gameState = new GameState();
         // Validate and fix game state if needed
         if (window.bugFixHandler) {
-          gameState = window.bugFixHandler.validateAndFix('gameState', gameState);
+          gameState = window.bugFixHandler.validateAndFix(
+            'gameState',
+            gameState
+          );
         }
         progressiveLoader.markComponentLoaded('GameState');
 
@@ -406,78 +423,92 @@
                 showGlobalLoading('正在載入增強演算法...');
                 updateLoadingProgress(70, '正在載入增強演算法...');
 
-                loadEnhancedAlgorithmAsync().then(() => {
-                  progressiveLoader.markComponentLoaded('Enhanced Algorithm');
+                loadEnhancedAlgorithmAsync()
+                  .then(() => {
+                    progressiveLoader.markComponentLoaded('Enhanced Algorithm');
 
-                  // 啟用增強演算法選擇
-                  if (typeof window.enableAlgorithmSelection === 'function') {
-                    window.enableAlgorithmSelection();
-                  } else {
-                    // 直接啟用增強演算法選項
-                    const enhancedOption = document.querySelector('.algorithm-option[data-algorithm="enhanced"]');
-                    if (enhancedOption) {
-                      enhancedOption.style.opacity = '1';
-                      enhancedOption.style.cursor = 'pointer';
-                      enhancedOption.title = '點擊切換到增強版演算法';
+                    // 啟用增強演算法選擇
+                    if (typeof window.enableAlgorithmSelection === 'function') {
+                      window.enableAlgorithmSelection();
+                    } else {
+                      // 直接啟用增強演算法選項
+                      const enhancedOption = document.querySelector(
+                        '.algorithm-option[data-algorithm="enhanced"]'
+                      );
+                      if (enhancedOption) {
+                        enhancedOption.style.opacity = '1';
+                        enhancedOption.style.cursor = 'pointer';
+                        enhancedOption.title = '點擊切換到增強版演算法';
+                      }
                     }
-                  }
 
-                  requestAnimationFrame(() => {
-                    // Step 6: Setup UI event listeners and enhancements
-                    showGlobalLoading('正在設置用戶界面...');
-                    updateLoadingProgress(85, '正在設置用戶界面...');
+                    requestAnimationFrame(() => {
+                      // Step 6: Setup UI event listeners and enhancements
+                      showGlobalLoading('正在設置用戶界面...');
+                      updateLoadingProgress(85, '正在設置用戶界面...');
 
-                    setupUIEventListeners();
-                    setupEnhancements();
-                    progressiveLoader.markComponentLoaded('UI');
+                      setupUIEventListeners();
+                      setupEnhancements();
+                      progressiveLoader.markComponentLoaded('UI');
 
-                    // Final step: Complete initialization
-                    updateLoadingProgress(100, '初始化完成！');
+                      // Final step: Complete initialization
+                      updateLoadingProgress(100, '初始化完成！');
 
-                    setTimeout(() => {
-                      // 隱藏載入狀態
-                      if (typeof hideGlobalLoading === 'function') {
-                        hideGlobalLoading();
-                      }
+                      setTimeout(() => {
+                        // 隱藏載入狀態
+                        if (typeof hideGlobalLoading === 'function') {
+                          hideGlobalLoading();
+                        }
 
-                      // Show success message
-                      if (typeof showSuccessMessage === 'function') {
-                        showSuccessMessage('遊戲載入完成！歡迎開始遊戲');
-                      }
+                        // Show success message
+                        if (typeof showSuccessMessage === 'function') {
+                          showSuccessMessage('遊戲載入完成！歡迎開始遊戲');
+                        }
 
-                      console.log('Game initialized successfully with progressive loading');
+                        console.log(
+                          'Game initialized successfully with progressive loading'
+                        );
 
-                      // Start performance monitoring
-                      if (window.performanceMonitor && !window.performanceMonitor.isMonitoring) {
-                        window.performanceMonitor.startMonitoring();
-                      }
-                    }, 500);
+                        // Start performance monitoring
+                        if (
+                          window.performanceMonitor &&
+                          !window.performanceMonitor.isMonitoring
+                        ) {
+                          window.performanceMonitor.startMonitoring();
+                        }
+                      }, 500);
+                    });
+                  })
+                  .catch(error => {
+                    console.warn(
+                      'Enhanced algorithm loading failed, continuing with standard only:',
+                      error
+                    );
+                    progressiveLoader.markComponentLoaded('Enhanced Algorithm');
+
+                    requestAnimationFrame(() => {
+                      // Step 6: Setup UI event listeners
+                      showGlobalLoading('正在設置用戶界面...');
+                      updateLoadingProgress(90, '正在設置用戶界面...');
+
+                      setupUIEventListeners();
+                      setupEnhancements();
+                      progressiveLoader.markComponentLoaded('UI');
+
+                      updateLoadingProgress(100, '初始化完成！');
+
+                      setTimeout(() => {
+                        // 隱藏載入狀態
+                        if (typeof hideGlobalLoading === 'function') {
+                          hideGlobalLoading();
+                        }
+
+                        console.log(
+                          'Game initialized successfully with progressive loading'
+                        );
+                      }, 500);
+                    });
                   });
-                }).catch((error) => {
-                  console.warn('Enhanced algorithm loading failed, continuing with standard only:', error);
-                  progressiveLoader.markComponentLoaded('Enhanced Algorithm');
-
-                  requestAnimationFrame(() => {
-                    // Step 6: Setup UI event listeners
-                    showGlobalLoading('正在設置用戶界面...');
-                    updateLoadingProgress(90, '正在設置用戶界面...');
-
-                    setupUIEventListeners();
-                    setupEnhancements();
-                    progressiveLoader.markComponentLoaded('UI');
-
-                    updateLoadingProgress(100, '初始化完成！');
-
-                    setTimeout(() => {
-                      // 隱藏載入狀態
-                      if (typeof hideGlobalLoading === 'function') {
-                        hideGlobalLoading();
-                      }
-
-                      console.log('Game initialized successfully with progressive loading');
-                    }, 500);
-                  });
-                });
               });
             });
           });
@@ -507,35 +538,50 @@
   }
 
   /**
- * Setup all enhancements
- */
+   * Setup all enhancements
+   */
   function setupEnhancements() {
     try {
       // Initialize accessibility enhancements
-      if (window.accessibilityEnhancer && !window.accessibilityEnhancer.isInitialized) {
+      if (
+        window.accessibilityEnhancer &&
+        !window.accessibilityEnhancer.isInitialized
+      ) {
         window.accessibilityEnhancer.init();
       }
 
       // Initialize suggestion enhancements
-      if (window.suggestionEnhancer && !window.suggestionEnhancer.isInitialized) {
+      if (
+        window.suggestionEnhancer &&
+        !window.suggestionEnhancer.isInitialized
+      ) {
         window.suggestionEnhancer.init();
       }
 
       // Setup performance monitoring integration
       if (window.performanceMonitor) {
         // Register algorithm tests
-        window.performanceMonitor.registerAlgorithmTest('standardSuggestion', (board) => {
-          if (probabilityCalculator && probabilityCalculator.getBestSuggestion) {
-            return probabilityCalculator.getBestSuggestion(board);
+        window.performanceMonitor.registerAlgorithmTest(
+          'standardSuggestion',
+          board => {
+            if (
+              probabilityCalculator &&
+              probabilityCalculator.getBestSuggestion
+            ) {
+              return probabilityCalculator.getBestSuggestion(board);
+            }
+            return null;
           }
-          return null;
-        });
+        );
 
         if (typeof EnhancedProbabilityCalculator !== 'undefined') {
-          window.performanceMonitor.registerAlgorithmTest('enhancedSuggestion', (board) => {
-            const enhancedCalc = new EnhancedProbabilityCalculator();
-            return enhancedCalc.getBestSuggestion(board);
-          });
+          window.performanceMonitor.registerAlgorithmTest(
+            'enhancedSuggestion',
+            board => {
+              const enhancedCalc = new EnhancedProbabilityCalculator();
+              return enhancedCalc.getBestSuggestion(board);
+            }
+          );
         }
       }
 
@@ -546,8 +592,8 @@
   }
 
   /**
- * Initialize all game components
- */
+   * Initialize all game components
+   */
   function initializeGame() {
     try {
       if (scriptLogger) scriptLogger.info('Starting game initialization...');
@@ -580,15 +626,19 @@
   }
 
   /**
- * Set up UI event listeners
- */
+   * Set up UI event listeners
+   */
   function setupUIEventListeners() {
     console.log('Setting up UI event listeners...');
 
     const startButton = document.getElementById('start-game');
     const restartButton = document.getElementById('restart-game');
-    const confirmComputerMoveButton = document.getElementById('confirm-computer-move');
-    const randomComputerMoveButton = document.getElementById('random-computer-move');
+    const confirmComputerMoveButton = document.getElementById(
+      'confirm-computer-move'
+    );
+    const randomComputerMoveButton = document.getElementById(
+      'random-computer-move'
+    );
     const playAgainButton = document.getElementById('play-again');
 
     // 設置無障礙功能
@@ -596,7 +646,7 @@
 
     if (startButton) {
       console.log('Found start button, adding event listener');
-      startButton.addEventListener('click', function() {
+      startButton.addEventListener('click', function () {
         console.log('Start button clicked');
         startNewGame();
       });
@@ -614,7 +664,7 @@
 
     if (randomComputerMoveButton) {
       console.log('Found random computer move button, adding event listener');
-      randomComputerMoveButton.addEventListener('click', function() {
+      randomComputerMoveButton.addEventListener('click', function () {
         console.log('Random computer move button clicked');
         makeRandomComputerMove();
       });
@@ -630,7 +680,7 @@
     setupAILearningEventListeners();
 
     // 語言變更事件監聽器
-    document.addEventListener('languageChanged', function(event) {
+    document.addEventListener('languageChanged', function (event) {
       console.log('Language changed, updating game UI...');
       updateGameUIForLanguageChange();
     });
@@ -639,8 +689,8 @@
   }
 
   /**
- * 設置無障礙功能
- */
+   * 設置無障礙功能
+   */
   function setupAccessibilityFeatures() {
     console.log('Setting up accessibility features...');
 
@@ -658,8 +708,8 @@
   }
 
   /**
- * 設置鍵盤導航
- */
+   * 設置鍵盤導航
+   */
   function setupKeyboardNavigation() {
     const gameBoard = document.getElementById('game-board');
     if (!gameBoard) return;
@@ -673,7 +723,7 @@
     gameBoard.setAttribute('aria-label', '5x5 Bingo 遊戲板');
 
     // 鍵盤事件處理
-    gameBoard.addEventListener('keydown', function(event) {
+    gameBoard.addEventListener('keydown', function (event) {
       if (!gameState || !gameState.gameStarted || gameState.gameEnded) {
         return;
       }
@@ -681,27 +731,27 @@
       let handled = false;
 
       switch (event.key) {
-      case 'ArrowUp':
-        focusedRow = Math.max(0, focusedRow - 1);
-        handled = true;
-        break;
-      case 'ArrowDown':
-        focusedRow = Math.min(4, focusedRow + 1);
-        handled = true;
-        break;
-      case 'ArrowLeft':
-        focusedCol = Math.max(0, focusedCol - 1);
-        handled = true;
-        break;
-      case 'ArrowRight':
-        focusedCol = Math.min(4, focusedCol + 1);
-        handled = true;
-        break;
-      case 'Enter':
-      case ' ':
-        handleCellClick(focusedRow, focusedCol);
-        handled = true;
-        break;
+        case 'ArrowUp':
+          focusedRow = Math.max(0, focusedRow - 1);
+          handled = true;
+          break;
+        case 'ArrowDown':
+          focusedRow = Math.min(4, focusedRow + 1);
+          handled = true;
+          break;
+        case 'ArrowLeft':
+          focusedCol = Math.max(0, focusedCol - 1);
+          handled = true;
+          break;
+        case 'ArrowRight':
+          focusedCol = Math.min(4, focusedCol + 1);
+          handled = true;
+          break;
+        case 'Enter':
+        case ' ':
+          handleCellClick(focusedRow, focusedCol);
+          handled = true;
+          break;
       }
 
       if (handled) {
@@ -716,8 +766,8 @@
   }
 
   /**
- * 更新鍵盤焦點視覺指示
- */
+   * 更新鍵盤焦點視覺指示
+   */
   function updateKeyboardFocus(row, col) {
     // 移除所有現有焦點
     document.querySelectorAll('.game-cell.keyboard-focus').forEach(cell => {
@@ -741,8 +791,8 @@
   }
 
   /**
- * 設置 ARIA 標籤
- */
+   * 設置 ARIA 標籤
+   */
   function setupARIALabels() {
     // 遊戲狀態區域
     const gameStatus = document.querySelector('.game-status');
@@ -760,7 +810,10 @@
       suggestionArea.setAttribute('role', 'region');
       suggestionArea.setAttribute('aria-live', 'polite');
       if (typeof i18n !== 'undefined') {
-        suggestionArea.setAttribute('aria-label', i18n.t('aria.move-suggestion'));
+        suggestionArea.setAttribute(
+          'aria-label',
+          i18n.t('aria.move-suggestion')
+        );
       }
     }
 
@@ -775,8 +828,8 @@
   }
 
   /**
- * 更新遊戲板格子的 ARIA 標籤
- */
+   * 更新遊戲板格子的 ARIA 標籤
+   */
   function updateGameBoardCellLabels() {
     const cells = document.querySelectorAll('.game-cell');
     cells.forEach((cell, index) => {
@@ -797,8 +850,8 @@
   }
 
   /**
- * 設置螢幕閱讀器支持
- */
+   * 設置螢幕閱讀器支持
+   */
   function setupScreenReaderSupport() {
     // 創建螢幕閱讀器專用的狀態更新區域
     const srStatus = document.createElement('div');
@@ -814,8 +867,8 @@
   }
 
   /**
- * 宣告當前位置（螢幕閱讀器）
- */
+   * 宣告當前位置（螢幕閱讀器）
+   */
   function announceCurrentPosition(row, col) {
     const srStatus = document.getElementById('sr-status');
     if (!srStatus) return;
@@ -825,14 +878,14 @@
 
     let cellStateKey = '';
     switch (board[row][col]) {
-    case 1:
-      cellStateKey = 'cell.player';
-      break;
-    case 2:
-      cellStateKey = 'cell.computer';
-      break;
-    default:
-      cellStateKey = 'cell.empty';
+      case 1:
+        cellStateKey = 'cell.player';
+        break;
+      case 2:
+        cellStateKey = 'cell.computer';
+        break;
+      default:
+        cellStateKey = 'cell.empty';
     }
 
     // Use i18n if available, otherwise fallback to Chinese
@@ -857,8 +910,8 @@
   }
 
   /**
- * 宣告遊戲狀態變化
- */
+   * 宣告遊戲狀態變化
+   */
   function announceGameStateChange(message) {
     const srStatus = document.getElementById('sr-status');
     if (srStatus) {
@@ -867,36 +920,45 @@
   }
 
   /**
- * 檢測用戶偏好設置
- */
+   * 檢測用戶偏好設置
+   */
   function detectUserPreferences() {
     // 檢測減少動畫偏好
-    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    if (
+      window.matchMedia &&
+      window.matchMedia('(prefers-reduced-motion: reduce)').matches
+    ) {
       document.body.classList.add('reduce-motion');
       console.log('Reduced motion preference detected');
     }
 
     // 檢測高對比度偏好
-    if (window.matchMedia && window.matchMedia('(prefers-contrast: high)').matches) {
+    if (
+      window.matchMedia &&
+      window.matchMedia('(prefers-contrast: high)').matches
+    ) {
       document.body.classList.add('high-contrast');
       console.log('High contrast preference detected');
     }
 
     // 檢測深色模式偏好
-    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+    if (
+      window.matchMedia &&
+      window.matchMedia('(prefers-color-scheme: dark)').matches
+    ) {
       document.body.classList.add('dark-mode');
       console.log('Dark mode preference detected');
     }
   }
 
   /**
- * 設置 AI 學習系統的事件監聽器
- */
+   * 設置 AI 學習系統的事件監聽器
+   */
   function setupAILearningEventListeners() {
     // 算法選擇器
     const algorithmOptions = document.querySelectorAll('.algorithm-option');
     algorithmOptions.forEach(option => {
-      option.addEventListener('click', function() {
+      option.addEventListener('click', function () {
         const algorithm = this.dataset.algorithm;
         selectAlgorithm(algorithm);
       });
@@ -913,7 +975,9 @@
       exportDataButton.addEventListener('click', exportLearningData);
     }
 
-    const importDataButton = document.getElementById('import-learning-data-btn');
+    const importDataButton = document.getElementById(
+      'import-learning-data-btn'
+    );
     const importDataInput = document.getElementById('import-learning-data');
     if (importDataButton && importDataInput) {
       importDataButton.addEventListener('click', () => importDataInput.click());
@@ -922,8 +986,8 @@
   }
 
   /**
- * 更新遊戲 UI 以適應語言變更
- */
+   * 更新遊戲 UI 以適應語言變更
+   */
   function updateGameUIForLanguageChange() {
     try {
       // 更新 ARIA 標籤
@@ -951,8 +1015,8 @@
   }
 
   /**
- * 更新遊戲狀態顯示
- */
+   * 更新遊戲狀態顯示
+   */
   function updateGameStatusDisplay() {
     if (!gameState || typeof i18n === 'undefined') return;
 
@@ -964,8 +1028,8 @@
   }
 
   /**
- * 根據當前遊戲階段更新指示文字
- */
+   * 根據當前遊戲階段更新指示文字
+   */
   function updateInstructionsForCurrentPhase() {
     if (typeof i18n === 'undefined') return;
 
@@ -990,8 +1054,8 @@
   }
 
   /**
- * 更新載入文字
- */
+   * 更新載入文字
+   */
   function updateLoadingText() {
     if (typeof i18n === 'undefined') return;
 
@@ -1002,30 +1066,35 @@
   }
 
   /**
- * 選擇算法
- * @param {string} algorithm - 算法類型
- */
+   * 選擇算法
+   * @param {string} algorithm - 算法類型
+   */
   function selectAlgorithm(algorithm) {
     // 更新 UI 選擇狀態
     document.querySelectorAll('.algorithm-option').forEach(option => {
       option.classList.remove('selected');
     });
 
-    const selectedOption = document.querySelector(`[data-algorithm="${algorithm}"]`);
+    const selectedOption = document.querySelector(
+      `[data-algorithm="${algorithm}"]`
+    );
     if (selectedOption) {
       selectedOption.classList.add('selected');
     }
 
     // 更新當前算法顯示
-    const currentAlgorithmName = document.getElementById('current-algorithm-name');
+    const currentAlgorithmName = document.getElementById(
+      'current-algorithm-name'
+    );
     const algorithmNames = {
-      'standard': '標準演算法',
-      'enhanced': '增強演算法',
+      standard: '標準演算法',
+      enhanced: '增強演算法',
       'ai-learning': 'AI 學習演算法'
     };
 
     if (currentAlgorithmName) {
-      currentAlgorithmName.textContent = algorithmNames[algorithm] || '未知演算法';
+      currentAlgorithmName.textContent =
+        algorithmNames[algorithm] || '未知演算法';
     }
 
     // 顯示或隱藏 AI 學習狀態面板
@@ -1042,18 +1111,18 @@
     // 更新遊戲引擎的算法設置
     if (typeof gameEngine !== 'undefined' && gameEngine) {
       switch (algorithm) {
-      case 'ai-learning':
-        gameEngine.setAILearningEnabled(true);
-        gameEngine.setLearningMode('personalized');
-        break;
-      case 'enhanced':
-        gameEngine.setAILearningEnabled(false);
-        // 這裡可以設置使用增強算法
-        break;
-      default:
-        gameEngine.setAILearningEnabled(false);
-        // 使用標準算法
-        break;
+        case 'ai-learning':
+          gameEngine.setAILearningEnabled(true);
+          gameEngine.setLearningMode('personalized');
+          break;
+        case 'enhanced':
+          gameEngine.setAILearningEnabled(false);
+          // 這裡可以設置使用增強算法
+          break;
+        default:
+          gameEngine.setAILearningEnabled(false);
+          // 使用標準算法
+          break;
       }
     }
 
@@ -1061,10 +1130,14 @@
   }
 
   /**
- * 更新 AI 學習系統狀態顯示
- */
+   * 更新 AI 學習系統狀態顯示
+   */
   function updateAILearningStatus() {
-    if (typeof gameEngine === 'undefined' || !gameEngine || !gameEngine.aiLearningSystem) {
+    if (
+      typeof gameEngine === 'undefined' ||
+      !gameEngine ||
+      !gameEngine.aiLearningSystem
+    ) {
       return;
     }
 
@@ -1081,24 +1154,26 @@
     const playStyleElement = document.getElementById('play-style');
     if (playStyleElement) {
       const styleNames = {
-        'aggressive': '攻擊型',
-        'defensive': '防守型',
-        'balanced': '平衡型',
-        'strategic': '策略型'
+        aggressive: '攻擊型',
+        defensive: '防守型',
+        balanced: '平衡型',
+        strategic: '策略型'
       };
-      playStyleElement.textContent = styleNames[learningStats.playStyle] || '未知';
+      playStyleElement.textContent =
+        styleNames[learningStats.playStyle] || '未知';
     }
 
     // 更新難度等級
     const difficultyElement = document.getElementById('difficulty-level');
     if (difficultyElement) {
       const difficultyNames = {
-        'easy': '簡單',
-        'medium': '中等',
-        'hard': '困難',
-        'expert': '專家'
+        easy: '簡單',
+        medium: '中等',
+        hard: '困難',
+        expert: '專家'
       };
-      difficultyElement.textContent = difficultyNames[learningStats.difficultyLevel] || '未知';
+      difficultyElement.textContent =
+        difficultyNames[learningStats.difficultyLevel] || '未知';
     }
 
     // 更新已玩遊戲數
@@ -1109,8 +1184,8 @@
   }
 
   /**
- * 重置 AI 學習數據
- */
+   * 重置 AI 學習數據
+   */
   function resetAILearning() {
     if (confirm('確定要重置所有 AI 學習數據嗎？此操作無法撤銷。')) {
       if (typeof gameEngine !== 'undefined' && gameEngine) {
@@ -1122,8 +1197,8 @@
   }
 
   /**
- * 導出學習數據
- */
+   * 導出學習數據
+   */
   function exportLearningData() {
     if (typeof gameEngine === 'undefined' || !gameEngine) {
       showErrorMessage('遊戲引擎未初始化');
@@ -1148,15 +1223,15 @@
   }
 
   /**
- * 導入學習數據
- * @param {Event} event - 文件選擇事件
- */
+   * 導入學習數據
+   * @param {Event} event - 文件選擇事件
+   */
   function importLearningData(event) {
     const file = event.target.files[0];
     if (!file) return;
 
     const reader = new FileReader();
-    reader.onload = function(e) {
+    reader.onload = function (e) {
       try {
         const learningData = JSON.parse(e.target.result);
 
@@ -1178,17 +1253,24 @@
   }
 
   /**
- * Check if auto random move is enabled and execute a random computer move if it is
- */
+   * Check if auto random move is enabled and execute a random computer move if it is
+   */
   function checkAutoRandomMove() {
     try {
       console.log('Checking auto random move setting');
       const autoRandomCheckbox = document.getElementById('auto-random-move');
       console.log('Auto random checkbox element:', autoRandomCheckbox);
-      console.log('Auto random checkbox checked:', autoRandomCheckbox ? autoRandomCheckbox.checked : 'element not found');
+      console.log(
+        'Auto random checkbox checked:',
+        autoRandomCheckbox ? autoRandomCheckbox.checked : 'element not found'
+      );
 
-      if (autoRandomCheckbox && autoRandomCheckbox.checked &&
-            gameState && gameState.gamePhase === GAME_PHASES.COMPUTER_TURN) {
+      if (
+        autoRandomCheckbox &&
+        autoRandomCheckbox.checked &&
+        gameState &&
+        gameState.gamePhase === GAME_PHASES.COMPUTER_TURN
+      ) {
         console.log('Auto random move is enabled, executing after short delay');
 
         // 添加短暂延迟，让用户能看清楚玩家的移动
@@ -1204,8 +1286,8 @@
   }
 
   /**
- * Simple debounce function for cell clicks
- */
+   * Simple debounce function for cell clicks
+   */
   function debounce(func, wait, immediate) {
     let timeout;
     return function executedFunction(...args) {
@@ -1221,8 +1303,8 @@
   }
 
   /**
- * Simple throttle function for preventing rapid calls
- */
+   * Simple throttle function for preventing rapid calls
+   */
   function throttle(func, wait) {
     let timeout;
     let previous = 0;
@@ -1248,9 +1330,9 @@
   }
 
   /**
- * Handle cell click events from the game board (optimized with debouncing)
- */
-  const handleCellClick = debounce(function(row, col, cellElement) {
+   * Handle cell click events from the game board (optimized with debouncing)
+   */
+  const handleCellClick = debounce(function (row, col, cellElement) {
     try {
       console.log(`Cell clicked: (${row}, ${col})`);
 
@@ -1379,7 +1461,6 @@
       } else {
         showWarningMessage('現在不是有效的遊戲階段');
       }
-
     } catch (error) {
       console.error('Error handling cell click:', error);
       hideGameBoardLoading();
@@ -1387,20 +1468,20 @@
       // 使用增強的錯誤處理
       if (error instanceof GameError) {
         switch (error.type) {
-        case ERROR_TYPES.CELL_OCCUPIED:
-          showWarningMessage('此位置已被佔用，請選擇其他位置');
-          break;
-        case ERROR_TYPES.INVALID_MOVE:
-          showWarningMessage('無效的移動位置');
-          break;
-        case ERROR_TYPES.INVALID_PHASE:
-          showWarningMessage('現在不是有效的遊戲階段');
-          break;
-        case ERROR_TYPES.GAME_OVER:
-          showWarningMessage('遊戲已結束');
-          break;
-        default:
-          showErrorModal('移動失敗', error.message);
+          case ERROR_TYPES.CELL_OCCUPIED:
+            showWarningMessage('此位置已被佔用，請選擇其他位置');
+            break;
+          case ERROR_TYPES.INVALID_MOVE:
+            showWarningMessage('無效的移動位置');
+            break;
+          case ERROR_TYPES.INVALID_PHASE:
+            showWarningMessage('現在不是有效的遊戲階段');
+            break;
+          case ERROR_TYPES.GAME_OVER:
+            showWarningMessage('遊戲已結束');
+            break;
+          default:
+            showErrorModal('移動失敗', error.message);
         }
       } else {
         showErrorModal('移動失敗', error.message, {
@@ -1414,8 +1495,8 @@
   }, 100); // 100ms debounce to prevent rapid clicks
 
   /**
- * Start a new game
- */
+   * Start a new game
+   */
   function startNewGame() {
     try {
       console.log('Starting new game...');
@@ -1477,7 +1558,6 @@
 
       // 初始化調試功能
       initializeDebugPanel();
-
     } catch (error) {
       console.error('Error starting new game:', error);
       alert('開始新遊戲失敗：' + error.message);
@@ -1485,15 +1565,15 @@
   }
 
   /**
- * Restart the current game
- */
+   * Restart the current game
+   */
   function restartGame() {
     startNewGame();
   }
 
   /**
- * Show suggestion for player's next move (enhanced with visual improvements)
- */
+   * Show suggestion for player's next move (enhanced with visual improvements)
+   */
   function showPlayerSuggestion() {
     try {
       if (!gameState || !probabilityCalculator) {
@@ -1505,7 +1585,11 @@
       const suggestionDisplay = document.getElementById('suggestion-display');
 
       // Validate board state
-      if (!currentBoard || !Array.isArray(currentBoard) || currentBoard.length !== 5) {
+      if (
+        !currentBoard ||
+        !Array.isArray(currentBoard) ||
+        currentBoard.length !== 5
+      ) {
         console.error('Invalid board state');
         showWarningMessage('遊戲狀態異常，請重新開始遊戲');
         return;
@@ -1517,38 +1601,50 @@
       }
 
       // 使用性能監控測量算法執行時間
-      const suggestion = performanceMonitor.measureAlgorithmPerformance('suggestion-calculation', () => {
-        return probabilityCalculator.getBestSuggestion(currentBoard);
-      });
+      const suggestion = performanceMonitor.measureAlgorithmPerformance(
+        'suggestion-calculation',
+        () => {
+          return probabilityCalculator.getBestSuggestion(currentBoard);
+        }
+      );
 
       // 移除載入狀態
       if (suggestionDisplay) {
         suggestionDisplay.classList.remove('loading');
       }
 
-      if (suggestion && typeof suggestion === 'object' &&
-            typeof suggestion.row === 'number' && typeof suggestion.col === 'number') {
-
+      if (
+        suggestion &&
+        typeof suggestion === 'object' &&
+        typeof suggestion.row === 'number' &&
+        typeof suggestion.col === 'number'
+      ) {
         // Validate suggestion coordinates
-        if (suggestion.row < 0 || suggestion.row >= 5 ||
-                suggestion.col < 0 || suggestion.col >= 5) {
+        if (
+          suggestion.row < 0 ||
+          suggestion.row >= 5 ||
+          suggestion.col < 0 ||
+          suggestion.col >= 5
+        ) {
           console.error('Invalid suggestion coordinates:', suggestion);
           updateSuggestionDisplay(null);
           return;
         }
 
         // 使用性能監控測量渲染時間
-        performanceMonitor.measureRenderPerformance('suggestion-highlight', () => {
-          gameBoard.highlightSuggestion(suggestion.row, suggestion.col, {
-            confidence: suggestion.confidence,
-            value: suggestion.value,
-            alternatives: suggestion.alternatives
-          });
-        });
+        performanceMonitor.measureRenderPerformance(
+          'suggestion-highlight',
+          () => {
+            gameBoard.highlightSuggestion(suggestion.row, suggestion.col, {
+              confidence: suggestion.confidence,
+              value: suggestion.value,
+              alternatives: suggestion.alternatives
+            });
+          }
+        );
 
         // 更新建議顯示區域
         updateSuggestionDisplay(suggestion);
-
       } else {
         // 沒有建議時的處理
         updateSuggestionDisplay(null);
@@ -1572,9 +1668,9 @@
   }
 
   /**
- * 更新建議顯示區域（增強版）
- * @param {Object|null} suggestion - 建議對象或null
- */
+   * 更新建議顯示區域（增強版）
+   * @param {Object|null} suggestion - 建議對象或null
+   */
   function updateSuggestionDisplay(suggestion) {
     const suggestionDisplay = document.getElementById('suggestion-display');
 
@@ -1602,7 +1698,10 @@
       if (suggestion.value !== undefined) {
         const valueExplanation = document.createElement('div');
         valueExplanation.className = 'value-explanation';
-        valueExplanation.textContent = createValueExplanationText(suggestion.value, suggestion.confidence);
+        valueExplanation.textContent = createValueExplanationText(
+          suggestion.value,
+          suggestion.confidence
+        );
         suggestionDisplay.appendChild(valueExplanation);
       }
 
@@ -1610,11 +1709,16 @@
       if (suggestion.alternatives && suggestion.alternatives.length > 0) {
         const alternativesContainer = document.createElement('div');
         alternativesContainer.className = 'alternatives-container';
-        alternativesContainer.textContent = createAlternativesText(suggestion.alternatives);
+        alternativesContainer.textContent = createAlternativesText(
+          suggestion.alternatives
+        );
         suggestionDisplay.appendChild(alternativesContainer);
 
         // 為替代建議添加點擊事件
-        setupAlternativeClickHandlers(alternativesContainer, suggestion.alternatives);
+        setupAlternativeClickHandlers(
+          alternativesContainer,
+          suggestion.alternatives
+        );
       }
 
       // 添加更新動畫，根據信心度使用不同的動畫
@@ -1622,7 +1726,6 @@
       setTimeout(() => {
         suggestionDisplay.classList.remove('suggestion-update');
       }, 600); // 延長動畫時間
-
     } else {
       // 沒有建議時的顯示
       const noSuggestion = document.createElement('div');
@@ -1634,33 +1737,35 @@
       // 添加提示信息
       const noSuggestionHint = document.createElement('div');
       noSuggestionHint.className = 'value-explanation';
-      noSuggestionHint.textContent = '所有可用的移動都具有相似的價值，或者沒有可用的空格子。';
+      noSuggestionHint.textContent =
+        '所有可用的移動都具有相似的價值，或者沒有可用的空格子。';
       suggestionDisplay.appendChild(noSuggestionHint);
     }
   }
 
   /**
- * 創建建議HTML內容（增強版）
- * @param {Object} suggestion - 建議對象
- * @returns {string} HTML字符串
- */
+   * 創建建議HTML內容（增強版）
+   * @param {Object} suggestion - 建議對象
+   * @returns {string} HTML字符串
+   */
   function createSuggestionHTML(suggestion) {
     const confidenceText = {
       'very-high': '非常高的信心度',
-      'high': '高信心度',
-      'medium': '中等信心度',
-      'low': '低信心度'
+      high: '高信心度',
+      medium: '中等信心度',
+      low: '低信心度'
     };
 
     const confidenceClass = suggestion.confidence || 'medium';
-    const confidenceLabel = confidenceText[suggestion.confidence] || '中等信心度';
+    const confidenceLabel =
+      confidenceText[suggestion.confidence] || '中等信心度';
 
     // 添加圖標以增強視覺效果
     const icons = {
       'very-high': '★★★',
-      'high': '★★☆',
-      'medium': '★☆☆',
-      'low': '☆☆☆'
+      high: '★★☆',
+      medium: '★☆☆',
+      low: '☆☆☆'
     };
 
     const icon = icons[confidenceClass] || '★☆☆';
@@ -1676,26 +1781,27 @@
   }
 
   /**
- * 創建建議顯示的安全文本內容
- * @param {Object} suggestion - 建議對象
- * @returns {string} 純文本字符串
- */
+   * 創建建議顯示的安全文本內容
+   * @param {Object} suggestion - 建議對象
+   * @returns {string} 純文本字符串
+   */
   function createSuggestionText(suggestion) {
     const confidenceText = {
       'very-high': '非常高的信心度',
-      'high': '高信心度',
-      'medium': '中等信心度',
-      'low': '低信心度'
+      high: '高信心度',
+      medium: '中等信心度',
+      low: '低信心度'
     };
 
-    const confidenceLabel = confidenceText[suggestion.confidence] || '中等信心度';
+    const confidenceLabel =
+      confidenceText[suggestion.confidence] || '中等信心度';
 
     // 添加圖標以增強視覺效果
     const icons = {
       'very-high': '★★★',
-      'high': '★★☆',
-      'medium': '★☆☆',
-      'low': '☆☆☆'
+      high: '★★☆',
+      medium: '★☆☆',
+      low: '☆☆☆'
     };
 
     const icon = icons[suggestion.confidence] || '★☆☆';
@@ -1704,11 +1810,11 @@
   }
 
   /**
- * 創建價值解釋內容（增強版）
- * @param {number} value - 價值分數
- * @param {string} confidence - 信心度
- * @returns {string} 解釋文本
- */
+   * 創建價值解釋內容（增強版）
+   * @param {number} value - 價值分數
+   * @param {string} confidence - 信心度
+   * @returns {string} 解釋文本
+   */
   function createValueExplanation(value, confidence) {
     const roundedValue = Math.round(value);
 
@@ -1758,11 +1864,11 @@
   }
 
   /**
- * 創建價值解釋的安全文本版本
- * @param {number} value - 價值分數
- * @param {string} confidence - 信心度
- * @returns {string} 純文本解釋
- */
+   * 創建價值解釋的安全文本版本
+   * @param {number} value - 價值分數
+   * @param {string} confidence - 信心度
+   * @returns {string} 純文本解釋
+   */
   function createValueExplanationText(value, confidence) {
     const roundedValue = Math.round(value);
 
@@ -1774,44 +1880,51 @@
     } else if (value >= 50) {
       explanation += ' - 高價值: 此移動大幅增加完成連線的機會，強烈推薦。';
     } else if (value >= 10) {
-      explanation += ' - 中等價值: 此移動增加未來連線的潛力，為後續回合創造機會。';
+      explanation +=
+        ' - 中等價值: 此移動增加未來連線的潛力，為後續回合創造機會。';
     } else {
-      explanation += ' - 基本價值: 此移動提供基本的戰略價值，但可能不會立即產生明顯效果。';
+      explanation +=
+        ' - 基本價值: 此移動提供基本的戰略價值，但可能不會立即產生明顯效果。';
     }
 
     return explanation;
   }
 
   /**
- * 創建替代建議的安全文本版本
- * @param {Array} alternatives - 替代建議陣列
- * @returns {string} 純文本字符串
- */
+   * 創建替代建議的安全文本版本
+   * @param {Array} alternatives - 替代建議陣列
+   * @returns {string} 純文本字符串
+   */
   function createAlternativesText(alternatives) {
     if (!alternatives || alternatives.length === 0) {
       return '沒有其他建議';
     }
 
     let text = '其他選擇: ';
-    const altTexts = alternatives.slice(0, 3).map(alt =>
-      `第${alt.row + 1}行第${alt.col + 1}列 (${Math.round(alt.value)}分)`
-    );
+    const altTexts = alternatives
+      .slice(0, 3)
+      .map(
+        alt =>
+          `第${alt.row + 1}行第${alt.col + 1}列 (${Math.round(alt.value)}分)`
+      );
 
     return text + altTexts.join(', ');
   }
 
   /**
- * 創建替代建議HTML內容（增強版）
- * @param {Array} alternatives - 替代建議陣列
- * @returns {string} HTML字符串
- */
+   * 創建替代建議HTML內容（增強版）
+   * @param {Array} alternatives - 替代建議陣列
+   * @returns {string} HTML字符串
+   */
   function createAlternativesHTML(alternatives) {
-    const alternativeItems = alternatives.slice(0, 3).map((alt, index) => {
-      // 計算與最佳建議的價值差異百分比
-      const rank = index + 2; // 排名從2開始（主建議是1）
-      const roundedValue = Math.round(alt.value);
+    const alternativeItems = alternatives
+      .slice(0, 3)
+      .map((alt, index) => {
+        // 計算與最佳建議的價值差異百分比
+        const rank = index + 2; // 排名從2開始（主建議是1）
+        const roundedValue = Math.round(alt.value);
 
-      return `
+        return `
             <div class="alternative-item" 
                 data-row="${alt.row}" 
                 data-col="${alt.col}" 
@@ -1821,7 +1934,8 @@
                 <span class="alternative-value">${roundedValue}分</span>
             </div>
         `;
-    }).join('');
+      })
+      .join('');
 
     return `
         <div class="alternatives-title">其他可能的選擇</div>
@@ -1833,10 +1947,10 @@
   }
 
   /**
- * 為替代建議設置點擊事件處理器（增強版）
- * @param {HTMLElement} container - 替代建議容器
- * @param {Array} alternatives - 替代建議陣列
- */
+   * 為替代建議設置點擊事件處理器（增強版）
+   * @param {HTMLElement} container - 替代建議容器
+   * @param {Array} alternatives - 替代建議陣列
+   */
   function setupAlternativeClickHandlers(container, alternatives) {
     const alternativeItems = container.querySelectorAll('.alternative-item');
 
@@ -1857,8 +1971,8 @@
         else confidence = 'low';
 
         // 過濾掉當前選中的替代建議
-        const remainingAlternatives = alternatives.filter(alt =>
-          alt.row !== row || alt.col !== col
+        const remainingAlternatives = alternatives.filter(
+          alt => alt.row !== row || alt.col !== col
         );
 
         // 添加原始最佳建議作為替代建議之一
@@ -1959,7 +2073,8 @@
             cell.style.transform = 'scale(1.08)';
             cell.style.boxShadow = '0 0 15px rgba(33, 150, 243, 0.6)';
             cell.style.zIndex = '10';
-            cell.style.transition = 'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+            cell.style.transition =
+              'all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
           }
         }
       });
@@ -1990,8 +2105,8 @@
   }
 
   /**
- * Enable computer input controls
- */
+   * Enable computer input controls
+   */
   function enableComputerInput() {
     const computerRow = document.getElementById('computer-row');
     const computerCol = document.getElementById('computer-col');
@@ -2005,8 +2120,8 @@
   }
 
   /**
- * Handle computer move input
- */
+   * Handle computer move input
+   */
   function handleComputerMove() {
     try {
       const computerRow = document.getElementById('computer-row');
@@ -2019,7 +2134,14 @@
       const row = parseInt(computerRow.value) - 1;
       const col = parseInt(computerCol.value) - 1;
 
-      if (isNaN(row) || isNaN(col) || row < 0 || row > 4 || col < 0 || col > 4) {
+      if (
+        isNaN(row) ||
+        isNaN(col) ||
+        row < 0 ||
+        row > 4 ||
+        col < 0 ||
+        col > 4
+      ) {
         alert('請輸入1-5之間的數字');
         return;
       }
@@ -2055,7 +2177,6 @@
         // Show suggestion for next player move
         showPlayerSuggestion();
       }
-
     } catch (error) {
       console.error('Error handling computer move:', error);
       alert('電腦移動失敗：' + error.message);
@@ -2063,8 +2184,8 @@
   }
 
   /**
- * Disable computer input controls
- */
+   * Disable computer input controls
+   */
   function disableComputerInput() {
     const computerRow = document.getElementById('computer-row');
     const computerCol = document.getElementById('computer-col');
@@ -2076,9 +2197,9 @@
   }
 
   /**
- * Make a random computer move (optimized with throttling)
- */
-  const makeRandomComputerMove = throttle(function() {
+   * Make a random computer move (optimized with throttling)
+   */
+  const makeRandomComputerMove = throttle(function () {
     try {
       console.log('Making random computer move');
 
@@ -2110,7 +2231,9 @@
           const randomIndex = Math.floor(Math.random() * emptyCells.length);
           const randomCell = emptyCells[randomIndex];
 
-          console.log(`Random computer move selected: (${randomCell.row}, ${randomCell.col})`);
+          console.log(
+            `Random computer move selected: (${randomCell.row}, ${randomCell.col})`
+          );
 
           // 添加短暂延迟以显示加载效果
           setTimeout(() => {
@@ -2119,7 +2242,11 @@
               gameState.makeComputerMove(randomCell.row, randomCell.col);
 
               // 更新UI
-              gameBoard.updateCell(randomCell.row, randomCell.col, CELL_STATES.COMPUTER);
+              gameBoard.updateCell(
+                randomCell.row,
+                randomCell.col,
+                CELL_STATES.COMPUTER
+              );
 
               // 检查连线
               updateCompletedLines();
@@ -2149,14 +2276,12 @@
               throw moveError;
             }
           }, 300); // 300ms delay for better UX
-
         } catch (innerError) {
           hideButtonLoading('random-computer-move');
           hideGameBoardLoading();
           throw innerError;
         }
       });
-
     } catch (error) {
       console.error('Error making random computer move:', error);
       hideButtonLoading('random-computer-move');
@@ -2174,8 +2299,8 @@
   }, 500); // 500ms throttle to prevent rapid clicks
 
   /**
- * Update completed lines display
- */
+   * Update completed lines display
+   */
   function updateCompletedLines() {
     try {
       if (!gameState || !lineDetector) {
@@ -2204,9 +2329,10 @@
       const completedLinesElement = document.getElementById('completed-lines');
       if (completedLinesElement) {
         completedLinesElement.textContent = completedLines.length;
-        console.log(`Updated completed lines counter to: ${completedLines.length}`);
+        console.log(
+          `Updated completed lines counter to: ${completedLines.length}`
+        );
       }
-
     } catch (error) {
       console.error('Error updating completed lines:', error);
       console.error('Stack trace:', error.stack);
@@ -2214,8 +2340,8 @@
   }
 
   /**
- * Update game status display
- */
+   * Update game status display
+   */
   function updateGameStatus() {
     try {
       if (!gameState) {
@@ -2235,32 +2361,31 @@
       if (gamePhaseElement) {
         let phaseText = '';
         switch (state.gamePhase) {
-        case GAME_PHASES.WAITING:
-          phaseText = '等待開始';
-          break;
-        case GAME_PHASES.PLAYER_TURN:
-          phaseText = '玩家回合';
-          break;
-        case GAME_PHASES.COMPUTER_TURN:
-          phaseText = '電腦回合';
-          break;
-        case GAME_PHASES.GAME_OVER:
-          phaseText = '遊戲結束';
-          break;
-        default:
-          phaseText = '未知狀態';
+          case GAME_PHASES.WAITING:
+            phaseText = '等待開始';
+            break;
+          case GAME_PHASES.PLAYER_TURN:
+            phaseText = '玩家回合';
+            break;
+          case GAME_PHASES.COMPUTER_TURN:
+            phaseText = '電腦回合';
+            break;
+          case GAME_PHASES.GAME_OVER:
+            phaseText = '遊戲結束';
+            break;
+          default:
+            phaseText = '未知狀態';
         }
         gamePhaseElement.textContent = phaseText;
       }
-
     } catch (error) {
       console.error('Error updating game status:', error);
     }
   }
 
   /**
- * Update instructions display
- */
+   * Update instructions display
+   */
   function updateInstructions(text, type = 'normal') {
     const instructionElement = document.getElementById('instruction-text');
     if (instructionElement) {
@@ -2277,8 +2402,8 @@
   }
 
   /**
- * End the current game
- */
+   * End the current game
+   */
   function endGame() {
     try {
       if (gameState && !gameState.isGameComplete()) {
@@ -2318,22 +2443,23 @@
       }, 1500); // 延迟1.5秒显示结果
 
       console.log('Game ended successfully');
-
     } catch (error) {
       console.error('Error ending game:', error);
     }
   }
 
   /**
- * Show game results in the control panel
- */
+   * Show game results in the control panel
+   */
   function showGameResults(gameState) {
     try {
       const gameActivePanel = document.getElementById('game-active-panel');
       const gameResultPanel = document.getElementById('game-result-panel');
       const finalLinesCount = document.getElementById('final-lines-count');
       const playerMovesCount = document.getElementById('player-moves-count');
-      const computerMovesCount = document.getElementById('computer-moves-count');
+      const computerMovesCount = document.getElementById(
+        'computer-moves-count'
+      );
 
       if (!gameResultPanel) {
         console.error('Game result panel not found');
@@ -2358,15 +2484,14 @@
       }
 
       console.log('Game results displayed successfully');
-
     } catch (error) {
       console.error('Error showing game results:', error);
     }
   }
 
   /**
- * Hide game results panel
- */
+   * Hide game results panel
+   */
   function hideGameResults() {
     const gameActivePanel = document.getElementById('game-active-panel');
     const gameResultPanel = document.getElementById('game-result-panel');
@@ -2381,8 +2506,8 @@
   }
 
   /**
- * Handle play again button click
- */
+   * Handle play again button click
+   */
   function handlePlayAgain() {
     try {
       hideGameResults();
@@ -2394,20 +2519,25 @@
   }
 
   /**
-     * 調試功能
-     */
+   * 調試功能
+   */
   let debugMode = false;
 
   function initializeDebugPanel() {
     // 檢查是否在開發環境或有特殊參數
     const urlParams = new URLSearchParams(window.location.search);
-    const showDebug = urlParams.get('debug') === 'true' ||
-                     window.location.hostname === 'localhost' ||
-                     window.location.hostname === '127.0.0.1';
+    const showDebug =
+      urlParams.get('debug') === 'true' ||
+      window.location.hostname === 'localhost' ||
+      window.location.hostname === '127.0.0.1';
 
     // 在開發環境下顯示調試提示
     const debugHint = document.getElementById('debug-hint');
-    if (debugHint && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
+    if (
+      debugHint &&
+      (window.location.hostname === 'localhost' ||
+        window.location.hostname === '127.0.0.1')
+    ) {
       debugHint.style.display = 'block';
     }
 
@@ -2416,7 +2546,7 @@
     }
 
     // 添加鍵盤快捷鍵 Ctrl+Shift+D 來切換調試模式
-    document.addEventListener('keydown', function(event) {
+    document.addEventListener('keydown', function (event) {
       if (event.ctrlKey && event.shiftKey && event.key === 'D') {
         event.preventDefault();
         toggleDebugMode();
@@ -2596,7 +2726,7 @@
         [2, 0, 0, 0, 2], // 反對角線的一部分
         [2, 0, 1, 0, 2],
         [2, 0, 0, 1, 2],
-        [2, 0, 0, 0, 1]  // 垂直線 + 反對角線
+        [2, 0, 0, 0, 1] // 垂直線 + 反對角線
       ];
 
       if (gameBoard) {
@@ -2627,7 +2757,9 @@
     logDebug('清空測試板...', 'info');
 
     try {
-      const emptyBoard = Array(5).fill().map(() => Array(5).fill(0));
+      const emptyBoard = Array(5)
+        .fill()
+        .map(() => Array(5).fill(0));
 
       if (gameBoard) {
         gameBoard.updateBoard(emptyBoard);
@@ -2705,5 +2837,4 @@
       BingoGame
     };
   }
-
 })(typeof window !== 'undefined' ? window : global);

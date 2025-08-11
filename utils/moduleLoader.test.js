@@ -22,7 +22,9 @@ describe('Enhanced ModuleLoader', () => {
   test('should initialize with correct dependency graph', () => {
     expect(moduleLoader.dependencies.size).toBeGreaterThan(0);
     expect(moduleLoader.dependencyGraph.size).toBeGreaterThan(0);
-    expect(moduleLoader.loadingStats.total).toBe(moduleLoader.dependencies.size);
+    expect(moduleLoader.loadingStats.total).toBe(
+      moduleLoader.dependencies.size
+    );
   });
 
   test('should calculate correct load order', () => {
@@ -38,7 +40,9 @@ describe('Enhanced ModuleLoader', () => {
 
     // gameEngine.js should come after its dependencies
     const gameEngineIndex = loadOrder.indexOf('gameEngine.js');
-    const probabilityCalculatorIndex = loadOrder.indexOf('probabilityCalculator.js');
+    const probabilityCalculatorIndex = loadOrder.indexOf(
+      'probabilityCalculator.js'
+    );
     expect(gameEngineIndex).toBeGreaterThan(probabilityCalculatorIndex);
     expect(gameEngineIndex).toBeGreaterThan(lineDetectorIndex);
   });
@@ -57,7 +61,9 @@ describe('Enhanced ModuleLoader', () => {
 
     const validation = moduleLoader.validateDependencies();
     expect(validation.isValid).toBe(false);
-    expect(validation.issues.some(issue => issue.type === 'circular')).toBe(true);
+    expect(validation.issues.some(issue => issue.type === 'circular')).toBe(
+      true
+    );
   });
 
   test('should track loading states correctly', () => {
@@ -103,7 +109,7 @@ describe('Enhanced ModuleLoader', () => {
     let progressUpdates = 0;
     let lastProgress = null;
 
-    moduleLoader.onProgress((progress) => {
+    moduleLoader.onProgress(progress => {
       progressUpdates++;
       lastProgress = progress;
     });
@@ -139,7 +145,12 @@ describe('ProgressiveLoader', () => {
 
   test('should initialize with correct stages', () => {
     const stageInfo = progressiveLoader.getStageInfo();
-    expect(stageInfo.stages).toEqual(['critical', 'core', 'enhanced', 'optional']);
+    expect(stageInfo.stages).toEqual([
+      'critical',
+      'core',
+      'enhanced',
+      'optional'
+    ]);
     expect(stageInfo.currentStage).toBe(0);
     expect(stageInfo.currentStageName).toBe('critical');
   });
@@ -164,35 +175,37 @@ describe('ProgressiveLoader', () => {
 // Test helper functions
 function expect(actual) {
   return {
-    toBe: (expected) => {
+    toBe: expected => {
       if (actual !== expected) {
         throw new Error(`Expected ${expected}, but got ${actual}`);
       }
     },
-    toEqual: (expected) => {
+    toEqual: expected => {
       const actualStr = JSON.stringify(actual);
       const expectedStr = JSON.stringify(expected);
       if (actualStr !== expectedStr) {
         throw new Error(`Expected ${expectedStr}, but got ${actualStr}`);
       }
     },
-    toHaveLength: (expected) => {
+    toHaveLength: expected => {
       if (!actual || actual.length !== expected) {
-        throw new Error(`Expected length ${expected}, but got ${actual ? actual.length : 'undefined'}`);
+        throw new Error(
+          `Expected length ${expected}, but got ${actual ? actual.length : 'undefined'}`
+        );
       }
     },
-    toBeGreaterThan: (expected) => {
+    toBeGreaterThan: expected => {
       if (actual <= expected) {
         throw new Error(`Expected ${actual} to be greater than ${expected}`);
       }
     },
-    toContain: (expected) => {
+    toContain: expected => {
       if (!actual || !actual.includes(expected)) {
         throw new Error(`Expected array to contain ${expected}`);
       }
     },
     not: {
-      toContain: (expected) => {
+      toContain: expected => {
         if (actual && actual.includes(expected)) {
           throw new Error(`Expected array not to contain ${expected}`);
         }
@@ -236,16 +249,26 @@ if (require.main === module) {
     console.log('\n✓ ModuleLoader can be instantiated');
 
     const loadOrder = moduleLoader.calculateLoadOrder();
-    console.log('✓ Load order calculated:', loadOrder.slice(0, 3).join(', '), '...');
+    console.log(
+      '✓ Load order calculated:',
+      loadOrder.slice(0, 3).join(', '),
+      '...'
+    );
 
     const validation = moduleLoader.validateDependencies();
-    console.log('✓ Dependencies validated:', validation.isValid ? 'PASS' : 'FAIL');
+    console.log(
+      '✓ Dependencies validated:',
+      validation.isValid ? 'PASS' : 'FAIL'
+    );
 
     const progressiveLoader = new ProgressiveLoader();
     console.log('✓ ProgressiveLoader can be instantiated');
 
     const progress = progressiveLoader.getProgress();
-    console.log('✓ Progress information available:', `${progress.overallProgress}%`);
+    console.log(
+      '✓ Progress information available:',
+      `${progress.overallProgress}%`
+    );
 
     console.log('\n✅ All basic tests passed!');
   } catch (error) {

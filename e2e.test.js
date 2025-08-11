@@ -14,7 +14,7 @@ try {
   // Fallback for test environment
   SafeDOM = {
     createStructure: () => ({ appendChild: () => {} }),
-    sanitizeHTML: (html) => html,
+    sanitizeHTML: html => html,
     createElement: (tag, attrs, text) => ({
       appendChild: () => {},
       classList: { add: () => {}, remove: () => {} },
@@ -108,7 +108,7 @@ describe('End-to-End Game Test', () => {
 
     // 設置事件回調
     if (engine.setOnGameStateChange) {
-      engine.setOnGameStateChange((state) => {
+      engine.setOnGameStateChange(state => {
         // 模擬遊戲狀態變更處理
       });
     }
@@ -120,13 +120,13 @@ describe('End-to-End Game Test', () => {
     }
 
     if (engine.setOnGameComplete) {
-      engine.setOnGameComplete((stats) => {
+      engine.setOnGameComplete(stats => {
         // 模擬遊戲完成處理
       });
     }
 
     if (engine.setOnError) {
-      engine.setOnError((message) => {
+      engine.setOnError(message => {
         // 模擬錯誤處理
       });
     }

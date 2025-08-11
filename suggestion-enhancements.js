@@ -9,9 +9,9 @@ class SuggestionEnhancer {
     this.alternativeSuggestions = [];
     this.confidenceLevels = {
       'very-high': { min: 0.8, color: '#4CAF50', label: '極高信心' },
-      'high': { min: 0.6, color: '#2196F3', label: '高信心' },
-      'medium': { min: 0.4, color: '#FF9800', label: '中等信心' },
-      'low': { min: 0.2, color: '#F44336', label: '低信心' },
+      high: { min: 0.6, color: '#2196F3', label: '高信心' },
+      medium: { min: 0.4, color: '#FF9800', label: '中等信心' },
+      low: { min: 0.2, color: '#F44336', label: '低信心' },
       'very-low': { min: 0, color: '#9E9E9E', label: '極低信心' }
     };
     this.animationDuration = 1500;
@@ -21,8 +21,8 @@ class SuggestionEnhancer {
   }
 
   /**
-     * 初始化建議增強系統
-     */
+   * 初始化建議增強系統
+   */
   init() {
     if (this.isInitialized) return;
 
@@ -39,8 +39,8 @@ class SuggestionEnhancer {
   }
 
   /**
-     * 設置建議樣式
-     */
+   * 設置建議樣式
+   */
   setupSuggestionStyles() {
     const styles = document.createElement('style');
     styles.id = 'suggestion-enhancement-styles';
@@ -356,8 +356,8 @@ class SuggestionEnhancer {
   }
 
   /**
-     * 設置建議容器
-     */
+   * 設置建議容器
+   */
   setupSuggestionContainer() {
     const suggestionArea = document.querySelector('.suggestion-area');
     if (!suggestionArea) return;
@@ -374,40 +374,42 @@ class SuggestionEnhancer {
         class: 'enhanced-suggestion-container',
         style: 'display: none;'
       },
-      children: [{
-        tag: 'div',
-        attributes: { class: 'primary-suggestion' },
-        children: [
-          {
-            tag: 'div',
-            attributes: {
-              class: 'suggestion-icon',
-              'aria-hidden': 'true'
+      children: [
+        {
+          tag: 'div',
+          attributes: { class: 'primary-suggestion' },
+          children: [
+            {
+              tag: 'div',
+              attributes: {
+                class: 'suggestion-icon',
+                'aria-hidden': 'true'
+              },
+              textContent: '🎯'
             },
-            textContent: '🎯'
-          },
-          {
-            tag: 'div',
-            attributes: { class: 'suggestion-content' },
-            children: [
-              {
-                tag: 'div',
-                attributes: { class: 'suggestion-title' },
-                textContent: '建議移動'
-              },
-              {
-                tag: 'div',
-                attributes: { class: 'suggestion-description' },
-                textContent: '點擊開始遊戲獲得建議'
-              },
-              {
-                tag: 'div',
-                attributes: { class: 'suggestion-metrics' }
-              }
-            ]
-          }
-        ]
-      }]
+            {
+              tag: 'div',
+              attributes: { class: 'suggestion-content' },
+              children: [
+                {
+                  tag: 'div',
+                  attributes: { class: 'suggestion-title' },
+                  textContent: '建議移動'
+                },
+                {
+                  tag: 'div',
+                  attributes: { class: 'suggestion-description' },
+                  textContent: '點擊開始遊戲獲得建議'
+                },
+                {
+                  tag: 'div',
+                  attributes: { class: 'suggestion-metrics' }
+                }
+              ]
+            }
+          ]
+        }
+      ]
     });
 
     // 添加替代建議區域
@@ -445,17 +447,17 @@ class SuggestionEnhancer {
   }
 
   /**
-     * 設置事件監聽器
-     */
+   * 設置事件監聽器
+   */
   setupEventListeners() {
     // 監聽建議更新事件
-    document.addEventListener('suggestionUpdated', (event) => {
+    document.addEventListener('suggestionUpdated', event => {
       const { suggestion, alternatives } = event.detail;
       this.displayEnhancedSuggestion(suggestion, alternatives);
     });
 
     // 監聽遊戲狀態變化
-    document.addEventListener('gameStateChanged', (event) => {
+    document.addEventListener('gameStateChanged', event => {
       const { phase } = event.detail;
       if (phase !== 'player-turn') {
         this.hideSuggestion();
@@ -464,8 +466,8 @@ class SuggestionEnhancer {
   }
 
   /**
-     * 顯示增強的建議
-     */
+   * 顯示增強的建議
+   */
   displayEnhancedSuggestion(suggestion, alternatives = []) {
     if (!suggestion) return;
 
@@ -496,8 +498,8 @@ class SuggestionEnhancer {
   }
 
   /**
-     * 更新主要建議
-     */
+   * 更新主要建議
+   */
   updatePrimarySuggestion(container, suggestion) {
     const { row, col, value, confidence, reasoning } = suggestion;
 
@@ -506,9 +508,10 @@ class SuggestionEnhancer {
     const description = container.querySelector('.suggestion-description');
 
     if (title) {
-      const positionText = typeof i18n !== 'undefined' ?
-        i18n.formatPosition(row, col) :
-        `第 ${row + 1} 行第 ${col + 1} 列`;
+      const positionText =
+        typeof i18n !== 'undefined'
+          ? i18n.formatPosition(row, col)
+          : `第 ${row + 1} 行第 ${col + 1} 列`;
 
       title.innerHTML = `
                 建議移動：${positionText}
@@ -533,8 +536,8 @@ class SuggestionEnhancer {
   }
 
   /**
-     * 創建信心度指示器
-     */
+   * 創建信心度指示器
+   */
   createConfidenceIndicator(confidence) {
     const level = this.getConfidenceLevel(confidence);
     const config = this.confidenceLevels[level];
@@ -547,8 +550,8 @@ class SuggestionEnhancer {
   }
 
   /**
-     * 獲取信心度等級
-     */
+   * 獲取信心度等級
+   */
   getConfidenceLevel(confidence) {
     for (const [level, config] of Object.entries(this.confidenceLevels)) {
       if (confidence >= config.min) {
@@ -559,8 +562,8 @@ class SuggestionEnhancer {
   }
 
   /**
-     * 更新建議指標
-     */
+   * 更新建議指標
+   */
   updateSuggestionMetrics(container, suggestion) {
     const metricsContainer = container.querySelector('.suggestion-metrics');
     if (!metricsContainer) return;
@@ -625,8 +628,8 @@ class SuggestionEnhancer {
   }
 
   /**
-     * 獲取風險等級文字
-     */
+   * 獲取風險等級文字
+   */
   getRiskLevelText(riskLevel) {
     const levels = {
       0: '極低',
@@ -639,11 +642,13 @@ class SuggestionEnhancer {
   }
 
   /**
-     * 更新替代建議
-     */
+   * 更新替代建議
+   */
   updateAlternativeSuggestions(container, alternatives) {
     const alternativesList = container.querySelector('.alternatives-list');
-    const alternativesSection = container.querySelector('.alternative-suggestions');
+    const alternativesSection = container.querySelector(
+      '.alternative-suggestions'
+    );
 
     if (!alternativesList || !alternativesSection) return;
 
@@ -659,9 +664,10 @@ class SuggestionEnhancer {
     alternatives.slice(0, 4).forEach((alt, index) => {
       const { row, col, value, confidence } = alt;
 
-      const positionText = typeof i18n !== 'undefined' ?
-        i18n.formatPosition(row, col) :
-        `第 ${row + 1} 行第 ${col + 1} 列`;
+      const positionText =
+        typeof i18n !== 'undefined'
+          ? i18n.formatPosition(row, col)
+          : `第 ${row + 1} 行第 ${col + 1} 列`;
 
       const altElement = SafeDOM.createStructure({
         tag: 'div',
@@ -703,7 +709,7 @@ class SuggestionEnhancer {
       });
 
       // 添加鍵盤支持
-      altElement.addEventListener('keydown', (event) => {
+      altElement.addEventListener('keydown', event => {
         if (event.key === 'Enter' || event.key === ' ') {
           event.preventDefault();
           this.selectAlternativeSuggestion(alt);
@@ -715,8 +721,8 @@ class SuggestionEnhancer {
   }
 
   /**
-     * 選擇替代建議
-     */
+   * 選擇替代建議
+   */
   selectAlternativeSuggestion(suggestion) {
     // 觸發建議選擇事件
     const event = new CustomEvent('suggestionSelected', {
@@ -731,8 +737,8 @@ class SuggestionEnhancer {
   }
 
   /**
-     * 隱藏建議
-     */
+   * 隱藏建議
+   */
   hideSuggestion() {
     const container = document.querySelector('.enhanced-suggestion-container');
     if (container) {
@@ -747,15 +753,16 @@ class SuggestionEnhancer {
   }
 
   /**
-     * 宣告新建議（無障礙支持）
-     */
+   * 宣告新建議（無障礙支持）
+   */
   announceNewSuggestion(suggestion) {
     if (!window.accessibilityEnhancer) return;
 
     const { row, col, confidence } = suggestion;
-    const positionText = typeof i18n !== 'undefined' ?
-      i18n.formatPosition(row, col) :
-      `第 ${row + 1} 行第 ${col + 1} 列`;
+    const positionText =
+      typeof i18n !== 'undefined'
+        ? i18n.formatPosition(row, col)
+        : `第 ${row + 1} 行第 ${col + 1} 列`;
 
     const confidenceLevel = this.getConfidenceLevel(confidence);
     const confidenceText = this.confidenceLevels[confidenceLevel].label;
@@ -765,22 +772,22 @@ class SuggestionEnhancer {
   }
 
   /**
-     * 獲取當前建議
-     */
+   * 獲取當前建議
+   */
   getCurrentSuggestion() {
     return this.currentSuggestion;
   }
 
   /**
-     * 獲取替代建議
-     */
+   * 獲取替代建議
+   */
   getAlternativeSuggestions() {
     return this.alternativeSuggestions;
   }
 
   /**
-     * 清除建議
-     */
+   * 清除建議
+   */
   clearSuggestions() {
     this.currentSuggestion = null;
     this.alternativeSuggestions = [];

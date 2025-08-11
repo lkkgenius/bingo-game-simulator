@@ -52,8 +52,8 @@ class DependencyValidator {
   }
 
   /**
-     * 設置依賴定義和需求
-     */
+   * 設置依賴定義和需求
+   */
   setupDependencyDefinitions() {
     // 定義核心依賴項目
     this.dependencyGraph.set('CONSTANTS', {
@@ -62,8 +62,13 @@ class DependencyValidator {
       critical: true,
       location: 'window.CONSTANTS',
       expectedProperties: [
-        'BOARD_SIZE', 'MAX_ROUNDS', 'CELL_STATES', 'GAME_PHASES',
-        'LINE_TYPES', 'ERROR_TYPES', 'ALGORITHM_WEIGHTS'
+        'BOARD_SIZE',
+        'MAX_ROUNDS',
+        'CELL_STATES',
+        'GAME_PHASES',
+        'LINE_TYPES',
+        'ERROR_TYPES',
+        'ALGORITHM_WEIGHTS'
       ],
       fallbackAvailable: true,
       description: '遊戲常數和配置'
@@ -75,8 +80,13 @@ class DependencyValidator {
       critical: true,
       location: 'window.Utils',
       expectedProperties: [
-        'isValidPosition', 'isCellEmpty', 'copyBoard', 'formatError',
-        'debounce', 'throttle', 'deepClone'
+        'isValidPosition',
+        'isCellEmpty',
+        'copyBoard',
+        'formatError',
+        'debounce',
+        'throttle',
+        'deepClone'
       ],
       fallbackAvailable: true,
       description: '通用工具函數'
@@ -88,8 +98,11 @@ class DependencyValidator {
       critical: true,
       location: 'window.LineDetector',
       expectedMethods: [
-        'checkHorizontalLines', 'checkVerticalLines', 'checkDiagonalLines',
-        'getAllLines', 'countCompletedLines'
+        'checkHorizontalLines',
+        'checkVerticalLines',
+        'checkDiagonalLines',
+        'getAllLines',
+        'countCompletedLines'
       ],
       dependencies: ['CONSTANTS'],
       fallbackAvailable: true,
@@ -102,7 +115,9 @@ class DependencyValidator {
       critical: true,
       location: 'window.ProbabilityCalculator',
       expectedMethods: [
-        'calculateMoveValue', 'getBestSuggestion', 'simulateAllPossibleMoves'
+        'calculateMoveValue',
+        'getBestSuggestion',
+        'simulateAllPossibleMoves'
       ],
       dependencies: ['CONSTANTS', 'Utils', 'LineDetector'],
       fallbackAvailable: true,
@@ -115,7 +130,9 @@ class DependencyValidator {
       critical: false,
       location: 'window.BaseProbabilityCalculator',
       expectedMethods: [
-        'calculateMoveValue', 'isValidMove', 'isCenterPosition'
+        'calculateMoveValue',
+        'isValidMove',
+        'isCenterPosition'
       ],
       dependencies: ['CONSTANTS', 'Utils'],
       fallbackAvailable: true,
@@ -128,7 +145,10 @@ class DependencyValidator {
       critical: true,
       location: 'window.GameBoard',
       expectedMethods: [
-        'render', 'updateCell', 'highlightSuggestion', 'highlightLines'
+        'render',
+        'updateCell',
+        'highlightSuggestion',
+        'highlightLines'
       ],
       dependencies: ['CONSTANTS', 'Utils'],
       fallbackAvailable: false,
@@ -141,10 +161,18 @@ class DependencyValidator {
       critical: true,
       location: 'window.GameEngine',
       expectedMethods: [
-        'startGame', 'processPlayerTurn', 'processComputerTurn',
-        'calculateBestMove', 'isGameComplete'
+        'startGame',
+        'processPlayerTurn',
+        'processComputerTurn',
+        'calculateBestMove',
+        'isGameComplete'
       ],
-      dependencies: ['CONSTANTS', 'Utils', 'LineDetector', 'ProbabilityCalculator'],
+      dependencies: [
+        'CONSTANTS',
+        'Utils',
+        'LineDetector',
+        'ProbabilityCalculator'
+      ],
       fallbackAvailable: false,
       description: '遊戲引擎'
     });
@@ -156,9 +184,16 @@ class DependencyValidator {
       critical: false,
       location: 'window.EnhancedProbabilityCalculator',
       expectedMethods: [
-        'calculateMoveValue', 'getBestSuggestion', 'getAlternativeSuggestions'
+        'calculateMoveValue',
+        'getBestSuggestion',
+        'getAlternativeSuggestions'
       ],
-      dependencies: ['CONSTANTS', 'Utils', 'LineDetector', 'BaseProbabilityCalculator'],
+      dependencies: [
+        'CONSTANTS',
+        'Utils',
+        'LineDetector',
+        'BaseProbabilityCalculator'
+      ],
       fallbackAvailable: false,
       description: '增強版機率計算器'
     });
@@ -195,8 +230,8 @@ class DependencyValidator {
   }
 
   /**
-     * 設置回退實現
-     */
+   * 設置回退實現
+   */
   setupFallbackImplementations() {
     // CONSTANTS 回退實現
     this.fallbackImplementations.set('CONSTANTS', () => {
@@ -260,7 +295,7 @@ class DependencyValidator {
           return board && board[row] && board[row][col] === 0;
         },
 
-        copyBoard: (board) => {
+        copyBoard: board => {
           return board.map(row => [...row]);
         },
 
@@ -270,7 +305,7 @@ class DependencyValidator {
 
         debounce: (func, delay) => {
           let timeoutId;
-          return function(...args) {
+          return function (...args) {
             clearTimeout(timeoutId);
             timeoutId = setTimeout(() => func.apply(this, args), delay);
           };
@@ -278,7 +313,7 @@ class DependencyValidator {
 
         throttle: (func, delay) => {
           let lastCall = 0;
-          return function(...args) {
+          return function (...args) {
             const now = Date.now();
             if (now - lastCall >= delay) {
               lastCall = now;
@@ -287,10 +322,11 @@ class DependencyValidator {
           };
         },
 
-        deepClone: (obj) => {
+        deepClone: obj => {
           if (obj === null || typeof obj !== 'object') return obj;
           if (obj instanceof Date) return new Date(obj);
-          if (obj instanceof Array) return obj.map(item => this.deepClone(item));
+          if (obj instanceof Array)
+            return obj.map(item => this.deepClone(item));
           if (typeof obj === 'object') {
             const cloned = {};
             Object.keys(obj).forEach(key => {
@@ -363,7 +399,9 @@ class DependencyValidator {
           }
 
           // 反對角線
-          const antiDiagonal = board.map((row, i) => row[this.BOARD_SIZE - 1 - i]);
+          const antiDiagonal = board.map(
+            (row, i) => row[this.BOARD_SIZE - 1 - i]
+          );
           if (antiDiagonal.every(cell => cell !== this.CELL_STATES.EMPTY)) {
             lines.push({
               type: this.LINE_TYPES.DIAGONAL_ANTI,
@@ -428,9 +466,13 @@ class DependencyValidator {
         }
 
         isValidMove(board, row, col) {
-          return row >= 0 && row < this.BOARD_SIZE &&
-                           col >= 0 && col < this.BOARD_SIZE &&
-                           board[row][col] === this.CELL_STATES.EMPTY;
+          return (
+            row >= 0 &&
+            row < this.BOARD_SIZE &&
+            col >= 0 &&
+            col < this.BOARD_SIZE &&
+            board[row][col] === this.CELL_STATES.EMPTY
+          );
         }
 
         isCenterPosition(row, col) {
@@ -441,7 +483,8 @@ class DependencyValidator {
         _calculatePositionValue(row, col) {
           // 簡單的位置價值計算
           const center = Math.floor(this.BOARD_SIZE / 2);
-          const distanceFromCenter = Math.abs(row - center) + Math.abs(col - center);
+          const distanceFromCenter =
+            Math.abs(row - center) + Math.abs(col - center);
           return Math.max(0, 10 - distanceFromCenter * 2);
         }
 
@@ -461,7 +504,9 @@ class DependencyValidator {
 
     // ProbabilityCalculator 回退實現
     this.fallbackImplementations.set('ProbabilityCalculator', () => {
-      const BaseProbabilityCalculator = this.fallbackImplementations.get('BaseProbabilityCalculator')();
+      const BaseProbabilityCalculator = this.fallbackImplementations.get(
+        'BaseProbabilityCalculator'
+      )();
 
       return class FallbackProbabilityCalculator extends BaseProbabilityCalculator {
         constructor() {
@@ -505,16 +550,20 @@ class DependencyValidator {
 
           // 檢查水平線
           const horizontalLine = board[row];
-          const horizontalFilled = horizontalLine.filter(cell => cell !== 0).length;
+          const horizontalFilled = horizontalLine.filter(
+            cell => cell !== 0
+          ).length;
           if (horizontalFilled > 0) {
-            cooperativeValue += horizontalFilled * this.WEIGHTS.COOPERATIVE_LINE / 10;
+            cooperativeValue +=
+              (horizontalFilled * this.WEIGHTS.COOPERATIVE_LINE) / 10;
           }
 
           // 檢查垂直線
           const verticalLine = board.map(r => r[col]);
           const verticalFilled = verticalLine.filter(cell => cell !== 0).length;
           if (verticalFilled > 0) {
-            cooperativeValue += verticalFilled * this.WEIGHTS.COOPERATIVE_LINE / 10;
+            cooperativeValue +=
+              (verticalFilled * this.WEIGHTS.COOPERATIVE_LINE) / 10;
           }
 
           return cooperativeValue;
@@ -558,9 +607,9 @@ class DependencyValidator {
   }
 
   /**
-     * 執行完整的依賴驗證
-     * @returns {Object} 驗證結果
-     */
+   * 執行完整的依賴驗證
+   * @returns {Object} 驗證結果
+   */
   async validateAllDependencies() {
     logger.info('開始執行依賴驗證...');
 
@@ -580,7 +629,10 @@ class DependencyValidator {
 
     for (const dependencyName of validationOrder) {
       const dependencyInfo = this.dependencyGraph.get(dependencyName);
-      const validationResult = await this._validateSingleDependency(dependencyName, dependencyInfo);
+      const validationResult = await this._validateSingleDependency(
+        dependencyName,
+        dependencyInfo
+      );
 
       results.dependencies.set(dependencyName, validationResult);
 
@@ -589,7 +641,8 @@ class DependencyValidator {
           dependency: dependencyName,
           severity: dependencyInfo.critical ? 'critical' : 'warning',
           message: validationResult.error,
-          autoRepairAvailable: dependencyInfo.fallbackAvailable && this.autoRepairEnabled
+          autoRepairAvailable:
+            dependencyInfo.fallbackAvailable && this.autoRepairEnabled
         });
 
         if (dependencyInfo.critical) {
@@ -599,15 +652,24 @@ class DependencyValidator {
 
         // 嘗試自動修復
         if (dependencyInfo.fallbackAvailable && this.autoRepairEnabled) {
-          const repairResult = await this._attemptAutoRepair(dependencyName, dependencyInfo);
+          const repairResult = await this._attemptAutoRepair(
+            dependencyName,
+            dependencyInfo
+          );
           if (repairResult.success) {
             results.repairs.push(repairResult);
             validationResult.repaired = true;
             validationResult.available = true;
 
             // 重新驗證修復後的依賴
-            const revalidationResult = await this._validateSingleDependency(dependencyName, dependencyInfo);
-            results.dependencies.set(dependencyName, { ...validationResult, ...revalidationResult });
+            const revalidationResult = await this._validateSingleDependency(
+              dependencyName,
+              dependencyInfo
+            );
+            results.dependencies.set(dependencyName, {
+              ...validationResult,
+              ...revalidationResult
+            });
           }
         }
       }
@@ -628,15 +690,17 @@ class DependencyValidator {
     this.validationHistory.push(results);
     this.validationResults = results.dependencies;
 
-    logger.info(`依賴驗證完成: ${results.overall.passed ? '通過' : '失敗'} (${results.performance.totalTime}ms)`);
+    logger.info(
+      `依賴驗證完成: ${results.overall.passed ? '通過' : '失敗'} (${results.performance.totalTime}ms)`
+    );
 
     return results;
   }
 
   /**
-     * 驗證單個依賴項目
-     * @private
-     */
+   * 驗證單個依賴項目
+   * @private
+   */
   async _validateSingleDependency(name, info) {
     const result = {
       name,
@@ -668,7 +732,8 @@ class DependencyValidator {
       // 驗證預期屬性
       if (info.expectedProperties) {
         for (const prop of info.expectedProperties) {
-          const hasProperty = dependency.hasOwnProperty(prop) || (prop in dependency);
+          const hasProperty =
+            dependency.hasOwnProperty(prop) || prop in dependency;
           result.properties[prop] = {
             available: hasProperty,
             type: hasProperty ? typeof dependency[prop] : 'undefined'
@@ -728,7 +793,6 @@ class DependencyValidator {
           result.warnings.push(`類實例化失敗: ${error.message}`);
         }
       }
-
     } catch (error) {
       result.error = `驗證過程中發生錯誤: ${error.message}`;
     }
@@ -738,9 +802,9 @@ class DependencyValidator {
   }
 
   /**
-     * 解析依賴項目位置
-     * @private
-     */
+   * 解析依賴項目位置
+   * @private
+   */
   _resolveDependency(location) {
     try {
       // 支持多種位置格式
@@ -770,9 +834,9 @@ class DependencyValidator {
   }
 
   /**
-     * 嘗試自動修復依賴項目
-     * @private
-     */
+   * 嘗試自動修復依賴項目
+   * @private
+   */
   async _attemptAutoRepair(name, info) {
     const repairResult = {
       dependency: name,
@@ -811,7 +875,6 @@ class DependencyValidator {
 
         logger.info(`成功注入回退實現: ${name}`);
       }
-
     } catch (error) {
       repairResult.error = error.message;
       logger.error(`自動修復 ${name} 失敗:`, error);
@@ -821,15 +884,15 @@ class DependencyValidator {
   }
 
   /**
-     * 計算驗證順序（基於依賴關係）
-     * @private
-     */
+   * 計算驗證順序（基於依賴關係）
+   * @private
+   */
   _calculateValidationOrder() {
     const visited = new Set();
     const visiting = new Set();
     const order = [];
 
-    const visit = (name) => {
+    const visit = name => {
       if (visiting.has(name)) {
         logger.warn(`檢測到循環依賴: ${name}`);
         return;
@@ -873,9 +936,9 @@ class DependencyValidator {
   }
 
   /**
-     * 生成建議
-     * @private
-     */
+   * 生成建議
+   * @private
+   */
   _generateRecommendations(results) {
     const recommendations = [];
 
@@ -926,9 +989,9 @@ class DependencyValidator {
   }
 
   /**
-     * 生成依賴健康檢查報告
-     * @returns {Object} 健康檢查報告
-     */
+   * 生成依賴健康檢查報告
+   * @returns {Object} 健康檢查報告
+   */
   generateHealthReport() {
     const report = {
       timestamp: new Date().toISOString(),
@@ -962,24 +1025,38 @@ class DependencyValidator {
         status: result.available ? 'healthy' : 'unhealthy',
         critical: info.critical,
         issues: result.warnings?.length || 0,
-        lastValidated: result.performance?.validationTime ?
-          new Date(Date.now() - result.performance.validationTime).toISOString() : 'never'
+        lastValidated: result.performance?.validationTime
+          ? new Date(
+              Date.now() - result.performance.validationTime
+            ).toISOString()
+          : 'never'
       };
     }
 
     report.summary.availableDependencies = availableCount;
-    report.summary.healthScore = Math.round((availableCount / this.dependencyGraph.size) * 100);
+    report.summary.healthScore = Math.round(
+      (availableCount / this.dependencyGraph.size) * 100
+    );
 
     // 趨勢分析
     if (this.validationHistory.length > 1) {
-      const previousValidation = this.validationHistory[this.validationHistory.length - 2];
-      const currentValidation = this.validationHistory[this.validationHistory.length - 1];
+      const previousValidation =
+        this.validationHistory[this.validationHistory.length - 2];
+      const currentValidation =
+        this.validationHistory[this.validationHistory.length - 1];
 
       report.trends = {
-        healthScoreChange: report.summary.healthScore -
-                    Math.round((previousValidation.dependencies.size / this.dependencyGraph.size) * 100),
-        issuesChange: currentValidation.issues.length - previousValidation.issues.length,
-        performanceChange: currentValidation.performance.totalTime - previousValidation.performance.totalTime
+        healthScoreChange:
+          report.summary.healthScore -
+          Math.round(
+            (previousValidation.dependencies.size / this.dependencyGraph.size) *
+              100
+          ),
+        issuesChange:
+          currentValidation.issues.length - previousValidation.issues.length,
+        performanceChange:
+          currentValidation.performance.totalTime -
+          previousValidation.performance.totalTime
       };
     }
 
@@ -1004,16 +1081,18 @@ class DependencyValidator {
   }
 
   /**
-     * 執行運行時依賴檢查
-     * @returns {Promise<boolean>} 是否所有關鍵依賴都可用
-     */
+   * 執行運行時依賴檢查
+   * @returns {Promise<boolean>} 是否所有關鍵依賴都可用
+   */
   async performRuntimeCheck() {
     logger.info('執行運行時依賴檢查...');
 
     const results = await this.validateAllDependencies();
 
     // 檢查關鍵依賴
-    const criticalIssues = results.issues.filter(issue => issue.severity === 'critical');
+    const criticalIssues = results.issues.filter(
+      issue => issue.severity === 'critical'
+    );
 
     if (criticalIssues.length > 0) {
       logger.error('發現關鍵依賴問題:', criticalIssues);
@@ -1031,9 +1110,9 @@ class DependencyValidator {
   }
 
   /**
-     * 顯示運行時錯誤
-     * @private
-     */
+   * 顯示運行時錯誤
+   * @private
+   */
   _displayRuntimeError(issues) {
     const errorContainer = document.createElement('div');
     errorContainer.style.cssText = `
@@ -1063,19 +1142,19 @@ class DependencyValidator {
   }
 
   /**
-     * 設置自動修復功能
-     * @param {boolean} enabled - 是否啟用自動修復
-     */
+   * 設置自動修復功能
+   * @param {boolean} enabled - 是否啟用自動修復
+   */
   setAutoRepair(enabled) {
     this.autoRepairEnabled = enabled;
     logger.info(`自動修復功能 ${enabled ? '已啟用' : '已禁用'}`);
   }
 
   /**
-     * 獲取依賴項目信息
-     * @param {string} name - 依賴項目名稱
-     * @returns {Object} 依賴項目詳細信息
-     */
+   * 獲取依賴項目信息
+   * @param {string} name - 依賴項目名稱
+   * @returns {Object} 依賴項目詳細信息
+   */
   getDependencyInfo(name) {
     const definition = this.dependencyGraph.get(name);
     const validation = this.validationResults.get(name);
@@ -1090,8 +1169,8 @@ class DependencyValidator {
   }
 
   /**
-     * 清除驗證緩存
-     */
+   * 清除驗證緩存
+   */
   clearValidationCache() {
     this.validationResults.clear();
     this.validationHistory = [];

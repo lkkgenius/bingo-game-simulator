@@ -64,10 +64,7 @@ class CodeQualityManager {
       ],
 
       // Core game modules
-      core: [
-        'probabilityCalculator.js',
-        'gameEngine.js'
-      ],
+      core: ['probabilityCalculator.js', 'gameEngine.js'],
 
       // Enhanced features that can load later
       enhanced: [
@@ -183,7 +180,7 @@ class CodeQualityManager {
         }
 
         return new Promise((resolve, reject) => {
-          const observer = new IntersectionObserver((entries) => {
+          const observer = new IntersectionObserver(entries => {
             entries.forEach(entry => {
               if (entry.isIntersecting) {
                 observer.unobserve(element);
@@ -209,7 +206,9 @@ class CodeQualityManager {
           await this.loadModule(modulePath);
 
           if (!window[componentName]) {
-            throw new Error(`Component ${componentName} not found after loading ${modulePath}`);
+            throw new Error(
+              `Component ${componentName} not found after loading ${modulePath}`
+            );
           }
 
           console.log(`✓ Lazy loaded component: ${componentName}`);
@@ -290,11 +289,20 @@ class CodeQualityManager {
       categorizeError(error) {
         if (error.name === 'GameError') {
           return 'game';
-        } else if (error.message.includes('network') || error.message.includes('fetch')) {
+        } else if (
+          error.message.includes('network') ||
+          error.message.includes('fetch')
+        ) {
           return 'network';
-        } else if (error.message.includes('permission') || error.message.includes('security')) {
+        } else if (
+          error.message.includes('permission') ||
+          error.message.includes('security')
+        ) {
           return 'security';
-        } else if (error.name === 'TypeError' || error.name === 'ReferenceError') {
+        } else if (
+          error.name === 'TypeError' ||
+          error.name === 'ReferenceError'
+        ) {
           return 'runtime';
         } else {
           return 'unknown';
@@ -307,28 +315,28 @@ class CodeQualityManager {
        */
       attemptRecovery(errorInfo) {
         switch (errorInfo.type) {
-        case 'game':
-          // Reset game state
-          if (typeof window !== 'undefined' && window.gameState) {
-            window.gameState.reset();
-          }
-          break;
+          case 'game':
+            // Reset game state
+            if (typeof window !== 'undefined' && window.gameState) {
+              window.gameState.reset();
+            }
+            break;
 
-        case 'network':
-          // Retry network operations
-          setTimeout(() => {
-            console.log('Attempting network recovery...');
-          }, 1000);
-          break;
+          case 'network':
+            // Retry network operations
+            setTimeout(() => {
+              console.log('Attempting network recovery...');
+            }, 1000);
+            break;
 
-        case 'runtime':
-          // Reload critical components
-          this.reloadCriticalComponents();
-          break;
+          case 'runtime':
+            // Reload critical components
+            this.reloadCriticalComponents();
+            break;
 
-        default:
-          // Generic recovery
-          console.log('Attempting generic error recovery...');
+          default:
+            // Generic recovery
+            console.log('Attempting generic error recovery...');
         }
       },
 
@@ -350,11 +358,15 @@ class CodeQualityManager {
 
     // Setup global error handlers
     if (typeof window !== 'undefined') {
-      window.addEventListener('error', (event) => {
-        errorBoundary.handleError(event.error, { type: 'global', filename: event.filename, lineno: event.lineno });
+      window.addEventListener('error', event => {
+        errorBoundary.handleError(event.error, {
+          type: 'global',
+          filename: event.filename,
+          lineno: event.lineno
+        });
       });
 
-      window.addEventListener('unhandledrejection', (event) => {
+      window.addEventListener('unhandledrejection', event => {
         errorBoundary.handleError(event.reason, { type: 'promise' });
       });
     }
@@ -402,7 +414,7 @@ class CodeQualityManager {
        */
       monitorRenderPerformance() {
         if (typeof PerformanceObserver !== 'undefined') {
-          const observer = new PerformanceObserver((list) => {
+          const observer = new PerformanceObserver(list => {
             list.getEntries().forEach(entry => {
               if (entry.entryType === 'paint') {
                 this.recordMetric('paint', {
@@ -424,7 +436,7 @@ class CodeQualityManager {
        */
       monitorNetworkPerformance() {
         if (typeof PerformanceObserver !== 'undefined') {
-          const observer = new PerformanceObserver((list) => {
+          const observer = new PerformanceObserver(list => {
             list.getEntries().forEach(entry => {
               if (entry.entryType === 'resource') {
                 this.recordMetric('network', {
@@ -447,7 +459,7 @@ class CodeQualityManager {
        */
       monitorUserInteractions() {
         if (typeof document !== 'undefined') {
-          const interactionHandler = QualityUtils.throttle((event) => {
+          const interactionHandler = QualityUtils.throttle(event => {
             this.recordMetric('interaction', {
               type: event.type,
               target: event.target.tagName,
@@ -456,7 +468,9 @@ class CodeQualityManager {
           }, 100);
 
           ['click', 'keydown', 'touchstart'].forEach(eventType => {
-            document.addEventListener(eventType, interactionHandler, { passive: true });
+            document.addEventListener(eventType, interactionHandler, {
+              passive: true
+            });
           });
         }
       },
@@ -508,14 +522,18 @@ class CodeQualityManager {
         if (values.length === 0) return 0;
 
         switch (category) {
-        case 'memory':
-          return values.reduce((sum, v) => sum + v.used, 0) / values.length;
-        case 'paint':
-          return values.reduce((sum, v) => sum + v.startTime, 0) / values.length;
-        case 'network':
-          return values.reduce((sum, v) => sum + v.duration, 0) / values.length;
-        default:
-          return values.length;
+          case 'memory':
+            return values.reduce((sum, v) => sum + v.used, 0) / values.length;
+          case 'paint':
+            return (
+              values.reduce((sum, v) => sum + v.startTime, 0) / values.length
+            );
+          case 'network':
+            return (
+              values.reduce((sum, v) => sum + v.duration, 0) / values.length
+            );
+          default:
+            return values.length;
         }
       }
     };
@@ -657,7 +675,9 @@ class CodeQualityManager {
 
     return {
       codeReuse: this.calculateCodeReuseMetric(),
-      testCoverage: testFramework ? testFramework.generateCoverageReport() : null,
+      testCoverage: testFramework
+        ? testFramework.generateCoverageReport()
+        : null,
       performance: performanceMonitor ? performanceMonitor.getSummary() : null,
       errorRate: errorBoundary ? errorBoundary.errors.length : 0,
       maintainability: this.calculateMaintainabilityScore(),
@@ -682,13 +702,16 @@ class CodeQualityManager {
   calculateMaintainabilityScore() {
     // Factors: code complexity, documentation, test coverage, error handling
     const factors = {
-      complexity: 80,    // Lower complexity after refactoring
+      complexity: 80, // Lower complexity after refactoring
       documentation: 90, // Improved documentation
-      testCoverage: 85,  // Good test coverage
-      errorHandling: 95  // Comprehensive error handling
+      testCoverage: 85, // Good test coverage
+      errorHandling: 95 // Comprehensive error handling
     };
 
-    return Object.values(factors).reduce((sum, score) => sum + score, 0) / Object.keys(factors).length;
+    return (
+      Object.values(factors).reduce((sum, score) => sum + score, 0) /
+      Object.keys(factors).length
+    );
   }
 
   /**
@@ -725,7 +748,7 @@ class CodeQualityManager {
     let score = 0;
     score += metrics.codeReuse * weights.codeReuse;
     score += (metrics.testCoverage?.lines || 0) * weights.testCoverage;
-    score += Math.min(100, 100 - (metrics.errorRate * 5)) * weights.performance; // Lower error rate = higher score
+    score += Math.min(100, 100 - metrics.errorRate * 5) * weights.performance; // Lower error rate = higher score
     score += metrics.maintainability * weights.maintainability;
 
     return Math.round(score);

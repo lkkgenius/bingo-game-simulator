@@ -123,15 +123,7 @@ module.exports = [
       'no-dupe-keys': 'error',
       'no-duplicate-case': 'error',
 
-      // Code style
-      'semi': ['error', 'always'],
-      'quotes': ['error', 'single'],
-      'indent': ['error', 2],
-      'comma-dangle': ['error', 'never'],
-      'no-trailing-spaces': 'error',
-      'eol-last': 'error',
-
-      // Best practices
+      // Best practices (formatting handled by Prettier)
       'no-console': 'off', // Allow console for debugging
       'no-alert': 'warn',
       'no-eval': 'error',
@@ -148,7 +140,12 @@ module.exports = [
     }
   },
   {
-    files: ['*.test.js', 'testRunner.js', 'e2e.test.js', 'playwright-e2e.test.js'],
+    files: [
+      '*.test.js',
+      'testRunner.js',
+      'e2e.test.js',
+      'playwright-e2e.test.js'
+    ],
     rules: {
       'no-unused-vars': 'off', // Allow unused vars in tests
       'no-alert': 'off', // Allow alerts in tests

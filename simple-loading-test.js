@@ -8,7 +8,9 @@ console.log('🔍 分析 83% 載入卡住問題...\n');
 // 模擬載入流程
 console.log('1. 檢查 initializeProgressiveLoading() 設置:');
 console.log('   設置總組件數: 6');
-console.log('   組件列表: LineDetector, ProbabilityCalculator, GameBoard, GameEngine, Enhanced Algorithm, UI');
+console.log(
+  '   組件列表: LineDetector, ProbabilityCalculator, GameBoard, GameEngine, Enhanced Algorithm, UI'
+);
 
 console.log('\n2. 檢查 initializeGameWithProgressiveLoading() 實際載入:');
 const actualComponents = [
@@ -22,22 +24,35 @@ const actualComponents = [
 console.log(`   實際載入組件數: ${actualComponents.length}`);
 console.log('   實際載入組件:');
 actualComponents.forEach((comp, index) => {
-  const progress = ((index + 1) / 6 * 100).toFixed(1);
+  const progress = (((index + 1) / 6) * 100).toFixed(1);
   console.log(`     ${index + 1}. ${comp} (${progress}%)`);
 });
 
 console.log('\n3. 問題分析:');
 console.log('   期望組件數: 6');
 console.log(`   實際載入數: ${actualComponents.length}`);
-console.log(`   載入進度: ${actualComponents.length}/6 = ${(actualComponents.length/6*100).toFixed(1)}%`);
+console.log(
+  `   載入進度: ${actualComponents.length}/6 = ${((actualComponents.length / 6) * 100).toFixed(1)}%`
+);
 
 console.log('\n4. 缺少的組件:');
-const expectedComponents = ['GameState', 'LineDetector', 'ProbabilityCalculator', 'GameBoard', 'Enhanced Algorithm', 'UI'];
-const missingComponents = expectedComponents.filter(comp => !actualComponents.includes(comp));
+const expectedComponents = [
+  'GameState',
+  'LineDetector',
+  'ProbabilityCalculator',
+  'GameBoard',
+  'Enhanced Algorithm',
+  'UI'
+];
+const missingComponents = expectedComponents.filter(
+  comp => !actualComponents.includes(comp)
+);
 console.log(`   缺少: ${missingComponents.join(', ')}`);
 
 console.log('\n5. 修復方案:');
-console.log('   ✅ 在 initializeGameWithProgressiveLoading() 中添加 Enhanced Algorithm 載入步驟');
+console.log(
+  '   ✅ 在 initializeGameWithProgressiveLoading() 中添加 Enhanced Algorithm 載入步驟'
+);
 console.log('   ✅ 確保所有 6 個組件都被正確標記為已載入');
 
 console.log('\n6. 為什麼測試沒有發現這個問題:');

@@ -37,18 +37,29 @@ class BaseProbabilityCalculator {
     const constants = BaseProbConstants || {
       BOARD_SIZE: 5,
       CELL_STATES: { EMPTY: 0, PLAYER: 1, COMPUTER: 2 },
-      LINE_TYPES: { HORIZONTAL: 'horizontal', VERTICAL: 'vertical', DIAGONAL_MAIN: 'diagonal-main', DIAGONAL_ANTI: 'diagonal-anti' },
+      LINE_TYPES: {
+        HORIZONTAL: 'horizontal',
+        VERTICAL: 'vertical',
+        DIAGONAL_MAIN: 'diagonal-main',
+        DIAGONAL_ANTI: 'diagonal-anti'
+      },
       ALGORITHM_WEIGHTS: {
-        STANDARD: { COMPLETE_LINE: 100, COOPERATIVE_LINE: 50, POTENTIAL_LINE: 10, CENTER_BONUS: 5 }
+        STANDARD: {
+          COMPLETE_LINE: 100,
+          COOPERATIVE_LINE: 50,
+          POTENTIAL_LINE: 10,
+          CENTER_BONUS: 5
+        }
       },
       PERFORMANCE: { CACHE_SIZE: { VALUE_CACHE: 200 } }
     };
 
     const utils = BaseProbUtils || {
-      isValidPosition: (row, col, boardSize) => row >= 0 && row < boardSize && col >= 0 && col < boardSize,
+      isValidPosition: (row, col, boardSize) =>
+        row >= 0 && row < boardSize && col >= 0 && col < boardSize,
       isCellEmpty: (board, row, col) => board[row] && board[row][col] === 0,
-      copyBoard: (board) => board.map(row => [...row]),
-      getEmptyCells: (board) => {
+      copyBoard: board => board.map(row => [...row]),
+      getEmptyCells: board => {
         const empty = [];
         for (let r = 0; r < board.length; r++) {
           for (let c = 0; c < board[r].length; c++) {
@@ -57,23 +68,25 @@ class BaseProbabilityCalculator {
         }
         return empty;
       },
-      getBoardHash: (board) => board.flat().join(''),
-      isCenterPosition: (row, col, boardSize) => row === Math.floor(boardSize / 2) && col === Math.floor(boardSize / 2),
+      getBoardHash: board => board.flat().join(''),
+      isCenterPosition: (row, col, boardSize) =>
+        row === Math.floor(boardSize / 2) && col === Math.floor(boardSize / 2),
       getLineCells: (row, col, lineType, boardSize) => {
         const cells = [];
         switch (lineType) {
-        case 'horizontal':
-          for (let c = 0; c < boardSize; c++) cells.push([row, c]);
-          break;
-        case 'vertical':
-          for (let r = 0; r < boardSize; r++) cells.push([r, col]);
-          break;
-        case 'diagonal-main':
-          for (let i = 0; i < boardSize; i++) cells.push([i, i]);
-          break;
-        case 'diagonal-anti':
-          for (let i = 0; i < boardSize; i++) cells.push([i, boardSize - 1 - i]);
-          break;
+          case 'horizontal':
+            for (let c = 0; c < boardSize; c++) cells.push([row, c]);
+            break;
+          case 'vertical':
+            for (let r = 0; r < boardSize; r++) cells.push([r, col]);
+            break;
+          case 'diagonal-main':
+            for (let i = 0; i < boardSize; i++) cells.push([i, i]);
+            break;
+          case 'diagonal-anti':
+            for (let i = 0; i < boardSize; i++)
+              cells.push([i, boardSize - 1 - i]);
+            break;
         }
         return cells;
       },
@@ -83,9 +96,12 @@ class BaseProbabilityCalculator {
         if (row + col === boardSize - 1) lines.push('diagonal-anti');
         return lines;
       },
-      isLineComplete: (board, cells) => cells.every(([r, c]) => board[r][c] !== 0),
-      countFilledCells: (board, cells) => cells.filter(([r, c]) => board[r][c] !== 0).length,
-      countEmptyCells: (board, cells) => cells.filter(([r, c]) => board[r][c] === 0).length,
+      isLineComplete: (board, cells) =>
+        cells.every(([r, c]) => board[r][c] !== 0),
+      countFilledCells: (board, cells) =>
+        cells.filter(([r, c]) => board[r][c] !== 0).length,
+      countEmptyCells: (board, cells) =>
+        cells.filter(([r, c]) => board[r][c] === 0).length,
       calculateConfidenceLevel: (moves, weights) => {
         if (moves.length < 2) return 'high';
         const diff = moves[0].value - moves[1].value;
@@ -95,8 +111,11 @@ class BaseProbabilityCalculator {
         return 'low';
       },
       isValidBoard: (board, expectedSize) => {
-        if (!Array.isArray(board) || board.length !== expectedSize) return false;
-        return board.every(row => Array.isArray(row) && row.length === expectedSize);
+        if (!Array.isArray(board) || board.length !== expectedSize)
+          return false;
+        return board.every(
+          row => Array.isArray(row) && row.length === expectedSize
+        );
       }
     };
 
@@ -109,7 +128,7 @@ class BaseProbabilityCalculator {
     this.LINE_TYPES = constants.LINE_TYPES;
 
     // Algorithm weights
-    this.WEIGHTS = { ...weights || constants.ALGORITHM_WEIGHTS.STANDARD };
+    this.WEIGHTS = { ...(weights || constants.ALGORITHM_WEIGHTS.STANDARD) };
 
     // Performance optimization
     this._initializeCache();
@@ -123,7 +142,12 @@ class BaseProbabilityCalculator {
   _initializeCache() {
     this._valueCache = new Map();
     this._lineCache = new Map();
-    this._maxCacheSize = (BaseProbConstants && BaseProbConstants.PERFORMANCE && BaseProbConstants.PERFORMANCE.CACHE_SIZE && BaseProbConstants.PERFORMANCE.CACHE_SIZE.VALUE_CACHE) || 200;
+    this._maxCacheSize =
+      (BaseProbConstants &&
+        BaseProbConstants.PERFORMANCE &&
+        BaseProbConstants.PERFORMANCE.CACHE_SIZE &&
+        BaseProbConstants.PERFORMANCE.CACHE_SIZE.VALUE_CACHE) ||
+      200;
   }
 
   /**
@@ -158,8 +182,10 @@ class BaseProbabilityCalculator {
    * @returns {boolean} Whether move is valid
    */
   isValidMove(board, row, col) {
-    return this.Utils.isValidPosition(row, col, this.BOARD_SIZE) &&
-           this.Utils.isCellEmpty(board, row, col);
+    return (
+      this.Utils.isValidPosition(row, col, this.BOARD_SIZE) &&
+      this.Utils.isCellEmpty(board, row, col)
+    );
   }
 
   /**
@@ -364,13 +390,23 @@ class BaseProbabilityCalculator {
    * @returns {Object} Performance metrics
    */
   getPerformanceMetrics() {
-    const totalCalculations = this._performanceMetrics.cacheHits + this._performanceMetrics.cacheMisses;
-    const cacheHitRate = totalCalculations > 0 ?
-      (this._performanceMetrics.cacheHits / totalCalculations * 100).toFixed(2) : 0;
+    const totalCalculations =
+      this._performanceMetrics.cacheHits + this._performanceMetrics.cacheMisses;
+    const cacheHitRate =
+      totalCalculations > 0
+        ? (
+            (this._performanceMetrics.cacheHits / totalCalculations) *
+            100
+          ).toFixed(2)
+        : 0;
 
-    const avgCalculationTime = this._performanceMetrics.calculationTime.length > 0 ?
-      this._performanceMetrics.calculationTime.reduce((sum, time) => sum + time, 0) /
-      this._performanceMetrics.calculationTime.length : 0;
+    const avgCalculationTime =
+      this._performanceMetrics.calculationTime.length > 0
+        ? this._performanceMetrics.calculationTime.reduce(
+            (sum, time) => sum + time,
+            0
+          ) / this._performanceMetrics.calculationTime.length
+        : 0;
 
     return {
       cacheHitRate: `${cacheHitRate}%`,

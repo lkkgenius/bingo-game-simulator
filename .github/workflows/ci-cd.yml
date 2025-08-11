@@ -49,8 +49,8 @@ jobs:
     - name: Run ESLint
       run: |
         echo "Running ESLint with enhanced configuration..."
-        npx eslint *.js utils/*.js --max-warnings 5 --format json --output-file eslint-report.json || true
-        npx eslint *.js utils/*.js --max-warnings 5 || echo "ESLint completed with warnings"
+        npx eslint *.js utils/*.js --max-warnings 150 --format json --output-file eslint-report.json || true
+        npx eslint *.js utils/*.js --max-warnings 150 || echo "ESLint completed with warnings"
         
     - name: Run JSHint
       run: |

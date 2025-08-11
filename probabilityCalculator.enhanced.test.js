@@ -15,7 +15,9 @@ describe('EnhancedProbabilityCalculator', () => {
   global.beforeEach = initializeCalculator;
 
   test('should calculate higher value for center position', () => {
-    const emptyBoard = Array(5).fill().map(() => Array(5).fill(0));
+    const emptyBoard = Array(5)
+      .fill()
+      .map(() => Array(5).fill(0));
     const centerValue = calculator.calculateMoveValue(emptyBoard, 2, 2);
     const cornerValue = calculator.calculateMoveValue(emptyBoard, 0, 0);
     expect(centerValue).toBeGreaterThan(cornerValue);
@@ -54,14 +56,18 @@ describe('EnhancedProbabilityCalculator', () => {
   });
 
   test('should provide alternative suggestions', () => {
-    const board = Array(5).fill().map(() => Array(5).fill(0));
+    const board = Array(5)
+      .fill()
+      .map(() => Array(5).fill(0));
     const suggestion = calculator.getBestSuggestion(board);
     expect(suggestion.alternatives).toBeTruthy();
     expect(suggestion.alternatives.length).toBeGreaterThan(0);
   });
 
   test('should use caching for performance', () => {
-    const board = Array(5).fill().map(() => Array(5).fill(0));
+    const board = Array(5)
+      .fill()
+      .map(() => Array(5).fill(0));
     // 第一次計算
     const firstValue = calculator.calculateMoveValue(board, 2, 2);
     // 第二次應該使用緩存
@@ -101,7 +107,11 @@ describe('EnhancedProbabilityCalculator', () => {
 
     // 檢查方法是否存在，如果不存在則測試替代功能
     if (typeof calculator.calculateMultiLinePotentialValue === 'function') {
-      const multiLineValue = calculator.calculateMultiLinePotentialValue(board, 2, 2);
+      const multiLineValue = calculator.calculateMultiLinePotentialValue(
+        board,
+        2,
+        2
+      );
       expect(multiLineValue).toBeGreaterThanOrEqual(0); // 允許為0
     } else {
       // 如果方法不存在，測試中心點的總價值應該反映多線潛力
@@ -136,7 +146,9 @@ describe('EnhancedProbabilityCalculator', () => {
   });
 
   test('should get performance metrics', () => {
-    const board = Array(5).fill().map(() => Array(5).fill(0));
+    const board = Array(5)
+      .fill()
+      .map(() => Array(5).fill(0));
     // 執行一些計算來產生性能指標
     calculator.calculateMoveValue(board, 2, 2);
     calculator.calculateMoveValue(board, 2, 2); // 應該命中緩存
@@ -147,7 +159,9 @@ describe('EnhancedProbabilityCalculator', () => {
   });
 
   test('should handle invalid positions', () => {
-    const board = Array(5).fill().map(() => Array(5).fill(0));
+    const board = Array(5)
+      .fill()
+      .map(() => Array(5).fill(0));
     // 無效位置應該返回負值
     expect(calculator.calculateMoveValue(board, -1, 0)).toBeLessThan(0);
     expect(calculator.calculateMoveValue(board, 0, -1)).toBeLessThan(0);

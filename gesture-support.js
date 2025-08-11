@@ -38,12 +38,13 @@ class GestureSupport {
   }
 
   /**
-     * 檢測手勢支持
-     */
+   * 檢測手勢支持
+   */
   detectGestureSupport() {
-    this.isEnabled = 'ontouchstart' in window &&
-                        window.TouchEvent &&
-                        typeof window.TouchEvent === 'function';
+    this.isEnabled =
+      'ontouchstart' in window &&
+      window.TouchEvent &&
+      typeof window.TouchEvent === 'function';
 
     if (this.isEnabled) {
       document.body.classList.add('gesture-enabled');
@@ -54,15 +55,15 @@ class GestureSupport {
   }
 
   /**
-     * 設置滑動手勢
-     */
+   * 設置滑動手勢
+   */
   setupSwipeGestures() {
     if (!this.isEnabled) return;
 
     const gameContainer = document.querySelector('.container');
     if (!gameContainer) return;
 
-    gameContainer.addEventListener('touchstart', (e) => {
+    gameContainer.addEventListener('touchstart', e => {
       if (e.touches.length === 1) {
         this.touchStartTime = Date.now();
         this.touchStartPos = {
@@ -72,7 +73,7 @@ class GestureSupport {
       }
     });
 
-    gameContainer.addEventListener('touchend', (e) => {
+    gameContainer.addEventListener('touchend', e => {
       if (e.changedTouches.length === 1) {
         this.touchEndPos = {
           x: e.changedTouches[0].clientX,
@@ -85,8 +86,8 @@ class GestureSupport {
   }
 
   /**
-     * 處理滑動手勢
-     */
+   * 處理滑動手勢
+   */
   handleSwipe() {
     const touchDuration = Date.now() - this.touchStartTime;
     if (touchDuration > this.swipeTimeout) return;
@@ -97,7 +98,7 @@ class GestureSupport {
 
     if (distance < this.swipeThreshold) return;
 
-    const angle = Math.atan2(deltaY, deltaX) * 180 / Math.PI;
+    const angle = (Math.atan2(deltaY, deltaX) * 180) / Math.PI;
 
     // 判斷滑動方向
     if (Math.abs(angle) < 45) {
@@ -116,8 +117,8 @@ class GestureSupport {
   }
 
   /**
-     * 向右滑動處理
-     */
+   * 向右滑動處理
+   */
   onSwipeRight() {
     if (window.logger) {
       window.logger.debug('Swipe right detected');
@@ -131,8 +132,8 @@ class GestureSupport {
   }
 
   /**
-     * 向左滑動處理
-     */
+   * 向左滑動處理
+   */
   onSwipeLeft() {
     if (window.logger) {
       window.logger.debug('Swipe left detected');
@@ -146,8 +147,8 @@ class GestureSupport {
   }
 
   /**
-     * 向上滑動處理
-     */
+   * 向上滑動處理
+   */
   onSwipeUp() {
     if (window.logger) {
       window.logger.debug('Swipe up detected');
@@ -161,8 +162,8 @@ class GestureSupport {
   }
 
   /**
-     * 向下滑動處理
-     */
+   * 向下滑動處理
+   */
   onSwipeDown() {
     if (window.logger) {
       window.logger.debug('Swipe down detected');
@@ -176,11 +177,13 @@ class GestureSupport {
   }
 
   /**
-     * 切換到下一個算法
-     */
+   * 切換到下一個算法
+   */
   switchToNextAlgorithm() {
     const algorithms = ['standard', 'enhanced', 'ai-learning'];
-    const currentSelected = document.querySelector('.algorithm-option.selected');
+    const currentSelected = document.querySelector(
+      '.algorithm-option.selected'
+    );
 
     if (!currentSelected) return;
 
@@ -189,35 +192,42 @@ class GestureSupport {
     const nextIndex = (currentIndex + 1) % algorithms.length;
     const nextAlgorithm = algorithms[nextIndex];
 
-    const nextOption = document.querySelector(`[data-algorithm="${nextAlgorithm}"]`);
+    const nextOption = document.querySelector(
+      `[data-algorithm="${nextAlgorithm}"]`
+    );
     if (nextOption && typeof selectAlgorithm === 'function') {
       nextOption.click();
     }
   }
 
   /**
-     * 切換到上一個算法
-     */
+   * 切換到上一個算法
+   */
   switchToPreviousAlgorithm() {
     const algorithms = ['standard', 'enhanced', 'ai-learning'];
-    const currentSelected = document.querySelector('.algorithm-option.selected');
+    const currentSelected = document.querySelector(
+      '.algorithm-option.selected'
+    );
 
     if (!currentSelected) return;
 
     const currentAlgorithm = currentSelected.dataset.algorithm;
     const currentIndex = algorithms.indexOf(currentAlgorithm);
-    const prevIndex = (currentIndex - 1 + algorithms.length) % algorithms.length;
+    const prevIndex =
+      (currentIndex - 1 + algorithms.length) % algorithms.length;
     const prevAlgorithm = algorithms[prevIndex];
 
-    const prevOption = document.querySelector(`[data-algorithm="${prevAlgorithm}"]`);
+    const prevOption = document.querySelector(
+      `[data-algorithm="${prevAlgorithm}"]`
+    );
     if (prevOption && typeof selectAlgorithm === 'function') {
       prevOption.click();
     }
   }
 
   /**
-     * 顯示遊戲統計
-     */
+   * 顯示遊戲統計
+   */
   showGameStats() {
     // 創建或顯示統計面板
     let statsPanel = document.getElementById('mobile-stats-panel');
@@ -236,8 +246,8 @@ class GestureSupport {
   }
 
   /**
-     * 創建統計面板
-     */
+   * 創建統計面板
+   */
   createStatsPanel() {
     const panel = document.createElement('div');
     panel.id = 'mobile-stats-panel';
@@ -315,8 +325,8 @@ class GestureSupport {
   }
 
   /**
-     * 隱藏額外信息
-     */
+   * 隱藏額外信息
+   */
   hideExtraInfo() {
     const statsPanel = document.getElementById('mobile-stats-panel');
     if (statsPanel) {
@@ -331,8 +341,8 @@ class GestureSupport {
   }
 
   /**
-     * 顯示滑動反饋
-     */
+   * 顯示滑動反饋
+   */
   showSwipeFeedback(direction, action) {
     const feedback = document.createElement('div');
     feedback.className = `swipe-feedback swipe-${direction}`;
@@ -355,23 +365,26 @@ class GestureSupport {
   }
 
   /**
-     * 設置縮放手勢
-     */
+   * 設置縮放手勢
+   */
   setupPinchZoom() {
     if (!this.isEnabled) return;
 
     const gameBoard = document.getElementById('game-board');
     if (!gameBoard) return;
 
-    gameBoard.addEventListener('touchstart', (e) => {
+    gameBoard.addEventListener('touchstart', e => {
       if (e.touches.length === 2) {
         e.preventDefault();
-        this.gestureStartDistance = this.getDistance(e.touches[0], e.touches[1]);
+        this.gestureStartDistance = this.getDistance(
+          e.touches[0],
+          e.touches[1]
+        );
         this.gestureStartScale = this.currentScale;
       }
     });
 
-    gameBoard.addEventListener('touchmove', (e) => {
+    gameBoard.addEventListener('touchmove', e => {
       if (e.touches.length === 2) {
         e.preventDefault();
 
@@ -379,12 +392,15 @@ class GestureSupport {
         const scaleChange = currentDistance / this.gestureStartDistance;
         const newScale = this.gestureStartScale * scaleChange;
 
-        this.currentScale = Math.max(this.minScale, Math.min(this.maxScale, newScale));
+        this.currentScale = Math.max(
+          this.minScale,
+          Math.min(this.maxScale, newScale)
+        );
         this.applyScale(gameBoard, this.currentScale);
       }
     });
 
-    gameBoard.addEventListener('touchend', (e) => {
+    gameBoard.addEventListener('touchend', e => {
       if (e.touches.length < 2) {
         // 縮放手勢結束，可以添加彈性動畫
         this.finalizeScale(gameBoard);
@@ -393,8 +409,8 @@ class GestureSupport {
   }
 
   /**
-     * 計算兩點間距離
-     */
+   * 計算兩點間距離
+   */
   getDistance(touch1, touch2) {
     const dx = touch1.clientX - touch2.clientX;
     const dy = touch1.clientY - touch2.clientY;
@@ -402,16 +418,16 @@ class GestureSupport {
   }
 
   /**
-     * 應用縮放
-     */
+   * 應用縮放
+   */
   applyScale(element, scale) {
     element.style.transform = `scale(${scale})`;
     element.style.transformOrigin = 'center center';
   }
 
   /**
-     * 完成縮放
-     */
+   * 完成縮放
+   */
   finalizeScale(element) {
     // 如果縮放太小或太大，回彈到合理範圍
     if (this.currentScale < 0.9) {
@@ -426,8 +442,8 @@ class GestureSupport {
   }
 
   /**
-     * 設置旋轉手勢
-     */
+   * 設置旋轉手勢
+   */
   setupRotationGestures() {
     // 在這個遊戲中，旋轉手勢可能不太適用
     // 但可以用於切換視圖或模式
@@ -437,8 +453,8 @@ class GestureSupport {
   }
 
   /**
-     * 設置長按手勢
-     */
+   * 設置長按手勢
+   */
   setupLongPress() {
     if (!this.isEnabled) return;
 
@@ -448,7 +464,7 @@ class GestureSupport {
     let longPressTimer = null;
     let longPressTarget = null;
 
-    gameBoard.addEventListener('touchstart', (e) => {
+    gameBoard.addEventListener('touchstart', e => {
       if (e.touches.length === 1) {
         const cell = this.getCellFromTouch(e.touches[0]);
         if (cell) {
@@ -460,7 +476,7 @@ class GestureSupport {
       }
     });
 
-    gameBoard.addEventListener('touchmove', (e) => {
+    gameBoard.addEventListener('touchmove', e => {
       if (longPressTimer) {
         clearTimeout(longPressTimer);
         longPressTimer = null;
@@ -468,7 +484,7 @@ class GestureSupport {
       }
     });
 
-    gameBoard.addEventListener('touchend', (e) => {
+    gameBoard.addEventListener('touchend', e => {
       if (longPressTimer) {
         clearTimeout(longPressTimer);
         longPressTimer = null;
@@ -478,8 +494,8 @@ class GestureSupport {
   }
 
   /**
-     * 處理長按
-     */
+   * 處理長按
+   */
   handleLongPress(cell) {
     if (logger) {
       logger.debug('Long press detected on cell:', cell);
@@ -495,8 +511,8 @@ class GestureSupport {
   }
 
   /**
-     * 顯示格子信息
-     */
+   * 顯示格子信息
+   */
   showCellInfo(cell) {
     const cellIndex = Array.from(cell.parentNode.children).indexOf(cell);
     const row = Math.floor(cellIndex / 5);
@@ -506,20 +522,22 @@ class GestureSupport {
     const tooltip = SafeDOM.createStructure({
       tag: 'div',
       attributes: { class: 'cell-info-tooltip' },
-      children: [{
-        tag: 'div',
-        attributes: { class: 'tooltip-content' },
-        children: [
-          {
-            tag: 'p',
-            textContent: `位置: 第${row + 1}行第${col + 1}列`
-          },
-          {
-            tag: 'p',
-            textContent: `狀態: ${this.getCellStateText(cell)}`
-          }
-        ]
-      }]
+      children: [
+        {
+          tag: 'div',
+          attributes: { class: 'tooltip-content' },
+          children: [
+            {
+              tag: 'p',
+              textContent: `位置: 第${row + 1}行第${col + 1}列`
+            },
+            {
+              tag: 'p',
+              textContent: `狀態: ${this.getCellStateText(cell)}`
+            }
+          ]
+        }
+      ]
     });
 
     document.body.appendChild(tooltip);
@@ -546,8 +564,8 @@ class GestureSupport {
   }
 
   /**
-     * 獲取格子狀態文本
-     */
+   * 獲取格子狀態文本
+   */
   getCellStateText(cell) {
     if (cell.classList.contains('player')) {
       return '玩家已選擇';
@@ -559,38 +577,49 @@ class GestureSupport {
   }
 
   /**
-     * 從觸控點獲取格子元素
-     */
+   * 從觸控點獲取格子元素
+   */
   getCellFromTouch(touch) {
     const element = document.elementFromPoint(touch.clientX, touch.clientY);
     return element && element.classList.contains('game-cell') ? element : null;
   }
 
   /**
-     * 更新統計面板
-     */
+   * 更新統計面板
+   */
   updateStatsPanel() {
     const currentRoundElement = document.getElementById('mobile-current-round');
-    const completedLinesElement = document.getElementById('mobile-completed-lines');
-    const currentAlgorithmElement = document.getElementById('mobile-current-algorithm');
+    const completedLinesElement = document.getElementById(
+      'mobile-completed-lines'
+    );
+    const currentAlgorithmElement = document.getElementById(
+      'mobile-current-algorithm'
+    );
 
     if (currentRoundElement && typeof gameState !== 'undefined' && gameState) {
       currentRoundElement.textContent = gameState.currentRound;
     }
 
-    if (completedLinesElement && typeof gameState !== 'undefined' && gameState) {
+    if (
+      completedLinesElement &&
+      typeof gameState !== 'undefined' &&
+      gameState
+    ) {
       completedLinesElement.textContent = gameState.completedLines.length;
     }
 
     if (currentAlgorithmElement) {
-      const selectedAlgorithm = document.querySelector('.algorithm-option.selected');
+      const selectedAlgorithm = document.querySelector(
+        '.algorithm-option.selected'
+      );
       if (selectedAlgorithm) {
         const algorithmNames = {
-          'standard': '標準演算法',
-          'enhanced': '增強演算法',
+          standard: '標準演算法',
+          enhanced: '增強演算法',
           'ai-learning': 'AI 學習演算法'
         };
-        currentAlgorithmElement.textContent = algorithmNames[selectedAlgorithm.dataset.algorithm] || '未知';
+        currentAlgorithmElement.textContent =
+          algorithmNames[selectedAlgorithm.dataset.algorithm] || '未知';
       }
     }
   }

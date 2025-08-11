@@ -108,7 +108,9 @@ const Utils = {
    * @returns {number[][]} Empty board
    */
   createEmptyBoard(size = CONSTANTS.BOARD_SIZE) {
-    return Array(size).fill().map(() => Array(size).fill(CONSTANTS.CELL_STATES.EMPTY));
+    return Array(size)
+      .fill()
+      .map(() => Array(size).fill(CONSTANTS.CELL_STATES.EMPTY));
   },
 
   /**
@@ -196,29 +198,29 @@ const Utils = {
     const cells = [];
 
     switch (lineType) {
-    case CONSTANTS.LINE_TYPES.HORIZONTAL:
-      for (let c = 0; c < boardSize; c++) {
-        cells.push([row, c]);
-      }
-      break;
+      case CONSTANTS.LINE_TYPES.HORIZONTAL:
+        for (let c = 0; c < boardSize; c++) {
+          cells.push([row, c]);
+        }
+        break;
 
-    case CONSTANTS.LINE_TYPES.VERTICAL:
-      for (let r = 0; r < boardSize; r++) {
-        cells.push([r, col]);
-      }
-      break;
+      case CONSTANTS.LINE_TYPES.VERTICAL:
+        for (let r = 0; r < boardSize; r++) {
+          cells.push([r, col]);
+        }
+        break;
 
-    case CONSTANTS.LINE_TYPES.DIAGONAL_MAIN:
-      for (let i = 0; i < boardSize; i++) {
-        cells.push([i, i]);
-      }
-      break;
+      case CONSTANTS.LINE_TYPES.DIAGONAL_MAIN:
+        for (let i = 0; i < boardSize; i++) {
+          cells.push([i, i]);
+        }
+        break;
 
-    case CONSTANTS.LINE_TYPES.DIAGONAL_ANTI:
-      for (let i = 0; i < boardSize; i++) {
-        cells.push([i, boardSize - 1 - i]);
-      }
-      break;
+      case CONSTANTS.LINE_TYPES.DIAGONAL_ANTI:
+        for (let i = 0; i < boardSize; i++) {
+          cells.push([i, boardSize - 1 - i]);
+        }
+        break;
     }
 
     return cells;
@@ -282,11 +284,11 @@ const Utils = {
    */
   throttle(func, limit) {
     let inThrottle;
-    return function(...args) {
+    return function (...args) {
       if (!inThrottle) {
         func.apply(this, args);
         inThrottle = true;
-        setTimeout(() => inThrottle = false, limit);
+        setTimeout(() => (inThrottle = false), limit);
       }
     };
   },
@@ -353,8 +355,8 @@ const Utils = {
    * @returns {boolean} Whether line is complete
    */
   isLineComplete(board, cells) {
-    return cells.every(([row, col]) =>
-      board[row][col] !== CONSTANTS.CELL_STATES.EMPTY
+    return cells.every(
+      ([row, col]) => board[row][col] !== CONSTANTS.CELL_STATES.EMPTY
     );
   },
 
@@ -366,7 +368,10 @@ const Utils = {
    * @returns {Array} Array of line types that pass through this position
    */
   getRelevantLineTypes(row, col, boardSize = CONSTANTS.BOARD_SIZE) {
-    const lines = [CONSTANTS.LINE_TYPES.HORIZONTAL, CONSTANTS.LINE_TYPES.VERTICAL];
+    const lines = [
+      CONSTANTS.LINE_TYPES.HORIZONTAL,
+      CONSTANTS.LINE_TYPES.VERTICAL
+    ];
 
     // Check diagonal lines
     if (row === col) {
@@ -416,7 +421,7 @@ const Utils = {
   memoize(fn, keyGenerator, maxSize = 100) {
     const cache = new Map();
 
-    return function(...args) {
+    return function (...args) {
       const key = keyGenerator ? keyGenerator(...args) : JSON.stringify(args);
 
       if (cache.has(key)) {
@@ -445,18 +450,22 @@ const Utils = {
    */
   validateInput(value, type, defaultValue = null) {
     switch (type) {
-    case 'number':
-      return typeof value === 'number' && !isNaN(value) ? value : defaultValue;
-    case 'string':
-      return typeof value === 'string' ? value : defaultValue;
-    case 'boolean':
-      return typeof value === 'boolean' ? value : defaultValue;
-    case 'array':
-      return Array.isArray(value) ? value : defaultValue;
-    case 'object':
-      return value && typeof value === 'object' && !Array.isArray(value) ? value : defaultValue;
-    default:
-      return value !== undefined && value !== null ? value : defaultValue;
+      case 'number':
+        return typeof value === 'number' && !isNaN(value)
+          ? value
+          : defaultValue;
+      case 'string':
+        return typeof value === 'string' ? value : defaultValue;
+      case 'boolean':
+        return typeof value === 'boolean' ? value : defaultValue;
+      case 'array':
+        return Array.isArray(value) ? value : defaultValue;
+      case 'object':
+        return value && typeof value === 'object' && !Array.isArray(value)
+          ? value
+          : defaultValue;
+      default:
+        return value !== undefined && value !== null ? value : defaultValue;
     }
   },
 

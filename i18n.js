@@ -32,8 +32,8 @@ class I18nManager {
   }
 
   /**
-     * Load all translation data
-     */
+   * Load all translation data
+   */
   loadTranslations() {
     // Traditional Chinese (Default)
     this.translations['zh-TW'] = {
@@ -105,7 +105,8 @@ class I18nManager {
       'controls.restart-game': '重新開始',
       'controls.random-computer-move': '電腦隨機下棋',
       'controls.auto-random-move': '電腦自動隨機下棋',
-      'controls.auto-random-description': '啟用後，電腦將在每回合自動隨機選擇位置',
+      'controls.auto-random-description':
+        '啟用後，電腦將在每回合自動隨機選擇位置',
 
       // Game results
       'results.game-over': '遊戲結束！',
@@ -123,13 +124,16 @@ class I18nManager {
 
       // Computer input
       'computer.input.title': '電腦選擇輸入',
-      'computer.input.message': '電腦回合時，請直接點擊棋盤上的空格子或使用棋盤旁的隨機下棋按鈕',
+      'computer.input.message':
+        '電腦回合時，請直接點擊棋盤上的空格子或使用棋盤旁的隨機下棋按鈕',
 
       // Instructions
       'instructions.title': '操作指示',
-      'instructions.default': '點擊「開始遊戲」按鈕開始新的遊戲。使用方向鍵導航遊戲板，按 Enter 或空格鍵選擇格子。',
+      'instructions.default':
+        '點擊「開始遊戲」按鈕開始新的遊戲。使用方向鍵導航遊戲板，按 Enter 或空格鍵選擇格子。',
       'instructions.player-turn': '請點擊一個空格子進行您的移動',
-      'instructions.computer-turn': '請為電腦選擇一個位置，或點擊「電腦隨機下棋」按鈕',
+      'instructions.computer-turn':
+        '請為電腦選擇一個位置，或點擊「電腦隨機下棋」按鈕',
       'instructions.game-over': '遊戲已結束，點擊「再玩一次」開始新遊戲',
 
       // Loading messages
@@ -216,12 +220,14 @@ class I18nManager {
     this.translations['en-US'] = {
       // Page title and meta
       'page.title': 'Bingo Game Simulator',
-      'page.description': 'A cooperative Bingo game simulator where players collaborate with computer to complete lines',
+      'page.description':
+        'A cooperative Bingo game simulator where players collaborate with computer to complete lines',
       'page.apple-title': 'Bingo Simulator',
 
       // Header
       'header.title': 'Bingo Game Simulator',
-      'header.description': 'Play 8 rounds with the computer to complete as many lines as possible!',
+      'header.description':
+        'Play 8 rounds with the computer to complete as many lines as possible!',
 
       // Language selector
       'language.selector.title': 'Language Selection',
@@ -231,18 +237,21 @@ class I18nManager {
       // Algorithm selector
       'algorithm.selector.title': 'Select Algorithm',
       'algorithm.standard.name': 'Standard Algorithm',
-      'algorithm.standard.description': 'Basic probability calculation with balanced considerations',
+      'algorithm.standard.description':
+        'Basic probability calculation with balanced considerations',
       'algorithm.standard.features.1': 'Basic line detection',
       'algorithm.standard.features.2': 'Simple probability calculation',
       'algorithm.standard.features.3': 'Center position bonus',
       'algorithm.enhanced.name': 'Enhanced Algorithm',
-      'algorithm.enhanced.description': 'Focuses on maximizing the chance of completing three lines',
+      'algorithm.enhanced.description':
+        'Focuses on maximizing the chance of completing three lines',
       'algorithm.enhanced.features.1': 'Intersection priority strategy',
       'algorithm.enhanced.features.2': 'Near-completion line priority',
       'algorithm.enhanced.features.3': 'Strategic position evaluation',
       'algorithm.enhanced.features.4': 'Multi-line completion bonus',
       'algorithm.ai-learning.name': 'AI Learning Algorithm',
-      'algorithm.ai-learning.description': 'Intelligent suggestion system based on machine learning',
+      'algorithm.ai-learning.description':
+        'Intelligent suggestion system based on machine learning',
       'algorithm.ai-learning.features.1': 'Historical data learning',
       'algorithm.ai-learning.features.2': 'Behavior pattern prediction',
       'algorithm.ai-learning.features.3': 'Adaptive difficulty adjustment',
@@ -282,7 +291,8 @@ class I18nManager {
       'controls.restart-game': 'Restart',
       'controls.random-computer-move': 'Random Computer Move',
       'controls.auto-random-move': 'Auto Random Computer Move',
-      'controls.auto-random-description': 'When enabled, computer will automatically choose random positions each turn',
+      'controls.auto-random-description':
+        'When enabled, computer will automatically choose random positions each turn',
 
       // Game results
       'results.game-over': 'Game Over!',
@@ -300,14 +310,19 @@ class I18nManager {
 
       // Computer input
       'computer.input.title': 'Computer Move Input',
-      'computer.input.message': 'During computer turn, click an empty cell on the board or use the random move button',
+      'computer.input.message':
+        'During computer turn, click an empty cell on the board or use the random move button',
 
       // Instructions
       'instructions.title': 'Instructions',
-      'instructions.default': 'Click "Start Game" to begin a new game. Use arrow keys to navigate the board, press Enter or Space to select a cell.',
-      'instructions.player-turn': 'Please click an empty cell to make your move',
-      'instructions.computer-turn': 'Please select a position for the computer, or click "Random Computer Move" button',
-      'instructions.game-over': 'Game has ended, click "Play Again" to start a new game',
+      'instructions.default':
+        'Click "Start Game" to begin a new game. Use arrow keys to navigate the board, press Enter or Space to select a cell.',
+      'instructions.player-turn':
+        'Please click an empty cell to make your move',
+      'instructions.computer-turn':
+        'Please select a position for the computer, or click "Random Computer Move" button',
+      'instructions.game-over':
+        'Game has ended, click "Play Again" to start a new game',
 
       // Loading messages
       'loading.components': 'Loading game components...',
@@ -391,8 +406,8 @@ class I18nManager {
   }
 
   /**
-     * Load language metadata for enhanced localization
-     */
+   * Load language metadata for enhanced localization
+   */
   loadLanguageMetadata() {
     this.languageMetadata = {
       'zh-TW': {
@@ -408,7 +423,8 @@ class I18nManager {
           currencyPosition: 'before'
         },
         pluralRules: 'other', // Chinese doesn't have plural forms
-        fontFamily: '"Microsoft JhengHei", "PingFang TC", "Helvetica Neue", Arial, sans-serif'
+        fontFamily:
+          '"Microsoft JhengHei", "PingFang TC", "Helvetica Neue", Arial, sans-serif'
       },
       'en-US': {
         name: 'English',
@@ -429,8 +445,8 @@ class I18nManager {
   }
 
   /**
-     * Initialize layout observers for responsive language switching
-     */
+   * Initialize layout observers for responsive language switching
+   */
   initializeLayoutObservers() {
     // Observe viewport changes for responsive language adjustments
     if (typeof ResizeObserver !== 'undefined') {
@@ -450,8 +466,8 @@ class I18nManager {
   }
 
   /**
-     * Handle viewport changes for responsive language layouts
-     */
+   * Handle viewport changes for responsive language layouts
+   */
   handleViewportChange() {
     const isMobile = window.innerWidth <= 768;
     const isTablet = window.innerWidth > 768 && window.innerWidth <= 1024;
@@ -461,14 +477,17 @@ class I18nManager {
   }
 
   /**
-     * Apply responsive styles based on current language and viewport
-     */
+   * Apply responsive styles based on current language and viewport
+   */
   applyResponsiveLanguageStyles(isMobile, isTablet) {
     const currentLangMeta = this.languageMetadata[this.currentLanguage];
     if (!currentLangMeta) return;
 
     // Apply font family
-    document.documentElement.style.setProperty('--lang-font-family', currentLangMeta.fontFamily);
+    document.documentElement.style.setProperty(
+      '--lang-font-family',
+      currentLangMeta.fontFamily
+    );
 
     // Apply text direction
     document.documentElement.dir = currentLangMeta.direction;
@@ -476,27 +495,51 @@ class I18nManager {
     // Apply responsive adjustments for different languages
     if (this.currentLanguage === 'en-US') {
       if (isMobile) {
-        document.documentElement.style.setProperty('--lang-font-size-adjust', '0.9');
-        document.documentElement.style.setProperty('--lang-line-height-adjust', '1.4');
+        document.documentElement.style.setProperty(
+          '--lang-font-size-adjust',
+          '0.9'
+        );
+        document.documentElement.style.setProperty(
+          '--lang-line-height-adjust',
+          '1.4'
+        );
       } else {
-        document.documentElement.style.setProperty('--lang-font-size-adjust', '1');
-        document.documentElement.style.setProperty('--lang-line-height-adjust', '1.6');
+        document.documentElement.style.setProperty(
+          '--lang-font-size-adjust',
+          '1'
+        );
+        document.documentElement.style.setProperty(
+          '--lang-line-height-adjust',
+          '1.6'
+        );
       }
     } else {
       // Chinese text adjustments
       if (isMobile) {
-        document.documentElement.style.setProperty('--lang-font-size-adjust', '1');
-        document.documentElement.style.setProperty('--lang-line-height-adjust', '1.5');
+        document.documentElement.style.setProperty(
+          '--lang-font-size-adjust',
+          '1'
+        );
+        document.documentElement.style.setProperty(
+          '--lang-line-height-adjust',
+          '1.5'
+        );
       } else {
-        document.documentElement.style.setProperty('--lang-font-size-adjust', '1');
-        document.documentElement.style.setProperty('--lang-line-height-adjust', '1.6');
+        document.documentElement.style.setProperty(
+          '--lang-font-size-adjust',
+          '1'
+        );
+        document.documentElement.style.setProperty(
+          '--lang-line-height-adjust',
+          '1.6'
+        );
       }
     }
   }
 
   /**
-     * Detect browser language and set as default if supported
-     */
+   * Detect browser language and set as default if supported
+   */
   detectBrowserLanguage() {
     const browserLang = navigator.language || navigator.userLanguage;
     const browserLangs = navigator.languages || [browserLang];
@@ -531,8 +574,8 @@ class I18nManager {
   }
 
   /**
-     * Apply language-specific metadata to the document
-     */
+   * Apply language-specific metadata to the document
+   */
   applyLanguageMetadata() {
     const langMeta = this.languageMetadata[this.currentLanguage];
     if (!langMeta) return;
@@ -542,21 +585,25 @@ class I18nManager {
     document.documentElement.dir = langMeta.direction;
 
     // Apply font family
-    document.documentElement.style.setProperty('--lang-font-family', langMeta.fontFamily);
+    document.documentElement.style.setProperty(
+      '--lang-font-family',
+      langMeta.fontFamily
+    );
 
     // Apply initial responsive styles
     this.handleViewportChange();
   }
 
   /**
-     * Get translation for a key
-     * @param {string} key - Translation key
-     * @param {Object} params - Parameters for string interpolation
-     * @returns {string} Translated text
-     */
+   * Get translation for a key
+   * @param {string} key - Translation key
+   * @param {Object} params - Parameters for string interpolation
+   * @returns {string} Translated text
+   */
   t(key, params = {}) {
-    const langTranslations = this.translations[this.currentLanguage] ||
-                                this.translations[this.fallbackLanguage];
+    const langTranslations =
+      this.translations[this.currentLanguage] ||
+      this.translations[this.fallbackLanguage];
 
     let translation = langTranslations[key] || key;
 
@@ -564,7 +611,10 @@ class I18nManager {
     if (params && typeof params === 'object') {
       Object.keys(params).forEach(param => {
         const placeholder = `{${param}}`;
-        translation = translation.replace(new RegExp(placeholder, 'g'), params[param]);
+        translation = translation.replace(
+          new RegExp(placeholder, 'g'),
+          params[param]
+        );
       });
     }
 
@@ -572,11 +622,11 @@ class I18nManager {
   }
 
   /**
-     * Set current language with enhanced validation and transition
-     * @param {string} language - Language code
-     * @param {Object} options - Additional options
-     * @returns {Promise<boolean>} Success status
-     */
+   * Set current language with enhanced validation and transition
+   * @param {string} language - Language code
+   * @param {Object} options - Additional options
+   * @returns {Promise<boolean>} Success status
+   */
   async setLanguage(language, options = {}) {
     if (!this.supportedLanguages.includes(language)) {
       if (window.logger) {
@@ -633,10 +683,10 @@ class I18nManager {
   }
 
   /**
-     * Prepare for language change (preload resources, validate, etc.)
-     * @param {string} newLanguage - Target language
-     * @param {string} previousLanguage - Current language
-     */
+   * Prepare for language change (preload resources, validate, etc.)
+   * @param {string} newLanguage - Target language
+   * @param {string} previousLanguage - Current language
+   */
   async prepareLanguageChange(newLanguage, previousLanguage) {
     // Validate translations exist
     if (!this.translations[newLanguage]) {
@@ -657,26 +707,34 @@ class I18nManager {
     for (const key of criticalKeys) {
       if (!this.translations[newLanguage][key]) {
         if (window.logger) {
-          window.logger.warn(`Missing critical translation: ${key} for ${newLanguage}`);
+          window.logger.warn(
+            `Missing critical translation: ${key} for ${newLanguage}`
+          );
         }
       }
     }
   }
 
   /**
-     * Preload language-specific resources
-     * @param {string} language - Language code
-     */
+   * Preload language-specific resources
+   * @param {string} language - Language code
+   */
   async preloadLanguageResources(language) {
     // This could be extended to load language-specific fonts, images, etc.
     const langMeta = this.languageMetadata[language];
 
     if (langMeta && langMeta.fontFamily) {
       // Preload font if needed
-      const fontFamilies = langMeta.fontFamily.split(',').map(f => f.trim().replace(/['"]/g, ''));
+      const fontFamilies = langMeta.fontFamily
+        .split(',')
+        .map(f => f.trim().replace(/['"]/g, ''));
 
       for (const fontFamily of fontFamilies) {
-        if (fontFamily && !fontFamily.includes('sans-serif') && !fontFamily.includes('serif')) {
+        if (
+          fontFamily &&
+          !fontFamily.includes('sans-serif') &&
+          !fontFamily.includes('serif')
+        ) {
           try {
             await document.fonts.load(`16px "${fontFamily}"`);
           } catch (error) {
@@ -690,9 +748,9 @@ class I18nManager {
   }
 
   /**
-     * Show/hide language loading state
-     * @param {boolean} show - Whether to show loading state
-     */
+   * Show/hide language loading state
+   * @param {boolean} show - Whether to show loading state
+   */
   showLanguageLoadingState(show) {
     let loadingElement = document.getElementById('language-loading');
 
@@ -736,27 +794,27 @@ class I18nManager {
   }
 
   /**
-     * Get current language
-     * @returns {string} Current language code
-     */
+   * Get current language
+   * @returns {string} Current language code
+   */
   getCurrentLanguage() {
     return this.currentLanguage;
   }
 
   /**
-     * Get supported languages
-     * @returns {Array} Array of supported language codes
-     */
+   * Get supported languages
+   * @returns {Array} Array of supported language codes
+   */
   getSupportedLanguages() {
     return [...this.supportedLanguages];
   }
 
   /**
-     * Format number according to current locale
-     * @param {number} number - Number to format
-     * @param {Object} options - Formatting options
-     * @returns {string} Formatted number
-     */
+   * Format number according to current locale
+   * @param {number} number - Number to format
+   * @param {Object} options - Formatting options
+   * @returns {string} Formatted number
+   */
   formatNumber(number, options = {}) {
     try {
       // Use Intl.NumberFormat for modern browsers
@@ -777,7 +835,8 @@ class I18nManager {
 
       // Handle decimal places
       if (options.minimumFractionDigits || options.maximumFractionDigits) {
-        const decimalPlaces = options.maximumFractionDigits || options.minimumFractionDigits || 0;
+        const decimalPlaces =
+          options.maximumFractionDigits || options.minimumFractionDigits || 0;
         formattedNumber = parseFloat(number).toFixed(decimalPlaces);
       }
 
@@ -790,11 +849,11 @@ class I18nManager {
   }
 
   /**
-     * Format currency according to current locale
-     * @param {number} amount - Amount to format
-     * @param {string} currency - Currency code (optional)
-     * @returns {string} Formatted currency
-     */
+   * Format currency according to current locale
+   * @param {number} amount - Amount to format
+   * @param {string} currency - Currency code (optional)
+   * @returns {string} Formatted currency
+   */
   formatCurrency(amount, currency = null) {
     const langMeta = this.languageMetadata[this.currentLanguage];
     const currencySymbol = currency || langMeta?.numberFormat?.currency || '$';
@@ -803,14 +862,17 @@ class I18nManager {
     try {
       const formatter = new Intl.NumberFormat(this.currentLanguage, {
         style: 'currency',
-        currency: currency || (this.currentLanguage === 'zh-TW' ? 'TWD' : 'USD'),
+        currency:
+          currency || (this.currentLanguage === 'zh-TW' ? 'TWD' : 'USD'),
         minimumFractionDigits: 0,
         maximumFractionDigits: 2
       });
       return formatter.format(amount);
     } catch (error) {
       // Fallback currency formatting
-      const formattedAmount = this.formatNumber(amount, { maximumFractionDigits: 2 });
+      const formattedAmount = this.formatNumber(amount, {
+        maximumFractionDigits: 2
+      });
       return position === 'before'
         ? `${currencySymbol}${formattedAmount}`
         : `${formattedAmount}${currencySymbol}`;
@@ -818,11 +880,11 @@ class I18nManager {
   }
 
   /**
-     * Format date according to current locale
-     * @param {Date|string|number} date - Date to format
-     * @param {Object} options - Formatting options
-     * @returns {string} Formatted date
-     */
+   * Format date according to current locale
+   * @param {Date|string|number} date - Date to format
+   * @param {Object} options - Formatting options
+   * @returns {string} Formatted date
+   */
   formatDate(date, options = {}) {
     const dateObj = date instanceof Date ? date : new Date(date);
 
@@ -851,11 +913,11 @@ class I18nManager {
   }
 
   /**
-     * Format time according to current locale
-     * @param {Date|string|number} time - Time to format
-     * @param {Object} options - Formatting options
-     * @returns {string} Formatted time
-     */
+   * Format time according to current locale
+   * @param {Date|string|number} time - Time to format
+   * @param {Object} options - Formatting options
+   * @returns {string} Formatted time
+   */
   formatTime(time, options = {}) {
     const timeObj = time instanceof Date ? time : new Date(time);
 
@@ -891,10 +953,10 @@ class I18nManager {
   }
 
   /**
-     * Format relative time (e.g., "2 minutes ago")
-     * @param {Date|string|number} date - Date to format
-     * @returns {string} Formatted relative time
-     */
+   * Format relative time (e.g., "2 minutes ago")
+   * @param {Date|string|number} date - Date to format
+   * @returns {string} Formatted relative time
+   */
   formatRelativeTime(date) {
     const dateObj = date instanceof Date ? date : new Date(date);
     const now = new Date();
@@ -934,29 +996,29 @@ class I18nManager {
   }
 
   /**
-     * Format percentage
-     * @param {number} value - Percentage value (0-100)
-     * @returns {string} Formatted percentage
-     */
+   * Format percentage
+   * @param {number} value - Percentage value (0-100)
+   * @returns {string} Formatted percentage
+   */
   formatPercentage(value) {
     return this.t('format.percentage', { value: this.formatNumber(value) });
   }
 
   /**
-     * Format round number
-     * @param {number} round - Round number
-     * @returns {string} Formatted round
-     */
+   * Format round number
+   * @param {number} round - Round number
+   * @returns {string} Formatted round
+   */
   formatRound(round) {
     return this.t('format.round', { round: this.formatNumber(round) });
   }
 
   /**
-     * Format position
-     * @param {number} row - Row number
-     * @param {number} col - Column number
-     * @returns {string} Formatted position
-     */
+   * Format position
+   * @param {number} row - Row number
+   * @param {number} col - Column number
+   * @returns {string} Formatted position
+   */
   formatPosition(row, col) {
     return this.t('format.position', {
       row: this.formatNumber(row + 1),
@@ -965,13 +1027,15 @@ class I18nManager {
   }
 
   /**
-     * Called when language changes - updates the entire UI with transitions
-     * @param {string} previousLanguage - Previous language code
-     * @param {Object} options - Change options
-     */
+   * Called when language changes - updates the entire UI with transitions
+   * @param {string} previousLanguage - Previous language code
+   * @param {Object} options - Change options
+   */
   async onLanguageChange(previousLanguage = null, options = {}) {
     if (window.logger) {
-      window.logger.info(`Language changed from ${previousLanguage} to: ${this.currentLanguage}`);
+      window.logger.info(
+        `Language changed from ${previousLanguage} to: ${this.currentLanguage}`
+      );
     }
 
     // Apply fade transition if requested
@@ -1016,10 +1080,12 @@ class I18nManager {
   }
 
   /**
-     * Apply smooth transition effect during language change
-     */
+   * Apply smooth transition effect during language change
+   */
   async applyLanguageTransition() {
-    const transitionElements = document.querySelectorAll('[data-i18n], [data-i18n-html], [data-i18n-aria]');
+    const transitionElements = document.querySelectorAll(
+      '[data-i18n], [data-i18n-html], [data-i18n-aria]'
+    );
 
     // Add transition class
     transitionElements.forEach(element => {
@@ -1038,8 +1104,8 @@ class I18nManager {
   }
 
   /**
-     * Update language-specific styles
-     */
+   * Update language-specific styles
+   */
   updateLanguageStyles() {
     const langMeta = this.languageMetadata[this.currentLanguage];
     if (!langMeta) return;
@@ -1058,8 +1124,8 @@ class I18nManager {
   }
 
   /**
-     * Update layout adjustments for different languages
-     */
+   * Update layout adjustments for different languages
+   */
   updateLanguageLayout() {
     const isEnglish = this.currentLanguage === 'en-US';
     const isChinese = this.currentLanguage === 'zh-TW';
@@ -1067,11 +1133,20 @@ class I18nManager {
     // Apply language-specific layout adjustments
     if (isEnglish) {
       // English text tends to be longer, adjust spacing
-      document.documentElement.style.setProperty('--lang-button-padding', '8px 16px');
-      document.documentElement.style.setProperty('--lang-text-spacing', '0.02em');
+      document.documentElement.style.setProperty(
+        '--lang-button-padding',
+        '8px 16px'
+      );
+      document.documentElement.style.setProperty(
+        '--lang-text-spacing',
+        '0.02em'
+      );
     } else if (isChinese) {
       // Chinese characters are more compact
-      document.documentElement.style.setProperty('--lang-button-padding', '10px 20px');
+      document.documentElement.style.setProperty(
+        '--lang-button-padding',
+        '10px 20px'
+      );
       document.documentElement.style.setProperty('--lang-text-spacing', '0');
     }
 
@@ -1080,8 +1155,8 @@ class I18nManager {
   }
 
   /**
-     * Update page meta information based on current language
-     */
+   * Update page meta information based on current language
+   */
   updatePageMeta() {
     // Update page title
     const title = document.querySelector('title');
@@ -1096,15 +1171,17 @@ class I18nManager {
     }
 
     // Update apple mobile web app title
-    const appleTitle = document.querySelector('meta[name="apple-mobile-web-app-title"]');
+    const appleTitle = document.querySelector(
+      'meta[name="apple-mobile-web-app-title"]'
+    );
     if (appleTitle) {
       appleTitle.setAttribute('content', this.t('page.apple-title'));
     }
   }
 
   /**
-     * Update all UI elements with data-i18n attributes
-     */
+   * Update all UI elements with data-i18n attributes
+   */
   updateUIElements() {
     // Update elements with data-i18n attribute
     const i18nElements = document.querySelectorAll('[data-i18n]');
@@ -1134,7 +1211,9 @@ class I18nManager {
     });
 
     // Update placeholders
-    const placeholderElements = document.querySelectorAll('[data-i18n-placeholder]');
+    const placeholderElements = document.querySelectorAll(
+      '[data-i18n-placeholder]'
+    );
     placeholderElements.forEach(element => {
       const key = element.getAttribute('data-i18n-placeholder');
       if (key) {
@@ -1153,8 +1232,8 @@ class I18nManager {
   }
 
   /**
-     * Update elements with formatted numbers and dates
-     */
+   * Update elements with formatted numbers and dates
+   */
   updateFormattedElements() {
     // Update round numbers
     const roundElements = document.querySelectorAll('[data-format="round"]');
@@ -1164,7 +1243,9 @@ class I18nManager {
     });
 
     // Update position elements
-    const positionElements = document.querySelectorAll('[data-format="position"]');
+    const positionElements = document.querySelectorAll(
+      '[data-format="position"]'
+    );
     positionElements.forEach(element => {
       const row = parseInt(element.getAttribute('data-row')) || 0;
       const col = parseInt(element.getAttribute('data-col')) || 0;
@@ -1172,7 +1253,9 @@ class I18nManager {
     });
 
     // Update percentage elements
-    const percentageElements = document.querySelectorAll('[data-format="percentage"]');
+    const percentageElements = document.querySelectorAll(
+      '[data-format="percentage"]'
+    );
     percentageElements.forEach(element => {
       const value = parseFloat(element.getAttribute('data-value')) || 0;
       element.textContent = this.formatPercentage(value);
@@ -1180,8 +1263,8 @@ class I18nManager {
   }
 
   /**
-     * Initialize language selector UI
-     */
+   * Initialize language selector UI
+   */
   initializeLanguageSelector() {
     const languageOptions = document.querySelectorAll('.language-option');
 
@@ -1205,10 +1288,10 @@ class I18nManager {
   }
 
   /**
-     * Switch to a different language with enhanced UX
-     * @param {string} language - Target language code
-     * @param {Object} options - Switch options
-     */
+   * Switch to a different language with enhanced UX
+   * @param {string} language - Target language code
+   * @param {Object} options - Switch options
+   */
   async switchLanguage(language, options = {}) {
     if (language === this.currentLanguage) {
       return true; // Already using this language
@@ -1241,9 +1324,9 @@ class I18nManager {
   }
 
   /**
-     * Update language selector UI with smooth transitions
-     * @param {string} selectedLanguage - Currently selected language
-     */
+   * Update language selector UI with smooth transitions
+   * @param {string} selectedLanguage - Currently selected language
+   */
   updateLanguageSelectorUI(selectedLanguage) {
     const languageOptions = document.querySelectorAll('.language-option');
 
@@ -1273,11 +1356,15 @@ class I18nManager {
   }
 
   /**
-     * Update URL parameter for language (for bookmarking and sharing)
-     * @param {string} language - Language code
-     */
+   * Update URL parameter for language (for bookmarking and sharing)
+   * @param {string} language - Language code
+   */
   updateURLLanguageParameter(language) {
-    if (typeof URLSearchParams !== 'undefined' && window.history && window.history.replaceState) {
+    if (
+      typeof URLSearchParams !== 'undefined' &&
+      window.history &&
+      window.history.replaceState
+    ) {
       const url = new URL(window.location);
 
       if (language === this.fallbackLanguage) {
@@ -1292,9 +1379,9 @@ class I18nManager {
   }
 
   /**
-     * Track language change for analytics
-     * @param {string} language - New language
-     */
+   * Track language change for analytics
+   * @param {string} language - New language
+   */
   trackLanguageChange(language) {
     // This could be extended to send analytics data
     if (window.logger) {
@@ -1304,23 +1391,25 @@ class I18nManager {
     // Example: Send to analytics service
     if (typeof gtag !== 'undefined') {
       gtag('event', 'language_change', {
-        'language': language,
-        'previous_language': this.currentLanguage
+        language: language,
+        previous_language: this.currentLanguage
       });
     }
   }
 
   /**
-     * Show enhanced language change confirmation message
-     * @param {string} language - New language code
-     * @param {string} previousLanguage - Previous language code
-     */
+   * Show enhanced language change confirmation message
+   * @param {string} language - New language code
+   * @param {string} previousLanguage - Previous language code
+   */
   showLanguageChangeMessage(language, previousLanguage = null) {
     const langMeta = this.languageMetadata[language];
     const languageName = langMeta ? langMeta.nativeName : language;
 
     // Create message in the new language
-    const message = this.t('success.language-switched', { language: languageName });
+    const message = this.t('success.language-switched', {
+      language: languageName
+    });
 
     // Remove any existing message
     const existingMessage = document.querySelector('.language-change-message');
@@ -1468,9 +1557,9 @@ class I18nManager {
   }
 
   /**
-     * Announce language change to screen readers
-     * @param {string} message - Message to announce
-     */
+   * Announce language change to screen readers
+   * @param {string} message - Message to announce
+   */
   announceLanguageChange(message) {
     const announcement = document.createElement('div');
     announcement.setAttribute('aria-live', 'polite');

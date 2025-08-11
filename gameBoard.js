@@ -23,7 +23,7 @@
 // 在測試環境中提供 SafeDOM 的 fallback
 if (typeof SafeDOM === 'undefined' && typeof global !== 'undefined') {
   global.SafeDOM = {
-    clearContent: (element) => {
+    clearContent: element => {
       if (element) {
         while (element.firstChild) {
           element.removeChild(element.firstChild);
@@ -38,27 +38,27 @@ if (typeof SafeDOM === 'undefined' && typeof global !== 'undefined') {
 
 class GameBoard {
   /**
-     * 創建遊戲板實例
-     * @param {string} containerId - 容器元素的 DOM ID
-     * @param {number} size - 遊戲板大小（默認 5x5）
-     */
+   * 創建遊戲板實例
+   * @param {string} containerId - 容器元素的 DOM ID
+   * @param {number} size - 遊戲板大小（默認 5x5）
+   */
   constructor(containerId, size = 5) {
     // 基本配置
-    this.containerId = containerId;     // 容器 ID
-    this.size = size;                   // 遊戲板大小
+    this.containerId = containerId; // 容器 ID
+    this.size = size; // 遊戲板大小
     this.container = document.getElementById(containerId); // DOM 容器元素
 
     // UI 狀態管理
-    this.cells = [];                    // 存儲所有格子的 DOM 元素
-    this.currentSuggestion = null;      // 當前顯示的建議位置
-    this.highlightedLines = [];         // 當前高亮的連線
-    this.clickHandler = null;           // 點擊事件處理器
+    this.cells = []; // 存儲所有格子的 DOM 元素
+    this.currentSuggestion = null; // 當前顯示的建議位置
+    this.highlightedLines = []; // 當前高亮的連線
+    this.clickHandler = null; // 點擊事件處理器
 
     // 遊戲狀態常數（與 GameEngine 保持一致）
     this.CELL_STATES = {
-      EMPTY: 0,       // 空格子狀態
-      PLAYER: 1,      // 玩家選擇狀態
-      COMPUTER: 2     // 電腦選擇狀態
+      EMPTY: 0, // 空格子狀態
+      PLAYER: 1, // 玩家選擇狀態
+      COMPUTER: 2 // 電腦選擇狀態
     };
 
     this.LINE_TYPES = {
@@ -72,8 +72,8 @@ class GameBoard {
   }
 
   /**
-     * 初始化遊戲板
-     */
+   * 初始化遊戲板
+   */
   initialize() {
     if (!this.container) {
       throw new Error(`Container with id '${this.containerId}' not found`);
@@ -84,8 +84,8 @@ class GameBoard {
   }
 
   /**
-     * 創建遊戲板HTML結構
-     */
+   * 創建遊戲板HTML結構
+   */
   createBoard() {
     // 清空容器
     SafeDOM.clearContent(this.container);
@@ -104,11 +104,11 @@ class GameBoard {
   }
 
   /**
-     * 創建單個格子元素
-     * @param {number} row - 行位置
-     * @param {number} col - 列位置
-     * @returns {HTMLElement} 格子元素
-     */
+   * 創建單個格子元素
+   * @param {number} row - 行位置
+   * @param {number} col - 列位置
+   * @returns {HTMLElement} 格子元素
+   */
   createCell(row, col) {
     const cell = document.createElement('div');
     cell.className = 'game-cell empty';
@@ -122,16 +122,16 @@ class GameBoard {
   }
 
   /**
-     * 設置事件監聽器
-     */
+   * 設置事件監聽器
+   */
   setupEventListeners() {
     // 使用事件委託處理點擊事件
-    this.container.addEventListener('click', (event) => {
+    this.container.addEventListener('click', event => {
       this.handleCellClick(event);
     });
 
     // 鍵盤支援
-    this.container.addEventListener('keydown', (event) => {
+    this.container.addEventListener('keydown', event => {
       if (event.key === 'Enter' || event.key === ' ') {
         event.preventDefault();
         this.handleCellClick(event);
@@ -140,9 +140,9 @@ class GameBoard {
   }
 
   /**
-     * 處理格子點擊事件
-     * @param {Event} event - 點擊事件
-     */
+   * 處理格子點擊事件
+   * @param {Event} event - 點擊事件
+   */
   handleCellClick(event) {
     const cell = event.target.closest('.game-cell');
     if (!cell) return;
@@ -162,19 +162,19 @@ class GameBoard {
   }
 
   /**
-     * 設置格子點擊處理器
-     * @param {Function} handler - 點擊處理函數
-     */
+   * 設置格子點擊處理器
+   * @param {Function} handler - 點擊處理函數
+   */
   setClickHandler(handler) {
     this.clickHandler = handler;
   }
 
   /**
-     * 更新單個格子的狀態
-     * @param {number} row - 行位置
-     * @param {number} col - 列位置
-     * @param {number} state - 格子狀態
-     */
+   * 更新單個格子的狀態
+   * @param {number} row - 行位置
+   * @param {number} col - 列位置
+   * @param {number} state - 格子狀態
+   */
   updateCell(row, col, state) {
     if (!this.isValidPosition(row, col)) {
       if (window.logger) {
@@ -190,30 +190,30 @@ class GameBoard {
 
     // 添加新狀態類別
     switch (state) {
-    case this.CELL_STATES.EMPTY:
-      cell.classList.add('empty');
-      cell.setAttribute('aria-label', `空白格子 ${row + 1}, ${col + 1}`);
-      break;
-    case this.CELL_STATES.PLAYER:
-      cell.classList.add('player');
-      cell.setAttribute('aria-label', `玩家格子 ${row + 1}, ${col + 1}`);
-      break;
-    case this.CELL_STATES.COMPUTER:
-      cell.classList.add('computer');
-      cell.setAttribute('aria-label', `電腦格子 ${row + 1}, ${col + 1}`);
-      break;
-    default:
-      if (window.logger) {
-        window.logger.warn(`Unknown cell state: ${state}`);
-      }
-      cell.classList.add('empty');
+      case this.CELL_STATES.EMPTY:
+        cell.classList.add('empty');
+        cell.setAttribute('aria-label', `空白格子 ${row + 1}, ${col + 1}`);
+        break;
+      case this.CELL_STATES.PLAYER:
+        cell.classList.add('player');
+        cell.setAttribute('aria-label', `玩家格子 ${row + 1}, ${col + 1}`);
+        break;
+      case this.CELL_STATES.COMPUTER:
+        cell.classList.add('computer');
+        cell.setAttribute('aria-label', `電腦格子 ${row + 1}, ${col + 1}`);
+        break;
+      default:
+        if (window.logger) {
+          window.logger.warn(`Unknown cell state: ${state}`);
+        }
+        cell.classList.add('empty');
     }
   }
 
   /**
-     * 更新整個遊戲板
-     * @param {number[][]} board - 遊戲板狀態陣列
-     */
+   * 更新整個遊戲板
+   * @param {number[][]} board - 遊戲板狀態陣列
+   */
   updateBoard(board) {
     if (!this.isValidBoard(board)) {
       if (window.logger) {
@@ -230,14 +230,14 @@ class GameBoard {
   }
 
   /**
-     * 高亮顯示建議的移動（增強版）
-     * @param {number} row - 建議的行位置
-     * @param {number} col - 建議的列位置
-     * @param {Object} options - 建議選項
-     * @param {string} options.confidence - 信心度等級
-     * @param {number} options.value - 預期價值
-     * @param {Array} options.alternatives - 替代建議
-     */
+   * 高亮顯示建議的移動（增強版）
+   * @param {number} row - 建議的行位置
+   * @param {number} col - 建議的列位置
+   * @param {Object} options - 建議選項
+   * @param {string} options.confidence - 信心度等級
+   * @param {number} options.value - 預期價值
+   * @param {Array} options.alternatives - 替代建議
+   */
   highlightSuggestion(row, col, options = {}) {
     // 清除之前的建議高亮
     this.clearSuggestionHighlight();
@@ -294,22 +294,26 @@ class GameBoard {
     const originalLabel = cell.getAttribute('aria-label');
     const confidenceLabels = {
       'very-high': '非常高的信心度',
-      'high': '高信心度',
-      'medium': '中等信心度',
-      'low': '低信心度'
+      high: '高信心度',
+      medium: '中等信心度',
+      low: '低信心度'
     };
     const confidenceText = ` (${confidenceLabels[confidence] || '中等信心度'})`;
-    const valueText = options.value !== undefined ? ` 價值: ${Math.round(options.value)}` : '';
-    cell.setAttribute('aria-label', `建議移動: ${originalLabel}${confidenceText}${valueText}`);
+    const valueText =
+      options.value !== undefined ? ` 價值: ${Math.round(options.value)}` : '';
+    cell.setAttribute(
+      'aria-label',
+      `建議移動: ${originalLabel}${confidenceText}${valueText}`
+    );
 
     // 添加焦點效果，使建議更加醒目
     this.pulseHighlightEffect(cell);
   }
 
   /**
-     * 高亮顯示替代建議
-     * @param {Array} alternatives - 替代建議陣列
-     */
+   * 高亮顯示替代建議
+   * @param {Array} alternatives - 替代建議陣列
+   */
   highlightAlternatives(alternatives) {
     // 清除之前的替代建議
     this.clearAlternativeHighlights();
@@ -324,28 +328,34 @@ class GameBoard {
 
           // 更新無障礙標籤
           const originalLabel = cell.getAttribute('aria-label');
-          cell.setAttribute('aria-label', `替代建議 #${index + 2}: ${originalLabel} (價值: ${Math.round(alt.value)})`);
+          cell.setAttribute(
+            'aria-label',
+            `替代建議 #${index + 2}: ${originalLabel} (價值: ${Math.round(alt.value)})`
+          );
 
           // 添加延遲動畫效果，每個替代建議有不同的延遲
-          setTimeout(() => {
-            cell.classList.add('suggestion-appear');
+          setTimeout(
+            () => {
+              cell.classList.add('suggestion-appear');
 
-            // 添加脈衝效果，但比主建議更微妙
-            const pulseIntensity = 0.7 - (index * 0.15); // 隨著排名降低，強度降低
-            this.pulseAlternativeEffect(cell, index + 2, pulseIntensity);
+              // 添加脈衝效果，但比主建議更微妙
+              const pulseIntensity = 0.7 - index * 0.15; // 隨著排名降低，強度降低
+              this.pulseAlternativeEffect(cell, index + 2, pulseIntensity);
 
-            setTimeout(() => {
-              cell.classList.remove('suggestion-appear');
-            }, 500);
-          }, (index + 1) * 150); // 增加延遲時間，使動畫更加明顯
+              setTimeout(() => {
+                cell.classList.remove('suggestion-appear');
+              }, 500);
+            },
+            (index + 1) * 150
+          ); // 增加延遲時間，使動畫更加明顯
         }
       }
     });
   }
 
   /**
-     * 清除替代建議高亮
-     */
+   * 清除替代建議高亮
+   */
   clearAlternativeHighlights() {
     for (let row = 0; row < this.size; row++) {
       for (let col = 0; col < this.size; col++) {
@@ -377,8 +387,8 @@ class GameBoard {
   }
 
   /**
-     * 清除建議高亮（增強版）
-     */
+   * 清除建議高亮（增強版）
+   */
   clearSuggestionHighlight() {
     if (this.currentSuggestion) {
       const { row, col } = this.currentSuggestion;
@@ -418,9 +428,9 @@ class GameBoard {
   }
 
   /**
-     * 高亮顯示完成的連線
-     * @param {Array} lines - 完成的連線陣列
-     */
+   * 高亮顯示完成的連線
+   * @param {Array} lines - 完成的連線陣列
+   */
   highlightLines(lines) {
     // 清除之前的連線高亮
     this.clearLineHighlights();
@@ -434,7 +444,9 @@ class GameBoard {
 
     // 確保每條線都有有效的格子陣列
     const validLines = lines.filter(line => {
-      return line && line.cells && Array.isArray(line.cells) && line.cells.length > 0;
+      return (
+        line && line.cells && Array.isArray(line.cells) && line.cells.length > 0
+      );
     });
 
     if (validLines.length === 0) {
@@ -445,7 +457,10 @@ class GameBoard {
     }
 
     if (window.logger) {
-      window.logger.debug(`Highlighting ${validLines.length} lines:`, validLines);
+      window.logger.debug(
+        `Highlighting ${validLines.length} lines:`,
+        validLines
+      );
     }
 
     validLines.forEach(line => {
@@ -456,9 +471,9 @@ class GameBoard {
   }
 
   /**
-     * 高亮顯示單條連線
-     * @param {Object} line - 連線對象
-     */
+   * 高亮顯示單條連線
+   * @param {Object} line - 連線對象
+   */
   highlightSingleLine(line) {
     if (!line || !line.cells || !Array.isArray(line.cells)) {
       if (window.logger) {
@@ -469,7 +484,10 @@ class GameBoard {
 
     const lineClass = this.getLineClass(line.type);
     if (window.logger) {
-      window.logger.debug(`Highlighting line type: ${line.type}, class: ${lineClass}, cells:`, line.cells);
+      window.logger.debug(
+        `Highlighting line type: ${line.type}, class: ${lineClass}, cells:`,
+        line.cells
+      );
     }
 
     line.cells.forEach(([row, col]) => {
@@ -491,7 +509,10 @@ class GameBoard {
         this.createLineOverlay(cell, line.type);
 
         if (window.logger) {
-          window.logger.debug(`Added classes to cell (${row}, ${col}):`, cell.className);
+          window.logger.debug(
+            `Added classes to cell (${row}, ${col}):`,
+            cell.className
+          );
         }
 
         // 更新無障礙標籤
@@ -501,35 +522,37 @@ class GameBoard {
         }
       } else {
         if (window.logger) {
-          window.logger.warn(`Invalid position for line highlight: (${row}, ${col})`);
+          window.logger.warn(
+            `Invalid position for line highlight: (${row}, ${col})`
+          );
         }
       }
     });
   }
 
   /**
-     * 獲取連線類型對應的CSS類別
-     * @param {string} lineType - 連線類型
-     * @returns {string} CSS類別名稱
-     */
+   * 獲取連線類型對應的CSS類別
+   * @param {string} lineType - 連線類型
+   * @returns {string} CSS類別名稱
+   */
   getLineClass(lineType) {
     switch (lineType) {
-    case this.LINE_TYPES.HORIZONTAL:
-      return 'horizontal-line';
-    case this.LINE_TYPES.VERTICAL:
-      return 'vertical-line';
-    case this.LINE_TYPES.DIAGONAL_MAIN:
-      return 'diagonal-line';
-    case this.LINE_TYPES.DIAGONAL_ANTI:
-      return 'anti-diagonal-line';
-    default:
-      return 'horizontal-line'; // 預設為水平線
+      case this.LINE_TYPES.HORIZONTAL:
+        return 'horizontal-line';
+      case this.LINE_TYPES.VERTICAL:
+        return 'vertical-line';
+      case this.LINE_TYPES.DIAGONAL_MAIN:
+        return 'diagonal-line';
+      case this.LINE_TYPES.DIAGONAL_ANTI:
+        return 'anti-diagonal-line';
+      default:
+        return 'horizontal-line'; // 預設為水平線
     }
   }
 
   /**
-     * 清除所有連線高亮
-     */
+   * 清除所有連線高亮
+   */
   clearLineHighlights() {
     // 清除所有格子的連線樣式
     for (let row = 0; row < this.size; row++) {
@@ -564,16 +587,16 @@ class GameBoard {
   }
 
   /**
-     * 清除所有高亮效果
-     */
+   * 清除所有高亮效果
+   */
   clearAllHighlights() {
     this.clearSuggestionHighlight();
     this.clearLineHighlights();
   }
 
   /**
-     * 重置遊戲板到初始狀態
-     */
+   * 重置遊戲板到初始狀態
+   */
   reset() {
     this.clearAllHighlights();
 
@@ -590,11 +613,11 @@ class GameBoard {
   }
 
   /**
-     * 獲取格子元素
-     * @param {number} row - 行位置
-     * @param {number} col - 列位置
-     * @returns {HTMLElement|null} 格子元素
-     */
+   * 獲取格子元素
+   * @param {number} row - 行位置
+   * @param {number} col - 列位置
+   * @returns {HTMLElement|null} 格子元素
+   */
   getCell(row, col) {
     if (!this.isValidPosition(row, col)) {
       return null;
@@ -603,21 +626,20 @@ class GameBoard {
   }
 
   /**
-     * 檢查位置是否有效
-     * @param {number} row - 行位置
-     * @param {number} col - 列位置
-     * @returns {boolean} 是否為有效位置
-     */
+   * 檢查位置是否有效
+   * @param {number} row - 行位置
+   * @param {number} col - 列位置
+   * @returns {boolean} 是否為有效位置
+   */
   isValidPosition(row, col) {
-    return row >= 0 && row < this.size &&
-               col >= 0 && col < this.size;
+    return row >= 0 && row < this.size && col >= 0 && col < this.size;
   }
 
   /**
-     * 驗證遊戲板格式
-     * @param {number[][]} board - 遊戲板陣列
-     * @returns {boolean} 是否為有效的遊戲板
-     */
+   * 驗證遊戲板格式
+   * @param {number[][]} board - 遊戲板陣列
+   * @returns {boolean} 是否為有效的遊戲板
+   */
   isValidBoard(board) {
     if (!Array.isArray(board) || board.length !== this.size) {
       return false;
@@ -629,7 +651,13 @@ class GameBoard {
       }
 
       for (let cell of row) {
-        if (![this.CELL_STATES.EMPTY, this.CELL_STATES.PLAYER, this.CELL_STATES.COMPUTER].includes(cell)) {
+        if (
+          ![
+            this.CELL_STATES.EMPTY,
+            this.CELL_STATES.PLAYER,
+            this.CELL_STATES.COMPUTER
+          ].includes(cell)
+        ) {
           return false;
         }
       }
@@ -639,12 +667,12 @@ class GameBoard {
   }
 
   /**
-     * 添加動畫效果到格子
-     * @param {number} row - 行位置
-     * @param {number} col - 列位置
-     * @param {string} animationClass - 動畫CSS類別
-     * @param {number} duration - 動畫持續時間（毫秒）
-     */
+   * 添加動畫效果到格子
+   * @param {number} row - 行位置
+   * @param {number} col - 列位置
+   * @param {string} animationClass - 動畫CSS類別
+   * @param {number} duration - 動畫持續時間（毫秒）
+   */
   animateCell(row, col, animationClass, duration = 1000) {
     if (!this.isValidPosition(row, col)) {
       return;
@@ -659,25 +687,25 @@ class GameBoard {
   }
 
   /**
-     * 獲取當前建議位置
-     * @returns {Object|null} 當前建議位置或null
-     */
+   * 獲取當前建議位置
+   * @returns {Object|null} 當前建議位置或null
+   */
   getCurrentSuggestion() {
     return this.currentSuggestion;
   }
 
   /**
-     * 獲取當前高亮的連線
-     * @returns {Array} 當前高亮的連線陣列
-     */
+   * 獲取當前高亮的連線
+   * @returns {Array} 當前高亮的連線陣列
+   */
   getHighlightedLines() {
     return [...this.highlightedLines];
   }
 
   /**
-     * 為建議格子添加脈衝高亮效果
-     * @param {HTMLElement} cell - 格子元素
-     */
+   * 為建議格子添加脈衝高亮效果
+   * @param {HTMLElement} cell - 格子元素
+   */
   pulseHighlightEffect(cell) {
     // 創建一個臨時的高亮效果元素
     const highlight = document.createElement('div');
@@ -728,11 +756,11 @@ class GameBoard {
   }
 
   /**
-     * 為替代建議格子添加脈衝效果
-     * @param {HTMLElement} cell - 格子元素
-     * @param {number} rank - 建議排名
-     * @param {number} intensity - 效果強度 (0-1)
-     */
+   * 為替代建議格子添加脈衝效果
+   * @param {HTMLElement} cell - 格子元素
+   * @param {number} rank - 建議排名
+   * @param {number} intensity - 效果強度 (0-1)
+   */
   pulseAlternativeEffect(cell, rank, intensity = 0.5) {
     // 創建一個臨時的高亮效果元素
     const highlight = document.createElement('div');
@@ -748,17 +776,17 @@ class GameBoard {
     // 根據排名設置不同的顏色
     let color;
     switch (rank) {
-    case 2:
-      color = 'rgba(33, 150, 243, ' + intensity + ')'; // 藍色
-      break;
-    case 3:
-      color = 'rgba(255, 152, 0, ' + intensity + ')'; // 橙色
-      break;
-    case 4:
-      color = 'rgba(244, 67, 54, ' + intensity + ')'; // 紅色
-      break;
-    default:
-      color = 'rgba(158, 158, 158, ' + intensity + ')'; // 灰色
+      case 2:
+        color = 'rgba(33, 150, 243, ' + intensity + ')'; // 藍色
+        break;
+      case 3:
+        color = 'rgba(255, 152, 0, ' + intensity + ')'; // 橙色
+        break;
+      case 4:
+        color = 'rgba(244, 67, 54, ' + intensity + ')'; // 紅色
+        break;
+      default:
+        color = 'rgba(158, 158, 158, ' + intensity + ')'; // 灰色
     }
 
     highlight.style.boxShadow = `0 0 15px 5px ${color}`;
@@ -788,9 +816,9 @@ class GameBoard {
   }
 
   /**
-     * 設置遊戲板為禁用狀態
-     * @param {boolean} disabled - 是否禁用
-     */
+   * 設置遊戲板為禁用狀態
+   * @param {boolean} disabled - 是否禁用
+   */
   setDisabled(disabled) {
     this.container.classList.toggle('disabled', disabled);
 
@@ -804,9 +832,9 @@ class GameBoard {
   }
 
   /**
-     * 強制刷新連線顯示
-     * @param {Array} lines - 要顯示的連線陣列
-     */
+   * 強制刷新連線顯示
+   * @param {Array} lines - 要顯示的連線陣列
+   */
   forceRefreshLines(lines) {
     if (window.logger) {
       window.logger.debug('Force refreshing line highlights');
@@ -824,10 +852,10 @@ class GameBoard {
   }
 
   /**
-     * 創建連線覆蓋層
-     * @param {HTMLElement} cell - 格子元素
-     * @param {string} lineType - 連線類型
-     */
+   * 創建連線覆蓋層
+   * @param {HTMLElement} cell - 格子元素
+   * @param {string} lineType - 連線類型
+   */
   createLineOverlay(cell, lineType) {
     // 清除現有的連線覆蓋層
     const existingOverlay = cell.querySelector('.line-overlay');
@@ -849,20 +877,24 @@ class GameBoard {
 
     // 根據連線類型設置不同的背景
     switch (lineType) {
-    case this.LINE_TYPES.HORIZONTAL:
-      overlay.style.backgroundImage = 'linear-gradient(to right, transparent 10%, #4CAF50 10%, #4CAF50 90%, transparent 90%)';
-      overlay.style.backgroundSize = '100% 6px';
-      break;
-    case this.LINE_TYPES.VERTICAL:
-      overlay.style.backgroundImage = 'linear-gradient(to bottom, transparent 10%, #4CAF50 10%, #4CAF50 90%, transparent 90%)';
-      overlay.style.backgroundSize = '6px 100%';
-      break;
-    case this.LINE_TYPES.DIAGONAL_MAIN:
-      overlay.style.backgroundImage = 'linear-gradient(45deg, transparent 47%, #4CAF50 47%, #4CAF50 53%, transparent 53%)';
-      break;
-    case this.LINE_TYPES.DIAGONAL_ANTI:
-      overlay.style.backgroundImage = 'linear-gradient(-45deg, transparent 47%, #4CAF50 47%, #4CAF50 53%, transparent 53%)';
-      break;
+      case this.LINE_TYPES.HORIZONTAL:
+        overlay.style.backgroundImage =
+          'linear-gradient(to right, transparent 10%, #4CAF50 10%, #4CAF50 90%, transparent 90%)';
+        overlay.style.backgroundSize = '100% 6px';
+        break;
+      case this.LINE_TYPES.VERTICAL:
+        overlay.style.backgroundImage =
+          'linear-gradient(to bottom, transparent 10%, #4CAF50 10%, #4CAF50 90%, transparent 90%)';
+        overlay.style.backgroundSize = '6px 100%';
+        break;
+      case this.LINE_TYPES.DIAGONAL_MAIN:
+        overlay.style.backgroundImage =
+          'linear-gradient(45deg, transparent 47%, #4CAF50 47%, #4CAF50 53%, transparent 53%)';
+        break;
+      case this.LINE_TYPES.DIAGONAL_ANTI:
+        overlay.style.backgroundImage =
+          'linear-gradient(-45deg, transparent 47%, #4CAF50 47%, #4CAF50 53%, transparent 53%)';
+        break;
     }
 
     overlay.style.backgroundRepeat = 'no-repeat';
@@ -872,9 +904,9 @@ class GameBoard {
   }
 
   /**
-     * 清除格子的連線覆蓋層
-     * @param {HTMLElement} cell - 格子元素
-     */
+   * 清除格子的連線覆蓋層
+   * @param {HTMLElement} cell - 格子元素
+   */
   clearLineOverlay(cell) {
     const overlay = cell.querySelector('.line-overlay');
     if (overlay) {
@@ -883,8 +915,8 @@ class GameBoard {
   }
 
   /**
-     * 銷毀遊戲板實例
-     */
+   * 銷毀遊戲板實例
+   */
   destroy() {
     this.clearAllHighlights();
     this.clickHandler = null;

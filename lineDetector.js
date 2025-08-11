@@ -28,21 +28,21 @@ class LineDetector {
    */
   constructor() {
     // 遊戲板配置
-    this.BOARD_SIZE = 5;        // 標準 Bingo 遊戲板大小
+    this.BOARD_SIZE = 5; // 標準 Bingo 遊戲板大小
 
     // 連線類型定義
     this.LINE_TYPES = {
-      HORIZONTAL: 'horizontal',         // 水平連線
-      VERTICAL: 'vertical',             // 垂直連線
-      DIAGONAL_MAIN: 'diagonal-main',   // 主對角線（\）
-      DIAGONAL_ANTI: 'diagonal-anti'    // 反對角線（/）
+      HORIZONTAL: 'horizontal', // 水平連線
+      VERTICAL: 'vertical', // 垂直連線
+      DIAGONAL_MAIN: 'diagonal-main', // 主對角線（\）
+      DIAGONAL_ANTI: 'diagonal-anti' // 反對角線（/）
     };
 
     // 格子狀態定義（與其他組件保持一致）
     this.CELL_STATES = {
-      EMPTY: 0,       // 空格子
-      PLAYER: 1,      // 玩家選擇
-      COMPUTER: 2     // 電腦選擇
+      EMPTY: 0, // 空格子
+      PLAYER: 1, // 玩家選擇
+      COMPUTER: 2 // 電腦選擇
     };
   }
 
@@ -77,10 +77,10 @@ class LineDetector {
 
         // 創建連線對象，包含完整的連線信息
         lines.push({
-          type: this.LINE_TYPES.HORIZONTAL,   // 連線類型
-          row: row,                           // 連線所在行
-          cells: cells,                       // 格子座標陣列
-          values: [...board[row]]             // 格子值的副本
+          type: this.LINE_TYPES.HORIZONTAL, // 連線類型
+          row: row, // 連線所在行
+          cells: cells, // 格子座標陣列
+          values: [...board[row]] // 格子值的副本
         });
       }
     }
@@ -206,7 +206,13 @@ class LineDetector {
       }
 
       for (let cell of row) {
-        if (![this.CELL_STATES.EMPTY, this.CELL_STATES.PLAYER, this.CELL_STATES.COMPUTER].includes(cell)) {
+        if (
+          ![
+            this.CELL_STATES.EMPTY,
+            this.CELL_STATES.PLAYER,
+            this.CELL_STATES.COMPUTER
+          ].includes(cell)
+        ) {
           return false;
         }
       }

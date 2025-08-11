@@ -74,7 +74,9 @@ function runBaseProbabilityCalculatorTests() {
     }
   });
 
-  console.log(`\nBaseProbabilityCalculator Tests: ${passed} passed, ${failed} failed`);
+  console.log(
+    `\nBaseProbabilityCalculator Tests: ${passed} passed, ${failed} failed`
+  );
   return { passed, failed };
 }
 
@@ -91,13 +93,17 @@ function testConstructor() {
   if (!calculator.WEIGHTS) throw new Error('WEIGHTS should be defined');
 
   // Test cache initialization
-  if (!calculator._valueCache) throw new Error('Value cache should be initialized');
-  if (!calculator._lineCache) throw new Error('Line cache should be initialized');
+  if (!calculator._valueCache)
+    throw new Error('Value cache should be initialized');
+  if (!calculator._lineCache)
+    throw new Error('Line cache should be initialized');
 
   // Test performance metrics initialization
   const metrics = calculator.getPerformanceMetrics();
-  if (typeof metrics.cacheHits !== 'number') throw new Error('Cache hits should be a number');
-  if (typeof metrics.cacheMisses !== 'number') throw new Error('Cache misses should be a number');
+  if (typeof metrics.cacheHits !== 'number')
+    throw new Error('Cache hits should be a number');
+  if (typeof metrics.cacheMisses !== 'number')
+    throw new Error('Cache misses should be a number');
 }
 
 /**
@@ -108,19 +114,23 @@ function testBoardOperations() {
 
   // Test board validation
   const validBoard = Utils.createEmptyBoard();
-  if (!calculator.isValidBoard(validBoard)) throw new Error('Valid board should pass validation');
+  if (!calculator.isValidBoard(validBoard))
+    throw new Error('Valid board should pass validation');
 
   const invalidBoard = [[0, 1], [2]]; // Wrong dimensions
-  if (calculator.isValidBoard(invalidBoard)) throw new Error('Invalid board should fail validation');
+  if (calculator.isValidBoard(invalidBoard))
+    throw new Error('Invalid board should fail validation');
 
   // Test board copying
   validBoard[1][1] = CONSTANTS.CELL_STATES.PLAYER;
   const copiedBoard = calculator.copyBoard(validBoard);
-  if (copiedBoard[1][1] !== CONSTANTS.CELL_STATES.PLAYER) throw new Error('Board copy should preserve values');
+  if (copiedBoard[1][1] !== CONSTANTS.CELL_STATES.PLAYER)
+    throw new Error('Board copy should preserve values');
 
   // Test independence of copy
   validBoard[1][1] = CONSTANTS.CELL_STATES.COMPUTER;
-  if (copiedBoard[1][1] !== CONSTANTS.CELL_STATES.PLAYER) throw new Error('Board copy should be independent');
+  if (copiedBoard[1][1] !== CONSTANTS.CELL_STATES.PLAYER)
+    throw new Error('Board copy should be independent');
 
   // Test empty cells retrieval
   const emptyCells = calculator.getEmptyCells(validBoard);
@@ -128,8 +138,10 @@ function testBoardOperations() {
 
   // Test board hash
   const hash = calculator.getBoardHash(validBoard);
-  if (typeof hash !== 'string') throw new Error('Board hash should be a string');
-  if (hash.length !== 25) throw new Error('Board hash should have 25 characters');
+  if (typeof hash !== 'string')
+    throw new Error('Board hash should be a string');
+  if (hash.length !== 25)
+    throw new Error('Board hash should have 25 characters');
 }
 
 /**
@@ -140,23 +152,33 @@ function testMoveValidation() {
   const board = Utils.createEmptyBoard();
 
   // Test valid moves
-  if (!calculator.isValidMove(board, 0, 0)) throw new Error('(0,0) should be valid');
-  if (!calculator.isValidMove(board, 2, 2)) throw new Error('(2,2) should be valid');
-  if (!calculator.isValidMove(board, 4, 4)) throw new Error('(4,4) should be valid');
+  if (!calculator.isValidMove(board, 0, 0))
+    throw new Error('(0,0) should be valid');
+  if (!calculator.isValidMove(board, 2, 2))
+    throw new Error('(2,2) should be valid');
+  if (!calculator.isValidMove(board, 4, 4))
+    throw new Error('(4,4) should be valid');
 
   // Test invalid positions
-  if (calculator.isValidMove(board, -1, 0)) throw new Error('(-1,0) should be invalid');
-  if (calculator.isValidMove(board, 0, -1)) throw new Error('(0,-1) should be invalid');
-  if (calculator.isValidMove(board, 5, 0)) throw new Error('(5,0) should be invalid');
-  if (calculator.isValidMove(board, 0, 5)) throw new Error('(0,5) should be invalid');
+  if (calculator.isValidMove(board, -1, 0))
+    throw new Error('(-1,0) should be invalid');
+  if (calculator.isValidMove(board, 0, -1))
+    throw new Error('(0,-1) should be invalid');
+  if (calculator.isValidMove(board, 5, 0))
+    throw new Error('(5,0) should be invalid');
+  if (calculator.isValidMove(board, 0, 5))
+    throw new Error('(0,5) should be invalid');
 
   // Test occupied cells
   board[1][1] = CONSTANTS.CELL_STATES.PLAYER;
-  if (calculator.isValidMove(board, 1, 1)) throw new Error('Occupied cell should be invalid');
+  if (calculator.isValidMove(board, 1, 1))
+    throw new Error('Occupied cell should be invalid');
 
   // Test center position detection
-  if (!calculator.isCenterPosition(2, 2)) throw new Error('(2,2) should be center');
-  if (calculator.isCenterPosition(0, 0)) throw new Error('(0,0) should not be center');
+  if (!calculator.isCenterPosition(2, 2))
+    throw new Error('(2,2) should be center');
+  if (calculator.isCenterPosition(0, 0))
+    throw new Error('(0,0) should not be center');
 }
 
 /**
@@ -167,35 +189,58 @@ function testLineOperations() {
   const board = Utils.createEmptyBoard();
 
   // Test line cells retrieval
-  const horizontalCells = calculator.getLineCells(2, 2, CONSTANTS.LINE_TYPES.HORIZONTAL);
-  if (horizontalCells.length !== 5) throw new Error('Horizontal line should have 5 cells');
+  const horizontalCells = calculator.getLineCells(
+    2,
+    2,
+    CONSTANTS.LINE_TYPES.HORIZONTAL
+  );
+  if (horizontalCells.length !== 5)
+    throw new Error('Horizontal line should have 5 cells');
 
-  const verticalCells = calculator.getLineCells(2, 2, CONSTANTS.LINE_TYPES.VERTICAL);
-  if (verticalCells.length !== 5) throw new Error('Vertical line should have 5 cells');
+  const verticalCells = calculator.getLineCells(
+    2,
+    2,
+    CONSTANTS.LINE_TYPES.VERTICAL
+  );
+  if (verticalCells.length !== 5)
+    throw new Error('Vertical line should have 5 cells');
 
   // Test relevant lines
   const centerLines = calculator.getRelevantLines(2, 2);
-  if (centerLines.length !== 4) throw new Error('Center should have 4 relevant lines');
+  if (centerLines.length !== 4)
+    throw new Error('Center should have 4 relevant lines');
 
   const cornerLines = calculator.getRelevantLines(0, 0);
-  if (cornerLines.length !== 3) throw new Error('Corner should have 3 relevant lines');
+  if (cornerLines.length !== 3)
+    throw new Error('Corner should have 3 relevant lines');
 
   // Test line completion
-  if (calculator.isLineComplete(board, horizontalCells)) throw new Error('Empty line should not be complete');
+  if (calculator.isLineComplete(board, horizontalCells))
+    throw new Error('Empty line should not be complete');
 
   // Fill horizontal line
   for (const [row, col] of horizontalCells) {
     board[row][col] = CONSTANTS.CELL_STATES.PLAYER;
   }
 
-  if (!calculator.isLineComplete(board, horizontalCells)) throw new Error('Filled line should be complete');
+  if (!calculator.isLineComplete(board, horizontalCells))
+    throw new Error('Filled line should be complete');
 
   // Test cell counting
-  if (calculator.countFilledCells(board, horizontalCells) !== 5) throw new Error('Should count 5 filled cells');
-  if (calculator.countEmptyCells(board, horizontalCells) !== 0) throw new Error('Should count 0 empty cells');
+  if (calculator.countFilledCells(board, horizontalCells) !== 5)
+    throw new Error('Should count 5 filled cells');
+  if (calculator.countEmptyCells(board, horizontalCells) !== 0)
+    throw new Error('Should count 0 empty cells');
 
   // Test line completion check
-  if (!calculator.checkLineCompletion(board, 2, 2, CONSTANTS.LINE_TYPES.HORIZONTAL)) {
+  if (
+    !calculator.checkLineCompletion(
+      board,
+      2,
+      2,
+      CONSTANTS.LINE_TYPES.HORIZONTAL
+    )
+  ) {
     throw new Error('Completed horizontal line should be detected');
   }
 }
@@ -209,13 +254,15 @@ function testCacheOperations() {
   // Test cache miss
   const key = 'test-key';
   const cachedValue = calculator._getCachedValue(key);
-  if (cachedValue !== undefined) throw new Error('Cache miss should return undefined');
+  if (cachedValue !== undefined)
+    throw new Error('Cache miss should return undefined');
 
   // Test cache set and get
   const testValue = 42;
   calculator._setCachedValue(key, testValue);
   const retrievedValue = calculator._getCachedValue(key);
-  if (retrievedValue !== testValue) throw new Error('Cached value should be retrievable');
+  if (retrievedValue !== testValue)
+    throw new Error('Cached value should be retrievable');
 
   // Test cache clear
   calculator.clearCache();
@@ -230,7 +277,8 @@ function testCacheOperations() {
 
   // First key should be evicted
   const evictedValue = calculator._getCachedValue('key-0');
-  if (evictedValue !== undefined) throw new Error('Cache should evict old entries');
+  if (evictedValue !== undefined)
+    throw new Error('Cache should evict old entries');
 }
 
 /**
@@ -241,13 +289,16 @@ function testPerformanceMetrics() {
 
   // Initial metrics
   let metrics = calculator.getPerformanceMetrics();
-  if (metrics.cacheHits !== 0) throw new Error('Initial cache hits should be 0');
-  if (metrics.cacheMisses !== 0) throw new Error('Initial cache misses should be 0');
+  if (metrics.cacheHits !== 0)
+    throw new Error('Initial cache hits should be 0');
+  if (metrics.cacheMisses !== 0)
+    throw new Error('Initial cache misses should be 0');
 
   // Generate cache miss
   calculator._getCachedValue('non-existent');
   metrics = calculator.getPerformanceMetrics();
-  if (metrics.cacheMisses !== 1) throw new Error('Cache miss should be recorded');
+  if (metrics.cacheMisses !== 1)
+    throw new Error('Cache miss should be recorded');
 
   // Generate cache hit
   calculator._setCachedValue('test', 'value');
@@ -271,26 +322,32 @@ function testMoveSimulation() {
 
   // Test empty board simulation
   const moves = calculator.simulateAllPossibleMoves(board);
-  if (moves.length !== 25) throw new Error('Empty board should have 25 possible moves');
+  if (moves.length !== 25)
+    throw new Error('Empty board should have 25 possible moves');
 
   // Test moves are sorted by value
   for (let i = 1; i < moves.length; i++) {
-    if (moves[i].value > moves[i-1].value) {
+    if (moves[i].value > moves[i - 1].value) {
       throw new Error('Moves should be sorted by value (descending)');
     }
   }
 
   // Test move structure
   const firstMove = moves[0];
-  if (typeof firstMove.row !== 'number') throw new Error('Move should have row');
-  if (typeof firstMove.col !== 'number') throw new Error('Move should have col');
-  if (typeof firstMove.value !== 'number') throw new Error('Move should have value');
-  if (typeof firstMove.position !== 'string') throw new Error('Move should have position string');
+  if (typeof firstMove.row !== 'number')
+    throw new Error('Move should have row');
+  if (typeof firstMove.col !== 'number')
+    throw new Error('Move should have col');
+  if (typeof firstMove.value !== 'number')
+    throw new Error('Move should have value');
+  if (typeof firstMove.position !== 'string')
+    throw new Error('Move should have position string');
 
   // Test with occupied cells
   board[2][2] = CONSTANTS.CELL_STATES.PLAYER;
   const movesWithOccupied = calculator.simulateAllPossibleMoves(board);
-  if (movesWithOccupied.length !== 24) throw new Error('Board with one occupied cell should have 24 moves');
+  if (movesWithOccupied.length !== 24)
+    throw new Error('Board with one occupied cell should have 24 moves');
 }
 
 /**
@@ -302,14 +359,20 @@ function testSuggestionGeneration() {
 
   // Test suggestion generation
   const suggestion = calculator.getBestSuggestion(board);
-  if (!suggestion) throw new Error('Should generate suggestion for empty board');
+  if (!suggestion)
+    throw new Error('Should generate suggestion for empty board');
 
   // Test suggestion structure
-  if (typeof suggestion.row !== 'number') throw new Error('Suggestion should have row');
-  if (typeof suggestion.col !== 'number') throw new Error('Suggestion should have col');
-  if (typeof suggestion.value !== 'number') throw new Error('Suggestion should have value');
-  if (typeof suggestion.confidence !== 'string') throw new Error('Suggestion should have confidence');
-  if (!Array.isArray(suggestion.alternatives)) throw new Error('Suggestion should have alternatives');
+  if (typeof suggestion.row !== 'number')
+    throw new Error('Suggestion should have row');
+  if (typeof suggestion.col !== 'number')
+    throw new Error('Suggestion should have col');
+  if (typeof suggestion.value !== 'number')
+    throw new Error('Suggestion should have value');
+  if (typeof suggestion.confidence !== 'string')
+    throw new Error('Suggestion should have confidence');
+  if (!Array.isArray(suggestion.alternatives))
+    throw new Error('Suggestion should have alternatives');
 
   // Test confidence levels
   const validConfidences = ['very-high', 'high', 'medium', 'low'];
@@ -318,12 +381,16 @@ function testSuggestionGeneration() {
   }
 
   // Test alternatives
-  if (suggestion.alternatives.length > 3) throw new Error('Should have at most 3 alternatives');
+  if (suggestion.alternatives.length > 3)
+    throw new Error('Should have at most 3 alternatives');
 
   // Test full board (no suggestions)
-  const fullBoard = Array(5).fill().map(() => Array(5).fill(CONSTANTS.CELL_STATES.PLAYER));
+  const fullBoard = Array(5)
+    .fill()
+    .map(() => Array(5).fill(CONSTANTS.CELL_STATES.PLAYER));
   const noSuggestion = calculator.getBestSuggestion(fullBoard);
-  if (noSuggestion !== null) throw new Error('Full board should have no suggestions');
+  if (noSuggestion !== null)
+    throw new Error('Full board should have no suggestions');
 }
 
 /**
@@ -345,7 +412,8 @@ function testAbstractMethods() {
   const concreteCalculator = new TestProbabilityCalculator();
   const board = Utils.createEmptyBoard();
   const value = concreteCalculator.calculateMoveValue(board, 2, 2);
-  if (typeof value !== 'number') throw new Error('Concrete implementation should return number');
+  if (typeof value !== 'number')
+    throw new Error('Concrete implementation should return number');
 }
 
 // Run tests if in Node.js environment
@@ -355,7 +423,10 @@ if (typeof module !== 'undefined' && require.main === module) {
 
 // Export for both environments
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { runBaseProbabilityCalculatorTests, TestProbabilityCalculator };
+  module.exports = {
+    runBaseProbabilityCalculatorTests,
+    TestProbabilityCalculator
+  };
 } else if (typeof window !== 'undefined') {
   window.runBaseProbabilityCalculatorTests = runBaseProbabilityCalculatorTests;
   window.TestProbabilityCalculator = TestProbabilityCalculator;

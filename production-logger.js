@@ -12,8 +12,8 @@ class ProductionLogger {
   }
 
   /**
-     * 檢查是否為開發模式
-     */
+   * 檢查是否為開發模式
+   */
   checkDevelopmentMode() {
     // 檢查多個指標來確定是否為開發環境
     // 在 Node.js 環境中，window 可能不存在
@@ -23,16 +23,17 @@ class ProductionLogger {
 
     return (
       window.location.hostname === 'localhost' ||
-            window.location.hostname === '127.0.0.1' ||
-            window.location.hostname.includes('dev') ||
-            window.location.search.includes('debug=true') ||
-            (typeof localStorage !== 'undefined' && localStorage.getItem('debug-mode') === 'true')
+      window.location.hostname === '127.0.0.1' ||
+      window.location.hostname.includes('dev') ||
+      window.location.search.includes('debug=true') ||
+      (typeof localStorage !== 'undefined' &&
+        localStorage.getItem('debug-mode') === 'true')
     );
   }
 
   /**
-     * 記錄調試信息
-     */
+   * 記錄調試信息
+   */
   debug(...args) {
     if (this.isDevelopment) {
       console.log('[DEBUG]', ...args);
@@ -41,8 +42,8 @@ class ProductionLogger {
   }
 
   /**
-     * 記錄信息
-     */
+   * 記錄信息
+   */
   info(...args) {
     if (this.isDevelopment) {
       console.info('[INFO]', ...args);
@@ -51,8 +52,8 @@ class ProductionLogger {
   }
 
   /**
-     * 記錄警告
-     */
+   * 記錄警告
+   */
   warn(...args) {
     if (this.isDevelopment) {
       console.warn('[WARN]', ...args);
@@ -61,23 +62,25 @@ class ProductionLogger {
   }
 
   /**
-     * 記錄錯誤（總是記錄）
-     */
+   * 記錄錯誤（總是記錄）
+   */
   error(...args) {
     console.error('[ERROR]', ...args);
     this.addToBuffer('error', args);
   }
 
   /**
-     * 添加到日誌緩衝區
-     */
+   * 添加到日誌緩衝區
+   */
   addToBuffer(level, args) {
     const entry = {
       timestamp: new Date().toISOString(),
       level,
-      message: args.map(arg =>
-        typeof arg === 'object' ? JSON.stringify(arg) : String(arg)
-      ).join(' ')
+      message: args
+        .map(arg =>
+          typeof arg === 'object' ? JSON.stringify(arg) : String(arg)
+        )
+        .join(' ')
     };
 
     this.logBuffer.push(entry);
@@ -89,27 +92,30 @@ class ProductionLogger {
   }
 
   /**
-     * 獲取日誌緩衝區
-     */
+   * 獲取日誌緩衝區
+   */
   getLogBuffer() {
     return [...this.logBuffer];
   }
 
   /**
-     * 清空日誌緩衝區
-     */
+   * 清空日誌緩衝區
+   */
   clearBuffer() {
     this.logBuffer = [];
   }
 
   /**
-     * 導出日誌
-     */
+   * 導出日誌
+   */
   exportLogs() {
     const logs = this.getLogBuffer();
-    const logText = logs.map(entry =>
-      `${entry.timestamp} [${entry.level.toUpperCase()}] ${entry.message}`
-    ).join('\n');
+    const logText = logs
+      .map(
+        entry =>
+          `${entry.timestamp} [${entry.level.toUpperCase()}] ${entry.message}`
+      )
+      .join('\n');
 
     const blob = new Blob([logText], { type: 'text/plain' });
     const url = URL.createObjectURL(blob);
@@ -124,8 +130,8 @@ class ProductionLogger {
   }
 
   /**
-     * 設置日誌級別
-     */
+   * 設置日誌級別
+   */
   setLogLevel(level) {
     const validLevels = ['debug', 'info', 'warn', 'error'];
     if (validLevels.includes(level)) {
@@ -134,16 +140,16 @@ class ProductionLogger {
   }
 
   /**
-     * 啟用開發模式
-     */
+   * 啟用開發模式
+   */
   enableDevelopmentMode() {
     this.isDevelopment = true;
     localStorage.setItem('debug-mode', 'true');
   }
 
   /**
-     * 禁用開發模式
-     */
+   * 禁用開發模式
+   */
   disableDevelopmentMode() {
     this.isDevelopment = false;
     localStorage.removeItem('debug-mode');

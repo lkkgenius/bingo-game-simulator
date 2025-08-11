@@ -5,7 +5,7 @@
 
 // 模擬測試環境
 const mockDOM = {
-  createElement: (tag) => ({
+  createElement: tag => ({
     tagName: tag.toUpperCase(),
     classList: {
       add: () => {},
@@ -59,8 +59,8 @@ global.window = {
     },
     getEntriesByType: () => []
   },
-  requestAnimationFrame: (callback) => setTimeout(callback, 16),
-  TouchEvent: function() {},
+  requestAnimationFrame: callback => setTimeout(callback, 16),
+  TouchEvent: function () {},
   location: { search: '' }
 };
 
@@ -101,12 +101,15 @@ function testTouchDeviceDetection() {
     test.setup();
 
     // 模擬觸控檢測邏輯
-    const isTouch = 'ontouchstart' in global.window ||
-                       global.window.navigator.maxTouchPoints > 0 ||
-                       global.window.navigator.msMaxTouchPoints > 0;
+    const isTouch =
+      'ontouchstart' in global.window ||
+      global.window.navigator.maxTouchPoints > 0 ||
+      global.window.navigator.msMaxTouchPoints > 0;
 
     const result = isTouch === test.expected ? 'PASS' : 'FAIL';
-    console.log(`  ${test.name}: ${result} (detected: ${isTouch}, expected: ${test.expected})`);
+    console.log(
+      `  ${test.name}: ${result} (detected: ${isTouch}, expected: ${test.expected})`
+    );
   });
 }
 
@@ -125,7 +128,9 @@ function testTouchTargetOptimization() {
   mockElements.forEach(element => {
     const needsOptimization = element.width < 44 || element.height < 44;
     const result = needsOptimization ? 'OPTIMIZED' : 'OK';
-    console.log(`  ${element.name} (${element.width}x${element.height}): ${result}`);
+    console.log(
+      `  ${element.name} (${element.width}x${element.height}): ${result}`
+    );
   });
 }
 
@@ -138,32 +143,42 @@ function testGestureRecognition() {
   const gestures = [
     {
       name: 'Swipe Right',
-      startX: 100, startY: 200,
-      endX: 200, endY: 200,
+      startX: 100,
+      startY: 200,
+      endX: 200,
+      endY: 200,
       expected: 'right'
     },
     {
       name: 'Swipe Left',
-      startX: 200, startY: 200,
-      endX: 100, endY: 200,
+      startX: 200,
+      startY: 200,
+      endX: 100,
+      endY: 200,
       expected: 'left'
     },
     {
       name: 'Swipe Up',
-      startX: 150, startY: 250,
-      endX: 150, endY: 150,
+      startX: 150,
+      startY: 250,
+      endX: 150,
+      endY: 150,
       expected: 'up'
     },
     {
       name: 'Swipe Down',
-      startX: 150, startY: 150,
-      endX: 150, endY: 250,
+      startX: 150,
+      startY: 150,
+      endX: 150,
+      endY: 250,
       expected: 'down'
     },
     {
       name: 'Tap (no swipe)',
-      startX: 150, startY: 150,
-      endX: 155, endY: 155,
+      startX: 150,
+      startY: 150,
+      endX: 155,
+      endY: 155,
       expected: 'none'
     }
   ];
@@ -177,7 +192,7 @@ function testGestureRecognition() {
     let detected = 'none';
 
     if (distance >= swipeThreshold) {
-      const angle = Math.atan2(deltaY, deltaX) * 180 / Math.PI;
+      const angle = (Math.atan2(deltaY, deltaX) * 180) / Math.PI;
 
       if (Math.abs(angle) < 45) {
         detected = 'right';
@@ -191,7 +206,9 @@ function testGestureRecognition() {
     }
 
     const result = detected === gesture.expected ? 'PASS' : 'FAIL';
-    console.log(`  ${gesture.name}: ${result} (detected: ${detected}, expected: ${gesture.expected})`);
+    console.log(
+      `  ${gesture.name}: ${result} (detected: ${detected}, expected: ${gesture.expected})`
+    );
   });
 }
 
@@ -219,7 +236,9 @@ function testPerformanceMonitoring() {
     }
 
     const result = status === test.expected ? 'PASS' : 'FAIL';
-    console.log(`  Memory usage ${usage.toFixed(1)}%: ${result} (status: ${status}, expected: ${test.expected})`);
+    console.log(
+      `  Memory usage ${usage.toFixed(1)}%: ${result} (status: ${status}, expected: ${test.expected})`
+    );
   });
 
   // 測試 FPS 監控
@@ -239,7 +258,9 @@ function testPerformanceMonitoring() {
     }
 
     const result = status === test.expected ? 'PASS' : 'FAIL';
-    console.log(`  FPS ${test.fps}: ${result} (status: ${status}, expected: ${test.expected})`);
+    console.log(
+      `  FPS ${test.fps}: ${result} (status: ${status}, expected: ${test.expected})`
+    );
   });
 }
 
@@ -250,12 +271,20 @@ function testPWAFeatures() {
   console.log('Testing PWA features...');
 
   // 測試 Service Worker 支持
-  const swSupported = typeof global.navigator !== 'undefined' && 'serviceWorker' in global.navigator;
-  console.log(`  Service Worker support: ${swSupported ? 'SUPPORTED' : 'NOT_SUPPORTED'}`);
+  const swSupported =
+    typeof global.navigator !== 'undefined' &&
+    'serviceWorker' in global.navigator;
+  console.log(
+    `  Service Worker support: ${swSupported ? 'SUPPORTED' : 'NOT_SUPPORTED'}`
+  );
 
   // 測試 Manifest 支持
-  const manifestSupported = typeof global.window !== 'undefined' && 'onbeforeinstallprompt' in global.window;
-  console.log(`  Web App Manifest support: ${manifestSupported ? 'SUPPORTED' : 'NOT_SUPPORTED'}`);
+  const manifestSupported =
+    typeof global.window !== 'undefined' &&
+    'onbeforeinstallprompt' in global.window;
+  console.log(
+    `  Web App Manifest support: ${manifestSupported ? 'SUPPORTED' : 'NOT_SUPPORTED'}`
+  );
 
   // 測試離線檢測
   const onlineStatus = global.window.navigator.onLine;
@@ -263,7 +292,9 @@ function testPWAFeatures() {
 
   // 測試推送通知支持
   const notificationSupported = typeof Notification !== 'undefined';
-  console.log(`  Push notifications: ${notificationSupported ? 'SUPPORTED' : 'NOT_SUPPORTED'}`);
+  console.log(
+    `  Push notifications: ${notificationSupported ? 'SUPPORTED' : 'NOT_SUPPORTED'}`
+  );
 }
 
 /**
@@ -277,13 +308,21 @@ function testCacheStrategies() {
     { url: './styles.css', type: 'stylesheet', strategy: 'cacheFirst' },
     { url: './script.js', type: 'script', strategy: 'cacheFirst' },
     { url: './api/stats', type: 'api', strategy: 'networkFirst' },
-    { url: './images/icon.png', type: 'image', strategy: 'staleWhileRevalidate' }
+    {
+      url: './images/icon.png',
+      type: 'image',
+      strategy: 'staleWhileRevalidate'
+    }
   ];
 
   resources.forEach(resource => {
     let expectedStrategy = 'networkFirst';
 
-    if (resource.url.endsWith('.js') || resource.url.endsWith('.css') || resource.url.endsWith('.html')) {
+    if (
+      resource.url.endsWith('.js') ||
+      resource.url.endsWith('.css') ||
+      resource.url.endsWith('.html')
+    ) {
       expectedStrategy = 'cacheFirst';
     } else if (resource.url.match(/\.(png|jpg|jpeg|svg|gif|webp)$/)) {
       expectedStrategy = 'staleWhileRevalidate';

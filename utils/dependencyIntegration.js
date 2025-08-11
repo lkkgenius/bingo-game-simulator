@@ -11,8 +11,12 @@
 let dependencyValidator, dependencyDiagnostics, logger;
 
 if (typeof require !== 'undefined') {
-  const { dependencyValidator: validator } = require('./dependencyValidator.js');
-  const { dependencyDiagnostics: diagnostics } = require('./dependencyDiagnostics.js');
+  const {
+    dependencyValidator: validator
+  } = require('./dependencyValidator.js');
+  const {
+    dependencyDiagnostics: diagnostics
+  } = require('./dependencyDiagnostics.js');
   dependencyValidator = validator;
   dependencyDiagnostics = diagnostics;
 
@@ -43,32 +47,32 @@ class DependencyIntegrationManager {
   }
 
   /**
-     * 設置錯誤處理器
-     */
+   * 設置錯誤處理器
+   */
   setupErrorHandlers() {
     // 關鍵依賴缺失處理器
-    this.errorHandlers.set('critical_dependency_missing', (error) => {
+    this.errorHandlers.set('critical_dependency_missing', error => {
       logger.error('關鍵依賴缺失:', error);
       this.displayCriticalError(error);
       return false; // 阻止繼續執行
     });
 
     // 可選依賴缺失處理器
-    this.errorHandlers.set('optional_dependency_missing', (error) => {
+    this.errorHandlers.set('optional_dependency_missing', error => {
       logger.warn('可選依賴缺失:', error);
       this.displayWarning(error);
       return true; // 允許繼續執行
     });
 
     // 性能問題處理器
-    this.errorHandlers.set('performance_issue', (error) => {
+    this.errorHandlers.set('performance_issue', error => {
       logger.warn('性能問題:', error);
       this.displayPerformanceWarning(error);
       return true;
     });
 
     // 兼容性問題處理器
-    this.errorHandlers.set('compatibility_issue', (error) => {
+    this.errorHandlers.set('compatibility_issue', error => {
       logger.warn('兼容性問題:', error);
       this.displayCompatibilityWarning(error);
       return true;
@@ -76,9 +80,9 @@ class DependencyIntegrationManager {
   }
 
   /**
-     * 初始化依賴檢查
-     * @returns {Promise<boolean>} 初始化是否成功
-     */
+   * 初始化依賴檢查
+   * @returns {Promise<boolean>} 初始化是否成功
+   */
   async initializeDependencyCheck() {
     logger.info('開始初始化依賴檢查...');
 
@@ -88,16 +92,22 @@ class DependencyIntegrationManager {
         throw new Error('依賴驗證器不可用');
       }
 
-      this.validationResults = await dependencyValidator.validateAllDependencies();
+      this.validationResults =
+        await dependencyValidator.validateAllDependencies();
 
       // 2. 檢查關鍵依賴
-      const criticalIssues = this.validationResults.issues.filter(issue => issue.severity === 'critical');
+      const criticalIssues = this.validationResults.issues.filter(
+        issue => issue.severity === 'critical'
+      );
 
       if (criticalIssues.length > 0) {
         logger.error(`發現 ${criticalIssues.length} 個關鍵依賴問題`);
 
         for (const issue of criticalIssues) {
-          const canContinue = this.handleError('critical_dependency_missing', issue);
+          const canContinue = this.handleError(
+            'critical_dependency_missing',
+            issue
+          );
           if (!canContinue) {
             return false;
           }
@@ -106,7 +116,8 @@ class DependencyIntegrationManager {
 
       // 3. 執行完整診斷（如果可用）
       if (dependencyDiagnostics) {
-        this.diagnosticResults = await dependencyDiagnostics.runCompleteDiagnostics();
+        this.diagnosticResults =
+          await dependencyDiagnostics.runCompleteDiagnostics();
 
         // 處理診斷發現的問題
         await this.processDiagnosticResults(this.diagnosticResults);
@@ -123,7 +134,6 @@ class DependencyIntegrationManager {
 
       logger.info('依賴檢查初始化完成');
       return true;
-
     } catch (error) {
       logger.error('依賴檢查初始化失敗:', error);
       this.handleError('initialization_failed', error);
@@ -132,9 +142,9 @@ class DependencyIntegrationManager {
   }
 
   /**
-     * 處理診斷結果
-     * @private
-     */
+   * 處理診斷結果
+   * @private
+   */
   async processDiagnosticResults(results) {
     // 處理性能問題
     const performanceIssues = this.extractIssuesByType(results, 'performance');
@@ -143,7 +153,10 @@ class DependencyIntegrationManager {
     }
 
     // 處理兼容性問題
-    const compatibilityIssues = this.extractIssuesByType(results, 'compatibility');
+    const compatibilityIssues = this.extractIssuesByType(
+      results,
+      'compatibility'
+    );
     for (const issue of compatibilityIssues) {
       this.handleError('compatibility_issue', issue);
     }
@@ -156,9 +169,9 @@ class DependencyIntegrationManager {
   }
 
   /**
-     * 從診斷結果中提取特定類型的問題
-     * @private
-     */
+   * 從診斷結果中提取特定類型的問題
+   * @private
+   */
   extractIssuesByType(results, type) {
     const issues = [];
 
@@ -173,12 +186,16 @@ class DependencyIntegrationManager {
   }
 
   /**
-     * 提取可選依賴問題
-     * @private
-     */
+   * 提取可選依賴問題
+   * @private
+   */
   extractOptionalDependencyIssues(results) {
     const issues = [];
-    const optionalDependencies = ['EnhancedProbabilityCalculator', 'AILearningSystem', 'PerformanceMonitor'];
+    const optionalDependencies = [
+      'EnhancedProbabilityCalculator',
+      'AILearningSystem',
+      'PerformanceMonitor'
+    ];
 
     if (this.validationResults) {
       for (const [depName, depResult] of this.validationResults.dependencies) {
@@ -196,9 +213,9 @@ class DependencyIntegrationManager {
   }
 
   /**
-     * 設置運行時監控
-     * @private
-     */
+   * 設置運行時監控
+   * @private
+   */
   setupRuntimeMonitoring() {
     if (!dependencyDiagnostics) {
       logger.warn('診斷工具不可用，跳過運行時監控設置');
@@ -206,12 +223,12 @@ class DependencyIntegrationManager {
     }
 
     // 設置監控回調
-    dependencyDiagnostics.onDiagnosticEvent('alert', (alertData) => {
+    dependencyDiagnostics.onDiagnosticEvent('alert', alertData => {
       logger.warn('依賴監控警報:', alertData);
       this.handleRuntimeAlert(alertData);
     });
 
-    dependencyDiagnostics.onDiagnosticEvent('monitoring', (results) => {
+    dependencyDiagnostics.onDiagnosticEvent('monitoring', results => {
       this.processMonitoringResults(results);
     });
 
@@ -222,9 +239,9 @@ class DependencyIntegrationManager {
   }
 
   /**
-     * 處理運行時警報
-     * @private
-     */
+   * 處理運行時警報
+   * @private
+   */
   handleRuntimeAlert(alertData) {
     const alertMessage = {
       type: 'runtime_alert',
@@ -237,30 +254,30 @@ class DependencyIntegrationManager {
 
     // 根據警報類型採取行動
     switch (alertData.type) {
-    case 'healthScore':
-      if (alertData.value < 50) {
-        logger.error('系統健康分數過低，建議立即檢查');
-        this.displayCriticalError({
-          message: '系統依賴健康狀況嚴重惡化',
-          recommendation: '請檢查系統狀態或重新載入頁面'
-        });
-      }
-      break;
+      case 'healthScore':
+        if (alertData.value < 50) {
+          logger.error('系統健康分數過低，建議立即檢查');
+          this.displayCriticalError({
+            message: '系統依賴健康狀況嚴重惡化',
+            recommendation: '請檢查系統狀態或重新載入頁面'
+          });
+        }
+        break;
 
-    case 'criticalDependencies':
-      logger.error('關鍵依賴項目出現問題');
-      this.displayCriticalError({
-        message: '關鍵系統組件不可用',
-        recommendation: '請重新載入頁面或聯繫技術支持'
-      });
-      break;
+      case 'criticalDependencies':
+        logger.error('關鍵依賴項目出現問題');
+        this.displayCriticalError({
+          message: '關鍵系統組件不可用',
+          recommendation: '請重新載入頁面或聯繫技術支持'
+        });
+        break;
     }
   }
 
   /**
-     * 處理監控結果
-     * @private
-     */
+   * 處理監控結果
+   * @private
+   */
   processMonitoringResults(results) {
     // 更新最新的診斷結果
     this.diagnosticResults = results;
@@ -281,9 +298,9 @@ class DependencyIntegrationManager {
   }
 
   /**
-     * 檢測新問題
-     * @private
-     */
+   * 檢測新問題
+   * @private
+   */
   detectNewIssues(currentResults) {
     // 這裡可以實現更複雜的問題檢測邏輯
     // 目前返回空數組作為示例
@@ -291,9 +308,9 @@ class DependencyIntegrationManager {
   }
 
   /**
-     * 檢測改善項目
-     * @private
-     */
+   * 檢測改善項目
+   * @private
+   */
   detectImprovements(currentResults) {
     // 這裡可以實現改善檢測邏輯
     // 目前返回空數組作為示例
@@ -301,26 +318,30 @@ class DependencyIntegrationManager {
   }
 
   /**
-     * 確定警報嚴重程度
-     * @private
-     */
+   * 確定警報嚴重程度
+   * @private
+   */
   determineAlertSeverity(alertData) {
     switch (alertData.type) {
-    case 'healthScore':
-      return alertData.value < 30 ? 'critical' : alertData.value < 60 ? 'high' : 'medium';
-    case 'criticalDependencies':
-      return 'critical';
-    case 'responseTime':
-      return alertData.value > 5000 ? 'high' : 'medium';
-    default:
-      return 'medium';
+      case 'healthScore':
+        return alertData.value < 30
+          ? 'critical'
+          : alertData.value < 60
+            ? 'high'
+            : 'medium';
+      case 'criticalDependencies':
+        return 'critical';
+      case 'responseTime':
+        return alertData.value > 5000 ? 'high' : 'medium';
+      default:
+        return 'medium';
     }
   }
 
   /**
-     * 處理錯誤
-     * @private
-     */
+   * 處理錯誤
+   * @private
+   */
   handleError(errorType, error) {
     const handler = this.errorHandlers.get(errorType);
     if (handler) {
@@ -332,9 +353,9 @@ class DependencyIntegrationManager {
   }
 
   /**
-     * 顯示關鍵錯誤
-     * @private
-     */
+   * 顯示關鍵錯誤
+   * @private
+   */
   displayCriticalError(error) {
     if (typeof window !== 'undefined' && window.document) {
       const errorDiv = document.createElement('div');
@@ -378,9 +399,9 @@ class DependencyIntegrationManager {
   }
 
   /**
-     * 顯示警告
-     * @private
-     */
+   * 顯示警告
+   * @private
+   */
   displayWarning(warning) {
     if (typeof console !== 'undefined') {
       console.warn(`⚠️ ${warning.dependency || '系統'}: ${warning.message}`);
@@ -388,25 +409,25 @@ class DependencyIntegrationManager {
   }
 
   /**
-     * 顯示性能警告
-     * @private
-     */
+   * 顯示性能警告
+   * @private
+   */
   displayPerformanceWarning(warning) {
     logger.warn(`🐌 性能警告: ${warning.message}`);
   }
 
   /**
-     * 顯示兼容性警告
-     * @private
-     */
+   * 顯示兼容性警告
+   * @private
+   */
   displayCompatibilityWarning(warning) {
     logger.warn(`🔧 兼容性警告: ${warning.message}`);
   }
 
   /**
-     * 通知狀態變更
-     * @private
-     */
+   * 通知狀態變更
+   * @private
+   */
   notifyStatusChange(status, data) {
     this.statusCallbacks.forEach(callback => {
       try {
@@ -418,17 +439,17 @@ class DependencyIntegrationManager {
   }
 
   /**
-     * 註冊狀態變更回調
-     * @param {Function} callback - 回調函數
-     */
+   * 註冊狀態變更回調
+   * @param {Function} callback - 回調函數
+   */
   onStatusChange(callback) {
     this.statusCallbacks.push(callback);
   }
 
   /**
-     * 獲取當前狀態
-     * @returns {Object} 當前狀態信息
-     */
+   * 獲取當前狀態
+   * @returns {Object} 當前狀態信息
+   */
   getCurrentStatus() {
     return {
       initialized: this.initializationComplete,
@@ -441,21 +462,23 @@ class DependencyIntegrationManager {
   }
 
   /**
-     * 執行手動健康檢查
-     * @returns {Promise<Object>} 檢查結果
-     */
+   * 執行手動健康檢查
+   * @returns {Promise<Object>} 檢查結果
+   */
   async performHealthCheck() {
     logger.info('執行手動健康檢查...');
 
     try {
       // 重新執行驗證
       if (dependencyValidator) {
-        this.validationResults = await dependencyValidator.validateAllDependencies();
+        this.validationResults =
+          await dependencyValidator.validateAllDependencies();
       }
 
       // 重新執行診斷
       if (dependencyDiagnostics) {
-        this.diagnosticResults = await dependencyDiagnostics.runCompleteDiagnostics();
+        this.diagnosticResults =
+          await dependencyDiagnostics.runCompleteDiagnostics();
       }
 
       const status = this.getCurrentStatus();
@@ -463,7 +486,6 @@ class DependencyIntegrationManager {
 
       logger.info('手動健康檢查完成');
       return status;
-
     } catch (error) {
       logger.error('手動健康檢查失敗:', error);
       throw error;
@@ -471,9 +493,9 @@ class DependencyIntegrationManager {
   }
 
   /**
-     * 生成狀態報告
-     * @returns {string} 格式化的狀態報告
-     */
+   * 生成狀態報告
+   * @returns {string} 格式化的狀態報告
+   */
   generateStatusReport() {
     const status = this.getCurrentStatus();
 
@@ -508,8 +530,8 @@ class DependencyIntegrationManager {
   }
 
   /**
-     * 清理資源
-     */
+   * 清理資源
+   */
   cleanup() {
     // 停止監控
     if (dependencyDiagnostics && dependencyDiagnostics.isMonitoring) {
@@ -533,7 +555,10 @@ const dependencyIntegrationManager = new DependencyIntegrationManager();
 
 // 導出模組
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { DependencyIntegrationManager, dependencyIntegrationManager };
+  module.exports = {
+    DependencyIntegrationManager,
+    dependencyIntegrationManager
+  };
 } else if (typeof window !== 'undefined') {
   window.DependencyIntegrationManager = DependencyIntegrationManager;
   window.dependencyIntegrationManager = dependencyIntegrationManager;

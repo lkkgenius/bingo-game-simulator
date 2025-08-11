@@ -14,7 +14,7 @@ global.performance = {
   }
 };
 
-global.requestAnimationFrame = (callback) => {
+global.requestAnimationFrame = callback => {
   setTimeout(callback, 16); // 模擬 60fps
   return 1;
 };
@@ -62,7 +62,10 @@ describe('Performance Monitor', () => {
       return sum;
     };
 
-    const result = monitor.measureAlgorithmPerformance('test-algorithm', testAlgorithm);
+    const result = monitor.measureAlgorithmPerformance(
+      'test-algorithm',
+      testAlgorithm
+    );
     expect(result).toBe(499500); // 0+1+2+...+999 = 499500
   });
 
@@ -96,12 +99,14 @@ describe('Performance Monitor', () => {
   test('should generate performance report', () => {
     // 添加一些模擬數據
     monitor.metrics.frameRate = [60, 58, 59, 61, 57];
-    monitor.metrics.memoryUsage = [{
-      used: 10 * 1024 * 1024,
-      total: 50 * 1024 * 1024,
-      limit: 100 * 1024 * 1024,
-      timestamp: Date.now()
-    }];
+    monitor.metrics.memoryUsage = [
+      {
+        used: 10 * 1024 * 1024,
+        total: 50 * 1024 * 1024,
+        limit: 100 * 1024 * 1024,
+        timestamp: Date.now()
+      }
+    ];
 
     const report = monitor.generatePerformanceReport();
     expect(report).toBeTruthy();
@@ -117,12 +122,14 @@ describe('Performance Monitor', () => {
 
   test('should get performance stats', () => {
     monitor.metrics.frameRate = [60, 58, 59];
-    monitor.metrics.memoryUsage = [{
-      used: 10 * 1024 * 1024,
-      total: 50 * 1024 * 1024,
-      limit: 100 * 1024 * 1024,
-      timestamp: Date.now()
-    }];
+    monitor.metrics.memoryUsage = [
+      {
+        used: 10 * 1024 * 1024,
+        total: 50 * 1024 * 1024,
+        limit: 100 * 1024 * 1024,
+        timestamp: Date.now()
+      }
+    ];
 
     const stats = monitor.getPerformanceStats();
     expect(stats).toBeTruthy();

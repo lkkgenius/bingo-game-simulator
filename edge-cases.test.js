@@ -19,7 +19,9 @@ describe('Edge Cases and Boundary Conditions', () => {
 
   describe('LineDetector Edge Cases', () => {
     test('should handle board with all same values', () => {
-      const allPlayerBoard = Array(5).fill().map(() => Array(5).fill(1));
+      const allPlayerBoard = Array(5)
+        .fill()
+        .map(() => Array(5).fill(1));
       const lines = lineDetector.getAllLines(allPlayerBoard);
 
       // Should detect all possible lines: 5 horizontal + 5 vertical + 2 diagonal = 12
@@ -56,8 +58,8 @@ describe('Edge Cases and Boundary Conditions', () => {
     test('should handle malformed board gracefully', () => {
       const malformedBoard = [
         [1, 2, 3], // Wrong length
-        [1, 2],    // Wrong length
-        null,      // Null row
+        [1, 2], // Wrong length
+        null, // Null row
         [1, 2, 1, 2, 1]
       ];
 
@@ -75,7 +77,9 @@ describe('Edge Cases and Boundary Conditions', () => {
     });
 
     test('should handle empty board correctly', () => {
-      const emptyBoard = Array(5).fill().map(() => Array(5).fill(0));
+      const emptyBoard = Array(5)
+        .fill()
+        .map(() => Array(5).fill(0));
       const lines = lineDetector.getAllLines(emptyBoard);
       expect(lines.length).toBe(0);
     });
@@ -111,11 +115,17 @@ describe('Edge Cases and Boundary Conditions', () => {
     });
 
     test('should handle extreme coordinate values', () => {
-      const emptyBoard = Array(5).fill().map(() => Array(5).fill(0));
+      const emptyBoard = Array(5)
+        .fill()
+        .map(() => Array(5).fill(0));
 
       // Test boundary values
-      expect(calculator.calculateMoveValue(emptyBoard, 0, 0)).toBeGreaterThanOrEqual(0);
-      expect(calculator.calculateMoveValue(emptyBoard, 4, 4)).toBeGreaterThanOrEqual(0);
+      expect(
+        calculator.calculateMoveValue(emptyBoard, 0, 0)
+      ).toBeGreaterThanOrEqual(0);
+      expect(
+        calculator.calculateMoveValue(emptyBoard, 4, 4)
+      ).toBeGreaterThanOrEqual(0);
 
       // Test invalid coordinates
       expect(calculator.calculateMoveValue(emptyBoard, -1, 0)).toBeLessThan(0);
@@ -138,7 +148,9 @@ describe('Edge Cases and Boundary Conditions', () => {
       expect(suggestion).toBeTruthy();
       expect(suggestion.row).toBe(0);
       expect(suggestion.col).toBe(4);
-      expect(['high', 'very-high'].includes(suggestion.confidence)).toBeTruthy();
+      expect(
+        ['high', 'very-high'].includes(suggestion.confidence)
+      ).toBeTruthy();
     });
 
     test('should handle board with multiple equally good moves', () => {
@@ -157,7 +169,9 @@ describe('Edge Cases and Boundary Conditions', () => {
     });
 
     test('should handle performance with large number of calculations', () => {
-      const emptyBoard = Array(5).fill().map(() => Array(5).fill(0));
+      const emptyBoard = Array(5)
+        .fill()
+        .map(() => Array(5).fill(0));
 
       const startTime = Date.now();
 
@@ -211,8 +225,22 @@ describe('Edge Cases and Boundary Conditions', () => {
 
       // Play exactly 8 rounds
       const moves = [
-        [0, 0], [0, 1], [0, 2], [0, 3], [0, 4], [1, 0], [1, 1], [1, 2],
-        [1, 3], [1, 4], [2, 0], [2, 1], [2, 2], [2, 3], [2, 4], [3, 0]
+        [0, 0],
+        [0, 1],
+        [0, 2],
+        [0, 3],
+        [0, 4],
+        [1, 0],
+        [1, 1],
+        [1, 2],
+        [1, 3],
+        [1, 4],
+        [2, 0],
+        [2, 1],
+        [2, 2],
+        [2, 3],
+        [2, 4],
+        [3, 0]
       ];
 
       for (let i = 0; i < 8; i++) {
@@ -263,7 +291,12 @@ describe('Edge Cases and Boundary Conditions', () => {
       engine.startGame();
 
       const invalidMoves = [
-        [-1, 0], [5, 0], [0, -1], [0, 5], [10, 10], [-5, -5]
+        [-1, 0],
+        [5, 0],
+        [0, -1],
+        [0, 5],
+        [10, 10],
+        [-5, -5]
       ];
 
       invalidMoves.forEach(([row, col]) => {
@@ -293,7 +326,12 @@ describe('Edge Cases and Boundary Conditions', () => {
       engine.startGame();
 
       // Make several moves and verify state consistency
-      const moves = [[0, 0], [1, 1], [2, 2], [3, 3]];
+      const moves = [
+        [0, 0],
+        [1, 1],
+        [2, 2],
+        [3, 3]
+      ];
 
       for (let i = 0; i < moves.length; i += 2) {
         const playerMove = moves[i];
@@ -310,11 +348,17 @@ describe('Edge Cases and Boundary Conditions', () => {
         expect(stateAfter.currentRound).toBe(stateBefore.currentRound + 1);
 
         // Verify move counts
-        expect(stateAfter.playerMoves.length).toBe(stateBefore.playerMoves.length + 1);
-        expect(stateAfter.computerMoves.length).toBe(stateBefore.computerMoves.length + 1);
+        expect(stateAfter.playerMoves.length).toBe(
+          stateBefore.playerMoves.length + 1
+        );
+        expect(stateAfter.computerMoves.length).toBe(
+          stateBefore.computerMoves.length + 1
+        );
 
         // Verify remaining moves decreased
-        expect(stateAfter.remainingMoves.length).toBe(stateBefore.remainingMoves.length - 2);
+        expect(stateAfter.remainingMoves.length).toBe(
+          stateBefore.remainingMoves.length - 2
+        );
       }
     });
   });
@@ -345,18 +389,22 @@ describe('Edge Cases and Boundary Conditions', () => {
     });
 
     test('should handle concurrent operations', () => {
-      const emptyBoard = Array(5).fill().map(() => Array(5).fill(0));
+      const emptyBoard = Array(5)
+        .fill()
+        .map(() => Array(5).fill(0));
 
       // Simulate concurrent calculations
       const promises = [];
 
       for (let i = 0; i < 10; i++) {
-        promises.push(new Promise(resolve => {
-          setTimeout(() => {
-            const result = calculator.getBestSuggestion(emptyBoard);
-            resolve(result);
-          }, Math.random() * 100);
-        }));
+        promises.push(
+          new Promise(resolve => {
+            setTimeout(() => {
+              const result = calculator.getBestSuggestion(emptyBoard);
+              resolve(result);
+            }, Math.random() * 100);
+          })
+        );
       }
 
       return Promise.all(promises).then(results => {
@@ -376,7 +424,7 @@ describe('Edge Cases and Boundary Conditions', () => {
       const originalCalculate = calculator.calculateMoveValue;
       let failCount = 0;
 
-      calculator.calculateMoveValue = function(board, row, col) {
+      calculator.calculateMoveValue = function (board, row, col) {
         failCount++;
         if (failCount <= 2) {
           throw new Error('Simulated calculation error');
@@ -384,7 +432,9 @@ describe('Edge Cases and Boundary Conditions', () => {
         return originalCalculate.call(this, board, row, col);
       };
 
-      const emptyBoard = Array(5).fill().map(() => Array(5).fill(0));
+      const emptyBoard = Array(5)
+        .fill()
+        .map(() => Array(5).fill(0));
 
       // Should eventually succeed after failures
       try {
@@ -392,7 +442,9 @@ describe('Edge Cases and Boundary Conditions', () => {
         expect(result).toBeGreaterThanOrEqual(0);
       } catch (error) {
         // If it still fails, that's acceptable for this test
-        expect(error.message.includes('Simulated calculation error')).toBeTruthy();
+        expect(
+          error.message.includes('Simulated calculation error')
+        ).toBeTruthy();
       }
 
       // Restore original method

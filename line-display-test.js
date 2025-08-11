@@ -84,7 +84,7 @@ function testLineDetection() {
     [2, 0, 0, 0, 2], // 反對角線的一部分
     [2, 0, 1, 0, 2],
     [2, 0, 0, 1, 2],
-    [2, 0, 0, 0, 1]  // 垂直線 + 反對角線
+    [2, 0, 0, 0, 1] // 垂直線 + 反對角線
   ];
 
   const multipleLines = lineDetector.getAllLines(multipleBoard);
@@ -115,8 +115,8 @@ function testLineTypeMapping() {
   console.log('\n=== 連線類型映射測試 ===');
 
   const lineTypes = {
-    'horizontal': 'horizontal-line',
-    'vertical': 'vertical-line',
+    horizontal: 'horizontal-line',
+    vertical: 'vertical-line',
     'diagonal-main': 'diagonal-line',
     'diagonal-anti': 'anti-diagonal-line'
   };

@@ -4,7 +4,7 @@
 
 // 模擬 DOM 環境
 global.document = {
-  createElement: (tag) => ({
+  createElement: tag => ({
     id: '',
     className: '',
     classList: {
@@ -22,7 +22,7 @@ global.document = {
     textContent: '',
     innerHTML: ''
   }),
-  getElementById: (id) => ({
+  getElementById: id => ({
     id,
     classList: {
       add: () => {},
@@ -48,7 +48,7 @@ global.document = {
 };
 
 global.window = {
-  matchMedia: (query) => ({
+  matchMedia: query => ({
     matches: false,
     addEventListener: () => {},
     removeEventListener: () => {}
@@ -56,10 +56,9 @@ global.window = {
 };
 
 describe('Accessibility Features', () => {
-
   test('should detect reduced motion preference', () => {
     // 模擬減少動畫偏好
-    global.window.matchMedia = (query) => ({
+    global.window.matchMedia = query => ({
       matches: query === '(prefers-reduced-motion: reduce)',
       addEventListener: () => {},
       removeEventListener: () => {}
@@ -72,7 +71,7 @@ describe('Accessibility Features', () => {
 
   test('should detect high contrast preference', () => {
     // 模擬高對比度偏好
-    global.window.matchMedia = (query) => ({
+    global.window.matchMedia = query => ({
       matches: query === '(prefers-contrast: high)',
       addEventListener: () => {},
       removeEventListener: () => {}
@@ -83,7 +82,7 @@ describe('Accessibility Features', () => {
 
   test('should detect dark mode preference', () => {
     // 模擬深色模式偏好
-    global.window.matchMedia = (query) => ({
+    global.window.matchMedia = query => ({
       matches: query === '(prefers-color-scheme: dark)',
       addEventListener: () => {},
       removeEventListener: () => {}
@@ -146,11 +145,7 @@ describe('Accessibility Features', () => {
   });
 
   test('should support focus management', () => {
-    const focusableElements = [
-      'button',
-      'game-cell',
-      'game-board'
-    ];
+    const focusableElements = ['button', 'game-cell', 'game-board'];
 
     focusableElements.forEach(element => {
       expect(element).toBeTruthy();

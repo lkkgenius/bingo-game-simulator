@@ -33,15 +33,15 @@ class ErrorBoundary {
   }
 
   /**
-     * 初始化錯誤邊界
-     */
+   * 初始化錯誤邊界
+   */
   init() {
     if (this.isInitialized) {
       return;
     }
 
     // 捕獲未處理的 JavaScript 錯誤
-    window.addEventListener('error', (event) => {
+    window.addEventListener('error', event => {
       this.handleError({
         type: 'javascript',
         message: event.message,
@@ -54,26 +54,32 @@ class ErrorBoundary {
     });
 
     // 捕獲未處理的 Promise 拒絕
-    window.addEventListener('unhandledrejection', (event) => {
+    window.addEventListener('unhandledrejection', event => {
       this.handleError({
         type: 'promise',
-        message: event.reason ? event.reason.message : 'Unhandled promise rejection',
+        message: event.reason
+          ? event.reason.message
+          : 'Unhandled promise rejection',
         error: event.reason,
         stack: event.reason ? event.reason.stack : null
       });
     });
 
     // 捕獲資源載入錯誤
-    window.addEventListener('error', (event) => {
-      if (event.target !== window) {
-        this.handleError({
-          type: 'resource',
-          message: `Failed to load resource: ${event.target.src || event.target.href}`,
-          element: event.target.tagName,
-          source: event.target.src || event.target.href
-        });
-      }
-    }, true);
+    window.addEventListener(
+      'error',
+      event => {
+        if (event.target !== window) {
+          this.handleError({
+            type: 'resource',
+            message: `Failed to load resource: ${event.target.src || event.target.href}`,
+            element: event.target.tagName,
+            source: event.target.src || event.target.href
+          });
+        }
+      },
+      true
+    );
 
     this.isInitialized = true;
     if (errorLogger) {
@@ -82,8 +88,8 @@ class ErrorBoundary {
   }
 
   /**
-     * 處理錯誤
-     */
+   * 處理錯誤
+   */
   handleError(errorInfo) {
     const errorEntry = {
       ...errorInfo,
@@ -133,8 +139,8 @@ class ErrorBoundary {
   }
 
   /**
-     * 檢查是否為非致命錯誤
-     */
+   * 檢查是否為非致命錯誤
+   */
   isNonFatalError(errorEntry) {
     const nonFatalPatterns = [
       /Script error/i,
@@ -144,15 +150,16 @@ class ErrorBoundary {
       /Script loader not available/i
     ];
 
-    return nonFatalPatterns.some(pattern =>
-      pattern.test(errorEntry.message) ||
-            pattern.test(errorEntry.error?.message || '')
+    return nonFatalPatterns.some(
+      pattern =>
+        pattern.test(errorEntry.message) ||
+        pattern.test(errorEntry.error?.message || '')
     );
   }
 
   /**
-     * 記錄錯誤
-     */
+   * 記錄錯誤
+   */
   logError(errorEntry) {
     this.errorLog.push(errorEntry);
 
@@ -171,8 +178,8 @@ class ErrorBoundary {
   }
 
   /**
-     * 顯示用戶友好的錯誤訊息
-     */
+   * 顯示用戶友好的錯誤訊息
+   */
   showUserError(errorEntry) {
     const errorMessages = {
       script: '應用程式遇到了一個錯誤，正在嘗試恢復...',
@@ -195,14 +202,15 @@ class ErrorBoundary {
   }
 
   /**
-     * 顯示錯誤通知
-     */
+   * 顯示錯誤通知
+   */
   showErrorNotification(message, errorEntry) {
     // 檢查是否已經有錯誤通知顯示
     const existingNotification = document.querySelector('.error-notification');
     if (existingNotification) {
       // 更新現有通知而不是創建新的
-      const messageElement = existingNotification.querySelector('.error-message');
+      const messageElement =
+        existingNotification.querySelector('.error-message');
       if (messageElement) {
         messageElement.textContent = message;
       }
@@ -217,59 +225,61 @@ class ErrorBoundary {
         'aria-live': 'assertive',
         'aria-atomic': 'true'
       },
-      children: [{
-        tag: 'div',
-        attributes: { class: 'error-notification-content' },
-        children: [
-          {
-            tag: 'div',
-            attributes: {
-              class: 'error-icon',
-              'aria-hidden': 'true'
-            },
-            textContent: this.getErrorIcon(errorEntry.type)
-          },
-          {
-            tag: 'div',
-            attributes: { class: 'error-message' },
-            textContent: message
-          },
-          {
-            tag: 'div',
-            attributes: {
-              class: 'error-actions',
-              role: 'group',
-              'aria-label': '錯誤處理選項'
-            },
-            children: [
-              {
-                tag: 'button',
-                attributes: {
-                  class: 'error-retry-btn',
-                  'aria-label': '重試上次操作'
-                },
-                textContent: '重試'
+      children: [
+        {
+          tag: 'div',
+          attributes: { class: 'error-notification-content' },
+          children: [
+            {
+              tag: 'div',
+              attributes: {
+                class: 'error-icon',
+                'aria-hidden': 'true'
               },
-              {
-                tag: 'button',
-                attributes: {
-                  class: 'error-dismiss-btn',
-                  'aria-label': '關閉錯誤通知'
-                },
-                textContent: '關閉'
+              textContent: this.getErrorIcon(errorEntry.type)
+            },
+            {
+              tag: 'div',
+              attributes: { class: 'error-message' },
+              textContent: message
+            },
+            {
+              tag: 'div',
+              attributes: {
+                class: 'error-actions',
+                role: 'group',
+                'aria-label': '錯誤處理選項'
               },
-              {
-                tag: 'button',
-                attributes: {
-                  class: 'error-report-btn',
-                  'aria-label': '回報此問題'
+              children: [
+                {
+                  tag: 'button',
+                  attributes: {
+                    class: 'error-retry-btn',
+                    'aria-label': '重試上次操作'
+                  },
+                  textContent: '重試'
                 },
-                textContent: '回報問題'
-              }
-            ]
-          }
-        ]
-      }]
+                {
+                  tag: 'button',
+                  attributes: {
+                    class: 'error-dismiss-btn',
+                    'aria-label': '關閉錯誤通知'
+                  },
+                  textContent: '關閉'
+                },
+                {
+                  tag: 'button',
+                  attributes: {
+                    class: 'error-report-btn',
+                    'aria-label': '回報此問題'
+                  },
+                  textContent: '回報問題'
+                }
+              ]
+            }
+          ]
+        }
+      ]
     });
 
     // 添加增強樣式
@@ -398,7 +408,7 @@ class ErrorBoundary {
     });
 
     // 鍵盤支持
-    notification.addEventListener('keydown', (event) => {
+    notification.addEventListener('keydown', event => {
       if (event.key === 'Escape') {
         this.dismissNotification(notification);
       }
@@ -430,26 +440,27 @@ class ErrorBoundary {
   }
 
   /**
-     * 獲取錯誤圖標
-     */
+   * 獲取錯誤圖標
+   */
   getErrorIcon(errorType) {
     const icons = {
-      'javascript': '🚫',
-      'promise': '⚠️',
-      'resource': '📁',
-      'game': '🎮',
-      'network': '🌐',
-      'storage': '💾'
+      javascript: '🚫',
+      promise: '⚠️',
+      resource: '📁',
+      game: '🎮',
+      network: '🌐',
+      storage: '💾'
     };
 
     return icons[errorType] || '❌';
   }
 
   /**
-     * 優雅地關閉通知
-     */
+   * 優雅地關閉通知
+   */
   dismissNotification(notification) {
-    notification.style.animation = 'slideOutToRight 0.3s cubic-bezier(0.55, 0.085, 0.68, 0.53)';
+    notification.style.animation =
+      'slideOutToRight 0.3s cubic-bezier(0.55, 0.085, 0.68, 0.53)';
 
     setTimeout(() => {
       if (notification.parentNode) {
@@ -459,62 +470,64 @@ class ErrorBoundary {
   }
 
   /**
-     * 顯示錯誤頁面
-     */
+   * 顯示錯誤頁面
+   */
   showErrorPage(errorEntry) {
     const errorPage = SafeDOM.createStructure({
       tag: 'div',
       attributes: { class: 'error-page' },
-      children: [{
-        tag: 'div',
-        attributes: { class: 'error-page-content' },
-        children: [
-          {
-            tag: 'h1',
-            textContent: '應用程式遇到錯誤'
-          },
-          {
-            tag: 'p',
-            textContent: '很抱歉，應用程式遇到了一個無法恢復的錯誤。'
-          },
-          {
-            tag: 'div',
-            attributes: { class: 'error-details' },
-            children: [
-              {
-                tag: 'p',
-                children: [
-                  { tag: 'strong', textContent: '錯誤 ID:' },
-                  ` ${errorEntry.id}`
-                ]
-              },
-              {
-                tag: 'p',
-                children: [
-                  { tag: 'strong', textContent: '時間:' },
-                  ` ${new Date(errorEntry.timestamp).toLocaleString()}`
-                ]
-              }
-            ]
-          },
-          {
-            tag: 'div',
-            attributes: { class: 'error-actions' },
-            children: [
-              {
-                tag: 'button',
-                attributes: { class: 'reload-btn' },
-                textContent: '重新載入頁面'
-              },
-              {
-                tag: 'button',
-                attributes: { class: 'report-btn' },
-                textContent: '回報問題'
-              }
-            ]
-          }
-        ]
-      }]
+      children: [
+        {
+          tag: 'div',
+          attributes: { class: 'error-page-content' },
+          children: [
+            {
+              tag: 'h1',
+              textContent: '應用程式遇到錯誤'
+            },
+            {
+              tag: 'p',
+              textContent: '很抱歉，應用程式遇到了一個無法恢復的錯誤。'
+            },
+            {
+              tag: 'div',
+              attributes: { class: 'error-details' },
+              children: [
+                {
+                  tag: 'p',
+                  children: [
+                    { tag: 'strong', textContent: '錯誤 ID:' },
+                    ` ${errorEntry.id}`
+                  ]
+                },
+                {
+                  tag: 'p',
+                  children: [
+                    { tag: 'strong', textContent: '時間:' },
+                    ` ${new Date(errorEntry.timestamp).toLocaleString()}`
+                  ]
+                }
+              ]
+            },
+            {
+              tag: 'div',
+              attributes: { class: 'error-actions' },
+              children: [
+                {
+                  tag: 'button',
+                  attributes: { class: 'reload-btn' },
+                  textContent: '重新載入頁面'
+                },
+                {
+                  tag: 'button',
+                  attributes: { class: 'report-btn' },
+                  textContent: '回報問題'
+                }
+              ]
+            }
+          ]
+        }
+      ]
     });
 
     // 添加樣式
@@ -554,49 +567,51 @@ class ErrorBoundary {
   }
 
   /**
-     * 顯示錯誤回報對話框
-     */
+   * 顯示錯誤回報對話框
+   */
   showErrorReportDialog(errorEntry) {
     const dialog = SafeDOM.createStructure({
       tag: 'div',
       attributes: { class: 'error-report-dialog' },
-      children: [{
-        tag: 'div',
-        attributes: { class: 'dialog-content' },
-        children: [
-          {
-            tag: 'h3',
-            textContent: '回報錯誤'
-          },
-          {
-            tag: 'p',
-            textContent: '請描述發生錯誤時您正在做什麼：'
-          },
-          {
-            tag: 'textarea',
-            attributes: {
-              class: 'error-description',
-              placeholder: '請描述您的操作步驟...'
-            }
-          },
-          {
-            tag: 'div',
-            attributes: { class: 'dialog-actions' },
-            children: [
-              {
-                tag: 'button',
-                attributes: { class: 'send-report-btn' },
-                textContent: '發送回報'
-              },
-              {
-                tag: 'button',
-                attributes: { class: 'cancel-btn' },
-                textContent: '取消'
+      children: [
+        {
+          tag: 'div',
+          attributes: { class: 'dialog-content' },
+          children: [
+            {
+              tag: 'h3',
+              textContent: '回報錯誤'
+            },
+            {
+              tag: 'p',
+              textContent: '請描述發生錯誤時您正在做什麼：'
+            },
+            {
+              tag: 'textarea',
+              attributes: {
+                class: 'error-description',
+                placeholder: '請描述您的操作步驟...'
               }
-            ]
-          }
-        ]
-      }]
+            },
+            {
+              tag: 'div',
+              attributes: { class: 'dialog-actions' },
+              children: [
+                {
+                  tag: 'button',
+                  attributes: { class: 'send-report-btn' },
+                  textContent: '發送回報'
+                },
+                {
+                  tag: 'button',
+                  attributes: { class: 'cancel-btn' },
+                  textContent: '取消'
+                }
+              ]
+            }
+          ]
+        }
+      ]
     });
 
     // 添加樣式
@@ -628,27 +643,27 @@ class ErrorBoundary {
   }
 
   /**
-     * 嘗試恢復應用程式狀態
-     */
+   * 嘗試恢復應用程式狀態
+   */
   attemptRecovery(errorEntry) {
     switch (errorEntry.type) {
-    case 'game':
-      this.recoverGameState();
-      break;
-    case 'storage':
-      this.recoverStorageState();
-      break;
-    case 'network':
-      this.recoverNetworkState();
-      break;
-    default:
-      this.performGeneralRecovery();
+      case 'game':
+        this.recoverGameState();
+        break;
+      case 'storage':
+        this.recoverStorageState();
+        break;
+      case 'network':
+        this.recoverNetworkState();
+        break;
+      default:
+        this.performGeneralRecovery();
     }
   }
 
   /**
-     * 恢復遊戲狀態
-     */
+   * 恢復遊戲狀態
+   */
   recoverGameState() {
     try {
       // 重置遊戲到安全狀態
@@ -657,7 +672,10 @@ class ErrorBoundary {
       }
 
       // 重新初始化遊戲組件
-      if (window.initializeGame && typeof window.initializeGame === 'function') {
+      if (
+        window.initializeGame &&
+        typeof window.initializeGame === 'function'
+      ) {
         window.initializeGame();
       }
 
@@ -672,8 +690,8 @@ class ErrorBoundary {
   }
 
   /**
-     * 恢復存儲狀態
-     */
+   * 恢復存儲狀態
+   */
   recoverStorageState() {
     try {
       // 清理可能損壞的本地存儲
@@ -703,8 +721,8 @@ class ErrorBoundary {
   }
 
   /**
-     * 恢復網路狀態
-     */
+   * 恢復網路狀態
+   */
   recoverNetworkState() {
     // 檢查網路連接
     if (navigator.onLine) {
@@ -720,8 +738,8 @@ class ErrorBoundary {
   }
 
   /**
-     * 執行一般恢復
-     */
+   * 執行一般恢復
+   */
   performGeneralRecovery() {
     try {
       // 清理可能的記憶體洩漏
@@ -741,8 +759,8 @@ class ErrorBoundary {
   }
 
   /**
-     * 清理記憶體
-     */
+   * 清理記憶體
+   */
   cleanupMemory() {
     // 清理定時器
     const highestTimeoutId = setTimeout(() => {}, 0);
@@ -758,18 +776,21 @@ class ErrorBoundary {
   }
 
   /**
-     * 重新初始化關鍵組件
-     */
+   * 重新初始化關鍵組件
+   */
   reinitializeCriticalComponents() {
     // 這裡可以重新初始化關鍵的應用程式組件
-    if (window.setupUIEventListeners && typeof window.setupUIEventListeners === 'function') {
+    if (
+      window.setupUIEventListeners &&
+      typeof window.setupUIEventListeners === 'function'
+    ) {
       window.setupUIEventListeners();
     }
   }
 
   /**
-     * 啟用離線模式
-     */
+   * 啟用離線模式
+   */
   enableOfflineMode() {
     document.body.classList.add('offline-mode');
 
@@ -793,8 +814,8 @@ class ErrorBoundary {
   }
 
   /**
-     * 註冊錯誤處理器
-     */
+   * 註冊錯誤處理器
+   */
   registerErrorHandler(type, handler) {
     if (!this.errorHandlers.has(type)) {
       this.errorHandlers.set(type, []);
@@ -803,8 +824,8 @@ class ErrorBoundary {
   }
 
   /**
-     * 移除錯誤處理器
-     */
+   * 移除錯誤處理器
+   */
   removeErrorHandler(type, handler) {
     const handlers = this.errorHandlers.get(type);
     if (handlers) {
@@ -816,8 +837,8 @@ class ErrorBoundary {
   }
 
   /**
-     * 判斷是否為嚴重錯誤
-     */
+   * 判斷是否為嚴重錯誤
+   */
   isCriticalError(errorEntry) {
     const criticalPatterns = [
       /Cannot read property/,
@@ -832,15 +853,20 @@ class ErrorBoundary {
   }
 
   /**
-     * 生成錯誤 ID
-     */
+   * 生成錯誤 ID
+   */
   generateErrorId() {
-    return 'ERR_' + Date.now().toString(36) + '_' + Math.random().toString(36).substr(2, 5);
+    return (
+      'ERR_' +
+      Date.now().toString(36) +
+      '_' +
+      Math.random().toString(36).substr(2, 5)
+    );
   }
 
   /**
-     * 重試最後一個操作
-     */
+   * 重試最後一個操作
+   */
   retryLastAction() {
     // 這裡可以實現重試邏輯
     if (errorLogger) {
@@ -850,8 +876,8 @@ class ErrorBoundary {
   }
 
   /**
-     * 發送錯誤到追蹤服務
-     */
+   * 發送錯誤到追蹤服務
+   */
   sendToErrorTracking(errorEntry) {
     // 這裡可以發送錯誤到外部追蹤服務
     // 例如 Sentry, LogRocket 等
@@ -861,8 +887,8 @@ class ErrorBoundary {
   }
 
   /**
-     * 發送錯誤回報
-     */
+   * 發送錯誤回報
+   */
   sendErrorReport(errorEntry, userDescription) {
     const report = {
       ...errorEntry,
@@ -888,22 +914,22 @@ class ErrorBoundary {
   }
 
   /**
-     * 獲取錯誤日誌
-     */
+   * 獲取錯誤日誌
+   */
   getErrorLog() {
     return [...this.errorLog];
   }
 
   /**
-     * 清除錯誤日誌
-     */
+   * 清除錯誤日誌
+   */
   clearErrorLog() {
     this.errorLog = [];
   }
 
   /**
-     * 獲取錯誤統計
-     */
+   * 獲取錯誤統計
+   */
   getErrorStats() {
     const stats = {
       total: this.errorLog.length,

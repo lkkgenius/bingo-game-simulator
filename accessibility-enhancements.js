@@ -26,8 +26,8 @@ class AccessibilityEnhancer {
   }
 
   /**
-     * Initialize accessibility enhancements
-     */
+   * Initialize accessibility enhancements
+   */
   init() {
     if (this.isInitialized) return;
 
@@ -50,18 +50,20 @@ class AccessibilityEnhancer {
   }
 
   /**
-     * Detect user accessibility preferences
-     */
+   * Detect user accessibility preferences
+   */
   detectUserPreferences() {
     // Detect screen reader
     this.screenReaderActive = this.detectScreenReader();
 
     // Detect reduced motion preference
     if (window.matchMedia) {
-      const reducedMotionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+      const reducedMotionQuery = window.matchMedia(
+        '(prefers-reduced-motion: reduce)'
+      );
       this.reducedMotionMode = reducedMotionQuery.matches;
 
-      reducedMotionQuery.addEventListener('change', (e) => {
+      reducedMotionQuery.addEventListener('change', e => {
         this.reducedMotionMode = e.matches;
         this.applyMotionPreferences();
       });
@@ -72,7 +74,7 @@ class AccessibilityEnhancer {
       const highContrastQuery = window.matchMedia('(prefers-contrast: high)');
       this.highContrastMode = highContrastQuery.matches;
 
-      highContrastQuery.addEventListener('change', (e) => {
+      highContrastQuery.addEventListener('change', e => {
         this.highContrastMode = e.matches;
         this.applyContrastPreferences();
       });
@@ -91,8 +93,8 @@ class AccessibilityEnhancer {
   }
 
   /**
-     * Detect if screen reader is active
-     */
+   * Detect if screen reader is active
+   */
   detectScreenReader() {
     // Multiple methods to detect screen reader
     const indicators = [
@@ -113,8 +115,8 @@ class AccessibilityEnhancer {
   }
 
   /**
-     * Setup enhanced screen reader support
-     */
+   * Setup enhanced screen reader support
+   */
   setupScreenReaderSupport() {
     // Create live region for announcements
     this.createLiveRegion();
@@ -130,8 +132,8 @@ class AccessibilityEnhancer {
   }
 
   /**
-     * Create ARIA live region for screen reader announcements
-     */
+   * Create ARIA live region for screen reader announcements
+   */
   createLiveRegion() {
     // Remove existing live region
     const existingRegion = document.getElementById('sr-live-region');
@@ -160,12 +162,13 @@ class AccessibilityEnhancer {
   }
 
   /**
-     * Announce message to screen readers
-     */
+   * Announce message to screen readers
+   */
   announce(message, priority = 'polite') {
     if (!message || message === this.lastAnnouncement) return;
 
-    const regionId = priority === 'assertive' ? 'sr-assertive-region' : 'sr-live-region';
+    const regionId =
+      priority === 'assertive' ? 'sr-assertive-region' : 'sr-live-region';
     const region = document.getElementById(regionId);
 
     if (region) {
@@ -191,25 +194,25 @@ class AccessibilityEnhancer {
   }
 
   /**
-     * Setup game state announcements
-     */
+   * Setup game state announcements
+   */
   setupGameStateAnnouncements() {
     // Listen for game state changes
-    document.addEventListener('gameStateChanged', (event) => {
+    document.addEventListener('gameStateChanged', event => {
       const { phase, round, completedLines } = event.detail;
 
       let announcement = '';
 
       switch (phase) {
-      case 'player-turn':
-        announcement = `第 ${round} 輪，輪到您下棋。已完成 ${completedLines} 條連線。`;
-        break;
-      case 'computer-turn':
-        announcement = `第 ${round} 輪，電腦回合。請選擇電腦的位置。`;
-        break;
-      case 'game-over':
-        announcement = `遊戲結束！總共完成了 ${completedLines} 條連線。`;
-        break;
+        case 'player-turn':
+          announcement = `第 ${round} 輪，輪到您下棋。已完成 ${completedLines} 條連線。`;
+          break;
+        case 'computer-turn':
+          announcement = `第 ${round} 輪，電腦回合。請選擇電腦的位置。`;
+          break;
+        case 'game-over':
+          announcement = `遊戲結束！總共完成了 ${completedLines} 條連線。`;
+          break;
       }
 
       if (announcement) {
@@ -219,10 +222,10 @@ class AccessibilityEnhancer {
   }
 
   /**
-     * Setup move announcements
-     */
+   * Setup move announcements
+   */
   setupMoveAnnouncements() {
-    document.addEventListener('moveCompleted', (event) => {
+    document.addEventListener('moveCompleted', event => {
       const { player, position, isValid } = event.detail;
 
       if (isValid) {
@@ -236,18 +239,18 @@ class AccessibilityEnhancer {
   }
 
   /**
-     * Setup error announcements
-     */
+   * Setup error announcements
+   */
   setupErrorAnnouncements() {
-    document.addEventListener('gameError', (event) => {
+    document.addEventListener('gameError', event => {
       const { message, type } = event.detail;
       this.announce(`錯誤：${message}`, 'assertive');
     });
   }
 
   /**
-     * Enhance keyboard navigation
-     */
+   * Enhance keyboard navigation
+   */
   enhanceKeyboardNavigation() {
     this.keyboardNavigationEnabled = true;
 
@@ -265,8 +268,8 @@ class AccessibilityEnhancer {
   }
 
   /**
-     * Setup game board keyboard navigation
-     */
+   * Setup game board keyboard navigation
+   */
   setupGameBoardKeyboardNav() {
     const gameBoard = document.getElementById('game-board');
     if (!gameBoard) return;
@@ -277,10 +280,13 @@ class AccessibilityEnhancer {
     // Make game board focusable
     gameBoard.setAttribute('tabindex', '0');
     gameBoard.setAttribute('role', 'grid');
-    gameBoard.setAttribute('aria-label', '5x5 Bingo 遊戲板，使用方向鍵導航，按 Enter 選擇');
+    gameBoard.setAttribute(
+      'aria-label',
+      '5x5 Bingo 遊戲板，使用方向鍵導航，按 Enter 選擇'
+    );
 
     // Keyboard event handler
-    const handleKeyDown = (event) => {
+    const handleKeyDown = event => {
       if (!gameState || !gameState.gameStarted || gameState.gameEnded) {
         return;
       }
@@ -290,39 +296,39 @@ class AccessibilityEnhancer {
       const oldCol = focusedCol;
 
       switch (event.key) {
-      case 'ArrowUp':
-        focusedRow = Math.max(0, focusedRow - 1);
-        handled = true;
-        break;
-      case 'ArrowDown':
-        focusedRow = Math.min(4, focusedRow + 1);
-        handled = true;
-        break;
-      case 'ArrowLeft':
-        focusedCol = Math.max(0, focusedCol - 1);
-        handled = true;
-        break;
-      case 'ArrowRight':
-        focusedCol = Math.min(4, focusedCol + 1);
-        handled = true;
-        break;
-      case 'Home':
-        focusedRow = 0;
-        focusedCol = 0;
-        handled = true;
-        break;
-      case 'End':
-        focusedRow = 4;
-        focusedCol = 4;
-        handled = true;
-        break;
-      case 'Enter':
-      case ' ':
-        if (typeof handleCellClick === 'function') {
-          handleCellClick(focusedRow, focusedCol);
-        }
-        handled = true;
-        break;
+        case 'ArrowUp':
+          focusedRow = Math.max(0, focusedRow - 1);
+          handled = true;
+          break;
+        case 'ArrowDown':
+          focusedRow = Math.min(4, focusedRow + 1);
+          handled = true;
+          break;
+        case 'ArrowLeft':
+          focusedCol = Math.max(0, focusedCol - 1);
+          handled = true;
+          break;
+        case 'ArrowRight':
+          focusedCol = Math.min(4, focusedCol + 1);
+          handled = true;
+          break;
+        case 'Home':
+          focusedRow = 0;
+          focusedCol = 0;
+          handled = true;
+          break;
+        case 'End':
+          focusedRow = 4;
+          focusedCol = 4;
+          handled = true;
+          break;
+        case 'Enter':
+        case ' ':
+          if (typeof handleCellClick === 'function') {
+            handleCellClick(focusedRow, focusedCol);
+          }
+          handled = true;
+          break;
       }
 
       if (handled) {
@@ -343,8 +349,8 @@ class AccessibilityEnhancer {
   }
 
   /**
-     * Setup menu keyboard navigation
-     */
+   * Setup menu keyboard navigation
+   */
   setupMenuKeyboardNav() {
     // Setup keyboard navigation for algorithm selector
     const algorithmOptions = document.querySelectorAll('.algorithm-option');
@@ -352,7 +358,7 @@ class AccessibilityEnhancer {
       option.setAttribute('tabindex', '0');
       option.setAttribute('role', 'button');
 
-      option.addEventListener('keydown', (event) => {
+      option.addEventListener('keydown', event => {
         if (event.key === 'Enter' || event.key === ' ') {
           event.preventDefault();
           option.click();
@@ -363,7 +369,7 @@ class AccessibilityEnhancer {
     // Setup keyboard navigation for language selector
     const languageOptions = document.querySelectorAll('.language-option');
     languageOptions.forEach((option, index) => {
-      option.addEventListener('keydown', (event) => {
+      option.addEventListener('keydown', event => {
         if (event.key === 'Enter' || event.key === ' ') {
           event.preventDefault();
           option.click();
@@ -373,8 +379,8 @@ class AccessibilityEnhancer {
   }
 
   /**
-     * Update keyboard focus visual indicator
-     */
+   * Update keyboard focus visual indicator
+   */
   updateKeyboardFocus(row, col) {
     // Remove all existing focus indicators
     document.querySelectorAll('.game-cell.keyboard-focus').forEach(cell => {
@@ -400,8 +406,8 @@ class AccessibilityEnhancer {
   }
 
   /**
-     * Announce current position for screen readers
-     */
+   * Announce current position for screen readers
+   */
   announceCurrentPosition(row, col) {
     if (!gameState) return;
 
@@ -410,14 +416,14 @@ class AccessibilityEnhancer {
 
     let stateText = '';
     switch (cellState) {
-    case 1:
-      stateText = '玩家已選擇';
-      break;
-    case 2:
-      stateText = '電腦已選擇';
-      break;
-    default:
-      stateText = '空格子';
+      case 1:
+        stateText = '玩家已選擇';
+        break;
+      case 2:
+        stateText = '電腦已選擇';
+        break;
+      default:
+        stateText = '空格子';
     }
 
     const positionText = `第 ${row + 1} 行第 ${col + 1} 列`;
@@ -425,8 +431,8 @@ class AccessibilityEnhancer {
   }
 
   /**
-     * Setup skip links for keyboard navigation
-     */
+   * Setup skip links for keyboard navigation
+   */
   setupSkipLinks() {
     const skipLinks = SafeDOM.createStructure({
       tag: 'div',
@@ -464,60 +470,63 @@ class AccessibilityEnhancer {
   }
 
   /**
-     * Setup keyboard shortcuts
-     */
+   * Setup keyboard shortcuts
+   */
   setupKeyboardShortcuts() {
-    document.addEventListener('keydown', (event) => {
+    document.addEventListener('keydown', event => {
       // Only handle shortcuts when not in input fields
-      if (event.target.tagName === 'INPUT' || event.target.tagName === 'TEXTAREA') {
+      if (
+        event.target.tagName === 'INPUT' ||
+        event.target.tagName === 'TEXTAREA'
+      ) {
         return;
       }
 
       // Ctrl/Cmd + shortcuts
       if (event.ctrlKey || event.metaKey) {
         switch (event.key) {
-        case 'r':
-          event.preventDefault();
-          const restartBtn = document.getElementById('restart-game');
-          if (restartBtn && !restartBtn.disabled) {
-            restartBtn.click();
-          }
-          break;
-        case 'n':
-          event.preventDefault();
-          const startBtn = document.getElementById('start-game');
-          if (startBtn && !startBtn.disabled) {
-            startBtn.click();
-          }
-          break;
+          case 'r':
+            event.preventDefault();
+            const restartBtn = document.getElementById('restart-game');
+            if (restartBtn && !restartBtn.disabled) {
+              restartBtn.click();
+            }
+            break;
+          case 'n':
+            event.preventDefault();
+            const startBtn = document.getElementById('start-game');
+            if (startBtn && !startBtn.disabled) {
+              startBtn.click();
+            }
+            break;
         }
       }
 
       // Function key shortcuts
       switch (event.key) {
-      case 'F1':
-        event.preventDefault();
-        this.showKeyboardShortcutsHelp();
-        break;
-      case 'Escape':
-        // Close any open modals or return focus to game board
-        const modals = document.querySelectorAll('.modal, .error-modal');
-        if (modals.length > 0) {
-          modals[modals.length - 1].remove();
-        } else {
-          const gameBoard = document.getElementById('game-board');
-          if (gameBoard) {
-            gameBoard.focus();
+        case 'F1':
+          event.preventDefault();
+          this.showKeyboardShortcutsHelp();
+          break;
+        case 'Escape':
+          // Close any open modals or return focus to game board
+          const modals = document.querySelectorAll('.modal, .error-modal');
+          if (modals.length > 0) {
+            modals[modals.length - 1].remove();
+          } else {
+            const gameBoard = document.getElementById('game-board');
+            if (gameBoard) {
+              gameBoard.focus();
+            }
           }
-        }
-        break;
+          break;
       }
     });
   }
 
   /**
-     * Show keyboard shortcuts help
-     */
+   * Show keyboard shortcuts help
+   */
   showKeyboardShortcutsHelp() {
     const helpModal = SafeDOM.createStructure({
       tag: 'div',
@@ -527,83 +536,85 @@ class AccessibilityEnhancer {
         'aria-labelledby': 'shortcuts-title',
         'aria-modal': 'true'
       },
-      children: [{
-        tag: 'div',
-        attributes: { class: 'modal-content' },
-        children: [
-          {
-            tag: 'h2',
-            attributes: { id: 'shortcuts-title' },
-            textContent: '鍵盤快捷鍵'
-          },
-          {
-            tag: 'div',
-            attributes: { class: 'shortcuts-list' },
-            children: [
-              {
-                tag: 'div',
-                attributes: { class: 'shortcut-item' },
-                children: [
-                  { tag: 'kbd', textContent: '方向鍵' },
-                  { tag: 'span', textContent: '在遊戲板上導航' }
-                ]
-              },
-              {
-                tag: 'div',
-                attributes: { class: 'shortcut-item' },
-                children: [
-                  { tag: 'kbd', textContent: 'Enter / 空格' },
-                  { tag: 'span', textContent: '選擇格子' }
-                ]
-              },
-              {
-                tag: 'div',
-                attributes: { class: 'shortcut-item' },
-                children: [
-                  { tag: 'kbd', textContent: 'Ctrl+N' },
-                  { tag: 'span', textContent: '開始新遊戲' }
-                ]
-              },
-              {
-                tag: 'div',
-                attributes: { class: 'shortcut-item' },
-                children: [
-                  { tag: 'kbd', textContent: 'Ctrl+R' },
-                  { tag: 'span', textContent: '重新開始遊戲' }
-                ]
-              },
-              {
-                tag: 'div',
-                attributes: { class: 'shortcut-item' },
-                children: [
-                  { tag: 'kbd', textContent: 'F1' },
-                  { tag: 'span', textContent: '顯示此說明' }
-                ]
-              },
-              {
-                tag: 'div',
-                attributes: { class: 'shortcut-item' },
-                children: [
-                  { tag: 'kbd', textContent: 'Escape' },
-                  { tag: 'span', textContent: '關閉對話框' }
-                ]
-              }
-            ]
-          },
-          {
-            tag: 'button',
-            attributes: { class: 'modal-close-btn' },
-            textContent: '關閉'
-          }
-        ]
-      }]
+      children: [
+        {
+          tag: 'div',
+          attributes: { class: 'modal-content' },
+          children: [
+            {
+              tag: 'h2',
+              attributes: { id: 'shortcuts-title' },
+              textContent: '鍵盤快捷鍵'
+            },
+            {
+              tag: 'div',
+              attributes: { class: 'shortcuts-list' },
+              children: [
+                {
+                  tag: 'div',
+                  attributes: { class: 'shortcut-item' },
+                  children: [
+                    { tag: 'kbd', textContent: '方向鍵' },
+                    { tag: 'span', textContent: '在遊戲板上導航' }
+                  ]
+                },
+                {
+                  tag: 'div',
+                  attributes: { class: 'shortcut-item' },
+                  children: [
+                    { tag: 'kbd', textContent: 'Enter / 空格' },
+                    { tag: 'span', textContent: '選擇格子' }
+                  ]
+                },
+                {
+                  tag: 'div',
+                  attributes: { class: 'shortcut-item' },
+                  children: [
+                    { tag: 'kbd', textContent: 'Ctrl+N' },
+                    { tag: 'span', textContent: '開始新遊戲' }
+                  ]
+                },
+                {
+                  tag: 'div',
+                  attributes: { class: 'shortcut-item' },
+                  children: [
+                    { tag: 'kbd', textContent: 'Ctrl+R' },
+                    { tag: 'span', textContent: '重新開始遊戲' }
+                  ]
+                },
+                {
+                  tag: 'div',
+                  attributes: { class: 'shortcut-item' },
+                  children: [
+                    { tag: 'kbd', textContent: 'F1' },
+                    { tag: 'span', textContent: '顯示此說明' }
+                  ]
+                },
+                {
+                  tag: 'div',
+                  attributes: { class: 'shortcut-item' },
+                  children: [
+                    { tag: 'kbd', textContent: 'Escape' },
+                    { tag: 'span', textContent: '關閉對話框' }
+                  ]
+                }
+              ]
+            },
+            {
+              tag: 'button',
+              attributes: { class: 'modal-close-btn' },
+              textContent: '關閉'
+            }
+          ]
+        }
+      ]
     });
 
     // Add event listeners
     const closeBtn = helpModal.querySelector('.modal-close-btn');
     closeBtn.addEventListener('click', () => helpModal.remove());
 
-    helpModal.addEventListener('click', (e) => {
+    helpModal.addEventListener('click', e => {
       if (e.target === helpModal) {
         helpModal.remove();
       }
@@ -616,11 +627,11 @@ class AccessibilityEnhancer {
   }
 
   /**
-     * Setup focus management
-     */
+   * Setup focus management
+   */
   setupFocusManagement() {
     // Track focus changes
-    document.addEventListener('focusin', (event) => {
+    document.addEventListener('focusin', event => {
       this.focusedElement = event.target;
     });
 
@@ -632,8 +643,8 @@ class AccessibilityEnhancer {
   }
 
   /**
-     * Enhance focus indicators for better visibility
-     */
+   * Enhance focus indicators for better visibility
+   */
   enhanceFocusIndicators() {
     // Add enhanced focus styles
     const focusStyles = document.createElement('style');
@@ -667,13 +678,13 @@ class AccessibilityEnhancer {
   }
 
   /**
-     * Setup focus trapping for modals
-     */
+   * Setup focus trapping for modals
+   */
   setupFocusTrapping() {
     // Monitor for modal creation
-    const observer = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        mutation.addedNodes.forEach((node) => {
+    const observer = new MutationObserver(mutations => {
+      mutations.forEach(mutation => {
+        mutation.addedNodes.forEach(node => {
           if (node.nodeType === Node.ELEMENT_NODE) {
             if (node.classList && node.classList.contains('modal')) {
               this.trapFocusInModal(node);
@@ -687,8 +698,8 @@ class AccessibilityEnhancer {
   }
 
   /**
-     * Trap focus within a modal
-     */
+   * Trap focus within a modal
+   */
   trapFocusInModal(modal) {
     const focusableElements = modal.querySelectorAll(
       'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
@@ -703,7 +714,7 @@ class AccessibilityEnhancer {
     firstElement.focus();
 
     // Trap focus
-    const trapFocus = (event) => {
+    const trapFocus = event => {
       if (event.key === 'Tab') {
         if (event.shiftKey) {
           // Shift + Tab
@@ -724,9 +735,9 @@ class AccessibilityEnhancer {
     modal.addEventListener('keydown', trapFocus);
 
     // Remove trap when modal is removed
-    const removeObserver = new MutationObserver((mutations) => {
-      mutations.forEach((mutation) => {
-        mutation.removedNodes.forEach((node) => {
+    const removeObserver = new MutationObserver(mutations => {
+      mutations.forEach(mutation => {
+        mutation.removedNodes.forEach(node => {
           if (node === modal) {
             modal.removeEventListener('keydown', trapFocus);
             removeObserver.disconnect();
@@ -739,8 +750,8 @@ class AccessibilityEnhancer {
   }
 
   /**
-     * Implement ARIA enhancements
-     */
+   * Implement ARIA enhancements
+   */
   implementARIAEnhancements() {
     this.enhanceGameBoardARIA();
     this.enhanceControlsARIA();
@@ -749,8 +760,8 @@ class AccessibilityEnhancer {
   }
 
   /**
-     * Enhance game board ARIA attributes
-     */
+   * Enhance game board ARIA attributes
+   */
   enhanceGameBoardARIA() {
     const gameBoard = document.getElementById('game-board');
     if (!gameBoard) return;
@@ -777,8 +788,8 @@ class AccessibilityEnhancer {
   }
 
   /**
-     * Update cell ARIA attributes based on state
-     */
+   * Update cell ARIA attributes based on state
+   */
   updateCellARIA(cell, row, col) {
     if (!gameState) return;
 
@@ -789,17 +800,17 @@ class AccessibilityEnhancer {
     let ariaPressed = 'false';
 
     switch (cellState) {
-    case 1:
-      stateText = '玩家已選擇';
-      ariaPressed = 'true';
-      break;
-    case 2:
-      stateText = '電腦已選擇';
-      ariaPressed = 'true';
-      break;
-    default:
-      stateText = '空格子';
-      ariaPressed = 'false';
+      case 1:
+        stateText = '玩家已選擇';
+        ariaPressed = 'true';
+        break;
+      case 2:
+        stateText = '電腦已選擇';
+        ariaPressed = 'true';
+        break;
+      default:
+        stateText = '空格子';
+        ariaPressed = 'false';
     }
 
     const positionText = `第 ${row + 1} 行第 ${col + 1} 列`;
@@ -808,8 +819,8 @@ class AccessibilityEnhancer {
   }
 
   /**
-     * Enhance controls ARIA attributes
-     */
+   * Enhance controls ARIA attributes
+   */
   enhanceControlsARIA() {
     // Enhance start game button
     const startButton = document.getElementById('start-game');
@@ -837,8 +848,8 @@ class AccessibilityEnhancer {
   }
 
   /**
-     * Enhance status ARIA attributes
-     */
+   * Enhance status ARIA attributes
+   */
   enhanceStatusARIA() {
     const gameStatus = document.querySelector('.game-status');
     if (gameStatus) {
@@ -848,8 +859,8 @@ class AccessibilityEnhancer {
   }
 
   /**
-     * Setup ARIA updates
-     */
+   * Setup ARIA updates
+   */
   setupARIAUpdates() {
     // Listen for game state changes and update ARIA attributes
     document.addEventListener('gameStateChanged', () => {
@@ -858,8 +869,8 @@ class AccessibilityEnhancer {
   }
 
   /**
-     * Update game board ARIA attributes
-     */
+   * Update game board ARIA attributes
+   */
   updateGameBoardARIA() {
     const cells = document.querySelectorAll('.game-cell');
     cells.forEach((cell, index) => {
@@ -870,8 +881,8 @@ class AccessibilityEnhancer {
   }
 
   /**
-     * Setup color contrast enhancements
-     */
+   * Setup color contrast enhancements
+   */
   setupColorContrastEnhancements() {
     if (this.highContrastMode) {
       this.applyContrastPreferences();
@@ -882,8 +893,8 @@ class AccessibilityEnhancer {
   }
 
   /**
-     * Apply contrast preferences
-     */
+   * Apply contrast preferences
+   */
   applyContrastPreferences() {
     document.body.classList.toggle('high-contrast', this.highContrastMode);
 
@@ -928,8 +939,8 @@ class AccessibilityEnhancer {
   }
 
   /**
-     * Add contrast adjustment controls
-     */
+   * Add contrast adjustment controls
+   */
   addContrastControls() {
     const contrastControls = SafeDOM.createStructure({
       tag: 'div',
@@ -963,7 +974,10 @@ class AccessibilityEnhancer {
     const contrastBtn = contrastControls.querySelector('#toggle-high-contrast');
     contrastBtn.addEventListener('click', () => {
       this.highContrastMode = !this.highContrastMode;
-      contrastBtn.setAttribute('aria-pressed', this.highContrastMode.toString());
+      contrastBtn.setAttribute(
+        'aria-pressed',
+        this.highContrastMode.toString()
+      );
       this.applyContrastPreferences();
       this.saveAccessibilityPreferences();
     });
@@ -984,15 +998,15 @@ class AccessibilityEnhancer {
   }
 
   /**
-     * Setup motion preferences
-     */
+   * Setup motion preferences
+   */
   setupMotionPreferences() {
     this.applyMotionPreferences();
   }
 
   /**
-     * Apply motion preferences
-     */
+   * Apply motion preferences
+   */
   applyMotionPreferences() {
     document.body.classList.toggle('reduce-motion', this.reducedMotionMode);
 
@@ -1022,8 +1036,8 @@ class AccessibilityEnhancer {
   }
 
   /**
-     * Setup touch target optimization
-     */
+   * Setup touch target optimization
+   */
   setupTouchTargetOptimization() {
     // Ensure all interactive elements meet minimum touch target size
     const interactiveElements = document.querySelectorAll(
@@ -1033,9 +1047,10 @@ class AccessibilityEnhancer {
     interactiveElements.forEach(element => {
       const rect = element.getBoundingClientRect();
 
-      if (rect.width < this.wcagSettings.minTouchTargetSize ||
-                rect.height < this.wcagSettings.minTouchTargetSize) {
-
+      if (
+        rect.width < this.wcagSettings.minTouchTargetSize ||
+        rect.height < this.wcagSettings.minTouchTargetSize
+      ) {
         element.style.minWidth = `${this.wcagSettings.minTouchTargetSize}px`;
         element.style.minHeight = `${this.wcagSettings.minTouchTargetSize}px`;
         element.style.padding = element.style.padding || '8px';
@@ -1044,8 +1059,8 @@ class AccessibilityEnhancer {
   }
 
   /**
-     * Setup voice announcements
-     */
+   * Setup voice announcements
+   */
   setupVoiceAnnouncements() {
     // Check if speech synthesis is available
     if ('speechSynthesis' in window) {
@@ -1055,8 +1070,8 @@ class AccessibilityEnhancer {
   }
 
   /**
-     * Setup voice controls
-     */
+   * Setup voice controls
+   */
   setupVoiceControls() {
     const voiceControls = SafeDOM.createStructure({
       tag: 'div',
@@ -1083,7 +1098,9 @@ class AccessibilityEnhancer {
     });
 
     // Add to accessibility controls
-    const accessibilityControls = document.querySelector('.accessibility-controls');
+    const accessibilityControls = document.querySelector(
+      '.accessibility-controls'
+    );
     if (accessibilityControls) {
       accessibilityControls.appendChild(voiceControls);
     }
@@ -1104,8 +1121,8 @@ class AccessibilityEnhancer {
   }
 
   /**
-     * Save accessibility preferences
-     */
+   * Save accessibility preferences
+   */
   saveAccessibilityPreferences() {
     const preferences = {
       highContrastMode: this.highContrastMode,
@@ -1113,12 +1130,15 @@ class AccessibilityEnhancer {
       screenReaderActive: this.screenReaderActive
     };
 
-    localStorage.setItem('accessibility-preferences', JSON.stringify(preferences));
+    localStorage.setItem(
+      'accessibility-preferences',
+      JSON.stringify(preferences)
+    );
   }
 
   /**
-     * Apply user preferences
-     */
+   * Apply user preferences
+   */
   applyUserPreferences(preferences) {
     if (preferences.highContrastMode !== undefined) {
       this.highContrastMode = preferences.highContrastMode;
@@ -1132,8 +1152,8 @@ class AccessibilityEnhancer {
   }
 
   /**
-     * Get accessibility status
-     */
+   * Get accessibility status
+   */
   getAccessibilityStatus() {
     return {
       isInitialized: this.isInitialized,
@@ -1146,8 +1166,8 @@ class AccessibilityEnhancer {
   }
 
   /**
-     * Check WCAG compliance
-     */
+   * Check WCAG compliance
+   */
   checkWCAGCompliance() {
     const checks = {
       focusIndicators: this.checkFocusIndicators(),
@@ -1160,24 +1180,24 @@ class AccessibilityEnhancer {
   }
 
   /**
-     * Check focus indicators compliance
-     */
+   * Check focus indicators compliance
+   */
   checkFocusIndicators() {
     // This would implement actual contrast ratio checking
     return true; // Simplified for now
   }
 
   /**
-     * Check color contrast compliance
-     */
+   * Check color contrast compliance
+   */
   checkColorContrast() {
     // This would implement actual contrast ratio checking
     return true; // Simplified for now
   }
 
   /**
-     * Check touch targets compliance
-     */
+   * Check touch targets compliance
+   */
   checkTouchTargets() {
     const interactiveElements = document.querySelectorAll(
       'button, a, input, select, textarea, .game-cell, [role="button"]'
@@ -1185,19 +1205,21 @@ class AccessibilityEnhancer {
 
     return Array.from(interactiveElements).every(element => {
       const rect = element.getBoundingClientRect();
-      return rect.width >= this.wcagSettings.minTouchTargetSize &&
-                   rect.height >= this.wcagSettings.minTouchTargetSize;
+      return (
+        rect.width >= this.wcagSettings.minTouchTargetSize &&
+        rect.height >= this.wcagSettings.minTouchTargetSize
+      );
     });
   }
 
   /**
-     * Check ARIA labels compliance
-     */
+   * Check ARIA labels compliance
+   */
   checkARIALabels() {
     const elementsNeedingLabels = document.querySelectorAll(
       'button:not([aria-label]):not([aria-labelledby]), ' +
-            'input:not([aria-label]):not([aria-labelledby]):not([id]), ' +
-            '[role="button"]:not([aria-label]):not([aria-labelledby])'
+        'input:not([aria-label]):not([aria-labelledby]):not([id]), ' +
+        '[role="button"]:not([aria-label]):not([aria-labelledby])'
     );
 
     return elementsNeedingLabels.length === 0;

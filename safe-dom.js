@@ -5,10 +5,10 @@
 
 class SafeDOM {
   /**
-     * 安全地設置元素的文本內容
-     * @param {HTMLElement} element - 目標元素
-     * @param {string} text - 文本內容
-     */
+   * 安全地設置元素的文本內容
+   * @param {HTMLElement} element - 目標元素
+   * @param {string} text - 文本內容
+   */
   static setTextContent(element, text) {
     if (!element || typeof text !== 'string') {
       return;
@@ -17,12 +17,12 @@ class SafeDOM {
   }
 
   /**
-     * 安全地創建元素並設置屬性
-     * @param {string} tagName - 標籤名
-     * @param {Object} attributes - 屬性對象
-     * @param {string} textContent - 文本內容
-     * @returns {HTMLElement} 創建的元素
-     */
+   * 安全地創建元素並設置屬性
+   * @param {string} tagName - 標籤名
+   * @param {Object} attributes - 屬性對象
+   * @param {string} textContent - 文本內容
+   * @returns {HTMLElement} 創建的元素
+   */
   static createElement(tagName, attributes = {}, textContent = '') {
     const element = document.createElement(tagName);
 
@@ -41,9 +41,9 @@ class SafeDOM {
   }
 
   /**
-     * 安全地清空元素內容
-     * @param {HTMLElement} element - 目標元素
-     */
+   * 安全地清空元素內容
+   * @param {HTMLElement} element - 目標元素
+   */
   static clearContent(element) {
     if (!element) return;
 
@@ -53,10 +53,10 @@ class SafeDOM {
   }
 
   /**
-     * 安全地添加 CSS 類
-     * @param {HTMLElement} element - 目標元素
-     * @param {string|Array} classNames - 類名
-     */
+   * 安全地添加 CSS 類
+   * @param {HTMLElement} element - 目標元素
+   * @param {string|Array} classNames - 類名
+   */
   static addClass(element, classNames) {
     if (!element) return;
 
@@ -69,10 +69,10 @@ class SafeDOM {
   }
 
   /**
-     * 安全地移除 CSS 類
-     * @param {HTMLElement} element - 目標元素
-     * @param {string|Array} classNames - 類名
-     */
+   * 安全地移除 CSS 類
+   * @param {HTMLElement} element - 目標元素
+   * @param {string|Array} classNames - 類名
+   */
   static removeClass(element, classNames) {
     if (!element) return;
 
@@ -85,10 +85,10 @@ class SafeDOM {
   }
 
   /**
-     * 安全地設置元素樣式
-     * @param {HTMLElement} element - 目標元素
-     * @param {Object} styles - 樣式對象
-     */
+   * 安全地設置元素樣式
+   * @param {HTMLElement} element - 目標元素
+   * @param {Object} styles - 樣式對象
+   */
   static setStyles(element, styles) {
     if (!element || typeof styles !== 'object') return;
 
@@ -100,10 +100,10 @@ class SafeDOM {
   }
 
   /**
-     * 創建安全的 HTML 結構
-     * @param {Object} structure - HTML 結構描述
-     * @returns {HTMLElement} 創建的元素
-     */
+   * 創建安全的 HTML 結構
+   * @param {Object} structure - HTML 結構描述
+   * @returns {HTMLElement} 創建的元素
+   */
   static createStructure(structure) {
     const { tag, attributes = {}, children = [], textContent = '' } = structure;
 
@@ -121,10 +121,10 @@ class SafeDOM {
   }
 
   /**
-     * 安全地替換元素內容
-     * @param {HTMLElement} element - 目標元素
-     * @param {Object|Array} content - 內容結構
-     */
+   * 安全地替換元素內容
+   * @param {HTMLElement} element - 目標元素
+   * @param {Object|Array} content - 內容結構
+   */
   static replaceContent(element, content) {
     if (!element) return;
 
@@ -146,16 +146,24 @@ class SafeDOM {
   }
 
   /**
-     * 檢查屬性是否安全
-     * @param {string} key - 屬性名
-     * @param {string} value - 屬性值
-     * @returns {boolean} 是否安全
-     */
+   * 檢查屬性是否安全
+   * @param {string} key - 屬性名
+   * @param {string} value - 屬性值
+   * @returns {boolean} 是否安全
+   */
   static isSafeAttribute(key, value) {
     // 禁止的屬性
     const forbiddenAttributes = [
-      'onclick', 'onload', 'onerror', 'onmouseover', 'onmouseout',
-      'onfocus', 'onblur', 'onchange', 'onsubmit', 'onreset'
+      'onclick',
+      'onload',
+      'onerror',
+      'onmouseover',
+      'onmouseout',
+      'onfocus',
+      'onblur',
+      'onchange',
+      'onsubmit',
+      'onreset'
     ];
 
     if (forbiddenAttributes.includes(key.toLowerCase())) {
@@ -178,26 +186,24 @@ class SafeDOM {
   }
 
   /**
-     * 檢查類名是否安全
-     * @param {string} className - 類名
-     * @returns {boolean} 是否安全
-     */
+   * 檢查類名是否安全
+   * @param {string} className - 類名
+   * @returns {boolean} 是否安全
+   */
   static isSafeClassName(className) {
     // 只允許字母、數字、連字符和下劃線
     return /^[a-zA-Z0-9_-]+$/.test(className);
   }
 
   /**
-     * 檢查樣式屬性是否安全
-     * @param {string} property - 屬性名
-     * @param {string} value - 屬性值
-     * @returns {boolean} 是否安全
-     */
+   * 檢查樣式屬性是否安全
+   * @param {string} property - 屬性名
+   * @param {string} value - 屬性值
+   * @returns {boolean} 是否安全
+   */
   static isSafeStyleProperty(property, value) {
     // 禁止的樣式屬性
-    const forbiddenProperties = [
-      'behavior', 'binding', 'expression'
-    ];
+    const forbiddenProperties = ['behavior', 'binding', 'expression'];
 
     if (forbiddenProperties.includes(property.toLowerCase())) {
       return false;
@@ -219,12 +225,12 @@ class SafeDOM {
   }
 
   /**
-     * 安全地添加事件監聽器
-     * @param {HTMLElement} element - 目標元素
-     * @param {string} event - 事件名
-     * @param {Function} handler - 事件處理器
-     * @param {Object} options - 選項
-     */
+   * 安全地添加事件監聽器
+   * @param {HTMLElement} element - 目標元素
+   * @param {string} event - 事件名
+   * @param {Function} handler - 事件處理器
+   * @param {Object} options - 選項
+   */
   static addEventListener(element, event, handler, options = {}) {
     if (!element || typeof handler !== 'function') return;
 
@@ -235,11 +241,11 @@ class SafeDOM {
   }
 
   /**
-     * 創建安全的通知元素
-     * @param {string} message - 消息內容
-     * @param {string} type - 通知類型
-     * @returns {HTMLElement} 通知元素
-     */
+   * 創建安全的通知元素
+   * @param {string} message - 消息內容
+   * @param {string} type - 通知類型
+   * @returns {HTMLElement} 通知元素
+   */
   static createNotification(message, type = 'info') {
     const validTypes = ['info', 'success', 'warning', 'error'];
     const safeType = validTypes.includes(type) ? type : 'info';

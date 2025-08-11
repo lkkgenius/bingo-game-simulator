@@ -6,10 +6,12 @@
 // Environment detection
 const Environment = {
   isDevelopment: () => {
-    return window.location.hostname === 'localhost' ||
-           window.location.hostname === '127.0.0.1' ||
-           window.location.search.includes('debug=true') ||
-           window.location.search.includes('dev=true');
+    return (
+      window.location.hostname === 'localhost' ||
+      window.location.hostname === '127.0.0.1' ||
+      window.location.search.includes('debug=true') ||
+      window.location.search.includes('dev=true')
+    );
   },
 
   isProduction: () => {
@@ -35,9 +37,9 @@ class LoadingPerformanceMonitor {
 
     this.thresholds = {
       moduleLoadWarning: 1000, // 1 second
-      moduleLoadError: 5000,   // 5 seconds
-      totalLoadWarning: 3000,  // 3 seconds
-      totalLoadError: 10000    // 10 seconds
+      moduleLoadError: 5000, // 5 seconds
+      totalLoadWarning: 3000, // 3 seconds
+      totalLoadError: 10000 // 10 seconds
     };
   }
 
@@ -130,16 +132,20 @@ class LoadingPerformanceMonitor {
    * @returns {Object} Performance metrics and analysis
    */
   getReport() {
-    const moduleMetrics = Array.from(this.metrics.moduleLoadTimes.entries()).map(([path, metric]) => ({
+    const moduleMetrics = Array.from(
+      this.metrics.moduleLoadTimes.entries()
+    ).map(([path, metric]) => ({
       path,
       ...metric
     }));
 
     const successfulLoads = moduleMetrics.filter(m => m.status === 'loaded');
     const failedLoads = moduleMetrics.filter(m => m.status === 'failed');
-    const averageLoadTime = successfulLoads.length > 0
-      ? successfulLoads.reduce((sum, m) => sum + m.duration, 0) / successfulLoads.length
-      : 0;
+    const averageLoadTime =
+      successfulLoads.length > 0
+        ? successfulLoads.reduce((sum, m) => sum + m.duration, 0) /
+          successfulLoads.length
+        : 0;
 
     return {
       environment: Environment.getMode(),
@@ -149,10 +155,18 @@ class LoadingPerformanceMonitor {
       successfulLoads: successfulLoads.length,
       failedLoads: failedLoads.length,
       averageLoadTime,
-      slowestModule: successfulLoads.reduce((slowest, current) =>
-        current.duration > (slowest?.duration || 0) ? current : slowest, null),
-      fastestModule: successfulLoads.reduce((fastest, current) =>
-        current.duration < (fastest?.duration || Infinity) ? current : fastest, null),
+      slowestModule: successfulLoads.reduce(
+        (slowest, current) =>
+          current.duration > (slowest?.duration || 0) ? current : slowest,
+        null
+      ),
+      fastestModule: successfulLoads.reduce(
+        (fastest, current) =>
+          current.duration < (fastest?.duration || Infinity)
+            ? current
+            : fastest,
+        null
+      ),
       errors: this.metrics.errors,
       warnings: this.metrics.warnings,
       modules: moduleMetrics,
@@ -170,8 +184,9 @@ class LoadingPerformanceMonitor {
     const recommendations = [];
 
     // Check for slow modules
-    const slowModules = moduleMetrics.filter(m =>
-      m.duration > this.thresholds.moduleLoadWarning && m.status === 'loaded'
+    const slowModules = moduleMetrics.filter(
+      m =>
+        m.duration > this.thresholds.moduleLoadWarning && m.status === 'loaded'
     );
 
     if (slowModules.length > 0) {
@@ -199,7 +214,8 @@ class LoadingPerformanceMonitor {
       recommendations.push({
         type: 'performance',
         priority: 'high',
-        message: 'Total load time is high. Consider implementing progressive loading or reducing bundle size.',
+        message:
+          'Total load time is high. Consider implementing progressive loading or reducing bundle size.',
         totalTime: this.metrics.totalLoadTime
       });
     }
@@ -218,15 +234,28 @@ class LoadingPerformanceMonitor {
     console.group('🚀 Script Loading Performance Report');
     console.log('Environment:', report.environment);
     console.log('Total Load Time:', `${report.totalLoadTime.toFixed(2)}ms`);
-    console.log('Critical Path Time:', `${report.criticalPathTime.toFixed(2)}ms`);
-    console.log('Modules Loaded:', `${report.successfulLoads}/${report.moduleCount}`);
+    console.log(
+      'Critical Path Time:',
+      `${report.criticalPathTime.toFixed(2)}ms`
+    );
+    console.log(
+      'Modules Loaded:',
+      `${report.successfulLoads}/${report.moduleCount}`
+    );
 
     if (report.averageLoadTime > 0) {
-      console.log('Average Module Load Time:', `${report.averageLoadTime.toFixed(2)}ms`);
+      console.log(
+        'Average Module Load Time:',
+        `${report.averageLoadTime.toFixed(2)}ms`
+      );
     }
 
     if (report.slowestModule) {
-      console.log('Slowest Module:', report.slowestModule.path, `(${report.slowestModule.duration.toFixed(2)}ms)`);
+      console.log(
+        'Slowest Module:',
+        report.slowestModule.path,
+        `(${report.slowestModule.duration.toFixed(2)}ms)`
+      );
     }
 
     if (report.errors.length > 0) {
@@ -451,9 +480,11 @@ class EnhancedScriptLoader {
         console.log('🚀 Enhanced Script Loader initialized');
         console.log('Environment:', Environment.getMode());
         console.log('Debug Mode:', this.config.isDebugModeEnabled());
-        console.log('Performance Monitoring:', this.config.isPerformanceMonitoringEnabled());
+        console.log(
+          'Performance Monitoring:',
+          this.config.isPerformanceMonitoringEnabled()
+        );
       }
-
     } catch (error) {
       console.error('Failed to initialize Enhanced Script Loader:', error);
       throw error;
@@ -506,15 +537,22 @@ class EnhancedScriptLoader {
     if (!this.config.isPerformanceMonitoringEnabled()) return;
 
     // Integrate with module loader progress tracking
-    this.moduleLoader.onProgress((progress) => {
+    this.moduleLoader.onProgress(progress => {
       // Update performance metrics based on module loading progress
       Object.entries(progress.modules).forEach(([modulePath, moduleState]) => {
-        if (moduleState.state === 'loading' && !this.performanceMonitor.metrics.moduleLoadTimes.has(modulePath)) {
+        if (
+          moduleState.state === 'loading' &&
+          !this.performanceMonitor.metrics.moduleLoadTimes.has(modulePath)
+        ) {
           this.performanceMonitor.startModuleLoad(modulePath);
         } else if (moduleState.state === 'loaded') {
           this.performanceMonitor.endModuleLoad(modulePath, true);
         } else if (moduleState.state === 'failed') {
-          this.performanceMonitor.endModuleLoad(modulePath, false, moduleState.error);
+          this.performanceMonitor.endModuleLoad(
+            modulePath,
+            false,
+            moduleState.error
+          );
         }
       });
     });
@@ -526,15 +564,22 @@ class EnhancedScriptLoader {
    */
   setupErrorHandling() {
     // Global error handler for script loading errors
-    window.addEventListener('error', (event) => {
+    window.addEventListener('error', event => {
       if (event.filename && event.filename.includes('.js')) {
-        this.handleLoadingError(event.filename, event.error || new Error(event.message));
+        this.handleLoadingError(
+          event.filename,
+          event.error || new Error(event.message)
+        );
       }
     });
 
     // Unhandled promise rejection handler
-    window.addEventListener('unhandledrejection', (event) => {
-      if (event.reason && event.reason.message && event.reason.message.includes('Failed to load')) {
+    window.addEventListener('unhandledrejection', event => {
+      if (
+        event.reason &&
+        event.reason.message &&
+        event.reason.message.includes('Failed to load')
+      ) {
         this.handleLoadingError('unknown', event.reason);
       }
     });
@@ -574,7 +619,9 @@ class EnhancedScriptLoader {
       'probabilityCalculator.js': () => {
         // Provide a basic fallback implementation
         window.ProbabilityCalculator = class BasicProbabilityCalculator {
-          calculateMoveValue() { return Math.random(); }
+          calculateMoveValue() {
+            return Math.random();
+          }
           getBestSuggestion(board) {
             // Simple fallback: suggest center or random empty cell
             const emptyCells = [];
@@ -594,9 +641,15 @@ class EnhancedScriptLoader {
       'gameBoard.js': () => {
         // Provide a basic fallback implementation
         window.GameBoard = class BasicGameBoard {
-          constructor() { this.size = 5; }
-          render() { console.warn('GameBoard render fallback'); }
-          updateCell() { console.warn('GameBoard updateCell fallback'); }
+          constructor() {
+            this.size = 5;
+          }
+          render() {
+            console.warn('GameBoard render fallback');
+          }
+          updateCell() {
+            console.warn('GameBoard updateCell fallback');
+          }
         };
         console.warn('Using fallback GameBoard implementation');
       }
@@ -650,7 +703,6 @@ class EnhancedScriptLoader {
       if (this.config.isPerformanceMonitoringEnabled()) {
         this.performanceMonitor.logReport();
       }
-
     } catch (error) {
       console.error('Module loading failed:', error);
       throw error;
@@ -688,15 +740,20 @@ class EnhancedScriptLoader {
       'script.js'
     ];
 
-    const nonCriticalModules = modules.filter(m => !criticalModules.includes(m));
+    const nonCriticalModules = modules.filter(
+      m => !criticalModules.includes(m)
+    );
 
     // Load critical modules first
     await this.moduleLoader.loadModulesInOrder(criticalModules);
     this.performanceMonitor.endCriticalPath();
 
     // Load non-critical modules in background
-    this.moduleLoader.loadModulesInChunks(nonCriticalModules, 2)
-      .catch(error => console.warn('Non-critical modules failed to load:', error));
+    this.moduleLoader
+      .loadModulesInChunks(nonCriticalModules, 2)
+      .catch(error =>
+        console.warn('Non-critical modules failed to load:', error)
+      );
   }
 
   /**
@@ -734,7 +791,9 @@ class EnhancedScriptLoader {
       isInitialized: this.isInitialized,
       environment: Environment.getMode(),
       config: this.config.getCurrentConfig(),
-      moduleLoader: this.moduleLoader ? this.moduleLoader.getLoadingStatus() : null,
+      moduleLoader: this.moduleLoader
+        ? this.moduleLoader.getLoadingStatus()
+        : null,
       performance: this.performanceMonitor.getReport(),
       globalNamespace: this.globalNamespace
     };

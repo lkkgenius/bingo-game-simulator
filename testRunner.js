@@ -38,37 +38,45 @@ global.test = (description, testFn) => {
   }
 };
 
-global.expect = (actual) => ({
-  toBe: (expected) => {
+global.expect = actual => ({
+  toBe: expected => {
     if (actual !== expected) {
       throw new Error(`Expected ${expected}, but got ${actual}`);
     }
   },
-  toEqual: (expected) => {
+  toEqual: expected => {
     const actualStr = JSON.stringify(actual);
     const expectedStr = JSON.stringify(expected);
     if (actualStr !== expectedStr) {
       throw new Error(`Expected ${expectedStr}, but got ${actualStr}`);
     }
   },
-  toHaveLength: (expected) => {
+  toHaveLength: expected => {
     if (!actual || actual.length !== expected) {
-      throw new Error(`Expected length ${expected}, but got ${actual ? actual.length : 'undefined'}`);
+      throw new Error(
+        `Expected length ${expected}, but got ${actual ? actual.length : 'undefined'}`
+      );
     }
   },
-  toBeGreaterThan: (expected) => {
+  toBeGreaterThan: expected => {
     if (!(actual > expected)) {
-      throw new Error(`Expected value greater than ${expected}, but got ${actual}`);
+      throw new Error(
+        `Expected value greater than ${expected}, but got ${actual}`
+      );
     }
   },
-  toBeGreaterThanOrEqual: (expected) => {
+  toBeGreaterThanOrEqual: expected => {
     if (!(actual >= expected)) {
-      throw new Error(`Expected value greater than or equal to ${expected}, but got ${actual}`);
+      throw new Error(
+        `Expected value greater than or equal to ${expected}, but got ${actual}`
+      );
     }
   },
-  toBeLessThan: (expected) => {
+  toBeLessThan: expected => {
     if (!(actual < expected)) {
-      throw new Error(`Expected value less than ${expected}, but got ${actual}`);
+      throw new Error(
+        `Expected value less than ${expected}, but got ${actual}`
+      );
     }
   },
   toBeTruthy: () => {
