@@ -61,7 +61,7 @@ jobs:
     - name: Check code formatting
       run: |
         echo "Checking code formatting with Prettier..."
-        npx prettier --check *.js *.html *.css utils/*.js || echo "Code formatting check completed"
+        npx prettier --check *.js *.html *.css utils/*.js
         
     - name: Analyze code complexity
       run: |

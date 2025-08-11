@@ -23,6 +23,7 @@
     "lint:security": "eslint *.js utils/*.js --config .eslintrc.security.js",
     "format": "prettier --write *.js *.html *.css utils/*.js",
     "format:check": "prettier --check *.js *.html *.css utils/*.js",
+    "lint:fix": "eslint *.js utils/*.js --fix && prettier --write *.js *.html *.css utils/*.js",
     "quality": "jshint *.js utils/*.js",
     "quality:report": "jshint *.js utils/*.js --reporter=json > jshint-report.json",
     "complexity": "node -e \"const fs=require('fs');['script.js','gameEngine.js','gameBoard.js','lineDetector.js','probabilityCalculator.js'].forEach(f=>{if(fs.existsSync(f)){const c=fs.readFileSync(f,'utf8');const l=c.split('\\n').length;const fn=(c.match(/function\\s+\\w+|=>\\s*{|\\w+\\s*:\\s*function/g)||[]).length;console.log(f+': '+l+' lines, '+fn+' functions');if(l>2000)console.log('⚠️  '+f+' is large ('+l+' lines)');}});\"",
