@@ -1,13 +1,13 @@
 /**
  * Code Quality Improvements Script
- * 
+ *
  * This script implements various code quality improvements including:
  * - Code splitting and lazy loading optimizations
  * - Enhanced error handling and logging
  * - Performance monitoring and optimization
  * - Code documentation and readability improvements
  * - Unit test coverage enhancements
- * 
+ *
  * @version 1.0.0
  */
 
@@ -35,7 +35,7 @@ class CodeQualityManager {
       performance: 0,
       maintainability: 0
     };
-    
+
     this.initialize();
   }
 
@@ -62,20 +62,20 @@ class CodeQualityManager {
         'lineDetector.js',
         'gameBoard.js'
       ],
-      
+
       // Core game modules
       core: [
         'probabilityCalculator.js',
         'gameEngine.js'
       ],
-      
+
       // Enhanced features that can load later
       enhanced: [
         'probabilityCalculator.enhanced.js',
         'algorithmComparison.js',
         'aiLearningSystem.js'
       ],
-      
+
       // Optional features for background loading
       optional: [
         'performance-monitor.js',
@@ -91,7 +91,7 @@ class CodeQualityManager {
       async loadByPriority(priority) {
         const modules = this[priority] || [];
         const loadPromises = modules.map(module => this.loadModule(module));
-        
+
         try {
           await Promise.all(loadPromises);
           console.log(`✓ Loaded ${priority} modules:`, modules);
@@ -207,11 +207,11 @@ class CodeQualityManager {
       async loadComponent(componentName, modulePath) {
         try {
           await this.loadModule(modulePath);
-          
+
           if (!window[componentName]) {
             throw new Error(`Component ${componentName} not found after loading ${modulePath}`);
           }
-          
+
           console.log(`✓ Lazy loaded component: ${componentName}`);
           return window[componentName];
         } catch (error) {
@@ -259,7 +259,7 @@ class CodeQualityManager {
         };
 
         this.errors.push(errorInfo);
-        
+
         // Limit error history
         if (this.errors.length > 100) {
           this.errors.shift();
@@ -307,28 +307,28 @@ class CodeQualityManager {
        */
       attemptRecovery(errorInfo) {
         switch (errorInfo.type) {
-          case 'game':
-            // Reset game state
-            if (typeof window !== 'undefined' && window.gameState) {
-              window.gameState.reset();
-            }
-            break;
-          
-          case 'network':
-            // Retry network operations
-            setTimeout(() => {
-              console.log('Attempting network recovery...');
-            }, 1000);
-            break;
-          
-          case 'runtime':
-            // Reload critical components
-            this.reloadCriticalComponents();
-            break;
-          
-          default:
-            // Generic recovery
-            console.log('Attempting generic error recovery...');
+        case 'game':
+          // Reset game state
+          if (typeof window !== 'undefined' && window.gameState) {
+            window.gameState.reset();
+          }
+          break;
+
+        case 'network':
+          // Retry network operations
+          setTimeout(() => {
+            console.log('Attempting network recovery...');
+          }, 1000);
+          break;
+
+        case 'runtime':
+          // Reload critical components
+          this.reloadCriticalComponents();
+          break;
+
+        default:
+          // Generic recovery
+          console.log('Attempting generic error recovery...');
         }
       },
 
@@ -486,7 +486,7 @@ class CodeQualityManager {
        */
       getSummary() {
         const summary = {};
-        
+
         this.metrics.forEach((values, category) => {
           summary[category] = {
             count: values.length,
@@ -508,14 +508,14 @@ class CodeQualityManager {
         if (values.length === 0) return 0;
 
         switch (category) {
-          case 'memory':
-            return values.reduce((sum, v) => sum + v.used, 0) / values.length;
-          case 'paint':
-            return values.reduce((sum, v) => sum + v.startTime, 0) / values.length;
-          case 'network':
-            return values.reduce((sum, v) => sum + v.duration, 0) / values.length;
-          default:
-            return values.length;
+        case 'memory':
+          return values.reduce((sum, v) => sum + v.used, 0) / values.length;
+        case 'paint':
+          return values.reduce((sum, v) => sum + v.startTime, 0) / values.length;
+        case 'network':
+          return values.reduce((sum, v) => sum + v.duration, 0) / values.length;
+        default:
+          return values.length;
         }
       }
     };
@@ -587,7 +587,7 @@ class CodeQualityManager {
         for (const test of tests) {
           const testResult = await this.runTest(test);
           suiteResult.tests.push(testResult);
-          
+
           if (testResult.passed) {
             suiteResult.passed++;
           } else {
@@ -605,11 +605,11 @@ class CodeQualityManager {
        */
       async runTest(testFn) {
         const startTime = performance.now();
-        
+
         try {
           await testFn();
           const endTime = performance.now();
-          
+
           return {
             name: testFn.name,
             passed: true,
@@ -618,7 +618,7 @@ class CodeQualityManager {
           };
         } catch (error) {
           const endTime = performance.now();
-          
+
           return {
             name: testFn.name,
             passed: false,
@@ -697,7 +697,7 @@ class CodeQualityManager {
    */
   generateReport() {
     const metrics = this.getQualityMetrics();
-    
+
     return {
       summary: {
         overallScore: this.calculateOverallScore(metrics),
@@ -784,7 +784,7 @@ if (typeof module !== 'undefined' && module.exports) {
   module.exports = CodeQualityManager;
 } else if (typeof window !== 'undefined') {
   window.CodeQualityManager = CodeQualityManager;
-  
+
   // Initialize code quality improvements
   window.codeQualityManager = new CodeQualityManager();
 }

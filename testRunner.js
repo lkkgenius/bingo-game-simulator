@@ -87,14 +87,14 @@ global.expect = (actual) => ({
 function runAllTests() {
   const testFiles = findTestFiles();
   console.log(`Found ${testFiles.length} test files`);
-  
+
   testFiles.forEach(file => {
     currentTestFile = file;
     console.log(`\n=== Running tests in ${file} ===`);
-    
+
     // 重置 beforeEach 函數，避免測試文件間的干擾
     global.beforeEach = null;
-    
+
     try {
       require(path.join(process.cwd(), file));
     } catch (error) {
@@ -103,34 +103,34 @@ function runAllTests() {
       failedTests++;
     }
   });
-  
+
   // 輸出測試結果摘要
   console.log('\n=== Test Results ===');
   console.log(`Total tests: ${totalTests}`);
   console.log(`Passed: ${passedTests}`);
   console.log(`Failed: ${failedTests}`);
-  
+
   generateCoverageReport();
-  
+
   process.exit(failedTests > 0 ? 1 : 0);
 }
 
 // 查找所有測試文件
 function findTestFiles() {
   const testFiles = [];
-  
+
   function scanDir(dir) {
     try {
       const files = fs.readdirSync(dir);
-      
+
       files.forEach(file => {
         const filePath = path.join(dir, file);
         const stat = fs.statSync(filePath);
-        
+
         if (stat.isDirectory()) {
           scanDir(filePath);
         } else if (
-          file.endsWith('.test.js') || 
+          file.endsWith('.test.js') ||
           (file.startsWith('test-') && file.endsWith('.js'))
         ) {
           testFiles.push(filePath);
@@ -140,7 +140,7 @@ function findTestFiles() {
       console.error(`Error scanning directory ${dir}:`, error.message);
     }
   }
-  
+
   scanDir('.');
   return testFiles;
 }
@@ -149,7 +149,7 @@ function findTestFiles() {
 function generateCoverageReport() {
   console.log('\n=== Test Coverage Report ===');
   console.log('Note: This is a simplified coverage report');
-  
+
   const components = [
     'lineDetector.js',
     'probabilityCalculator.js',
@@ -157,7 +157,7 @@ function generateCoverageReport() {
     'gameEngine.js',
     'gameBoard.js'
   ];
-  
+
   components.forEach(component => {
     const testFile = component.replace('.js', '.test.js');
     try {

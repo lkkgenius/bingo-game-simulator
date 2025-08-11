@@ -7,7 +7,7 @@ console.log('window.CONSTANTS:', typeof window.CONSTANTS);
 
 if (typeof window.BaseProbabilityCalculator === 'function' && typeof window.CONSTANTS === 'object') {
   console.log('Dependencies available, defining ProbabilityCalculator...');
-  
+
   class ProbabilityCalculator extends window.BaseProbabilityCalculator {
     constructor() {
       console.log('ProbabilityCalculator constructor called');

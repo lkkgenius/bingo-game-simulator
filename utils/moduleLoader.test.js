@@ -27,15 +27,15 @@ describe('Enhanced ModuleLoader', () => {
 
   test('should calculate correct load order', () => {
     const loadOrder = moduleLoader.calculateLoadOrder();
-    
+
     // utils/common.js should be first (no dependencies)
     expect(loadOrder[0]).toBe('utils/common.js');
-    
+
     // lineDetector.js should come after utils/common.js
     const commonIndex = loadOrder.indexOf('utils/common.js');
     const lineDetectorIndex = loadOrder.indexOf('lineDetector.js');
     expect(lineDetectorIndex).toBeGreaterThan(commonIndex);
-    
+
     // gameEngine.js should come after its dependencies
     const gameEngineIndex = loadOrder.indexOf('gameEngine.js');
     const probabilityCalculatorIndex = loadOrder.indexOf('probabilityCalculator.js');
@@ -54,7 +54,7 @@ describe('Enhanced ModuleLoader', () => {
     moduleLoader.dependencies.set('test-a.js', ['test-b.js']);
     moduleLoader.dependencies.set('test-b.js', ['test-a.js']);
     moduleLoader.buildDependencyGraph();
-    
+
     const validation = moduleLoader.validateDependencies();
     expect(validation.isValid).toBe(false);
     expect(validation.issues.some(issue => issue.type === 'circular')).toBe(true);
@@ -62,14 +62,14 @@ describe('Enhanced ModuleLoader', () => {
 
   test('should track loading states correctly', () => {
     const modulePath = 'test-module.js';
-    
+
     moduleLoader.setLoadingState(modulePath, 'loading');
     expect(moduleLoader.loadingStats.loading).toBe(1);
-    
+
     moduleLoader.setLoadingState(modulePath, 'loaded');
     expect(moduleLoader.loadingStats.loaded).toBe(1);
     expect(moduleLoader.loadingStats.loading).toBe(0);
-    
+
     const progress = moduleLoader.getLoadingProgress();
     expect(progress.loaded).toBe(1);
     expect(progress.percentage).toBeGreaterThan(0);
@@ -78,12 +78,12 @@ describe('Enhanced ModuleLoader', () => {
   test('should identify ready-to-load modules', () => {
     // Mock some loaded modules
     moduleLoader.loadedModules.set('utils/common.js', true);
-    
+
     const ready = moduleLoader.getReadyToLoadModules();
-    
+
     // lineDetector.js should be ready (only depends on utils/common.js)
     expect(ready).toContain('lineDetector.js');
-    
+
     // gameEngine.js should not be ready (depends on lineDetector.js and probabilityCalculator.js)
     expect(ready).not.toContain('gameEngine.js');
   });
@@ -91,7 +91,7 @@ describe('Enhanced ModuleLoader', () => {
   test('should provide detailed module information', () => {
     const modulePath = 'utils/common.js';
     moduleLoader.setLoadingState(modulePath, 'loaded');
-    
+
     const info = moduleLoader.getModuleInfo(modulePath);
     expect(info.path).toBe(modulePath);
     expect(info.state).toBe('loaded');
@@ -102,15 +102,15 @@ describe('Enhanced ModuleLoader', () => {
   test('should handle progress callbacks', () => {
     let progressUpdates = 0;
     let lastProgress = null;
-    
+
     moduleLoader.onProgress((progress) => {
       progressUpdates++;
       lastProgress = progress;
     });
-    
+
     moduleLoader.setLoadingState('test-module.js', 'loading');
     moduleLoader.setLoadingState('test-module.js', 'loaded');
-    
+
     expect(progressUpdates).toBe(2);
     expect(lastProgress).toBeTruthy();
     expect(lastProgress.loaded).toBe(1);
@@ -119,12 +119,12 @@ describe('Enhanced ModuleLoader', () => {
   test('should clear cache correctly', () => {
     moduleLoader.loadedModules.set('test.js', true);
     moduleLoader.setLoadingState('test.js', 'loaded');
-    
+
     expect(moduleLoader.loadedModules.size).toBe(1);
     expect(moduleLoader.loadingStats.loaded).toBe(1);
-    
+
     moduleLoader.clearCache();
-    
+
     expect(moduleLoader.loadedModules.size).toBe(0);
     expect(moduleLoader.loadingStats.loaded).toBe(0);
   });
@@ -155,7 +155,7 @@ describe('ProgressiveLoader', () => {
   test('should track stage progress', () => {
     const mockProgress = { loaded: 1, total: 5, percentage: 20 };
     progressiveLoader.updateStageProgress(mockProgress);
-    
+
     const progress = progressiveLoader.getProgress();
     expect(progress.stageProgress.critical).toEqual(mockProgress);
   });
@@ -229,24 +229,24 @@ function beforeEach(setupFn) {
 // Run tests if this file is executed directly
 if (require.main === module) {
   console.log('Running ModuleLoader tests...');
-  
+
   // We need to manually call the test functions since we don't have a full test framework
   try {
     const moduleLoader = new ModuleLoader();
     console.log('\n✓ ModuleLoader can be instantiated');
-    
+
     const loadOrder = moduleLoader.calculateLoadOrder();
     console.log('✓ Load order calculated:', loadOrder.slice(0, 3).join(', '), '...');
-    
+
     const validation = moduleLoader.validateDependencies();
     console.log('✓ Dependencies validated:', validation.isValid ? 'PASS' : 'FAIL');
-    
+
     const progressiveLoader = new ProgressiveLoader();
     console.log('✓ ProgressiveLoader can be instantiated');
-    
+
     const progress = progressiveLoader.getProgress();
     console.log('✓ Progress information available:', `${progress.overallProgress}%`);
-    
+
     console.log('\n✅ All basic tests passed!');
   } catch (error) {
     console.error('\n❌ Tests failed:', error.message);

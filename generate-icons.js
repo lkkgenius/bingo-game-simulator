@@ -7,24 +7,24 @@
 // 在實際部署時，您需要創建真實的圖標文件
 
 const iconSizes = [
-    { size: 16, name: 'favicon-16x16.png' },
-    { size: 32, name: 'favicon-32x32.png' },
-    { size: 72, name: 'icon-72x72.png' },
-    { size: 96, name: 'icon-96x96.png' },
-    { size: 128, name: 'icon-128x128.png' },
-    { size: 144, name: 'icon-144x144.png' },
-    { size: 152, name: 'icon-152x152.png' },
-    { size: 180, name: 'apple-touch-icon.png' },
-    { size: 192, name: 'icon-192x192.png' },
-    { size: 384, name: 'icon-384x384.png' },
-    { size: 512, name: 'icon-512x512.png' }
+  { size: 16, name: 'favicon-16x16.png' },
+  { size: 32, name: 'favicon-32x32.png' },
+  { size: 72, name: 'icon-72x72.png' },
+  { size: 96, name: 'icon-96x96.png' },
+  { size: 128, name: 'icon-128x128.png' },
+  { size: 144, name: 'icon-144x144.png' },
+  { size: 152, name: 'icon-152x152.png' },
+  { size: 180, name: 'apple-touch-icon.png' },
+  { size: 192, name: 'icon-192x192.png' },
+  { size: 384, name: 'icon-384x384.png' },
+  { size: 512, name: 'icon-512x512.png' }
 ];
 
 /**
  * 生成 SVG 圖標
  */
 function generateSVGIcon(size) {
-    return `
+  return `
 <svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" xmlns="http://www.w3.org/2000/svg">
     <defs>
         <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
@@ -55,17 +55,17 @@ function generateSVGIcon(size) {
  * 生成 Bingo 網格
  */
 function generateBingoGrid(gridSize) {
-    const cellSize = gridSize / 5;
-    let grid = '';
-    
-    for (let row = 0; row < 5; row++) {
-        for (let col = 0; col < 5; col++) {
-            const x = col * cellSize;
-            const y = row * cellSize;
-            const isCenter = row === 2 && col === 2;
-            const isFilled = Math.random() > 0.6 || isCenter;
-            
-            grid += `
+  const cellSize = gridSize / 5;
+  let grid = '';
+
+  for (let row = 0; row < 5; row++) {
+    for (let col = 0; col < 5; col++) {
+      const x = col * cellSize;
+      const y = row * cellSize;
+      const isCenter = row === 2 && col === 2;
+      const isFilled = Math.random() > 0.6 || isCenter;
+
+      grid += `
                 <rect x="${x}" y="${y}" 
                       width="${cellSize * 0.9}" 
                       height="${cellSize * 0.9}" 
@@ -74,9 +74,9 @@ function generateBingoGrid(gridSize) {
                       stroke-width="1" 
                       rx="${cellSize * 0.1}"/>
             `;
-            
-            if (isCenter) {
-                grid += `
+
+      if (isCenter) {
+        grid += `
                     <text x="${x + cellSize * 0.45}" y="${y + cellSize * 0.6}" 
                           font-family="Arial, sans-serif" 
                           font-size="${cellSize * 0.4}" 
@@ -84,18 +84,18 @@ function generateBingoGrid(gridSize) {
                           text-anchor="middle" 
                           fill="#4A90E2">★</text>
                 `;
-            }
-        }
+      }
     }
-    
-    return grid;
+  }
+
+  return grid;
 }
 
 /**
  * 創建圖標目錄結構說明
  */
 function createIconDirectoryStructure() {
-    return `
+  return `
 # 圖標目錄結構
 
 請在項目根目錄創建 \`icons\` 文件夾，並包含以下圖標文件：
@@ -148,20 +148,20 @@ ${generateSVGIcon(512)}
 
 // 如果在 Node.js 環境中運行
 if (typeof module !== 'undefined' && module.exports) {
-    module.exports = {
-        iconSizes,
-        generateSVGIcon,
-        createIconDirectoryStructure
-    };
+  module.exports = {
+    iconSizes,
+    generateSVGIcon,
+    createIconDirectoryStructure
+  };
 }
 
 // 如果在瀏覽器中運行
 if (typeof window !== 'undefined') {
-    window.IconGenerator = {
-        iconSizes,
-        generateSVGIcon,
-        createIconDirectoryStructure
-    };
-    
-    console.log('Icon Generator loaded. Use IconGenerator.createIconDirectoryStructure() for instructions.');
+  window.IconGenerator = {
+    iconSizes,
+    generateSVGIcon,
+    createIconDirectoryStructure
+  };
+
+  console.log('Icon Generator loaded. Use IconGenerator.createIconDirectoryStructure() for instructions.');
 }

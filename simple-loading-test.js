@@ -12,22 +12,22 @@ console.log('   組件列表: LineDetector, ProbabilityCalculator, GameBoard, Ga
 
 console.log('\n2. 檢查 initializeGameWithProgressiveLoading() 實際載入:');
 const actualComponents = [
-    'GameState',
-    'LineDetector', 
-    'ProbabilityCalculator',
-    'GameBoard',
-    'UI'
+  'GameState',
+  'LineDetector',
+  'ProbabilityCalculator',
+  'GameBoard',
+  'UI'
 ];
 
 console.log(`   實際載入組件數: ${actualComponents.length}`);
 console.log('   實際載入組件:');
 actualComponents.forEach((comp, index) => {
-    const progress = ((index + 1) / 6 * 100).toFixed(1);
-    console.log(`     ${index + 1}. ${comp} (${progress}%)`);
+  const progress = ((index + 1) / 6 * 100).toFixed(1);
+  console.log(`     ${index + 1}. ${comp} (${progress}%)`);
 });
 
 console.log('\n3. 問題分析:');
-console.log(`   期望組件數: 6`);
+console.log('   期望組件數: 6');
 console.log(`   實際載入數: ${actualComponents.length}`);
 console.log(`   載入進度: ${actualComponents.length}/6 = ${(actualComponents.length/6*100).toFixed(1)}%`);
 

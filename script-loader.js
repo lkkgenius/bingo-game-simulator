@@ -6,16 +6,16 @@
 // Environment detection
 const Environment = {
   isDevelopment: () => {
-    return window.location.hostname === 'localhost' || 
-           window.location.hostname === '127.0.0.1' || 
+    return window.location.hostname === 'localhost' ||
+           window.location.hostname === '127.0.0.1' ||
            window.location.search.includes('debug=true') ||
            window.location.search.includes('dev=true');
   },
-  
+
   isProduction: () => {
     return !Environment.isDevelopment();
   },
-  
+
   getMode: () => {
     return Environment.isDevelopment() ? 'development' : 'production';
   }
@@ -32,7 +32,7 @@ class LoadingPerformanceMonitor {
       errors: [],
       warnings: []
     };
-    
+
     this.thresholds = {
       moduleLoadWarning: 1000, // 1 second
       moduleLoadError: 5000,   // 5 seconds
@@ -137,8 +137,8 @@ class LoadingPerformanceMonitor {
 
     const successfulLoads = moduleMetrics.filter(m => m.status === 'loaded');
     const failedLoads = moduleMetrics.filter(m => m.status === 'failed');
-    const averageLoadTime = successfulLoads.length > 0 
-      ? successfulLoads.reduce((sum, m) => sum + m.duration, 0) / successfulLoads.length 
+    const averageLoadTime = successfulLoads.length > 0
+      ? successfulLoads.reduce((sum, m) => sum + m.duration, 0) / successfulLoads.length
       : 0;
 
     return {
@@ -149,9 +149,9 @@ class LoadingPerformanceMonitor {
       successfulLoads: successfulLoads.length,
       failedLoads: failedLoads.length,
       averageLoadTime,
-      slowestModule: successfulLoads.reduce((slowest, current) => 
+      slowestModule: successfulLoads.reduce((slowest, current) =>
         current.duration > (slowest?.duration || 0) ? current : slowest, null),
-      fastestModule: successfulLoads.reduce((fastest, current) => 
+      fastestModule: successfulLoads.reduce((fastest, current) =>
         current.duration < (fastest?.duration || Infinity) ? current : fastest, null),
       errors: this.metrics.errors,
       warnings: this.metrics.warnings,
@@ -170,10 +170,10 @@ class LoadingPerformanceMonitor {
     const recommendations = [];
 
     // Check for slow modules
-    const slowModules = moduleMetrics.filter(m => 
+    const slowModules = moduleMetrics.filter(m =>
       m.duration > this.thresholds.moduleLoadWarning && m.status === 'loaded'
     );
-    
+
     if (slowModules.length > 0) {
       recommendations.push({
         type: 'performance',
@@ -214,13 +214,13 @@ class LoadingPerformanceMonitor {
     if (!Environment.isDevelopment()) return;
 
     const report = this.getReport();
-    
+
     console.group('🚀 Script Loading Performance Report');
     console.log('Environment:', report.environment);
     console.log('Total Load Time:', `${report.totalLoadTime.toFixed(2)}ms`);
     console.log('Critical Path Time:', `${report.criticalPathTime.toFixed(2)}ms`);
     console.log('Modules Loaded:', `${report.successfulLoads}/${report.moduleCount}`);
-    
+
     if (report.averageLoadTime > 0) {
       console.log('Average Module Load Time:', `${report.averageLoadTime.toFixed(2)}ms`);
     }
@@ -266,38 +266,38 @@ class ConditionalModuleConfig {
           'security-utils.js',
           'error-boundary.js',
           'utils/common.js',
-          
+
           // Game modules
           'lineDetector.js',
           'probabilityCalculator.js',
           'gameBoard.js',
           'gameEngine.js',
-          
+
           // Main script
           'script.js',
-          
+
           // Development-specific modules
           'debug-probability.js',
-          
+
           // Enhanced features
           'probabilityCalculator.enhanced.js',
           'algorithmComparison.js',
           'aiLearningSystem.js',
-          
+
           // UI enhancements
           'i18n.js',
           'accessibility-enhancements.js',
           'suggestion-enhancements.js',
           'bug-fixes-and-edge-cases.js',
-          
+
           // Performance and monitoring
           'performance-monitor.js',
           'loading-functions.js',
-          
+
           // Mobile support
           'mobile-touch.js',
           'gesture-support.js',
-          
+
           // PWA
           'pwa-manager.js'
         ],
@@ -305,7 +305,7 @@ class ConditionalModuleConfig {
         enableDebugMode: true,
         enablePerformanceMonitoring: true
       },
-      
+
       production: {
         modules: [
           // Core modules (always loaded first)
@@ -314,34 +314,34 @@ class ConditionalModuleConfig {
           'security-utils.js',
           'error-boundary.js',
           'utils/common.js',
-          
+
           // Game modules
           'lineDetector.js',
           'probabilityCalculator.js',
           'gameBoard.js',
           'gameEngine.js',
-          
+
           // Main script
           'script.js',
-          
+
           // Enhanced features (lazy loaded)
           'probabilityCalculator.enhanced.js',
           'aiLearningSystem.js',
-          
+
           // UI enhancements
           'i18n.js',
           'accessibility-enhancements.js',
           'suggestion-enhancements.js',
           'bug-fixes-and-edge-cases.js',
-          
+
           // Performance optimizations
           'performance-monitor.js',
           'loading-functions.js',
-          
+
           // Mobile support
           'mobile-touch.js',
           'gesture-support.js',
-          
+
           // PWA
           'pwa-manager.js'
         ],
@@ -404,7 +404,7 @@ class EnhancedScriptLoader {
     this.loadingCallbacks = [];
     this.errorCallbacks = [];
     this.isInitialized = false;
-    
+
     // Global namespace management
     this.globalNamespace = 'BingoGame';
     this.setupGlobalNamespace();
@@ -434,26 +434,26 @@ class EnhancedScriptLoader {
     try {
       // Load the module loader first
       await this.loadModuleLoader();
-      
+
       // Initialize module loader instances
       this.moduleLoader = window.moduleLoader;
       this.progressiveLoader = window.progressiveLoader;
-      
+
       // Setup performance monitoring integration
       this.setupPerformanceMonitoring();
-      
+
       // Setup error handling
       this.setupErrorHandling();
-      
+
       this.isInitialized = true;
-      
+
       if (Environment.isDevelopment()) {
         console.log('🚀 Enhanced Script Loader initialized');
         console.log('Environment:', Environment.getMode());
         console.log('Debug Mode:', this.config.isDebugModeEnabled());
         console.log('Performance Monitoring:', this.config.isPerformanceMonitoringEnabled());
       }
-      
+
     } catch (error) {
       console.error('Failed to initialize Enhanced Script Loader:', error);
       throw error;
@@ -478,7 +478,7 @@ class EnhancedScriptLoader {
 
       script.onload = () => {
         document.head.removeChild(script);
-        
+
         // Wait a bit for the module to initialize
         setTimeout(() => {
           if (window.moduleLoader && window.progressiveLoader) {
@@ -548,7 +548,7 @@ class EnhancedScriptLoader {
    */
   handleLoadingError(modulePath, error) {
     console.error(`Script loading error for ${modulePath}:`, error);
-    
+
     // Notify error callbacks
     this.errorCallbacks.forEach(callback => {
       try {
@@ -590,7 +590,7 @@ class EnhancedScriptLoader {
         };
         console.warn('Using fallback ProbabilityCalculator implementation');
       },
-      
+
       'gameBoard.js': () => {
         // Provide a basic fallback implementation
         window.GameBoard = class BasicGameBoard {
@@ -636,7 +636,7 @@ class EnhancedScriptLoader {
       }
 
       this.performanceMonitor.endTotalLoad();
-      
+
       // Notify completion callbacks
       this.loadingCallbacks.forEach(callback => {
         try {
@@ -771,12 +771,12 @@ const scriptLoader = new EnhancedScriptLoader();
 
 // Export for both environments
 if (typeof module !== 'undefined' && module.exports) {
-  module.exports = { 
-    EnhancedScriptLoader, 
-    ConditionalModuleConfig, 
+  module.exports = {
+    EnhancedScriptLoader,
+    ConditionalModuleConfig,
     LoadingPerformanceMonitor,
     Environment,
-    scriptLoader 
+    scriptLoader
   };
 } else if (typeof window !== 'undefined') {
   window.EnhancedScriptLoader = EnhancedScriptLoader;

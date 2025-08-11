@@ -6,15 +6,15 @@
 // Logger 初始化
 let logger;
 if (typeof window !== 'undefined' && window.logger) {
-    logger = window.logger;
+  logger = window.logger;
 } else if (typeof require !== 'undefined') {
-    try {
-        const { logger: prodLogger } = require('../production-logger.js');
-        logger = prodLogger;
-    } catch (e) {
-        // Fallback if production-logger is not available
-        logger = null;
-    }
+  try {
+    const { logger: prodLogger } = require('../production-logger.js');
+    logger = prodLogger;
+  } catch (e) {
+    // Fallback if production-logger is not available
+    logger = null;
+  }
 }
 
 class ModuleLoader {
@@ -35,7 +35,7 @@ class ModuleLoader {
       failed: 0,
       loading: 0
     };
-    
+
     // Define module dependencies
     this.setupDependencies();
     this.buildDependencyGraph();
@@ -51,36 +51,36 @@ class ModuleLoader {
     this.dependencies.set('security-utils.js', []);
     this.dependencies.set('error-boundary.js', []);
     this.dependencies.set('utils/common.js', []);
-    
+
     // Game core modules
     this.dependencies.set('lineDetector.js', ['utils/common.js']);
     this.dependencies.set('probabilityCalculator.js', ['utils/common.js', 'lineDetector.js']);
     this.dependencies.set('probabilityCalculator.enhanced.js', ['utils/common.js', 'lineDetector.js']);
     this.dependencies.set('gameBoard.js', ['utils/common.js']);
     this.dependencies.set('gameEngine.js', ['utils/common.js', 'lineDetector.js', 'probabilityCalculator.js']);
-    
+
     // Enhanced features
     this.dependencies.set('algorithmComparison.js', ['probabilityCalculator.js', 'probabilityCalculator.enhanced.js']);
     this.dependencies.set('aiLearningSystem.js', ['utils/common.js', 'gameEngine.js']);
-    
+
     // UI and enhancements
     this.dependencies.set('i18n.js', ['safe-dom.js']);
     this.dependencies.set('accessibility-enhancements.js', ['safe-dom.js']);
     this.dependencies.set('suggestion-enhancements.js', ['safe-dom.js']);
     this.dependencies.set('bug-fixes-and-edge-cases.js', ['safe-dom.js', 'production-logger.js']);
-    
+
     // Performance and monitoring
     this.dependencies.set('performance-monitor.js', ['utils/common.js']);
     this.dependencies.set('loading-functions.js', ['utils/common.js']);
-    
+
     // Mobile and PWA
     this.dependencies.set('mobile-touch.js', ['utils/common.js']);
     this.dependencies.set('gesture-support.js', ['utils/common.js']);
     this.dependencies.set('pwa-manager.js', ['utils/common.js']);
-    
+
     // Main script (depends on core modules)
     this.dependencies.set('script.js', ['utils/common.js', 'lineDetector.js', 'probabilityCalculator.js', 'gameBoard.js', 'gameEngine.js']);
-    
+
     // Update total count for progress tracking
     this.loadingStats.total = this.dependencies.size;
   }
@@ -94,12 +94,12 @@ class ModuleLoader {
       if (!this.dependencyGraph.has(module)) {
         this.dependencyGraph.set(module, { dependencies: [], dependents: [] });
       }
-      
+
       for (const dep of deps) {
         if (!this.dependencyGraph.has(dep)) {
           this.dependencyGraph.set(dep, { dependencies: [], dependents: [] });
         }
-        
+
         this.dependencyGraph.get(module).dependencies.push(dep);
         this.dependencyGraph.get(dep).dependents.push(module);
       }
@@ -119,13 +119,13 @@ class ModuleLoader {
       if (visiting.has(module)) {
         throw new Error(`Circular dependency detected involving ${module}`);
       }
-      
+
       if (visited.has(module)) {
         return;
       }
 
       visiting.add(module);
-      
+
       const node = this.dependencyGraph.get(module);
       if (node) {
         for (const dep of node.dependencies) {
@@ -156,7 +156,7 @@ class ModuleLoader {
    */
   setLoadingState(modulePath, state, error = null) {
     const previousState = this.loadingState.get(modulePath);
-    
+
     this.loadingState.set(modulePath, {
       state,
       timestamp: Date.now(),
@@ -209,7 +209,7 @@ class ModuleLoader {
   getLoadingProgress() {
     const { total, loaded, failed, loading } = this.loadingStats;
     const pending = total - loaded - failed - loading;
-    
+
     return {
       total,
       loaded,
@@ -273,20 +273,20 @@ class ModuleLoader {
       try {
         this.retryAttempts.set(modulePath, attempt);
         this.setLoadingState(modulePath, 'loading');
-        
+
         if (logger && attempt > 1) {
           logger.info(`Retrying module load: ${modulePath} (attempt ${attempt}/${maxAttempts})`);
         }
 
         const module = await this._loadModuleWithDependencies(modulePath);
-        
+
         // Clear retry count on success
         this.retryAttempts.delete(modulePath);
         return module;
-        
+
       } catch (error) {
         lastError = error;
-        
+
         if (logger) {
           logger.warn(`Module load attempt ${attempt} failed for ${modulePath}:`, error.message);
         }
@@ -302,7 +302,7 @@ class ModuleLoader {
     if (logger) {
       logger.error(`Failed to load module ${modulePath} after ${maxAttempts} attempts:`, lastError);
     }
-    
+
     throw new Error(`Failed to load module ${modulePath} after ${maxAttempts} attempts: ${lastError.message}`);
   }
 
@@ -379,7 +379,7 @@ class ModuleLoader {
         link.as = 'script';
         document.head.appendChild(link);
       }
-      
+
       return this.loadModule(module);
     });
 
@@ -408,7 +408,7 @@ class ModuleLoader {
 
     for (const chunk of chunks) {
       await Promise.all(chunk.map(module => this.loadModule(module)));
-      
+
       // Small delay between chunks to prevent blocking
       await new Promise(resolve => setTimeout(resolve, 10));
     }
@@ -439,10 +439,10 @@ class ModuleLoader {
   async loadModulesInOrder(modules) {
     // Filter to only include requested modules and their dependencies
     const requiredModules = new Set();
-    
+
     const addModuleAndDeps = (modulePath) => {
       if (requiredModules.has(modulePath)) return;
-      
+
       requiredModules.add(modulePath);
       const deps = this.dependencies.get(modulePath) || [];
       deps.forEach(dep => addModuleAndDeps(dep));
@@ -451,7 +451,7 @@ class ModuleLoader {
     modules.forEach(module => addModuleAndDeps(module));
 
     // Calculate load order for required modules
-    const loadOrder = this.calculateLoadOrder().filter(module => 
+    const loadOrder = this.calculateLoadOrder().filter(module =>
       requiredModules.has(module)
     );
 
@@ -461,19 +461,19 @@ class ModuleLoader {
 
     // Load modules in batches based on dependency levels
     const loadedInThisBatch = new Set();
-    
+
     while (loadedInThisBatch.size < loadOrder.length) {
       const batch = [];
-      
+
       for (const module of loadOrder) {
         if (loadedInThisBatch.has(module)) continue;
-        
+
         // Check if all dependencies are loaded
         const deps = this.dependencies.get(module) || [];
-        const allDepsLoaded = deps.every(dep => 
+        const allDepsLoaded = deps.every(dep =>
           this.loadedModules.has(dep) || loadedInThisBatch.has(dep)
         );
-        
+
         if (allDepsLoaded) {
           batch.push(module);
         }
@@ -516,7 +516,7 @@ class ModuleLoader {
 
       visiting.add(module);
       const deps = this.dependencies.get(module) || [];
-      
+
       for (const dep of deps) {
         if (!this.dependencies.has(dep)) {
           issues.push({
@@ -571,7 +571,7 @@ class ModuleLoader {
     const state = this.loadingState.get(modulePath);
     const deps = this.dependencies.get(modulePath) || [];
     const dependents = this.dependencyGraph.get(modulePath)?.dependents || [];
-    
+
     return {
       path: modulePath,
       isLoaded: this.loadedModules.has(modulePath),
@@ -591,18 +591,18 @@ class ModuleLoader {
    */
   getReadyToLoadModules() {
     const ready = [];
-    
+
     for (const [module, deps] of this.dependencies) {
       if (this.loadedModules.has(module) || this.loadingPromises.has(module)) {
         continue;
       }
-      
+
       const allDepsLoaded = deps.every(dep => this.loadedModules.has(dep));
       if (allDepsLoaded) {
         ready.push(module);
       }
     }
-    
+
     return ready;
   }
 
@@ -616,7 +616,7 @@ class ModuleLoader {
     this.loadedModules.delete(modulePath);
     this.loadingState.delete(modulePath);
     this.retryAttempts.delete(modulePath);
-    
+
     // Reload
     return this.loadModule(modulePath);
   }
@@ -648,7 +648,7 @@ class ModuleLoader {
 
     try {
       await this.loadModulesInChunks(criticalModules, 2);
-      
+
       // 載入完成後執行依賴驗證
       if (typeof window !== 'undefined' && window.dependencyValidator) {
         const validationResults = await window.dependencyValidator.performRuntimeCheck();
@@ -699,7 +699,7 @@ class ProgressiveLoader {
     this.currentStage = 0;
     this.stageCallbacks = new Map();
     this.stageProgress = new Map();
-    
+
     // Setup progress tracking
     this.moduleLoader.onProgress((progress) => {
       this.updateStageProgress(progress);
@@ -790,19 +790,19 @@ class ProgressiveLoader {
     if (logger) {
       logger.info(`Loading stage: ${stageName}`);
     }
-    
+
     try {
       this.currentStage = this.loadingStages.indexOf(stageName);
-      
+
       // Use the enhanced loadModulesInOrder method
       await this.moduleLoader.loadModulesInOrder(modules);
-      
+
       // Trigger stage completion callback
       const callback = this.stageCallbacks.get(stageName);
       if (callback) {
         callback(this.stageProgress.get(stageName));
       }
-      
+
       if (logger) {
         logger.info(`Stage ${stageName} loaded successfully`);
       }
@@ -830,7 +830,7 @@ class ProgressiveLoader {
   getProgress() {
     const status = this.moduleLoader.getLoadingStatus();
     const currentStageName = this.loadingStages[this.currentStage] || 'complete';
-    
+
     return {
       ...status,
       currentStage: currentStageName,
@@ -866,7 +866,7 @@ const LazyLoader = {
    */
   createLazyComponent(modulePath, componentName) {
     let componentPromise = null;
-    
+
     return function(...args) {
       if (!componentPromise) {
         componentPromise = moduleLoader.loadModule(modulePath)
@@ -878,7 +878,7 @@ const LazyLoader = {
             return Component;
           });
       }
-      
+
       return componentPromise.then(Component => new Component(...args));
     };
   },

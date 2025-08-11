@@ -1,16 +1,16 @@
 /**
  * BaseProbabilityCalculator - Abstract base class for probability calculators
- * 
+ *
  * This class provides common functionality shared between different probability
  * calculation algorithms, reducing code duplication and ensuring consistency.
- * 
+ *
  * Features:
  * - Common board validation and manipulation methods
  * - Shared line detection logic
  * - Consistent move evaluation structure
  * - Reusable caching mechanisms
  * - Standard error handling
- * 
+ *
  * @abstract
  * @class BaseProbabilityCalculator
  * @version 1.0.0
@@ -43,7 +43,7 @@ class BaseProbabilityCalculator {
       },
       PERFORMANCE: { CACHE_SIZE: { VALUE_CACHE: 200 } }
     };
-    
+
     const utils = BaseProbUtils || {
       isValidPosition: (row, col, boardSize) => row >= 0 && row < boardSize && col >= 0 && col < boardSize,
       isCellEmpty: (board, row, col) => board[row] && board[row][col] === 0,
@@ -62,18 +62,18 @@ class BaseProbabilityCalculator {
       getLineCells: (row, col, lineType, boardSize) => {
         const cells = [];
         switch (lineType) {
-          case 'horizontal':
-            for (let c = 0; c < boardSize; c++) cells.push([row, c]);
-            break;
-          case 'vertical':
-            for (let r = 0; r < boardSize; r++) cells.push([r, col]);
-            break;
-          case 'diagonal-main':
-            for (let i = 0; i < boardSize; i++) cells.push([i, i]);
-            break;
-          case 'diagonal-anti':
-            for (let i = 0; i < boardSize; i++) cells.push([i, boardSize - 1 - i]);
-            break;
+        case 'horizontal':
+          for (let c = 0; c < boardSize; c++) cells.push([row, c]);
+          break;
+        case 'vertical':
+          for (let r = 0; r < boardSize; r++) cells.push([r, col]);
+          break;
+        case 'diagonal-main':
+          for (let i = 0; i < boardSize; i++) cells.push([i, i]);
+          break;
+        case 'diagonal-anti':
+          for (let i = 0; i < boardSize; i++) cells.push([i, boardSize - 1 - i]);
+          break;
         }
         return cells;
       },
@@ -99,18 +99,18 @@ class BaseProbabilityCalculator {
         return board.every(row => Array.isArray(row) && row.length === expectedSize);
       }
     };
-    
+
     // Store utils for use in methods
     this.Utils = utils;
-    
+
     // Board configuration
     this.BOARD_SIZE = constants.BOARD_SIZE;
     this.CELL_STATES = constants.CELL_STATES;
     this.LINE_TYPES = constants.LINE_TYPES;
-    
+
     // Algorithm weights
     this.WEIGHTS = { ...weights || constants.ALGORITHM_WEIGHTS.STANDARD };
-    
+
     // Performance optimization
     this._initializeCache();
     this._initializePerformanceMetrics();
@@ -271,7 +271,7 @@ class BaseProbabilityCalculator {
   simulateAllPossibleMoves(board) {
     const moves = [];
     const emptyCells = this.getEmptyCells(board);
-    
+
     for (const { row, col } of emptyCells) {
       const value = this.calculateMoveValue(board, row, col);
       moves.push({
@@ -281,10 +281,10 @@ class BaseProbabilityCalculator {
         position: `(${row}, ${col})`
       });
     }
-    
+
     // Sort by value (descending)
     moves.sort((a, b) => b.value - a.value);
-    
+
     return moves;
   }
 
@@ -295,13 +295,13 @@ class BaseProbabilityCalculator {
    */
   getBestSuggestion(board) {
     const allMoves = this.simulateAllPossibleMoves(board);
-    
+
     if (allMoves.length === 0) {
       return null;
     }
-    
+
     const bestMove = allMoves[0];
-    
+
     return {
       row: bestMove.row,
       col: bestMove.col,
@@ -331,7 +331,7 @@ class BaseProbabilityCalculator {
       this._performanceMetrics.cacheHits++;
       return this._valueCache.get(key);
     }
-    
+
     this._performanceMetrics.cacheMisses++;
     return undefined;
   }
@@ -347,7 +347,7 @@ class BaseProbabilityCalculator {
       const firstKey = this._valueCache.keys().next().value;
       this._valueCache.delete(firstKey);
     }
-    
+
     this._valueCache.set(key, value);
   }
 
@@ -365,13 +365,13 @@ class BaseProbabilityCalculator {
    */
   getPerformanceMetrics() {
     const totalCalculations = this._performanceMetrics.cacheHits + this._performanceMetrics.cacheMisses;
-    const cacheHitRate = totalCalculations > 0 ? 
+    const cacheHitRate = totalCalculations > 0 ?
       (this._performanceMetrics.cacheHits / totalCalculations * 100).toFixed(2) : 0;
-    
+
     const avgCalculationTime = this._performanceMetrics.calculationTime.length > 0 ?
-      this._performanceMetrics.calculationTime.reduce((sum, time) => sum + time, 0) / 
+      this._performanceMetrics.calculationTime.reduce((sum, time) => sum + time, 0) /
       this._performanceMetrics.calculationTime.length : 0;
-    
+
     return {
       cacheHitRate: `${cacheHitRate}%`,
       cacheHits: this._performanceMetrics.cacheHits,
@@ -399,9 +399,9 @@ class BaseProbabilityCalculator {
   _recordCalculationTime(startTime) {
     const endTime = performance.now();
     const duration = endTime - startTime;
-    
+
     this._performanceMetrics.calculationTime.push(duration);
-    
+
     // Limit array size to prevent memory issues
     if (this._performanceMetrics.calculationTime.length > 100) {
       this._performanceMetrics.calculationTime.shift();
@@ -427,13 +427,13 @@ class BaseProbabilityCalculator {
   calculateBasicCompletionValue(testBoard, row, col) {
     let value = 0;
     const relevantLines = this.getRelevantLines(row, col);
-    
+
     for (const lineType of relevantLines) {
       if (this.checkLineCompletion(testBoard, row, col, lineType)) {
         value += this.WEIGHTS.COMPLETE_LINE;
       }
     }
-    
+
     return value;
   }
 
@@ -447,12 +447,12 @@ class BaseProbabilityCalculator {
   calculateCooperativeValue(board, row, col) {
     let value = 0;
     const relevantLines = this.getRelevantLines(row, col);
-    
+
     for (const lineType of relevantLines) {
       const cells = this.getLineCells(row, col, lineType);
       const filledCount = this.countFilledCells(board, cells);
       const emptyCount = this.countEmptyCells(board, cells);
-      
+
       // If line has some filled cells and empty cells, it has cooperative potential
       if (filledCount > 0 && emptyCount > 0) {
         if (filledCount === 4) {
@@ -467,7 +467,7 @@ class BaseProbabilityCalculator {
         }
       }
     }
-    
+
     return value;
   }
 
@@ -481,18 +481,18 @@ class BaseProbabilityCalculator {
   calculatePotentialValue(testBoard, row, col) {
     let value = 0;
     const relevantLines = this.getRelevantLines(row, col);
-    
+
     for (const lineType of relevantLines) {
       const cells = this.getLineCells(row, col, lineType);
       const filledCount = this.countFilledCells(testBoard, cells);
       const emptyCount = this.countEmptyCells(testBoard, cells);
-      
+
       // Potential increases with more filled cells
       if (emptyCount > 0) {
         value += (filledCount + 1) * this.WEIGHTS.POTENTIAL_LINE;
       }
     }
-    
+
     return value;
   }
 }

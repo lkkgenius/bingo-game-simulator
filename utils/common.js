@@ -7,34 +7,34 @@
 const CONSTANTS = {
   BOARD_SIZE: 5,
   MAX_ROUNDS: 8,
-  
+
   CELL_STATES: {
     EMPTY: 0,
     PLAYER: 1,
     COMPUTER: 2
   },
-  
+
   GAME_PHASES: {
     WAITING: 'waiting',
     PLAYER_TURN: 'player-turn',
     COMPUTER_TURN: 'computer-turn',
     GAME_OVER: 'game-over'
   },
-  
+
   LINE_TYPES: {
     HORIZONTAL: 'horizontal',
     VERTICAL: 'vertical',
     DIAGONAL_MAIN: 'diagonal-main',
     DIAGONAL_ANTI: 'diagonal-anti'
   },
-  
+
   ERROR_TYPES: {
     INVALID_MOVE: 'invalid-move',
     CELL_OCCUPIED: 'cell-occupied',
     GAME_OVER: 'game-over',
     INVALID_PHASE: 'invalid-phase'
   },
-  
+
   // Algorithm weights for consistent configuration
   ALGORITHM_WEIGHTS: {
     STANDARD: {
@@ -53,7 +53,7 @@ const CONSTANTS = {
       MULTI_LINE_BONUS: 30
     }
   },
-  
+
   // Performance configuration
   PERFORMANCE: {
     CACHE_SIZE: {
@@ -65,7 +65,7 @@ const CONSTANTS = {
     BATCH_DELAY: 10,
     DEBOUNCE_DELAY: 100
   },
-  
+
   // UI configuration
   UI: {
     ANIMATION_DURATION: 1000,
@@ -168,19 +168,19 @@ const Utils = {
     if (!Array.isArray(board) || board.length !== expectedSize) {
       return false;
     }
-    
+
     for (let row of board) {
       if (!Array.isArray(row) || row.length !== expectedSize) {
         return false;
       }
-      
+
       for (let cell of row) {
         if (!Object.values(CONSTANTS.CELL_STATES).includes(cell)) {
           return false;
         }
       }
     }
-    
+
     return true;
   },
 
@@ -194,33 +194,33 @@ const Utils = {
    */
   getLineCells(row, col, lineType, boardSize = CONSTANTS.BOARD_SIZE) {
     const cells = [];
-    
+
     switch (lineType) {
-      case CONSTANTS.LINE_TYPES.HORIZONTAL:
-        for (let c = 0; c < boardSize; c++) {
-          cells.push([row, c]);
-        }
-        break;
-      
-      case CONSTANTS.LINE_TYPES.VERTICAL:
-        for (let r = 0; r < boardSize; r++) {
-          cells.push([r, col]);
-        }
-        break;
-      
-      case CONSTANTS.LINE_TYPES.DIAGONAL_MAIN:
-        for (let i = 0; i < boardSize; i++) {
-          cells.push([i, i]);
-        }
-        break;
-      
-      case CONSTANTS.LINE_TYPES.DIAGONAL_ANTI:
-        for (let i = 0; i < boardSize; i++) {
-          cells.push([i, boardSize - 1 - i]);
-        }
-        break;
+    case CONSTANTS.LINE_TYPES.HORIZONTAL:
+      for (let c = 0; c < boardSize; c++) {
+        cells.push([row, c]);
+      }
+      break;
+
+    case CONSTANTS.LINE_TYPES.VERTICAL:
+      for (let r = 0; r < boardSize; r++) {
+        cells.push([r, col]);
+      }
+      break;
+
+    case CONSTANTS.LINE_TYPES.DIAGONAL_MAIN:
+      for (let i = 0; i < boardSize; i++) {
+        cells.push([i, i]);
+      }
+      break;
+
+    case CONSTANTS.LINE_TYPES.DIAGONAL_ANTI:
+      for (let i = 0; i < boardSize; i++) {
+        cells.push([i, boardSize - 1 - i]);
+      }
+      break;
     }
-    
+
     return cells;
   },
 
@@ -353,7 +353,7 @@ const Utils = {
    * @returns {boolean} Whether line is complete
    */
   isLineComplete(board, cells) {
-    return cells.every(([row, col]) => 
+    return cells.every(([row, col]) =>
       board[row][col] !== CONSTANTS.CELL_STATES.EMPTY
     );
   },
@@ -367,16 +367,16 @@ const Utils = {
    */
   getRelevantLineTypes(row, col, boardSize = CONSTANTS.BOARD_SIZE) {
     const lines = [CONSTANTS.LINE_TYPES.HORIZONTAL, CONSTANTS.LINE_TYPES.VERTICAL];
-    
+
     // Check diagonal lines
     if (row === col) {
       lines.push(CONSTANTS.LINE_TYPES.DIAGONAL_MAIN);
     }
-    
+
     if (row + col === boardSize - 1) {
       lines.push(CONSTANTS.LINE_TYPES.DIAGONAL_ANTI);
     }
-    
+
     return lines;
   },
 
@@ -390,11 +390,11 @@ const Utils = {
     if (moves.length < 2) {
       return 'high';
     }
-    
+
     const bestValue = moves[0].value;
     const secondBestValue = moves[1].value;
     const difference = bestValue - secondBestValue;
-    
+
     if (difference >= weights.COMPLETE_LINE) {
       return 'very-high';
     } else if (difference >= weights.COOPERATIVE_LINE) {
@@ -415,22 +415,22 @@ const Utils = {
    */
   memoize(fn, keyGenerator, maxSize = 100) {
     const cache = new Map();
-    
+
     return function(...args) {
       const key = keyGenerator ? keyGenerator(...args) : JSON.stringify(args);
-      
+
       if (cache.has(key)) {
         return cache.get(key);
       }
-      
+
       const result = fn.apply(this, args);
-      
+
       // Implement LRU eviction
       if (cache.size >= maxSize) {
         const firstKey = cache.keys().next().value;
         cache.delete(firstKey);
       }
-      
+
       cache.set(key, result);
       return result;
     };
@@ -445,18 +445,18 @@ const Utils = {
    */
   validateInput(value, type, defaultValue = null) {
     switch (type) {
-      case 'number':
-        return typeof value === 'number' && !isNaN(value) ? value : defaultValue;
-      case 'string':
-        return typeof value === 'string' ? value : defaultValue;
-      case 'boolean':
-        return typeof value === 'boolean' ? value : defaultValue;
-      case 'array':
-        return Array.isArray(value) ? value : defaultValue;
-      case 'object':
-        return value && typeof value === 'object' && !Array.isArray(value) ? value : defaultValue;
-      default:
-        return value !== undefined && value !== null ? value : defaultValue;
+    case 'number':
+      return typeof value === 'number' && !isNaN(value) ? value : defaultValue;
+    case 'string':
+      return typeof value === 'string' ? value : defaultValue;
+    case 'boolean':
+      return typeof value === 'boolean' ? value : defaultValue;
+    case 'array':
+      return Array.isArray(value) ? value : defaultValue;
+    case 'object':
+      return value && typeof value === 'object' && !Array.isArray(value) ? value : defaultValue;
+    default:
+      return value !== undefined && value !== null ? value : defaultValue;
     }
   },
 
@@ -469,22 +469,22 @@ const Utils = {
     if (obj === null || typeof obj !== 'object') {
       return obj;
     }
-    
+
     if (obj instanceof Date) {
       return new Date(obj.getTime());
     }
-    
+
     if (Array.isArray(obj)) {
       return obj.map(item => this.deepClone(item));
     }
-    
+
     const cloned = {};
     for (const key in obj) {
       if (obj.hasOwnProperty(key)) {
         cloned[key] = this.deepClone(obj[key]);
       }
     }
-    
+
     return cloned;
   }
 };
