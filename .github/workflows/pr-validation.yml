@@ -23,13 +23,17 @@ jobs:
 
       - name: Install dependencies
         run: |
-          npm install -g eslint jshint playwright http-server
+          npm install -g playwright http-server
           npx playwright install
 
       - name: Check code formatting
         run: |
-          echo "Checking code formatting..."
-          eslint *.js --max-warnings 0 || echo "ESLint warnings found"
+          echo "Checking code formatting with Prettier..."
+          npx prettier --check . || {
+            echo "⚠️  Some files need formatting"
+            echo "Run 'npx prettier --write .' to fix formatting"
+            exit 1
+          }
 
       - name: Run security scan
         run: |
