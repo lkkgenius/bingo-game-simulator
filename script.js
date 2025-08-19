@@ -603,7 +603,11 @@
       if (scriptLogger) scriptLogger.info('Starting game initialization...');
 
       // Initialize game components
-      gameState = new GameState();
+      if (typeof GameEngine === 'function') {
+        gameState = new GameEngine();
+      } else {
+        throw new Error('GameEngine is not available');
+      }
       gameBoard = new GameBoard('game-board');
       lineDetector = new LineDetector();
       

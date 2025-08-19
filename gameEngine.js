@@ -859,3 +859,8 @@ class GameEngine {
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = GameEngine;
 }
+
+// 在瀏覽器環境中，將 GameEngine 添加到全局作用域
+if (typeof window !== 'undefined') {
+  window.GameEngine = GameEngine;
+}
