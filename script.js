@@ -381,7 +381,11 @@
         showGlobalLoading('正在初始化遊戲狀態...');
         updateLoadingProgress(10, '正在初始化遊戲狀態...');
 
-        gameState = new GameState();
+        if (typeof GameEngine === 'function') {
+          gameState = new GameEngine();
+        } else {
+          throw new Error('GameEngine is not available');
+        }
         // Validate and fix game state if needed
         if (window.bugFixHandler) {
           gameState = window.bugFixHandler.validateAndFix(
@@ -389,7 +393,7 @@
             gameState
           );
         }
-        progressiveLoader.markComponentLoaded('GameState');
+        progressiveLoader.markComponentLoaded('GameEngine');
 
         requestAnimationFrame(() => {
           // Step 2: Initialize line detector
@@ -1518,7 +1522,11 @@
       // Initialize game components if not already done
       if (!gameState) {
         console.log('Initializing game state...');
-        gameState = new GameState();
+        if (typeof GameEngine === 'function') {
+          gameState = new GameEngine();
+        } else {
+          throw new Error('GameEngine is not available');
+        }
       }
 
       if (!gameBoard) {
