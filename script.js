@@ -404,10 +404,14 @@
             showGlobalLoading('正在載入機率計算器...');
             updateLoadingProgress(40, '正在載入機率計算器...');
 
-            // Save reference to standard algorithm
-            StandardProbabilityCalculator = ProbabilityCalculator;
-            probabilityCalculator = new ProbabilityCalculator();
-            progressiveLoader.markComponentLoaded('ProbabilityCalculator');
+            // Save reference to standard algorithm and check availability
+            if (typeof ProbabilityCalculator === 'function') {
+              StandardProbabilityCalculator = ProbabilityCalculator;
+              probabilityCalculator = new ProbabilityCalculator();
+              progressiveLoader.markComponentLoaded('ProbabilityCalculator');
+            } else {
+              throw new Error('ProbabilityCalculator is not available');
+            }
 
             requestAnimationFrame(() => {
               // Step 4: Initialize game board
@@ -602,7 +606,13 @@
       gameState = new GameState();
       gameBoard = new GameBoard('game-board');
       lineDetector = new LineDetector();
-      probabilityCalculator = new ProbabilityCalculator();
+      
+      // Check if ProbabilityCalculator is available
+      if (typeof ProbabilityCalculator === 'function') {
+        probabilityCalculator = new ProbabilityCalculator();
+      } else {
+        throw new Error('ProbabilityCalculator is not available');
+      }
 
       // Initialize AI learning system if available
       if (typeof AILearningSystem !== 'undefined') {
