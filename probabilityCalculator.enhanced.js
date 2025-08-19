@@ -1,13 +1,14 @@
-// Import base class and common utilities
-let BaseProbabilityCalculator, EnhancedCONSTANTS;
-if (typeof require !== 'undefined') {
-  BaseProbabilityCalculator = require('./utils/baseProbabilityCalculator.js');
-  const common = require('./utils/common.js');
-  EnhancedCONSTANTS = common.CONSTANTS;
-} else if (typeof window !== 'undefined') {
-  BaseProbabilityCalculator = window.BaseProbabilityCalculator;
-  EnhancedCONSTANTS = window.CONSTANTS;
-}
+(function() {
+  // Import base class and common utilities
+  let BaseProbabilityCalculator, EnhancedCONSTANTS;
+  if (typeof require !== 'undefined') {
+    BaseProbabilityCalculator = require('./utils/baseProbabilityCalculator.js');
+    const common = require('./utils/common.js');
+    EnhancedCONSTANTS = common.CONSTANTS;
+  } else if (typeof window !== 'undefined') {
+    BaseProbabilityCalculator = window.BaseProbabilityCalculator;
+    EnhancedCONSTANTS = window.CONSTANTS;
+  }
 
 /**
  * LRU 緩存類實現
@@ -427,12 +428,14 @@ class EnhancedProbabilityCalculator extends BaseProbabilityCalculator {
   }
 }
 
-// Export for both Node.js and browser environments
-if (typeof module !== 'undefined' && module.exports) {
-  module.exports = EnhancedProbabilityCalculator;
-}
+  // Export for both Node.js and browser environments
+  if (typeof module !== 'undefined' && module.exports) {
+    module.exports = EnhancedProbabilityCalculator;
+  }
 
-// In browser environment, add to global scope
-if (typeof window !== 'undefined') {
-  window.EnhancedProbabilityCalculator = EnhancedProbabilityCalculator;
-}
+  // In browser environment, add to global scope
+  if (typeof window !== 'undefined') {
+    window.EnhancedProbabilityCalculator = EnhancedProbabilityCalculator;
+  }
+
+})(); // End of IIFE
