@@ -688,15 +688,59 @@
       </div>
     </div>
 
-    <!-- Enhanced Script Loading Architecture -->
-    <script src="./script-loader.js"></script>
+    <!-- Simplified Game Loading -->
+    <script src="./simple-game-loader.js"></script>
 
     <script>
-      // Enhanced Game Initialization with Refactored Script Loading
-      // Uses the new modular loading architecture to eliminate global pollution
-      // and implement conditional loading based on environment
+      // 簡化的遊戲初始化
+      let gameInitialized = false;
+      let currentAlgorithm = 'standard';
 
-      // Application state management (encapsulated to prevent global pollution)
+      // 簡化的遊戲載入和初始化
+      async function initializeGame() {
+        const loadingElement = document.getElementById('global-loading');
+        const loadingText = document.querySelector('.loading-text');
+        
+        try {
+          // 顯示載入狀態
+          if (loadingElement) loadingElement.style.display = 'flex';
+          if (loadingText) loadingText.textContent = '正在載入遊戲組件...';
+
+          // 載入遊戲組件
+          const success = await window.simpleGameLoader.loadGameComponents();
+          
+          if (success) {
+            // 檢查必要組件是否載入
+            if (typeof LineDetector !== 'undefined' && 
+                typeof ProbabilityCalculator !== 'undefined' && 
+                typeof GameBoard !== 'undefined' && 
+                typeof GameEngine !== 'undefined') {
+              
+              if (loadingText) loadingText.textContent = '初始化遊戲...';
+              
+              // 等待 script.js 中的初始化完成
+              setTimeout(() => {
+                gameInitialized = true;
+                if (loadingElement) loadingElement.style.display = 'none';
+                console.log('🎮 Game initialized successfully');
+              }, 1000);
+            } else {
+              throw new Error('Critical components not loaded');
+            }
+          } else {
+            throw new Error('Failed to load game components');
+          }
+        } catch (error) {
+          console.error('Game initialization failed:', error);
+          if (loadingText) {
+            loadingText.textContent = '載入失敗，請重新整理頁面';
+            loadingText.style.color = '#e74c3c';
+          }
+          setupBasicFallback();
+        }
+      }
+
+      // Application state management (simplified)
       const BingoApp = {
         state: {
           currentAlgorithm: 'standard',
@@ -1155,6 +1199,10 @@
         }
       }
 
+      // Global variables
+      let currentAlgorithm = 'standard';
+      let gameInitialized = false;
+
       // Switch algorithm implementation
       function switchAlgorithm(algorithm) {
         if (algorithm === currentAlgorithm) {
@@ -1306,12 +1354,31 @@
         }
       }
 
+      // Basic fallback initialization
+      function setupBasicFallback() {
+        console.log('Setting up basic fallback functionality');
+        gameInitialized = true;
+        
+        const startButton = document.getElementById('start-game');
+        if (startButton && !startButton.onclick) {
+          startButton.addEventListener('click', () => {
+            alert('遊戲載入失敗，請重新整理頁面後再試');
+          });
+        }
+      }
+
       // Initialize game when DOM is ready
       document.addEventListener('DOMContentLoaded', function () {
         // Small delay to ensure script-loader.js is fully loaded
         setTimeout(() => {
           if (window.scriptLoader) {
-            initializeGame();
+            // Use BingoApp initialization instead
+            BingoApp.initialize().then(() => {
+              gameInitialized = true;
+            }).catch(error => {
+              console.error('BingoApp initialization failed:', error);
+              setupBasicFallback();
+            });
           } else {
             console.error(
               'Script loader not available, falling back to basic initialization'
