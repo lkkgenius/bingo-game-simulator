@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bingo遊戲模擬器 - 簡化版</title>
+    <link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Bingo遊戲模擬器</h1>
+            <p>與電腦進行8輪翻牌遊戲，目標是完成最多的連線！</p>
+        </header>
+
+        <main>
+            <div class="game-status">
+                <div class="status-item">
+                    <span class="label">當前輪數</span>: <span id="current-round">1</span> / 8
+                </div>
+                <div class="status-item">
+                    <span class="label">遊戲階段</span>: <span id="game-phase">等待開始</span>
+                </div>
+                <div class="status-item">
+                    <span class="label">完成連線</span>: <span id="completed-lines">0</span>
+                </div>
+            </div>
+
+            <div class="game-board-container">
+                <div id="game-board" class="game-board"></div>
+                <div class="board-controls">
+                    <button id="start-game" class="primary-btn">開始遊戲</button>
+                    <button id="restart-game" class="secondary-btn" disabled>重新開始</button>
+                    <button id="random-computer-move" class="secondary-btn">電腦隨機下棋</button>
+                </div>
+            </div>
+
+            <div class="control-panel">
+                <div class="suggestion-area">
+                    <h3>建議移動</h3>
+                    <div id="suggestion-display" class="suggestion-display">
+                        <span id="suggestion-text">點擊開始遊戲獲得建議</span>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- 載入核心組件 -->
+    <script src="./safe-dom.js"></script>
+    <script src="./production-logger.js"></script>
+    <script src="./utils/common.js"></script>
+    <script src="./utils/baseProbabilityCalculator.js"></script>
+    <script src="./lineDetector.js"></script>
+    <script src="./probabilityCalculator.js"></script>
+    <script src="./gameBoard.js"></script>
+    <script src="./gameEngine.js"></script>
+    <script src="./script.js"></script>
+
+    <script>
+        // 簡化的初始化
+        document.addEventListener('DOMContentLoaded', function() {
+            console.log('🎮 Starting minimal game initialization...');
+            
+            // 檢查必要組件
+            const requiredComponents = [
+                'LineDetector', 'ProbabilityCalculator', 'GameBoard', 'GameEngine'
+            ];
+            
+            const missingComponents = requiredComponents.filter(
+                component => typeof window[component] === 'undefined'
+            );
+            
+            if (missingComponents.length > 0) {
+                console.error('Missing components:', missingComponents);
+                alert('遊戲組件載入失敗：' + missingComponents.join(', '));
+                return;
+            }
+            
+            console.log('✅ All components loaded successfully');
+            
+            // 等待 script.js 初始化完成
+            setTimeout(() => {
+                if (typeof window.startNewGame === 'function') {
+                    console.log('🎉 Game ready!');
+                } else {
+                    console.warn('Game functions not available, but components loaded');
+                }
+            }, 500);
+        });
+    </script>
+</body>
+</html>
