@@ -1,11 +1,11 @@
 // Import base class and common utilities
-let EnhancedBaseProbabilityCalculator, EnhancedCONSTANTS;
+let BaseProbabilityCalculator, EnhancedCONSTANTS;
 if (typeof require !== 'undefined') {
-  EnhancedBaseProbabilityCalculator = require('./utils/baseProbabilityCalculator.js');
+  BaseProbabilityCalculator = require('./utils/baseProbabilityCalculator.js');
   const common = require('./utils/common.js');
   EnhancedCONSTANTS = common.CONSTANTS;
 } else if (typeof window !== 'undefined') {
-  EnhancedBaseProbabilityCalculator = window.BaseProbabilityCalculator;
+  BaseProbabilityCalculator = window.BaseProbabilityCalculator;
   EnhancedCONSTANTS = window.CONSTANTS;
 }
 
@@ -71,7 +71,7 @@ class LRUCache {
  * @extends BaseProbabilityCalculator
  * @version 1.0.0
  */
-class EnhancedProbabilityCalculator extends EnhancedBaseProbabilityCalculator {
+class EnhancedProbabilityCalculator extends BaseProbabilityCalculator {
   constructor() {
     // Initialize with enhanced algorithm weights
     super(EnhancedCONSTANTS.ALGORITHM_WEIGHTS.ENHANCED);

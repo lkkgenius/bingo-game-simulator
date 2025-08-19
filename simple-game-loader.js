@@ -43,6 +43,7 @@ class SimpleGameLoader {
       const coreScripts = [
         'safe-dom.js',
         'production-logger.js',
+        'utils/baseProbabilityCalculator.js',
         'lineDetector.js',
         'probabilityCalculator.js',
         'gameBoard.js',
