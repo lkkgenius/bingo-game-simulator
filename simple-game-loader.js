@@ -14,6 +14,21 @@ class SimpleGameLoader {
       return Promise.resolve();
     }
 
+    // 檢查特定組件是否已經存在
+    const componentChecks = {
+      'utils/baseProbabilityCalculator.js': () => typeof window.BaseProbabilityCalculator !== 'undefined',
+      'lineDetector.js': () => typeof window.LineDetector !== 'undefined',
+      'probabilityCalculator.js': () => typeof window.ProbabilityCalculator !== 'undefined',
+      'gameBoard.js': () => typeof window.GameBoard !== 'undefined',
+      'gameEngine.js': () => typeof window.GameEngine !== 'undefined'
+    };
+
+    if (componentChecks[src] && componentChecks[src]()) {
+      console.log(`⚡ Already loaded: ${src}`);
+      this.loadedScripts.add(src);
+      return Promise.resolve();
+    }
+
     return new Promise((resolve, reject) => {
       const script = document.createElement('script');
       script.src = src;
