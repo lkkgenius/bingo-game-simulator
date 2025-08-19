@@ -1129,7 +1129,11 @@
       // Expose BingoApp globally for debugging (development only)
       if (window.Environment && window.Environment.isDevelopment()) {
         window.BingoApp = BingoApp;
-      }nhancedOption = document.querySelector(
+      }
+
+      // Enable algorithm selection after loading
+      function enableAlgorithmSelection() {
+        const enhancedOption = document.querySelector(
           '.algorithm-option[data-algorithm="enhanced"]'
         );
         if (
