@@ -2812,6 +2812,7 @@
 
   // 導出主要的遊戲函數到全局作用域（為了向後兼容）
   global.initializeGame = initializeGame;
+  global.initializeGameWithProgressiveLoading = initializeGameWithProgressiveLoading;
   global.startNewGame = startNewGame;
   global.handleCellClick = handleCellClick;
   global.makeRandomComputerMove = makeRandomComputerMove;
