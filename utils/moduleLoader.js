@@ -52,14 +52,19 @@ class ModuleLoader {
     this.dependencies.set('error-boundary.js', []);
     this.dependencies.set('utils/common.js', []);
 
+    // Base probability calculator
+    this.dependencies.set('utils/baseProbabilityCalculator.js', ['utils/common.js']);
+
     // Game core modules
     this.dependencies.set('lineDetector.js', ['utils/common.js']);
     this.dependencies.set('probabilityCalculator.js', [
       'utils/common.js',
+      'utils/baseProbabilityCalculator.js',
       'lineDetector.js'
     ]);
     this.dependencies.set('probabilityCalculator.enhanced.js', [
       'utils/common.js',
+      'utils/baseProbabilityCalculator.js',
       'lineDetector.js'
     ]);
     this.dependencies.set('gameBoard.js', ['utils/common.js']);

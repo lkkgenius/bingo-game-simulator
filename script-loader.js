@@ -296,6 +296,9 @@ class ConditionalModuleConfig {
           'error-boundary.js',
           'utils/common.js',
 
+          // Base probability calculator
+          'utils/baseProbabilityCalculator.js',
+
           // Game modules
           'lineDetector.js',
           'probabilityCalculator.js',
@@ -305,7 +308,7 @@ class ConditionalModuleConfig {
           // Main script
           'script.js',
 
-          // Development-specific modules
+          // Development-specific modules (if available)
           'debug-probability.js',
 
           // Enhanced features
@@ -343,6 +346,9 @@ class ConditionalModuleConfig {
           'security-utils.js',
           'error-boundary.js',
           'utils/common.js',
+
+          // Base probability calculator
+          'utils/baseProbabilityCalculator.js',
 
           // Game modules
           'lineDetector.js',
@@ -503,6 +509,19 @@ class EnhancedScriptLoader {
         return;
       }
 
+      // Check if running in Node.js environment (for tests)
+      if (typeof window === 'undefined') {
+        try {
+          const moduleLoaderModule = require('./utils/moduleLoader.js');
+          this.moduleLoader = moduleLoaderModule.moduleLoader;
+          this.progressiveLoader = moduleLoaderModule.progressiveLoader;
+          resolve();
+        } catch (error) {
+          reject(error);
+        }
+        return;
+      }
+
       const script = document.createElement('script');
       script.src = './utils/moduleLoader.js';
       script.async = true;
@@ -611,9 +630,9 @@ class EnhancedScriptLoader {
    * Attempt to recover from loading errors
    * @private
    * @param {string} modulePath - Path to the failed module
-   * @param {Error} error - The error that occurred
+   * @param {Error} _error - The error that occurred (unused but kept for API consistency)
    */
-  attemptErrorRecovery(modulePath, error) {
+  attemptErrorRecovery(modulePath, _error) {
     // Define fallback strategies for critical modules
     const fallbackStrategies = {
       'probabilityCalculator.js': () => {
@@ -733,6 +752,7 @@ class EnhancedScriptLoader {
       'security-utils.js',
       'error-boundary.js',
       'utils/common.js',
+      'utils/baseProbabilityCalculator.js',
       'lineDetector.js',
       'probabilityCalculator.js',
       'gameBoard.js',

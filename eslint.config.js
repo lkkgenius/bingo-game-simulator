@@ -91,7 +91,13 @@ module.exports = [
       'no-undef': 'error',
       'no-redeclare': 'off',
       'no-console': 'off',
-      'no-alert': 'warn'
+      'no-alert': 'warn',
+      
+      // Security rules
+      'no-eval': 'error',
+      'no-implied-eval': 'error',
+      'no-new-func': 'error',
+      'no-script-url': 'error'
     }
   }
 ];

@@ -688,293 +688,448 @@
       </div>
     </div>
 
-    <!-- Direct Script Loading for Debugging -->
-    <script src="./safe-dom.js"></script>
-    <script src="./production-logger.js"></script>
-    <script src="./security-utils.js"></script>
-    <script src="./error-boundary.js"></script>
-    <script src="./utils/common.js"></script>
-    <script src="./utils/baseProbabilityCalculator.js"></script>
-    <script src="./lineDetector.js"></script>
-    <script src="./probabilityCalculator-standalone.js"></script>
-    <script src="./gameBoard.js"></script>
-    <script src="./gameEngine.js"></script>
-    <script src="./performance-monitor.js"></script>
-    <script src="./loading-functions.js"></script>
-    <script src="./script.js"></script>
+    <!-- Enhanced Script Loading Architecture -->
+    <script src="./script-loader.js"></script>
 
     <script>
-      // Simplified game initialization
-      let currentAlgorithm = 'standard';
-      let gameInitialized = false;
+      // Enhanced Game Initialization with Refactored Script Loading
+      // Uses the new modular loading architecture to eliminate global pollution
+      // and implement conditional loading based on environment
 
-      // Hide loading indicator immediately
-      document.addEventListener('DOMContentLoaded', function () {
-        const loadingElement = document.getElementById('global-loading');
-        if (loadingElement) {
-          loadingElement.style.display = 'none';
-        }
-      });
+      // Application state management (encapsulated to prevent global pollution)
+      const BingoApp = {
+        state: {
+          currentAlgorithm: 'standard',
+          gameInitialized: false,
+          loadingProgress: 0,
+          environment: null
+        },
+        
+        components: {
+          gameState: null,
+          gameBoard: null,
+          lineDetector: null,
+          probabilityCalculator: null
+        },
 
-      // Initialize the enhanced script loader and load all modules
-      async function initializeGame() {
-        try {
-          // Show loading indicator
+        // Initialize the application
+        async initialize() {
+          try {
+            // Detect environment early
+            this.state.environment = window.Environment ? window.Environment.getMode() : 'production';
+            
+            // Show loading indicator
+            this.showLoadingState('正在初始化載入系統...');
+            
+            // Initialize the enhanced script loader
+            await window.scriptLoader.initialize();
+            
+            // Setup loading progress monitoring
+            this.setupLoadingMonitoring();
+            
+            // Load all modules using the enhanced loading system
+            this.showLoadingState('正在載入遊戲模組...');
+            await window.scriptLoader.loadModules();
+            
+            // Setup game components after modules are loaded
+            this.setupGameComponents();
+            
+            // Initialize UI and event handlers
+            this.setupUserInterface();
+            
+            // Mark as initialized
+            this.state.gameInitialized = true;
+            
+            // Hide loading and show success
+            this.hideLoadingState();
+            this.showInitializationSuccess();
+            
+            if (this.state.environment === 'development') {
+              console.log('🎮 Bingo Game initialized successfully');
+              console.log('Loader Status:', window.scriptLoader.getStatus());
+            }
+            
+          } catch (error) {
+            console.error('Failed to initialize Bingo Game:', error);
+            this.handleInitializationError(error);
+          }
+        },
+
+        // Setup loading progress monitoring
+        setupLoadingMonitoring() {
+          if (window.scriptLoader && window.scriptLoader.moduleLoader) {
+            window.scriptLoader.moduleLoader.onProgress((progress) => {
+              this.updateLoadingProgress(progress.percentage, `載入中... ${progress.loaded}/${progress.total}`);
+            });
+          }
+        },
+
+        // Setup game components after modules are loaded
+        setupGameComponents() {
+          // Verify critical components are available
+          const criticalComponents = ['LineDetector', 'ProbabilityCalculator', 'GameBoard', 'GameEngine'];
+          const missingComponents = criticalComponents.filter(
+            component => typeof window[component] === 'undefined'
+          );
+
+          if (missingComponents.length > 0) {
+            console.warn('Missing critical components:', missingComponents);
+            throw new Error(`Critical components missing: ${missingComponents.join(', ')}`);
+          }
+
+          // Initialize components (these will be available after module loading)
+          this.components.lineDetector = window.LineDetector;
+          this.components.probabilityCalculator = window.ProbabilityCalculator;
+          this.components.gameBoard = window.GameBoard;
+          this.components.gameEngine = window.GameEngine;
+
+          if (this.state.environment === 'development') {
+            console.log('✅ All critical game components loaded successfully');
+          }
+        },
+
+        // Setup user interface and event handlers
+        setupUserInterface() {
+          // Setup algorithm selection with on-demand loading
+          this.setupAlgorithmSelection();
+          
+          // Setup game control buttons
+          this.setupGameControls();
+          
+          // Setup accessibility features
+          this.setupAccessibilityFeatures();
+          
+          // Setup language switching
+          this.setupLanguageHandling();
+          
+          // Setup performance monitoring UI (development only)
+          if (this.state.environment === 'development') {
+            this.setupDevelopmentFeatures();
+          }
+        },
+
+        // Setup algorithm selection with enhanced on-demand loading
+        setupAlgorithmSelection() {
+          const algorithmOptions = document.querySelectorAll('.algorithm-option');
+
+          algorithmOptions.forEach(option => {
+            option.addEventListener('click', async (event) => {
+              const algorithm = option.getAttribute('data-algorithm');
+              
+              if (algorithm === this.state.currentAlgorithm) {
+                return;
+              }
+
+              try {
+                await this.switchAlgorithm(algorithm, option);
+              } catch (error) {
+                console.error(`Failed to switch to ${algorithm} algorithm:`, error);
+                this.showAlgorithmError(option, error);
+              }
+            });
+          });
+
+          // Initially mark enhanced algorithms as loading
+          this.markAlgorithmsAsLoading();
+        },
+
+        // Switch algorithm with on-demand loading
+        async switchAlgorithm(algorithm, optionElement) {
+          // Show loading state for the option
+          this.showAlgorithmLoading(optionElement, algorithm);
+
+          // Load algorithm module if needed
+          if (algorithm === 'enhanced' && typeof window.EnhancedProbabilityCalculator === 'undefined') {
+            await window.scriptLoader.loadOnDemand('probabilityCalculator.enhanced.js');
+          } else if (algorithm === 'ai-learning' && typeof window.AILearningSystem === 'undefined') {
+            await window.scriptLoader.loadOnDemand('aiLearningSystem.js');
+          }
+
+          // Update algorithm selection
+          this.updateAlgorithmSelection(algorithm);
+          this.state.currentAlgorithm = algorithm;
+
+          // Show success state
+          this.showAlgorithmLoaded(optionElement, algorithm);
+
+          // Notify the game engine if it exists
+          if (typeof window.switchAlgorithm === 'function') {
+            window.switchAlgorithm(algorithm);
+          }
+        },
+
+        // Setup game control buttons
+        setupGameControls() {
+          const startButton = document.getElementById('start-game');
+          const restartButton = document.getElementById('restart-game');
+          const randomMoveButton = document.getElementById('random-computer-move');
+          const playAgainButton = document.getElementById('play-again');
+
+          if (startButton) {
+            startButton.addEventListener('click', () => {
+              if (typeof window.startNewGame === 'function') {
+                window.startNewGame();
+              } else {
+                console.error('startNewGame function not available');
+                this.handleMissingFunction('startNewGame');
+              }
+            });
+          }
+
+          if (restartButton) {
+            restartButton.addEventListener('click', () => {
+              if (typeof window.restartGame === 'function') {
+                window.restartGame();
+              } else {
+                this.handleMissingFunction('restartGame');
+              }
+            });
+          }
+
+          if (randomMoveButton) {
+            randomMoveButton.addEventListener('click', () => {
+              if (typeof window.makeRandomComputerMove === 'function') {
+                window.makeRandomComputerMove();
+              } else {
+                this.handleMissingFunction('makeRandomComputerMove');
+              }
+            });
+          }
+
+          if (playAgainButton) {
+            playAgainButton.addEventListener('click', () => {
+              if (typeof window.handlePlayAgain === 'function') {
+                window.handlePlayAgain();
+              } else {
+                this.handleMissingFunction('handlePlayAgain');
+              }
+            });
+          }
+        },
+
+        // Handle missing function by attempting to load script.js
+        async handleMissingFunction(functionName) {
+          try {
+            await window.scriptLoader.loadOnDemand('script.js');
+            
+            if (typeof window[functionName] === 'function') {
+              window[functionName]();
+            } else {
+              throw new Error(`Function ${functionName} still not available after loading script.js`);
+            }
+          } catch (error) {
+            console.error(`Failed to load ${functionName}:`, error);
+            alert(`遊戲功能載入失敗：${functionName}`);
+          }
+        },
+
+        // Setup accessibility features
+        setupAccessibilityFeatures() {
+          // Load accessibility enhancements on demand
+          if (window.scriptLoader) {
+            window.scriptLoader.loadOnDemand('accessibility-enhancements.js').catch(error => {
+              console.warn('Accessibility enhancements failed to load:', error);
+            });
+          }
+        },
+
+        // Setup language handling
+        setupLanguageHandling() {
+          // Load i18n module on demand
+          if (window.scriptLoader) {
+            window.scriptLoader.loadOnDemand('i18n.js').catch(error => {
+              console.warn('Internationalization module failed to load:', error);
+            });
+          }
+
+          // Setup language change listeners
+          document.addEventListener('languageChanged', (event) => {
+            this.handleLanguageChange(event.detail);
+          });
+        },
+
+        // Setup development-only features
+        setupDevelopmentFeatures() {
+          // Load performance monitoring
+          window.scriptLoader.loadOnDemand('performance-monitor.js').then(() => {
+            if (window.performanceMonitor && !window.performanceMonitor.isMonitoring) {
+              window.performanceMonitor.startMonitoring();
+            }
+          }).catch(error => {
+            console.warn('Performance monitor failed to load:', error);
+          });
+
+          // Add debug information to console
+          console.group('🔧 Development Mode Active');
+          console.log('Environment:', this.state.environment);
+          console.log('Script Loader:', window.scriptLoader);
+          console.log('Module Loader:', window.moduleLoader);
+          console.groupEnd();
+        },
+
+        // UI Helper Methods
+        showLoadingState(message) {
           const loadingElement = document.getElementById('global-loading');
+          const loadingText = document.querySelector('.loading-text');
+          
           if (loadingElement) {
             loadingElement.style.display = 'flex';
           }
+          
+          if (loadingText) {
+            loadingText.textContent = message;
+            loadingText.style.color = '';
+          }
+        },
 
-          // Initialize and load modules using the enhanced script loader
-          await window.scriptLoader.initialize();
-          await window.scriptLoader.loadModules();
-
-          // Setup game components after all modules are loaded
-          setupGameComponents();
-
-          // Hide loading indicator
+        hideLoadingState() {
+          const loadingElement = document.getElementById('global-loading');
           if (loadingElement) {
             loadingElement.style.display = 'none';
           }
+        },
 
-          gameInitialized = true;
-
-          if (window.Environment && window.Environment.isDevelopment()) {
-            console.log('🎮 Game initialized successfully');
-            console.log(
-              'Script Loader Status:',
-              window.scriptLoader.getStatus()
-            );
+        updateLoadingProgress(percentage, message) {
+          this.state.loadingProgress = percentage;
+          
+          const loadingText = document.querySelector('.loading-text');
+          if (loadingText) {
+            loadingText.textContent = `${message} (${percentage}%)`;
           }
-        } catch (error) {
-          console.error('Failed to initialize game:', error);
+        },
 
-          // Show error message to user
+        showInitializationSuccess() {
+          if (this.state.environment === 'development') {
+            console.log('🎉 Game initialization completed successfully');
+          }
+          
+          // Show a brief success message
+          const loadingText = document.querySelector('.loading-text');
+          if (loadingText) {
+            loadingText.textContent = '載入完成！';
+            loadingText.style.color = '#27ae60';
+            
+            setTimeout(() => {
+              this.hideLoadingState();
+            }, 500);
+          }
+        },
+
+        handleInitializationError(error) {
           const loadingText = document.querySelector('.loading-text');
           if (loadingText) {
             loadingText.textContent = '載入失敗，請重新整理頁面';
             loadingText.style.color = '#e74c3c';
           }
 
-          // Try to provide fallback functionality
+          // Try to provide basic fallback after a delay
           setTimeout(() => {
-            setupBasicFallback();
+            this.setupBasicFallback();
           }, 2000);
-        }
-      }
+        },
 
-      // Setup game components after modules are loaded
-      function setupGameComponents() {
-        // Verify critical components are available
-        const criticalComponents = [
-          'LineDetector',
-          'ProbabilityCalculator',
-          'GameBoard',
-          'GameEngine'
-        ];
-        const missingComponents = criticalComponents.filter(
-          component => typeof window[component] === 'undefined'
-        );
-
-        if (missingComponents.length > 0) {
-          console.warn('Missing components:', missingComponents);
-          // Try to load missing components on demand
-          const componentFileMap = {
-            LineDetector: 'lineDetector.js',
-            ProbabilityCalculator: 'probabilityCalculator.js',
-            GameBoard: 'gameBoard.js',
-            GameEngine: 'gameEngine.js'
-          };
-
-          missingComponents.forEach(component => {
-            const modulePath = componentFileMap[component];
-            if (modulePath) {
-              window.scriptLoader.loadOnDemand(modulePath).catch(error => {
-                console.error(`Failed to load ${component}:`, error);
-              });
-            }
-          });
-        }
-
-        // Setup algorithm selection
-        setupAlgorithmSelection();
-
-        // Setup start button
-        setupStartButton();
-
-        // Setup other UI components
-        setupUIComponents();
-      }
-
-      // Setup basic fallback functionality
-      function setupBasicFallback() {
-        console.log('Setting up basic fallback functionality');
-
-        // Check if game is already working
-        if (typeof startNewGame === 'function') {
-          console.log('Game already initialized, skipping fallback');
-          return;
-        }
-
-        // Provide minimal game functionality only if needed
-        const startButton = document.getElementById('start-game');
-        if (startButton) {
-          // Check if button already has event listeners
-          const existingListeners =
-            startButton.onclick || startButton.addEventListener;
-          if (!existingListeners) {
-            startButton.addEventListener('click', function () {
+        setupBasicFallback() {
+          console.log('Setting up basic fallback functionality');
+          
+          const startButton = document.getElementById('start-game');
+          if (startButton && !startButton.onclick) {
+            startButton.addEventListener('click', () => {
               alert('遊戲載入失敗，請重新整理頁面後再試');
             });
           }
+        },
+
+        // Algorithm UI Management
+        markAlgorithmsAsLoading() {
+          const enhancedOption = document.querySelector('.algorithm-option[data-algorithm="enhanced"]');
+          const aiOption = document.querySelector('.algorithm-option[data-algorithm="ai-learning"]');
+
+          if (enhancedOption) {
+            this.setAlgorithmState(enhancedOption, 'loading', '正在載入增強版演算法...');
+          }
+
+          if (aiOption) {
+            this.setAlgorithmState(aiOption, 'loading', '正在載入 AI 學習演算法...');
+          }
+        },
+
+        showAlgorithmLoading(optionElement, algorithm) {
+          const messages = {
+            'enhanced': '正在載入增強版演算法...',
+            'ai-learning': '正在載入 AI 學習演算法...',
+            'standard': '切換到標準演算法'
+          };
+          
+          this.setAlgorithmState(optionElement, 'loading', messages[algorithm] || '載入中...');
+        },
+
+        showAlgorithmLoaded(optionElement, algorithm) {
+          const messages = {
+            'enhanced': '增強版演算法已載入',
+            'ai-learning': 'AI 學習演算法已載入',
+            'standard': '標準演算法'
+          };
+          
+          this.setAlgorithmState(optionElement, 'loaded', messages[algorithm] || '已載入');
+        },
+
+        showAlgorithmError(optionElement, error) {
+          this.setAlgorithmState(optionElement, 'error', '載入失敗');
+        },
+
+        setAlgorithmState(optionElement, state, message) {
+          const stateStyles = {
+            loading: { opacity: '0.5', cursor: 'wait' },
+            loaded: { opacity: '1', cursor: 'pointer' },
+            error: { opacity: '0.5', cursor: 'not-allowed' }
+          };
+
+          const style = stateStyles[state] || stateStyles.loaded;
+          
+          optionElement.style.opacity = style.opacity;
+          optionElement.style.cursor = style.cursor;
+          optionElement.title = message;
+        },
+
+        updateAlgorithmSelection(algorithm) {
+          const algorithmOptions = document.querySelectorAll('.algorithm-option');
+          algorithmOptions.forEach(opt => opt.classList.remove('selected'));
+
+          const selectedOption = document.querySelector(`.algorithm-option[data-algorithm="${algorithm}"]`);
+          if (selectedOption) {
+            selectedOption.classList.add('selected');
+          }
+
+          // Update current algorithm display
+          const currentAlgorithmName = document.getElementById('current-algorithm-name');
+          if (currentAlgorithmName) {
+            const algorithmNames = {
+              'standard': '標準演算法',
+              'enhanced': '增強演算法',
+              'ai-learning': 'AI 學習演算法'
+            };
+            currentAlgorithmName.textContent = algorithmNames[algorithm] || algorithm;
+            currentAlgorithmName.setAttribute('data-algorithm', algorithm);
+          }
+        },
+
+        handleLanguageChange(languageData) {
+          // Update UI elements for language change
+          this.updateAlgorithmSelection(this.state.currentAlgorithm);
         }
-      }
+      };
 
-      // Setup start button functionality
-      function setupStartButton() {
-        const startButton = document.getElementById('start-game');
-        if (startButton) {
-          startButton.addEventListener('click', function () {
-            if (typeof startNewGame === 'function') {
-              startNewGame();
-            } else {
-              console.error('startNewGame function not available');
-              // Try to load script.js on demand
-              window.scriptLoader
-                .loadOnDemand('script.js')
-                .then(() => {
-                  if (typeof startNewGame === 'function') {
-                    startNewGame();
-                  } else {
-                    alert('遊戲啟動失敗：找不到 startNewGame 函數');
-                  }
-                })
-                .catch(error => {
-                  console.error('Failed to load script.js:', error);
-                  alert('遊戲啟動失敗：無法載入遊戲腳本');
-                });
-            }
-          });
-        }
-      }
-
-      // Setup algorithm selection with enhanced loading
-      function setupAlgorithmSelection() {
-        const algorithmOptions = document.querySelectorAll('.algorithm-option');
-
-        algorithmOptions.forEach(option => {
-          option.addEventListener('click', function () {
-            const algorithm = this.getAttribute('data-algorithm');
-
-            if (algorithm === currentAlgorithm) {
-              return;
-            }
-
-            // Check if enhanced algorithm needs to be loaded
-            if (
-              algorithm === 'enhanced' &&
-              typeof EnhancedProbabilityCalculator === 'undefined'
-            ) {
-              // Load enhanced algorithm on demand
-              this.style.opacity = '0.5';
-              this.style.cursor = 'wait';
-              this.title = '正在載入增強版演算法...';
-
-              window.scriptLoader
-                .loadOnDemand('probabilityCalculator.enhanced.js')
-                .then(() => {
-                  this.style.opacity = '1';
-                  this.style.cursor = 'pointer';
-                  this.title = '點擊切換到增強版演算法';
-
-                  // Now switch to the algorithm
-                  switchAlgorithm(algorithm);
-                  updateAlgorithmSelection(algorithm);
-                })
-                .catch(error => {
-                  console.error('Failed to load enhanced algorithm:', error);
-                  this.style.opacity = '0.5';
-                  this.style.cursor = 'not-allowed';
-                  this.title = '增強版演算法載入失敗';
-                });
-              return;
-            }
-
-            // Check if AI learning algorithm needs to be loaded
-            if (
-              algorithm === 'ai-learning' &&
-              typeof AILearningSystem === 'undefined'
-            ) {
-              this.style.opacity = '0.5';
-              this.style.cursor = 'wait';
-              this.title = '正在載入 AI 學習演算法...';
-
-              window.scriptLoader
-                .loadOnDemand('aiLearningSystem.js')
-                .then(() => {
-                  this.style.opacity = '1';
-                  this.style.cursor = 'pointer';
-                  this.title = '點擊切換到 AI 學習演算法';
-
-                  switchAlgorithm(algorithm);
-                  updateAlgorithmSelection(algorithm);
-                })
-                .catch(error => {
-                  console.error('Failed to load AI learning algorithm:', error);
-                  this.style.opacity = '0.5';
-                  this.style.cursor = 'not-allowed';
-                  this.title = 'AI 學習演算法載入失敗';
-                });
-              return;
-            }
-
-            // Switch algorithm if already loaded
-            switchAlgorithm(algorithm);
-            updateAlgorithmSelection(algorithm);
-          });
+      // Initialize when DOM is ready
+      document.addEventListener('DOMContentLoaded', () => {
+        BingoApp.initialize().catch(error => {
+          console.error('Critical initialization failure:', error);
         });
+      });
 
-        // Initially disable enhanced algorithms until loaded
-        disableAlgorithmSelection();
-      }
-
-      // Update algorithm selection UI
-      function updateAlgorithmSelection(algorithm) {
-        const algorithmOptions = document.querySelectorAll('.algorithm-option');
-        algorithmOptions.forEach(opt => opt.classList.remove('selected'));
-
-        const selectedOption = document.querySelector(
-          `.algorithm-option[data-algorithm="${algorithm}"]`
-        );
-        if (selectedOption) {
-          selectedOption.classList.add('selected');
-        }
-      }
-
-      // Disable algorithm selection initially
-      function disableAlgorithmSelection() {
-        const enhancedOption = document.querySelector(
-          '.algorithm-option[data-algorithm="enhanced"]'
-        );
-        if (enhancedOption) {
-          enhancedOption.style.opacity = '0.5';
-          enhancedOption.style.cursor = 'not-allowed';
-          enhancedOption.title = '正在載入增強版演算法...';
-        }
-
-        const aiOption = document.querySelector(
-          '.algorithm-option[data-algorithm="ai-learning"]'
-        );
-        if (aiOption) {
-          aiOption.style.opacity = '0.5';
-          aiOption.style.cursor = 'not-allowed';
-          aiOption.title = '正在載入 AI 學習演算法...';
-        }
-      }
-
-      // Enable algorithm selection when loaded
-      function enableAlgorithmSelection() {
-        const enhancedOption = document.querySelector(
+      // Expose BingoApp globally for debugging (development only)
+      if (window.Environment && window.Environment.isDevelopment()) {
+        window.BingoApp = BingoApp;
+      }nhancedOption = document.querySelector(
           '.algorithm-option[data-algorithm="enhanced"]'
         );
         if (
