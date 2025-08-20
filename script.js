@@ -29,13 +29,9 @@
     return global[name] || BingoGame.modules[name] || fallback;
   };
 
-  // 安全的依賴獲取
+  // 安全的依賴獲取 - 使用 lazy evaluation
   const SafeDOM = getDependency('SafeDOM');
   const scriptLogger = getDependency('logger') || global.logger;
-  const LineDetector = getDependency('LineDetector');
-  const ProbabilityCalculator = getDependency('ProbabilityCalculator');
-  const GameBoard = getDependency('GameBoard');
-  const GameEngine = getDependency('GameEngine');
 
   // ============================================================================
   // 遊戲常數定義
@@ -409,6 +405,7 @@
             updateLoadingProgress(40, '正在載入機率計算器...');
 
             // Save reference to standard algorithm and check availability
+            const ProbabilityCalculator = getDependency('ProbabilityCalculator');
             if (typeof ProbabilityCalculator === 'function') {
               StandardProbabilityCalculator = ProbabilityCalculator;
               probabilityCalculator = new ProbabilityCalculator();

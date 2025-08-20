@@ -536,6 +536,10 @@ class BaseProbabilityCalculator {
 // Export for both Node.js and browser environments
 if (typeof module !== 'undefined' && module.exports) {
   module.exports = BaseProbabilityCalculator;
+  // Also export to global/window if available for testing
+  if (typeof global !== 'undefined' && global.window) {
+    global.window.BaseProbabilityCalculator = BaseProbabilityCalculator;
+  }
 } else if (typeof window !== 'undefined') {
   // Only assign if not already defined to prevent redeclaration
   if (!window.BaseProbabilityCalculator) {
