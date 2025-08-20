@@ -691,11 +691,14 @@
     <!-- 直接載入核心組件 -->
     <script src="./safe-dom.js"></script>
     <script src="./production-logger.js"></script>
+    <script src="./security-utils.js"></script>
+    <script src="./loading-functions.js"></script>
     <script src="./utils/common.js"></script>
     <script src="./utils/baseProbabilityCalculator.js"></script>
     <script src="./lineDetector.js"></script>
     <script src="./probabilityCalculator.js"></script>
     <script src="./gameBoard.js"></script>
+    <script src="./aiLearningSystem.js"></script>
     <script src="./gameEngine.js"></script>
     <script src="./script.js"></script>
 
@@ -732,7 +735,7 @@
 
       // DOM 載入完成後初始化
       document.addEventListener('DOMContentLoaded', () => {
-        initializeGame().catch(error => {
+        try { if (typeof initializeGameWithProgressiveLoading === "function") { initializeGameWithProgressiveLoading(); } else { console.warn("initializeGameWithProgressiveLoading not found, using fallback"); setupBasicFallback(); } } catch (error) {
           console.error('Game initialization failed:', error);
           setupBasicFallback();
         });

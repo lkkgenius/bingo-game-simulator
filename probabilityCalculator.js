@@ -64,15 +64,15 @@ class LRUCache {
 }
 
 /**
- * EnhancedProbabilityCalculator - 增強版機率計算器
+ * ProbabilityCalculator - 增強版機率計算器
  * 專注於最大化完成三條連線的機會，使用交叉點優先策略和接近完成的線優先處理
  * 優化版本：實作更高效的緩存策略和延遲計算機制
  *
- * @class EnhancedProbabilityCalculator
+ * @class ProbabilityCalculator
  * @extends BaseProbabilityCalculator
  * @version 1.0.0
  */
-class EnhancedProbabilityCalculator extends BaseProbabilityCalculator {
+class ProbabilityCalculator extends BaseProbabilityCalculator {
   constructor() {
     // Initialize with enhanced algorithm weights
     super(EnhancedCONSTANTS.ALGORITHM_WEIGHTS.ENHANCED);
@@ -430,12 +430,12 @@ class EnhancedProbabilityCalculator extends BaseProbabilityCalculator {
 
   // Export for both Node.js and browser environments
   if (typeof module !== 'undefined' && module.exports) {
-    module.exports = EnhancedProbabilityCalculator;
+    module.exports = ProbabilityCalculator;
   }
 
   // In browser environment, add to global scope
   if (typeof window !== 'undefined') {
-    window.EnhancedProbabilityCalculator = EnhancedProbabilityCalculator;
+    window.ProbabilityCalculator = ProbabilityCalculator;
   }
 
 })(); // End of IIFE
