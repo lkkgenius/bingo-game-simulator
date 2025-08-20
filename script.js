@@ -291,12 +291,6 @@
   document.addEventListener('DOMContentLoaded', function () {
     if (scriptLogger) scriptLogger.info('DOM loaded, initializing game...');
 
-    // 檢查瀏覽器兼容性
-    const compatibility = initializeCompatibilityCheck();
-
-    // 初始化漸進式載入
-    initializeProgressiveLoading();
-
     // Show loading state
     try {
       showGlobalLoading('正在檢查系統兼容性...');
@@ -314,12 +308,16 @@
         console.error('Failed to initialize game:', error);
         try {
           hideGlobalLoading();
-          showErrorModal('遊戲初始化失敗', error.message, {
-            showRetry: true,
-            onRetry: () => {
-              location.reload();
-            }
-          });
+          if (typeof showErrorModal === 'function') {
+            showErrorModal('遊戲初始化失敗', error.message, {
+              showRetry: true,
+              onRetry: () => {
+                location.reload();
+              }
+            });
+          } else {
+            alert('遊戲初始化失敗：' + error.message);
+          }
         } catch (modalError) {
           console.error('Error showing error modal:', modalError);
           alert('遊戲初始化失敗：' + error.message);
