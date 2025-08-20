@@ -903,6 +903,30 @@ class GameEngine {
     }
     return this.gameState.board[row][col] === this.CELL_STATES.EMPTY;
   }
+
+  /**
+   * 檢查遊戲是否已開始
+   * @returns {boolean} 遊戲是否已開始
+   */
+  get gameStarted() {
+    return this.gameState && this.gameState.gameStarted;
+  }
+
+  /**
+   * 檢查遊戲是否已結束
+   * @returns {boolean} 遊戲是否已結束
+   */
+  get gameEnded() {
+    return this.gameState && this.gameState.gameEnded;
+  }
+
+  /**
+   * 獲取當前遊戲階段
+   * @returns {string} 當前遊戲階段
+   */
+  get gamePhase() {
+    return this.gameState ? this.gameState.gamePhase : this.GAME_PHASES.WAITING_START;
+  }
 }
 
 // 如果在Node.js環境中，導出模組
