@@ -3,10 +3,8 @@
   "description": "當檔案變更時，自動運行測試，如果測試通過則提交並推送變更",
   "triggers": [
     {
-      "type": "file",
-      "events": ["save"],
-      "patterns": ["*.js", "*.html", "*.css"],
-      "excludePatterns": ["*.test.js"]
+      "type": "manual",
+      "label": "測試並提交變更"
     }
   ],
   "actions": [
@@ -17,7 +15,7 @@
     }
   ],
   "options": {
-    "debounceMs": 1000,
+    "debounceMs": 5000,
     "requireConfirmation": true,
     "confirmationMessage": "檔案已修改，是否要運行測試並提交變更？"
   }

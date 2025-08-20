@@ -39,8 +39,19 @@
         }
     </script>
 
-    <script src="./probabilityCalculator.js"></script>
     <script>
+        log('Before loading probabilityCalculator.js:');
+        log('window.BaseProbabilityCalculator available: ' + (typeof window.BaseProbabilityCalculator !== 'undefined'));
+        log('window.CONSTANTS available: ' + (typeof window.CONSTANTS !== 'undefined'));
+    </script>
+    
+    <script src="./probabilityCalculator.js"></script>
+    
+    <script>
+        log('After loading probabilityCalculator.js:');
+        log('window.ProbabilityCalculator type: ' + typeof window.ProbabilityCalculator);
+        log('window keys: ' + Object.keys(window).filter(k => k.includes('Prob')).join(', '));
+        
         if (typeof window.ProbabilityCalculator !== 'undefined') {
             log('✓ ProbabilityCalculator loaded');
             

@@ -1,5 +1,5 @@
 {
-  "enabled": true,
+  "enabled": false,
   "name": "Test and Commit Changes",
   "description": "Automatically runs tests when files are changed, and if tests pass, commits and pushes the changes to git",
   "version": "1",

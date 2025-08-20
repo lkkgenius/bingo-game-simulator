@@ -5,11 +5,6 @@
     {
       "type": "manual",
       "label": "檢查未提交檔案"
-    },
-    {
-      "type": "file",
-      "events": ["save"],
-      "patterns": ["*.js", "*.html", "*.css", "*.md"]
     }
   ],
   "actions": [
@@ -19,7 +14,7 @@
     }
   ],
   "options": {
-    "debounceMs": 2000,
+    "debounceMs": 5000,
     "requireConfirmation": true,
     "confirmationMessage": "要檢查未提交的檔案嗎？"
   }
