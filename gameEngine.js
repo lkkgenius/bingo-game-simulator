@@ -79,7 +79,13 @@ class GameEngine {
     this.lineDetector = new (LineDetectorClass || LineDetector)(); // 連線檢測器
     this.probabilityCalculator = new (ProbabilityCalculatorClass ||
       ProbabilityCalculator)(); // 機率計算器
-    this.aiLearningSystem = new (AILearningSystemClass || AILearningSystem)();
+    // Initialize AI Learning System only if available
+    if (AILearningSystemClass || (typeof AILearningSystem !== 'undefined')) {
+      this.aiLearningSystem = new (AILearningSystemClass || AILearningSystem)();
+    } else {
+      this.aiLearningSystem = null;
+      console.warn('AILearningSystem not available, continuing without AI learning features');
+    }
     this.gameBoard = null; // 將由外部設置
 
     // AI 學習系統配置
@@ -760,7 +766,7 @@ class GameEngine {
    * 重置AI學習數據
    */
   resetAILearning() {
-    if (this.aiLearningSystem) {
+    if (this.aiLearningSystem && (typeof AILearningSystem !== 'undefined')) {
       this.aiLearningSystem = new AILearningSystem();
       if (logger) {
         logger.info('AI學習數據已重置');
