@@ -859,6 +859,48 @@ class GameEngine {
       }
     }
   }
+
+  /**
+   * 獲取當前遊戲狀態
+   * @returns {Object} 當前遊戲狀態的副本
+   */
+  getState() {
+    return {
+      board: this.gameState.board.map(row => [...row]), // 深拷貝遊戲板
+      currentRound: this.gameState.currentRound,
+      maxRounds: this.MAX_ROUNDS,
+      gamePhase: this.gameState.gamePhase,
+      playerMoves: [...this.gameState.playerMoves], // 拷貝移動記錄
+      computerMoves: [...this.gameState.computerMoves],
+      completedLines: [...this.gameState.completedLines],
+      isGameComplete: this.gameState.isGameComplete,
+      lastSuggestion: this.gameState.lastSuggestion,
+      boardSize: this.BOARD_SIZE
+    };
+  }
+
+  /**
+   * 檢查位置是否有效
+   * @param {number} row - 行索引
+   * @param {number} col - 列索引
+   * @returns {boolean} 位置是否有效
+   */
+  isValidPosition(row, col) {
+    return row >= 0 && row < this.BOARD_SIZE && col >= 0 && col < this.BOARD_SIZE;
+  }
+
+  /**
+   * 檢查格子是否為空
+   * @param {number} row - 行索引
+   * @param {number} col - 列索引
+   * @returns {boolean} 格子是否為空
+   */
+  isCellEmpty(row, col) {
+    if (!this.isValidPosition(row, col)) {
+      return false;
+    }
+    return this.gameState.board[row][col] === this.CELL_STATES.EMPTY;
+  }
 }
 
 // 如果在Node.js環境中，導出模組
