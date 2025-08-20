@@ -377,6 +377,7 @@
         showGlobalLoading('正在初始化遊戲狀態...');
         updateLoadingProgress(10, '正在初始化遊戲狀態...');
 
+        const GameEngine = getDependency('GameEngine');
         if (typeof GameEngine === 'function') {
           gameState = new GameEngine();
         } else {
@@ -396,6 +397,7 @@
           showGlobalLoading('正在載入連線檢測器...');
           updateLoadingProgress(25, '正在載入連線檢測器...');
 
+          const LineDetector = getDependency('LineDetector');
           lineDetector = new LineDetector();
           progressiveLoader.markComponentLoaded('LineDetector');
 
@@ -604,6 +606,11 @@
       if (scriptLogger) scriptLogger.info('Starting game initialization...');
 
       // Initialize game components
+      const GameEngine = getDependency('GameEngine');
+      const GameBoard = getDependency('GameBoard');
+      const LineDetector = getDependency('LineDetector');
+      const ProbabilityCalculator = getDependency('ProbabilityCalculator');
+      
       if (typeof GameEngine === 'function') {
         gameState = new GameEngine();
       } else {
@@ -1541,6 +1548,7 @@
         console.log('Initializing probability calculator...');
 
         // Check if ProbabilityCalculator is available
+        const ProbabilityCalculator = getDependency('ProbabilityCalculator');
         if (typeof ProbabilityCalculator === 'undefined') {
           console.error('ProbabilityCalculator class not found');
           throw new Error('ProbabilityCalculator class not available');
