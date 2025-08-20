@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Quick Dependency Test</title>
+</head>
+<body>
+    <h1>Quick Dependency Test</h1>
+    <div id="results"></div>
+
+    <script src="./safe-dom.js"></script>
+    <script src="./production-logger.js"></script>
+    <script src="./security-utils.js"></script>
+    <script src="./utils/common.js"></script>
+    <script src="./utils/baseProbabilityCalculator.js"></script>
+    <script src="./loading-functions.js"></script>
+    <script src="./lineDetector.js"></script>
+    <script src="./probabilityCalculator.js"></script>
+    <script src="./gameBoard.js"></script>
+    <script src="./gameEngine.js"></script>
+
+    <script>
+        const results = document.getElementById('results');
+        
+        function log(message, isError = false) {
+            const div = document.createElement('div');
+            div.textContent = message;
+            div.style.color = isError ? 'red' : 'green';
+            div.style.margin = '5px 0';
+            results.appendChild(div);
+        }
+
+        // Test all dependencies
+        const dependencies = [
+            'SafeDOM',
+            'logger',
+            'SecurityUtils',
+            'CONSTANTS',
+            'Utils',
+            'BaseProbabilityCalculator',
+            'showGlobalLoading',
+            'hideGlobalLoading',
+            'updateLoadingProgress',
+            'progressiveLoader',
+            'debounce',
+            'throttle',
+            'LineDetector',
+            'ProbabilityCalculator',
+            'GameBoard',
+            'GameEngine'
+        ];
+
+        log('Testing dependencies...');
+        
+        dependencies.forEach(dep => {
+            if (typeof window[dep] !== 'undefined') {
+                log(`✓ ${dep} is available`);
+            } else {
+                log(`✗ ${dep} is NOT available`, true);
+            }
+        });
+
+        // Test ProbabilityCalculator instantiation
+        try {
+            const calc = new ProbabilityCalculator();
+            log('✓ ProbabilityCalculator instance created successfully');
+        } catch (error) {
+            log('✗ Failed to create ProbabilityCalculator: ' + error.message, true);
+        }
+
+        // Test GameEngine instantiation
+        try {
+            const engine = new GameEngine();
+            log('✓ GameEngine instance created successfully');
+        } catch (error) {
+            log('✗ Failed to create GameEngine: ' + error.message, true);
+        }
+    </script>
+</body>
+</html>
