@@ -42,7 +42,7 @@ gameEngine.CELL_STATES = {
 gameEngine.GAME_PHASES = {
   WAITING_START: 'waiting-start', // 等待開始
   PLAYER_TURN: 'player-turn', // 玩家回合
-  COMPUTER_INPUT: 'computer-input', // 電腦輸入
+  COMPUTER_TURN: 'computer-turn', // 電腦回合（等待輸入）
   GAME_OVER: 'game-over' // 遊戲結束
 };
 ```

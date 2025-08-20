@@ -279,7 +279,7 @@ class SecurityUtils {
     const validPhases = [
       'waiting-start',
       'player-turn',
-      'computer-input',
+      'computer-turn',
       'game-over'
     ];
     if (!validPhases.includes(gameState.gamePhase)) {

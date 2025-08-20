@@ -58,7 +58,7 @@ class GameEngine {
     this.GAME_PHASES = {
       WAITING_START: 'waiting-start', // 等待遊戲開始
       PLAYER_TURN: 'player-turn', // 玩家回合
-      COMPUTER_INPUT: 'computer-input', // 等待電腦輸入
+      COMPUTER_TURN: 'computer-turn', // 電腦回合（等待輸入）
       GAME_OVER: 'game-over' // 遊戲結束
     };
 
@@ -213,7 +213,7 @@ class GameEngine {
     this.updateCompletedLines();
 
     // 轉換到電腦輸入階段
-    this.gameState.gamePhase = this.GAME_PHASES.COMPUTER_INPUT;
+    this.gameState.gamePhase = this.GAME_PHASES.COMPUTER_TURN;
 
     if (logger) {
       logger.info(`玩家選擇了位置 (${row}, ${col})`);
@@ -232,7 +232,7 @@ class GameEngine {
   processComputerTurn(row, col) {
     try {
       // 驗證當前階段
-      if (this.gameState.gamePhase !== this.GAME_PHASES.COMPUTER_INPUT) {
+      if (this.gameState.gamePhase !== this.GAME_PHASES.COMPUTER_TURN) {
         throw new Error('現在不是電腦輸入階段');
       }
 
@@ -638,7 +638,7 @@ class GameEngine {
    */
   canInputComputerMove() {
     return (
-      this.gameState.gamePhase === this.GAME_PHASES.COMPUTER_INPUT &&
+      this.gameState.gamePhase === this.GAME_PHASES.COMPUTER_TURN &&
       !this.gameState.isGameComplete
     );
   }
@@ -960,7 +960,7 @@ class GameEngine {
       });
 
       // 切換到電腦回合
-      this.gameState.gamePhase = this.GAME_PHASES.COMPUTER_INPUT;
+      this.gameState.gamePhase = this.GAME_PHASES.COMPUTER_TURN;
 
       return true;
     } catch (error) {

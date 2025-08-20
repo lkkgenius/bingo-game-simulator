@@ -30,7 +30,7 @@ describe('GameEngine', () => {
 
     const board = engine.getBoardCopy();
     expect(board[2][2]).toBe(1); // 1 表示玩家
-    expect(engine.getCurrentPhase()).toBe('computer-input');
+    expect(engine.getCurrentPhase()).toBe('computer-turn');
   });
 
   test('should reject invalid player moves', () => {

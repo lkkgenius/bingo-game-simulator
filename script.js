@@ -2389,15 +2389,19 @@
         let phaseText = '';
         switch (state.gamePhase) {
           case GAME_PHASES.WAITING:
+          case 'waiting-start': // GameEngine 使用的值
             phaseText = '等待開始';
             break;
           case GAME_PHASES.PLAYER_TURN:
+          case 'player-turn': // GameEngine 使用的值
             phaseText = '玩家回合';
             break;
           case GAME_PHASES.COMPUTER_TURN:
+          case 'computer-turn': // GameEngine 使用的值
             phaseText = '電腦回合';
             break;
           case GAME_PHASES.GAME_OVER:
+          case 'game-over': // GameEngine 使用的值
             phaseText = '遊戲結束';
             break;
           default:

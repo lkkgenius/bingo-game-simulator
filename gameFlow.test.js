@@ -103,7 +103,7 @@ describe('Game Flow Integration', () => {
 
     // 玩家移動後應該轉到電腦輸入階段
     engine.processPlayerTurn(0, 0);
-    expect(engine.getCurrentPhase()).toBe('computer-input');
+    expect(engine.getCurrentPhase()).toBe('computer-turn');
 
     // 電腦移動後應該回到玩家回合
     engine.processComputerTurn(1, 1);
