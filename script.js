@@ -431,7 +431,8 @@
                 showGlobalLoading('正在載入增強演算法...');
                 updateLoadingProgress(70, '正在載入增強演算法...');
 
-                loadEnhancedAlgorithmAsync()
+                // Temporarily disable enhanced algorithm loading
+                Promise.resolve()
                   .then(() => {
                     progressiveLoader.markComponentLoaded('Enhanced Algorithm');
 

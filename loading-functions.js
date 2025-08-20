@@ -589,6 +589,11 @@ class ProgressiveLoader {
 // 創建全局漸進式載入管理器
 const progressiveLoader = new ProgressiveLoader();
 
+// 導出到全局
+if (typeof window !== 'undefined') {
+  window.progressiveLoader = progressiveLoader;
+}
+
 // updateLoadingProgress function is already defined above
 
 /**
