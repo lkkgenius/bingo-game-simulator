@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dependency Test</title>
+</head>
+<body>
+    <h1>Dependency Loading Test</h1>
+    <div id="results"></div>
+
+    <script src="./safe-dom.js"></script>
+    <script src="./production-logger.js"></script>
+    <script src="./utils/common.js"></script>
+    <script src="./utils/baseProbabilityCalculator.js"></script>
+    <script src="./probabilityCalculator.js"></script>
+
+    <script>
+        const results = document.getElementById('results');
+        
+        function log(message, isError = false) {
+            const div = document.createElement('div');
+            div.textContent = message;
+            div.style.color = isError ? 'red' : 'green';
+            results.appendChild(div);
+        }
+
+        // Test dependency loading
+        log('Testing dependency loading...');
+        
+        // Check if BaseProbabilityCalculator is available
+        if (typeof window.BaseProbabilityCalculator !== 'undefined') {
+            log('✓ BaseProbabilityCalculator is available');
+        } else {
+            log('✗ BaseProbabilityCalculator is NOT available', true);
+        }
+
+        // Check if ProbabilityCalculator is available
+        if (typeof window.ProbabilityCalculator !== 'undefined') {
+            log('✓ ProbabilityCalculator is available');
+        } else {
+            log('✗ ProbabilityCalculator is NOT available', true);
+        }
+
+        // Try to create an instance
+        try {
+            const calc = new window.ProbabilityCalculator();
+            log('✓ ProbabilityCalculator instance created successfully');
+        } catch (error) {
+            log('✗ Failed to create ProbabilityCalculator instance: ' + error.message, true);
+        }
+
+        // Check other dependencies
+        if (typeof window.CONSTANTS !== 'undefined') {
+            log('✓ CONSTANTS is available');
+        } else {
+            log('✗ CONSTANTS is NOT available', true);
+        }
+
+        if (typeof window.Utils !== 'undefined') {
+            log('✓ Utils is available');
+        } else {
+            log('✗ Utils is NOT available', true);
+        }
+    </script>
+</body>
+</html>
