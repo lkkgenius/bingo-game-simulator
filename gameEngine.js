@@ -137,6 +137,8 @@ class GameEngine {
       computerMoves: [],
       completedLines: [],
       isGameComplete: false,
+      gameStarted: true,
+      gameEnded: false,
       lastSuggestion: null
     };
 

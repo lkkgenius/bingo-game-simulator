@@ -1614,13 +1614,18 @@
         suggestionDisplay.classList.add('loading');
       }
 
-      // 使用性能監控測量算法執行時間
-      const suggestion = performanceMonitor.measureAlgorithmPerformance(
-        'suggestion-calculation',
-        () => {
-          return probabilityCalculator.getBestSuggestion(currentBoard);
-        }
-      );
+      // 使用性能監控測量算法執行時間（如果可用）
+      let suggestion;
+      if (typeof performanceMonitor !== 'undefined' && performanceMonitor.measureAlgorithmPerformance) {
+        suggestion = performanceMonitor.measureAlgorithmPerformance(
+          'suggestion-calculation',
+          () => {
+            return probabilityCalculator.getBestSuggestion(currentBoard);
+          }
+        );
+      } else {
+        suggestion = probabilityCalculator.getBestSuggestion(currentBoard);
+      }
 
       // 移除載入狀態
       if (suggestionDisplay) {
@@ -1645,17 +1650,25 @@
           return;
         }
 
-        // 使用性能監控測量渲染時間
-        performanceMonitor.measureRenderPerformance(
-          'suggestion-highlight',
-          () => {
-            gameBoard.highlightSuggestion(suggestion.row, suggestion.col, {
-              confidence: suggestion.confidence,
-              value: suggestion.value,
-              alternatives: suggestion.alternatives
-            });
-          }
-        );
+        // 使用性能監控測量渲染時間（如果可用）
+        if (typeof performanceMonitor !== 'undefined' && performanceMonitor.measureRenderPerformance) {
+          performanceMonitor.measureRenderPerformance(
+            'suggestion-highlight',
+            () => {
+              gameBoard.highlightSuggestion(suggestion.row, suggestion.col, {
+                confidence: suggestion.confidence,
+                value: suggestion.value,
+                alternatives: suggestion.alternatives
+              });
+            }
+          );
+        } else {
+          gameBoard.highlightSuggestion(suggestion.row, suggestion.col, {
+            confidence: suggestion.confidence,
+            value: suggestion.value,
+            alternatives: suggestion.alternatives
+          });
+        }
 
         // 更新建議顯示區域
         updateSuggestionDisplay(suggestion);
