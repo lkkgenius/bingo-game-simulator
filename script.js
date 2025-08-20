@@ -1307,9 +1307,36 @@
     }
   }
 
-  // debounce function is now imported from loading-functions.js
+  /**
+   * Simple debounce function for cell clicks
+   */
+  function debounce(func, wait, immediate) {
+    let timeout;
+    return function executedFunction(...args) {
+      const later = () => {
+        timeout = null;
+        if (!immediate) func(...args);
+      };
+      const callNow = immediate && !timeout;
+      clearTimeout(timeout);
+      timeout = setTimeout(later, wait);
+      if (callNow) func(...args);
+    };
+  }
 
-  // throttle function is now imported from loading-functions.js
+  /**
+   * Simple throttle function
+   */
+  function throttle(func, limit) {
+    let inThrottle;
+    return function (...args) {
+      if (!inThrottle) {
+        func.apply(this, args);
+        inThrottle = true;
+        setTimeout(() => (inThrottle = false), limit);
+      }
+    };
+  }
 
   /**
    * Handle cell click events from the game board (optimized with debouncing)
