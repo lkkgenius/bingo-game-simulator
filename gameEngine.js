@@ -927,6 +927,47 @@ class GameEngine {
   get gamePhase() {
     return this.gameState ? this.gameState.gamePhase : this.GAME_PHASES.WAITING_START;
   }
+
+  /**
+   * 執行玩家移動
+   * @param {number} row - 行索引
+   * @param {number} col - 列索引
+   * @returns {boolean} 移動是否成功
+   */
+  makePlayerMove(row, col) {
+    try {
+      // 檢查遊戲狀態
+      if (!this.gameState || !this.gameState.gameStarted || this.gameState.gameEnded) {
+        return false;
+      }
+
+      // 檢查是否為玩家回合
+      if (this.gameState.gamePhase !== this.GAME_PHASES.PLAYER_TURN) {
+        return false;
+      }
+
+      // 檢查位置是否有效且為空
+      if (!this.isValidPosition(row, col) || !this.isCellEmpty(row, col)) {
+        return false;
+      }
+
+      // 執行移動
+      this.gameState.board[row][col] = this.CELL_STATES.PLAYER;
+      this.gameState.playerMoves.push({
+        row,
+        col,
+        round: this.gameState.currentRound
+      });
+
+      // 切換到電腦回合
+      this.gameState.gamePhase = this.GAME_PHASES.COMPUTER_INPUT;
+
+      return true;
+    } catch (error) {
+      console.error('Error making player move:', error);
+      return false;
+    }
+  }
 }
 
 // 如果在Node.js環境中，導出模組
