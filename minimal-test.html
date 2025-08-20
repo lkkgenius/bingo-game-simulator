@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Minimal Test</title>
+</head>
+<body>
+    <h1>Minimal Dependency Test</h1>
+    <div id="results"></div>
+
+    <script>
+        const results = document.getElementById('results');
+        
+        function log(message, isError = false) {
+            const div = document.createElement('div');
+            div.textContent = message;
+            div.style.color = isError ? 'red' : 'green';
+            div.style.margin = '5px 0';
+            results.appendChild(div);
+        }
+
+        log('Starting minimal test...');
+    </script>
+
+    <script src="./utils/common.js"></script>
+    <script>
+        if (typeof window.CONSTANTS !== 'undefined') {
+            log('✓ CONSTANTS loaded');
+        } else {
+            log('✗ CONSTANTS not loaded', true);
+        }
+    </script>
+
+    <script src="./utils/baseProbabilityCalculator.js"></script>
+    <script>
+        if (typeof window.BaseProbabilityCalculator !== 'undefined') {
+            log('✓ BaseProbabilityCalculator loaded');
+        } else {
+            log('✗ BaseProbabilityCalculator not loaded', true);
+        }
+    </script>
+
+    <script src="./probabilityCalculator.js"></script>
+    <script>
+        if (typeof window.ProbabilityCalculator !== 'undefined') {
+            log('✓ ProbabilityCalculator loaded');
+            
+            try {
+                const calc = new window.ProbabilityCalculator();
+                log('✓ ProbabilityCalculator instance created');
+            } catch (error) {
+                log('✗ Failed to create ProbabilityCalculator: ' + error.message, true);
+            }
+        } else {
+            log('✗ ProbabilityCalculator not loaded', true);
+        }
+    </script>
+</body>
+</html>
