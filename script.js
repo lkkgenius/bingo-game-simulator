@@ -421,6 +421,7 @@
               showGlobalLoading('正在初始化遊戲板...');
               updateLoadingProgress(55, '正在初始化遊戲板...');
 
+              const GameBoard = getDependency('GameBoard');
               gameBoard = new GameBoard('game-board');
               gameBoard.setClickHandler(handleCellClick);
               progressiveLoader.markComponentLoaded('GameBoard');
@@ -1307,22 +1308,7 @@
     }
   }
 
-  /**
-   * Simple debounce function for cell clicks
-   */
-  function debounce(func, wait, immediate) {
-    let timeout;
-    return function executedFunction(...args) {
-      const later = () => {
-        timeout = null;
-        if (!immediate) func.apply(this, args);
-      };
-      const callNow = immediate && !timeout;
-      clearTimeout(timeout);
-      timeout = setTimeout(later, wait);
-      if (callNow) func.apply(this, args);
-    };
-  }
+  // debounce function is now imported from loading-functions.js
 
   /**
    * Simple throttle function for preventing rapid calls
